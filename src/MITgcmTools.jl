@@ -6,6 +6,7 @@ include("BasicPlots.jl")
 include("FormatConversions.jl")
 include("ReadNCTiles.jl")
 
-export qwckplot, convert2array, convert2gcmfaces, read_bin, read_nctiles
+export qwckplot, convert2array, convert2gcmfaces, read_bin
+export read_nctiles, findtiles
 
 end # module
