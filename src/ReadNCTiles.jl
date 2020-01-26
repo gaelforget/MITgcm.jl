@@ -5,7 +5,7 @@
 
 Read model output from Netcdf / NCTiles file and convert to MeshArray instance.
 ```
-mygrid=GridSpec("LLC90")
+mygrid=GridSpec("LatLonCat")
 fileName="nctiles_grid/GRID"
 Depth=read_nctiles(fileName,"Depth",mygrid)
 hFacC=read_nctiles(fileName,"hFacC",mygrid)
@@ -13,7 +13,7 @@ hFacC=read_nctiles(fileName,"hFacC",mygrid)
 """
 function read_nctiles(fileName::String,fldName::String,mygrid::gcmgrid)
 
-if (mygrid.class!="llc")||(mygrid.ioSize!=[90 1170])
+if (mygrid.class!="LatLonCat")||(mygrid.ioSize!=[90 1170])
   error("non-llc90 cases not implemented yet");
 end;
 
