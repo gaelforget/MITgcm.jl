@@ -262,3 +262,67 @@ end
 function read_bin(tmp::Array,x::MeshArray)
   convert2gcmfaces(tmp,x.grid)
 end
+
+"""
+    parsemeta(metafile)
+
+Parse out an `MITgcm` metadata file and return a `Dict` of fields in the file.
+"""
+function parsemeta(metafile)
+
+    meta = read(metafile,String)
+    meta = split(meta,";\n")
+    meta = meta[isempty.(meta).==false]
+    meta = replace.(meta,Ref(",\n"=>";"))
+    meta = replace.(meta,Ref("\n"=>""))
+    meta = replace.(meta,Ref("}"=>"]"))
+    meta = replace.(meta,Ref("{"=>"["))
+    #meta = replace.(meta,Ref(" "=>""))
+    meta = replace.(meta,Ref("'"=>"\""))
+    meta = replace.(meta,Ref(";]"=>"]"))
+    meta = replace.(meta,Ref(","=>" "))
+
+    meta = split.(meta,"=")
+    meta = [[replace(x[1]," "=>"") x[2]] for x in meta]
+
+    metaDict = Dict{String,Any}(m[1] => m[2] for m in meta)
+
+    for k in keys(metaDict)
+        val = eval(Meta.parse(metaDict[k]))
+        if isa(val[1],String)
+            val = replace.(val,Ref(" "=>""))
+        end
+        if length(val) == 1
+            val = val[1]
+        end
+        metaDict[k] = val
+    end
+    metaDict["dataprec"] = titlecase(metaDict["dataprec"])
+    return metaDict
+
+end
+
+"""
+    readAvailDiagnosticsLog(fname,fldname)
+
+Get the information for a particular field from the `available_diagnostics.log`
+    file (`MITgcm` output).
+"""
+function readAvailDiagnosticsLog(fname,fldname)
+    availdiags = readlines(fname)
+    line = availdiags[findall(occursin.(@sprintf("%-8s",fldname),availdiags))[1]]
+
+    line = split(line,'|')
+    line = lstrip.(rstrip.(line))
+
+    diagInfo = Dict([
+    "diagNum" => parse(Int,line[1]),
+    "fldname" => line[2],
+    "levs" => parse(Int,line[3]),
+    "mate" => line[4],
+    "code" => line[5],
+    "units" => line[6],
+    "title" => line[7]
+    ])
+
+end
