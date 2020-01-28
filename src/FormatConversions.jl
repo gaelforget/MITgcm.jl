@@ -1,6 +1,4 @@
 
-#this file contains: read_bin, convert2array, convert2gcmfaces
-
 ## convert2array method:
 
 """
@@ -10,11 +8,11 @@ Convert MeshArray to Array (or vice versa otherwise)
 """
 function convert2array(fld::MeshArray)
 
-if fld.grid.class=="llc";
+if fld.grid.class=="LatLonCap";
     tmp1=cat(fld.f[1],fld.f[2],rotr90(fld.f[4]),rotr90(fld.f[5]);dims=1);
     tmp2=cat(rotl90(fld.f[3]),NaN*fld.f[3],NaN*fld.f[3],NaN*fld.f[3];dims=1);
     arr=cat(tmp1,tmp2;dims=2);
-elseif fld.grid.class=="cs";
+elseif fld.grid.class=="CubeSphere";
     tmp1=cat(fld.f[1],fld.f[2],rotr90(fld.f[4]),rotr90(fld.f[5]);dims=1);
     tmp2=cat(rotl90(fld.f[3]),NaN*fld.f[3],NaN*fld.f[3],NaN*fld.f[3];dims=1);
     tmp0=cat(NaN*fld.f[3],NaN*fld.f[3],NaN*fld.f[3],rotr90(fld.f[6]);dims=1);
@@ -40,14 +38,14 @@ facesSize=grid.fSize
 v1=Array{Array{T,N},1}(undef,nFaces);
 N>2 ? error("N>2 case not implemented yet") : nothing
 
-if grTopo=="llc";
+if grTopo=="LatLonCap";
     (n1,n2)=facesSize[1];
     v1[1]=fld[1:n1,1:n2];
     v1[2]=fld[n1+1:n1*2,1:n2];
     v1[3]=rotr90(fld[1:n1,n2+1:n2+n1]);
     v1[4]=rotl90(fld[n1*2+1:n1*3,1:n2]);
     v1[5]=rotl90(fld[n1*3+1:n1*4,1:n2]);
-elseif grTopo=="cs";
+elseif grTopo=="CubeSphere";
     (n1,n2)=facesSize[1];
     v1[1]=fld[1:n1,n1+1:n1+n2];
     v1[2]=fld[n1+1:2*n1,n1+1:n1+n2];
@@ -129,78 +127,4 @@ end
 
 MeshArray(grid,v1);
 
-end
-
-## read_bin function with full list of argument
-
-"""
-    read_bin(fil::String,kt::Union{Int,Missing},kk::Union{Int,Missing},prec::DataType,mygrid::gcmgrid)
-
-Read model output from binary file and convert to MeshArray. Other methods:
-
-```
-read_bin(fil::String,prec::DataType,mygrid::gcmgrid)
-read_bin(fil::String,mygrid::gcmgrid)
-```
-"""
-function read_bin(fil::String,kt::Union{Int,Missing},kk::Union{Int,Missing},prec::DataType,mygrid::gcmgrid)
-
-  if ~ismissing(kt);
-    error("non-empty kt option not implemented yet");
-  end;
-
-  if ~ismissing(kk);
-    error("non-empty kk option not implemented yet");
-  end;
-
-  (n1,n2)=mygrid.ioSize
-
-  if prec==Float64;
-    reclen=8;
-  else;
-    reclen=4;
-  end;
-  tmp1=stat(fil);
-  n3=Int64(tmp1.size/n1/n2/reclen);
-
-  fid = open(fil);
-  fld = Array{prec,1}(undef,(n1*n2*n3));
-  read!(fid,fld);
-  fld = hton.(fld);
-  close(fid)
-
-  n3>1 ? s=(n1,n2,n3) : s=(n1,n2)
-  v0=reshape(fld,s);
-
-  convert2gcmfaces(v0,mygrid)
-
-end
-
-## read_bin with reduced list of argument
-
-# read_bin(fil::String,prec::DataType,mygrid::gcmgrid)
-function read_bin(fil::String,prec::DataType,mygrid::gcmgrid)
-  read_bin(fil,missing,missing,prec,mygrid::gcmgrid)
-end
-
-# read_bin(fil::String,mygrid::gcmgrid)
-function read_bin(fil::String,mygrid::gcmgrid)
-  read_bin(fil,missing,missing,mygrid.ioPrec,mygrid::gcmgrid)
-end
-
-## read_bin with alternative arguments
-
-# read_bin(fil::String,x::MeshArray)
-function read_bin(fil::String,x::MeshArray)
-  read_bin(fil,missing,missing,eltype(x),x.grid::gcmgrid)
-end
-
-# read_bin(tmp::Array,mygrid::gcmgrid)
-function read_bin(tmp::Array,mygrid::gcmgrid)
-  convert2gcmfaces(tmp,mygrid)
-end
-
-# read_bin(tmp::Array,x::MeshArray)
-function read_bin(tmp::Array,x::MeshArray)
-  convert2gcmfaces(tmp,x.grid)
 end
