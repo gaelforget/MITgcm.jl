@@ -5,10 +5,5 @@
 [![Build Status](https://travis-ci.org/gaelforget/MITgcmTools.jl.svg?branch=master)](https://travis-ci.org/gaelforget/MITgcmTools.jl)
 [![Codecov](https://codecov.io/gh/gaelforget/MITgcmTools.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/gaelforget/MITgcmTools.jl)
 
-[//]: # (This may be the most platform independent comment)
-[//]: # ([![Build Status](https://ci.appveyor.com/api/projects/status/github/gaelforget/MITgcmTools.jl?svg=true)](https://ci.appveyor.com/project/gaelforget/MITgcmTools-jl))
-[//]: # ([![Coveralls](https://coveralls.io/repos/github/gaelforget/MITgcmTools.jl/badge.svg?branch=master)](https://coveralls.io/github/gaelforget/MITgcmTools.jl?branch=master))
-[//]: # ([![Build Status](https://api.cirrus-ci.com/github/gaelforget/MITgcmTools.jl.svg)](https://cirrus-ci.com/github/gaelforget/MITgcmTools.jl))
-
 Set of tools for the analysis, manipulation, etc of [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) input and output files. 
 
