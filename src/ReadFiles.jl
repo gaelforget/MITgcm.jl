@@ -9,10 +9,11 @@ mygrid=GridSpec("LatLonCap")
 fileName="nctiles_grid/GRID"
 Depth=read_nctiles(fileName,"Depth",mygrid)
 hFacC=read_nctiles(fileName,"hFacC",mygrid)
+hFacC=read_nctiles(fileName,"hFacC",mygrid,I=(:,:,1))
 ```
 """
 function read_nctiles(fileName::String,fldName::String,mygrid::gcmgrid;
-    I::Union{Missing,Array{Union{Colon,Integer}}}=missing)
+    I::Union{Missing,Tuple{Colon,Colon,Vararg{Union{Colon,Integer}}}}=missing)
 
     if (mygrid.class!="LatLonCap")||(mygrid.ioSize!=[90 1170])
         error("non-llc90 cases not implemented yet")
@@ -20,20 +21,30 @@ function read_nctiles(fileName::String,fldName::String,mygrid::gcmgrid;
 
     fileIn=@sprintf("%s.%04d.nc",fileName,1)
     x = ncread(fileIn,fldName)
-    ndims=length(size(x))
-    start=ones(Int,ndims)
-    count=-ones(Int,ndims)
+    s = [size(x,i) for i in 1:ndims(x)]
+    n=length(size(x))
+    start=ones(Int,n)
+    count=-ones(Int,n)
+
+    ~ismissing(I) && length(I)!=n ? error("ncdims v I inconsistency") : nothing
+    if ~ismissing(I)
+        k=findall([!isa(I[i],Colon) for i=1:length(I)])
+        j=[I[i] for i in k]
+        start[k]=j
+        count[k].=1
+        s[k].=1
+    end
 
     #initialize f
-    if ndims==2
+    if n==2
         f0=Array{Float64}(undef,90,0)
         f00=Array{Float64}(undef,0,90)
-    elseif ndims==3
-        f0=Array{Float64}(undef,90,0,size(x,3))
-        f00=Array{Float64}(undef,0,90,size(x,3))
-    elseif ndims==4
-        f0=Array{Float64}(undef,90,0,size(x,3),size(x,4))
-        f00=Array{Float64}(undef,0,90,size(x,3),size(x,4))
+    elseif n==3
+        f0=Array{Float64}(undef,90,0,s[3])
+        f00=Array{Float64}(undef,0,90,s[3])
+    elseif n==4
+        f0=Array{Float64}(undef,90,0,s[3],s[4])
+        f00=Array{Float64}(undef,0,90,s[3],s[4])
     end
     f=[f0,f0,f0,f00,f00]
 
