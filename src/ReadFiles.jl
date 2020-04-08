@@ -185,14 +185,14 @@ function MetaFileRead(FileName::String)
 end
 
 """
-    read_SPM(dirIn::String)
+    read_SPM(pth::String,fil::String="interp_precomputed.mat")
 
 Reads pre-computed interpolation (sparse matrix) from
-`dirIn*"interp_precomputed.mat"`.
+`pth*"interp_precomputed.mat"`.
 """
-function read_SPM(dirIn::String)
-    #vars = matread(dirIn*"interp_precomputed.mat")
-    file = matopen(dirIn*"interp_precomputed.mat")
+function read_SPM(pth::String,fil::String="interp_precomputed.mat")
+    #vars = matread(pth*"interp_precomputed.mat")
+    file = matopen(pth*fil)
     interp=read(file, "interp")
     lon=read(file, "lon")
     lat=read(file, "lat")
