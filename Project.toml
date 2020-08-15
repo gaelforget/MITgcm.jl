@@ -1,7 +1,7 @@
 name = "MITgcmTools"
 uuid = "62725fbc-3a66-4df3-9000-e33e85b3a198"
 authors = ["gaelforget <gforget@mit.edu>"]
-version = "0.1.5"
+version = "0.1.6"
 
 [deps]
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
