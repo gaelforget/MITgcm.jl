@@ -1,6 +1,6 @@
 module MITgcmTools
 
-using Dates, DataFrames, NetCDF, Printf, MeshArrays, SparseArrays
+using Dates, DataFrames, NetCDF, Printf, MeshArrays, SparseArrays, StatsBase
 
 include("ReadFiles.jl")
 include("FormatConversions.jl")
