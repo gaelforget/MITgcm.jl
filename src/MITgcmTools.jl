@@ -13,7 +13,7 @@ export SeaWaterDensity, MixedLayerDepth
 
 #more:
 #
-#using Plots; include("BasicPlots.jl"); export qwckplot
+#using Plots; include("recipes_plots.jl"); export qwckplot
 
 #deprecated:
 #
