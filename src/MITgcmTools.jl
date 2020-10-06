@@ -8,7 +8,7 @@ include("PhysicalOceanography.jl")
 
 export MatrixInterp, convert2array, convert2gcmfaces
 export read_bin, read_flt, read_nctiles, findtiles
-export read_meta, read_available_diagnostics
+export read_mdsio, read_meta, read_available_diagnostics
 export SeaWaterDensity, MixedLayerDepth
 
 #more:
