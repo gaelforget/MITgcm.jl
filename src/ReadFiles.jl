@@ -304,6 +304,38 @@ function read_mdsio(fil)
 end
 
 """
+    read_mdsio(pth::String,fil::String)
+
+Read a `MITgcm`'s MDSIO files (".data" binary + ".meta" text pair), combine, and return as an Array
+
+```
+p="./hs94.cs-32x32x5/run/"
+x=read_mdsio(p,"surfDiag.0000000020")
+y=read_mdsio(p,"pickup.ckptA")
+z=read_mdsio(p,"T.0000000000")
+```
+"""
+function read_mdsio(pth::String,fil::String)
+    f=readdir(pth)
+    kk=findall(occursin.(fil,f).*occursin.(".data",f))
+
+    m=[read_meta(pth*f[k]) for k in kk]
+    println(size(m))
+    T=eval(:($(Symbol(m[1].dataprec))))
+
+    m[1].nrecords>1 ? s=Tuple([m[1].dimList[:,1];m[1].nrecords]) : s=Tuple(m[1].dimList[:,1])
+    x = Array{T,length(s)}(undef,s)
+    
+    for k=1:length(m)
+        ii=m[k].dimList[1,2]:m[k].dimList[1,3]
+        jj=m[k].dimList[2,2]:m[k].dimList[2,3]
+        x[ii,jj,:,:]=read_mdsio(pth*f[kk[k]])
+    end
+
+    return x
+end
+
+"""
     read_available_diagnostics(fldname::String; filename="available_diagnostics.log")
 
 Get the information for a particular variable `fldname` from the 
