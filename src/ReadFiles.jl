@@ -207,10 +207,20 @@ end
     read_meta(metafile)
 
 Read a `MITgcm` metadata file, parse it, and return as a NamedTyple
+
+```
+p="./hs94.cs-32x32x5/run/"
+meta=read_meta(p*"surfDiag.0000000020.002.001.meta")
+pairs(meta)
+meta.dimList
+```
 """
 function read_meta(metafile)
 
-    meta = read(metafile,String)
+    metafile[end-4:end]==".data" ? fil=metafile[1:end-5]*".meta" : fil=metafile[:]
+    fil[end-4:end]!==".meta" ? error("inconsistent file name") : nothing
+
+    meta = read(fil,String)
     meta = split(meta,";\n")
     meta = meta[isempty.(meta).==false]
     meta = replace.(meta,Ref(",\n"=>";"))
@@ -239,9 +249,27 @@ function read_meta(metafile)
     end
     metaDict["dataprec"] = titlecase(metaDict["dataprec"])
 
-    meta = (; zip(Symbol.(keys(m)),values(m))...)
+    meta = (; zip(Symbol.(keys(metaDict)),values(metaDict))...)
     return meta
 
+end
+
+"""
+    read_meta(pth::String,fil::String)
+
+Read a `MITgcm` metadata files, parse them, and return as an array of NamedTyple
+
+```
+p="./hs94.cs-32x32x5/run/"
+meta=read_meta(p,"surfDiag.0000000020")
+pairs(meta[end])
+[meta[i].dimList for i in 1:length(meta)]
+```
+"""
+function read_meta(pth::String,fil::String)
+    f=readdir(pth)
+    kk=findall(occursin.(fil,f).*occursin.(".meta",f))
+    [read_meta(pth*f[k]) for k in kk]
 end
 
 """
