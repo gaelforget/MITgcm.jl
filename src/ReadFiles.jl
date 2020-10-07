@@ -320,7 +320,6 @@ function read_mdsio(pth::String,fil::String)
     kk=findall(occursin.(fil,f).*occursin.(".data",f))
 
     m=[read_meta(pth*f[k]) for k in kk]
-    println(size(m))
     T=eval(:($(Symbol(m[1].dataprec))))
 
     m[1].nrecords>1 ? s=Tuple([m[1].dimList[:,1];m[1].nrecords]) : s=Tuple(m[1].dimList[:,1])
