@@ -425,11 +425,10 @@ function read_flt(dirIn::String,prec::DataType)
       df.tile=Int.(arr[14,:])
    end
 
-   nfloats=maximum(df.ID);
-   nsteps=maximum(counts(df.ID));
-
-   println("# floats=$nfloats")
-   println("# steps=$nsteps")
+#   nfloats=maximum(df.ID);
+#   nsteps=maximum(counts(df.ID));
+#   println("# floats=$nfloats")
+#   println("# steps=$nsteps")
 
    return df
 end
