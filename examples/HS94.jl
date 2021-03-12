@@ -1,25 +1,16 @@
 
 using MITgcmTools, MeshArrays, Plots
 
-p="./hs94.cs-32x32x5/run/"
+p="./hs94.cs-32x32x5/run_long2/"
 pp=tempdir()*"/"
 
-(γ,Γ)=GridOfOnes("CubeSphere",6,32)
-#f2d(x)=γ.read(permutedims(Float64.(x),[2,1]),MeshArray(γ))
-#f3d(x)=γ.read(permutedims(Float64.(x),[2,1,3]),MeshArray(γ))
+readcube(xx::Array,x::MeshArray) = read(cube2compact(xx),x)
+readcube(fil::String,x::MeshArray) = read(fil::String,x::MeshArray)
+writecube(x::MeshArray) = compact2cube(write(x))
+writecube(fil::String,x::MeshArray) = write(fil::String,x::MeshArray)
 
-list_n=("XC","XG","YC","YG","RAC","RAW","RAS","RAZ","DXC","DXG","DYC","DYG","Depth");
-for n in list_n
-#    tmp=f2d(read_mdsio(p,n))
-#    [Γ[n][i].=tmp[i] for i in eachindex(tmp)]
-    tmp=read_mdsio(p,n)
-    [Γ[n][i].=tmp[(1:32).+(i-1)*32,:] for i in 1:6]
-end
-
-#XC=f2d(read_mdsio(p,"XC"))
-#YC=f2d(read_mdsio(p,"YC"))
-#[Γ["XC"][i].=XC[i] for i in eachindex(XC)];
-#[Γ["YC"][i].=YC[i] for i in eachindex(YC)];
+γ=gcmgrid(p,"CubeSphere",6,fill((32, 32),6), [192 32], Float64, readcube, writecube)
+Γ = GridLoad(γ)
 
 lon=[i for i=-179.5:1.0:179.5, j=-89.5:1.0:89.5]
 lat=[j for i=-179.5:1.0:179.5, j=-89.5:1.0:89.5]
@@ -29,20 +20,16 @@ lat=[j for i=-179.5:1.0:179.5, j=-89.5:1.0:89.5]
 
 ff=readdir(p); fil="T.0000"
 ff=ff[findall(occursin.(fil,ff).*occursin.(".data",ff))]
-
-T=MeshArray(γ)
+nt=length(ff)
 
 function myplot(fil)
-    tmp=read_mdsio(p,fil)[:,:,3]
-    [T[i].=tmp[(1:32).+(i-1)*32,:] for i in 1:6]
+    T=read(p*fil,MeshArray(γ,Float64))
     TT=Interpolate(T,f,i,j,w)
     contourf(vec(lon[:,1]),vec(lat[1,:]),TT,clims=(260.,320.))
 end
 
-#myplot("T.0000000000")
+##
 
-nt=length(ff)
-#nt=300
 #dt=Int(ceil(nt/100))
 dt=1
 anim = @animate for i ∈ 1:dt:nt
