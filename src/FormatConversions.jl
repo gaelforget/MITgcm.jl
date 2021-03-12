@@ -1,4 +1,27 @@
 
+"""
+    cube2compact(x::Array)
+
+Reshape from e.g. size (192, 32, 5) in cube format to (32, 192, 5) in compact format.
+"""
+function cube2compact(x::Array)
+  s=size(x)
+  k=1 .+Tuple(1:length(s))
+  n=gcd(s[1],s[2])
+  reshape(permutedims(reshape(x,(n,6,n,s[3:end]...)),(1,3,2,k[3:end]...)),(n,n*6,s[3:end]...))
+end
+
+"""
+    compact2cube(x::Array)
+
+Reshape from e.g. size (32, 192, 5) in cube format to (192, 32, 5) in compact format.
+"""
+function compact2cube(x::Array)
+  s=size(x)
+  k=1 .+Tuple(1:length(s))
+  n=gcd(s[1],s[2])
+  reshape(permutedims(reshape(x,(n,n,6,s[3:end]...)),(1,3,2,k[3:end]...)),(n*6,n,s[3:end]...))
+end
 
 """
 MatrixInterp(in::Array{T,N},MTRX,siz) where {T,N}
