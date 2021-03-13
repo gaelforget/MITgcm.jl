@@ -6,12 +6,11 @@ include("ReadFiles.jl")
 include("FormatConversions.jl")
 include("PhysicalOceanography.jl")
 
-export MatrixInterp, convert2array, convert2gcmfaces
-export read_bin, read_flt, read_nctiles, findtiles
-export read_mdsio, read_meta, read_available_diagnostics
-export cube2compact, compact2cube
-export SeaWaterDensity, MixedLayerDepth
 export MITgcm_path, testreport
+export read_mdsio, read_meta, read_available_diagnostics
+export read_bin, read_flt, read_nctiles, findtiles
+export cube2compact, compact2cube, convert2array, convert2gcmfaces
+export SeaWaterDensity, MixedLayerDepth
 
 p=dirname(pathof(MITgcmTools))
 artifact_toml = joinpath(p, "../Artifacts.toml")
