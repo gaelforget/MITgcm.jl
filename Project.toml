@@ -1,7 +1,7 @@
 name = "MITgcmTools"
 uuid = "62725fbc-3a66-4df3-9000-e33e85b3a198"
 authors = ["gaelforget <gforget@mit.edu>"]
-version = "0.1.10"
+version = "0.1.11"
 
 [deps]
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
@@ -15,5 +15,5 @@ SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 [compat]
 DataFrames = "0.21, 0.22"
 MeshArrays = "0.2"
-NetCDF = "0.8, 0.9, 0.10"
+NetCDF = "0.8, 0.9, 0.10, 0.11"
 julia = "^1.3"
