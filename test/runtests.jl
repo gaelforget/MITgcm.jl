@@ -18,6 +18,10 @@ using Test
     mld=MixedLayerDepth(T,S,D,"BM");
     @test isapprox(mld,134.0)
 
+    #running and reading in verification experiments
+    exps=verification_experiments()
+    @test isa(exps,Array)
+
     tmp=testreport("front_relax");
     @test isa(tmp,Base.Process)
 
