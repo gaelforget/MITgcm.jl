@@ -38,12 +38,12 @@ MITgcm_cleanup(nam::String) = testreport(nam,"-clean")
 """
     MITgcm_compile(nam::String)
 """
-MITgcm_compile(nam::String) = testreport("front_relax","-norun")
+MITgcm_compile(nam::String) = testreport(nam,"-norun")
 
 """
     MITgcm_run(nam::String)
 """
-MITgcm_run(nam::String) = testreport("front_relax","-runonly")
+MITgcm_run(nam::String) = testreport(nam,"-runonly")
 
 """
     verification_experiments()
