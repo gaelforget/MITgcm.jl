@@ -122,6 +122,6 @@ TextField((40, length(params)+2),params_txt)
 # ╟─ca7bb004-8510-11eb-379f-632c3b40723d
 # ╟─a3392068-8514-11eb-14ab-4b807c5325d3
 # ╟─8cf4d8ca-84eb-11eb-22d2-255ce7237090
-# ╟─9bdb94da-8510-11eb-01a6-c9a1519baa68
-# ╟─348c692e-84fe-11eb-3288-dd0a1dedce90
+# ╠═9bdb94da-8510-11eb-01a6-c9a1519baa68
+# ╠═348c692e-84fe-11eb-3288-dd0a1dedce90
 # ╟─b57666da-84fd-11eb-11a4-5161e1b5beb6
