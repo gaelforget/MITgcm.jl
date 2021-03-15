@@ -21,12 +21,7 @@ begin
 end
 
 # ╔═╡ a28f7354-84eb-11eb-1830-1f401bf2db97
-begin
-	do_cleanup=true
-	do_compile=true
-	do_run=true
-	@bind myexp Select([exps[i].name for i in 1:length(exps)],default="advect_cs")
-end
+@bind myexp Select([exps[i].name for i in 1:length(exps)],default="advect_cs")
 
 # ╔═╡ f91c3396-84ef-11eb-2665-cfa350d38737
 begin
@@ -35,19 +30,24 @@ begin
 end
 
 # ╔═╡ 02a95138-8524-11eb-0bce-1f899f85ee47
-exps[iexp].name
+begin
+	do_cleanup=false
+	do_compile=false
+	do_run=false
+	exps[iexp].name
+end
 
 # ╔═╡ df2b2c8e-851d-11eb-0602-2ddd06ab5d72
 begin
 	do_cleanup ? MITgcm_cleanup(exps[iexp].name) : nothing
 	do_compile ? MITgcm_compile(exps[iexp].name) : nothing
 	do_run ? MITgcm_run(exps[iexp].name) : nothing
-	("cleanup","compile","run")
+	(do_cleanup,do_compile,do_run)
 end
 
 # ╔═╡ Cell order:
 # ╟─a28f7354-84eb-11eb-1830-1f401bf2db97
 # ╟─f91c3396-84ef-11eb-2665-cfa350d38737
 # ╟─02a95138-8524-11eb-0bce-1f899f85ee47
-# ╟─df2b2c8e-851d-11eb-0602-2ddd06ab5d72
+# ╠═df2b2c8e-851d-11eb-0602-2ddd06ab5d72
 # ╟─8cf4d8ca-84eb-11eb-22d2-255ce7237090

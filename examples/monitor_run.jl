@@ -24,7 +24,7 @@ end
 ("inspect","monitor","plot")
 
 # ╔═╡ a28f7354-84eb-11eb-1830-1f401bf2db97
-@bind myexp Select([exps[i].name for i in 1:length(exps)],default="advect_xy")
+@bind myexp Select([exps[i].name for i in 1:length(exps)],default="advect_cs")
 
 # ╔═╡ f91c3396-84ef-11eb-2665-cfa350d38737
 begin
