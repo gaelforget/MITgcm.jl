@@ -26,7 +26,7 @@ using Test
     @test isa(tmp,Base.Process)
 
     fil=joinpath(MITgcm_path,"verification","advect_xy","run","data")
-    namelist,_,_=read_namelist(fil)
+    namelist=read_namelist(fil)
     @test isa(namelist,NamedTuple)
     @test isa(namelist.PARM01,Dict)
 

@@ -280,13 +280,23 @@ function read_namelist(fil)
 		ii=1+findall(occursin.(String(groups[i]),meta))[1]
 		i1=ii
 		tmp0=Dict()
+        k0=[:unknown]
 		while !occursin('&',meta[ii])
 			if occursin('=',meta[ii])
 				tmp1=split(meta[ii],'=')
+                k0[1]=Symbol(strip(tmp1[1]))
 				tmp2=split(tmp1[2],',')
-				tmp0[Symbol(strip(tmp1[1]))]=strip(tmp2[1])
-			else
-				println("ignoring line -- likely part of an array ...")
+                if length(tmp2)==2
+                    tmp0[k0[1]]=strip(tmp2[1])
+                else
+                    tmp0[k0[1]]=strip(tmp1[2])
+                end
+            else
+                try
+                    tmp0[k0[1]]=tmp0[k0[1]]*","*strip(meta[ii])[1:end-1]
+                catch
+                    println("ignoring line -- unclear why ...")
+                end
 			end
 			ii += 1
 		end
