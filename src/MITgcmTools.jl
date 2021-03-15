@@ -7,7 +7,7 @@ include("FormatConversions.jl")
 include("PhysicalOceanography.jl")
 
 export MITgcm_path, MITgcm_cleanup, MITgcm_compile, MITgcm_run
-export verification_experiments, testreport
+export verification_experiments, testreport, read_namelist
 export read_mdsio, read_meta, read_available_diagnostics
 export read_bin, read_flt, read_nctiles, findtiles
 export cube2compact, compact2cube, convert2array, convert2gcmfaces
@@ -58,16 +58,19 @@ function verification_experiments()
     pth=joinpath(MITgcm_path,"verification")
     lst=readdir(pth)
     tmp=[isfile(joinpath(pth,i,"code","packages.conf")) for i in lst]
-    lst=lst[findall(tmp)]
+    tmp2=[isfile(joinpath(pth,i,"code","SIZE.h")) for i in lst]
+    lst=lst[findall(tmp.|tmp2)]
 
     pkg_build=fill(String[],size(lst))
     pkg_run=fill(String[],size(lst))
     for i in 1:length(lst)
         fil=joinpath(pth,lst[i],"code","packages.conf")
-        tmp1=read(fil,String)
-        tmp1=split(tmp1,"\n")
-        tmp1=tmp1[findall((!isempty).(tmp1))]
-        pkg_build[i]=tmp1[findall(first.(tmp1).!=='#')]
+        if isfile(fil)
+            tmp1=read(fil,String)
+            tmp1=split(tmp1,"\n")
+            tmp1=tmp1[findall((!isempty).(tmp1))]
+            pkg_build[i]=tmp1[findall(first.(tmp1).!=='#')]
+        end
 
         fil=joinpath(pth,lst[i],"input","data.pkg")
         tmp1=read(fil,String)

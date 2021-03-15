@@ -21,16 +21,46 @@ begin
 end
 
 # ╔═╡ f588eaba-84ef-11eb-0755-bf1b85b2b561
-("inspect","monitor","plot")
+begin
+	imgA="https://user-images.githubusercontent.com/20276764/111042787-12377e00-840d-11eb-8ddb-64cc1cfd57fd.png"
+	imgB="https://user-images.githubusercontent.com/20276764/97648227-970b9780-1a2a-11eb-81c4-65ec2c87efc6.png"
+	md"""# monitor_run.jl
+
+	### 
+
+
+	Here we use scan an MITgcm run folder interactivetly to generate something like this:
+	
+	$(Resource(imgA, :width => 240))
+	
+	### 
+	
+	$(Resource(imgB, :width => 120))
+	"""
+end
+
+# ╔═╡ 98b6621c-85ab-11eb-29d1-af0433598c6a
+	md"""## Select model configuration:
+	
+	_Note: this will update the multiple-choices menu sequence below_
+	"""
 
 # ╔═╡ a28f7354-84eb-11eb-1830-1f401bf2db97
-@bind myexp Select([exps[i].name for i in 1:length(exps)],default="advect_cs")
+@bind myexp Select([exps[i].name for i in 1:length(exps)],default="advect_xy")
 
 # ╔═╡ f91c3396-84ef-11eb-2665-cfa350d38737
 begin
 	iexp=findall([exps[i].name==myexp for i in 1:length(exps)])[1]
 	TextField((100, 8), "name = $(exps[iexp].name)\n\nbuild  = $(exps[iexp].build) \n\nrun    = $(exps[iexp].run)")
 end
+
+# ╔═╡ f051e094-85ab-11eb-22d4-5bd61ac572a1
+md"""## Select a namelist and parameter group
+
+_Note: `data` and `PARM01`, e.g., should be found in any model run directory,_ **once the model has been run for that configuration**
+
+_Note: one can use e.g. `run MITgcm.jl` notebook or the `MITgcm run()` function to rerun the various model configurations_
+"""
 
 # ╔═╡ d7f2c656-8512-11eb-2fdf-47a3e57a55e6
 begin
@@ -45,59 +75,26 @@ begin
 		tmpA=tmpA[findall([tmpA[i][1:4]=="data" for i in 1:length(tmpA)])]
 	end
 	dats=list_namelist_files(pth)
-	@bind mydats Select([dats[i] for i in 1:length(dats)])
-end
-
-# ╔═╡ b57666da-84fd-11eb-11a4-5161e1b5beb6
-begin
-"""
-    read_namelist(fil)
-
-Read a `MITgcm` namelist file, parse it, and return as a NamedTuple
-"""
-function read_namelist(fil)
-
-    meta = read(fil,String)
-    meta = split(meta,"\n")
-    meta = meta[findall((!isempty).(meta))]
-    meta = meta[findall(first.(meta).!=='#')]
-    groups = meta[findall(occursin.('&',meta))]
-	groups = [Symbol(groups[1+2*(i-1)][3:end]) for i in 1:Int(length(groups)/2)]
-	params = fill(Dict(),length(groups))
-		
-	for i in 1:length(groups)
-		ii=1+findall(occursin.(String(groups[i]),meta))[1]
-		i1=ii
-		tmp0=Dict()
-		while !occursin('&',meta[ii])
-			if occursin('=',meta[ii])
-				tmp1=split(meta[ii],'=')
-				tmp2=split(tmp1[2],',')
-				tmp0[Symbol(strip(tmp1[1]))]=strip(tmp2[1])
-			else
-				println("ignoring line -- likely part of an array ...")
-			end
-			ii += 1
-		end
-		params[i]=tmp0			
+	try
+		@bind mydats Select([dats[i] for i in 1:length(dats)])
+	catch e
+		"Error: could not find any namelist in $(pth)"
 	end
-		
-#	params=(; zip(Symbol.(groups),params)...)
-#    return meta,groups,params
-	return (; zip(Symbol.(groups),params)...),groups,meta
-end
-	🏁
 end
 
 # ╔═╡ 348c692e-84fe-11eb-3288-dd0a1dedce90
 begin
 	fil=joinpath(MITgcm_path,"verification",exps[iexp].name,"run",mydats)
-	namelist,groups,lines=read_namelist(fil)
+	namelist=read_namelist(fil)
 	🏁
 end
 
 # ╔═╡ ca7bb004-8510-11eb-379f-632c3b40723d
-@bind mynamelist Select([String(keys(namelist)[i]) for i in 1:length(namelist)])
+try
+	@bind mynamelist Select([String(keys(namelist)[i]) for i in 1:length(namelist)])
+catch e
+	"Error: could not find any namelist in $(pth)"
+end
 
 # ╔═╡ 9bdb94da-8510-11eb-01a6-c9a1519baa68
 begin
@@ -112,16 +109,21 @@ begin
 end
 
 # ╔═╡ a3392068-8514-11eb-14ab-4b807c5325d3
-TextField((40, length(params)+2),params_txt)
+try
+	TextField((40, length(params)+2),params_txt)
+catch e
+	"Error: could not find any namelist in $(pth)"
+end	
 
 # ╔═╡ Cell order:
 # ╟─f588eaba-84ef-11eb-0755-bf1b85b2b561
+# ╟─98b6621c-85ab-11eb-29d1-af0433598c6a
 # ╟─a28f7354-84eb-11eb-1830-1f401bf2db97
 # ╟─f91c3396-84ef-11eb-2665-cfa350d38737
+# ╟─f051e094-85ab-11eb-22d4-5bd61ac572a1
 # ╟─d7f2c656-8512-11eb-2fdf-47a3e57a55e6
 # ╟─ca7bb004-8510-11eb-379f-632c3b40723d
 # ╟─a3392068-8514-11eb-14ab-4b807c5325d3
 # ╟─8cf4d8ca-84eb-11eb-22d2-255ce7237090
 # ╟─9bdb94da-8510-11eb-01a6-c9a1519baa68
 # ╟─348c692e-84fe-11eb-3288-dd0a1dedce90
-# ╟─b57666da-84fd-11eb-11a4-5161e1b5beb6

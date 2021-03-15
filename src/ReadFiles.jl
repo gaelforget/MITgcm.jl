@@ -255,6 +255,58 @@ function read_meta(metafile)
 end
 
 """
+    read_namelist(fil)
+
+Read a `MITgcm` namelist file, parse it, and return as a NamedTuple
+
+```
+using MITgcmTools
+testreport("advect_xy")
+fil=joinpath(MITgcm_path,"verification","advect_xy","run","data")
+namelist=read_namelist(fil)
+```
+"""
+function read_namelist(fil)
+
+    meta = read(fil,String)
+    meta = split(meta,"\n")
+    meta = meta[findall((!isempty).(meta))]
+    meta = meta[findall(first.(meta).!=='#')]
+    groups = meta[findall(occursin.('&',meta))]
+	groups = [Symbol(groups[1+2*(i-1)][3:end]) for i in 1:Int(length(groups)/2)]
+	params = fill(Dict(),length(groups))
+		
+	for i in 1:length(groups)
+		ii=1+findall(occursin.(String(groups[i]),meta))[1]
+		i1=ii
+		tmp0=Dict()
+        k0=[:unknown]
+		while !occursin('&',meta[ii])
+			if occursin('=',meta[ii])
+				tmp1=split(meta[ii],'=')
+                k0[1]=Symbol(strip(tmp1[1]))
+				tmp2=split(tmp1[2],',')
+                if length(tmp2)==2
+                    tmp0[k0[1]]=strip(tmp2[1])
+                else
+                    tmp0[k0[1]]=strip(tmp1[2])
+                end
+            else
+                try
+                    tmp0[k0[1]]=tmp0[k0[1]]*","*strip(meta[ii])[1:end-1]
+                catch
+                    println("ignoring line -- unclear why ...")
+                end
+			end
+			ii += 1
+		end
+		params[i]=tmp0			
+	end
+		
+	return (; zip(Symbol.(groups),params)...)
+end
+
+"""
     read_meta(pth::String,fil::String)
 
 Read a `MITgcm` metadata files, parse them, and return as an array of NamedTuple
@@ -319,7 +371,7 @@ function read_mdsio(pth::String,fil::String)
     f=readdir(pth)
     kk=findall(occursin.(fil,f).*occursin.(".data",f))
 
-    m=[read_meta(pth*f[k]) for k in kk]
+    m=[read_meta(joinpath(pth,f[k])) for k in kk]
     T=eval(:($(Symbol(m[1].dataprec))))
 
     m[1].nrecords>1 ? s=Tuple([m[1].dimList[:,1];m[1].nrecords]) : s=Tuple(m[1].dimList[:,1])
@@ -328,7 +380,7 @@ function read_mdsio(pth::String,fil::String)
     for k=1:length(m)
         ii=m[k].dimList[1,2]:m[k].dimList[1,3]
         jj=m[k].dimList[2,2]:m[k].dimList[2,3]
-        x[ii,jj,:,:]=read_mdsio(pth*f[kk[k]])
+        x[ii,jj,:,:]=read_mdsio(joinpath(pth,f[kk[k]]))
     end
 
     return x
