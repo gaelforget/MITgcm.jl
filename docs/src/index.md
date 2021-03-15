@@ -9,13 +9,16 @@ Set of tools for running [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge
 ```@index
 ```
 
-![The impossible MITgcm rendering](https://user-images.githubusercontent.com/20276764/97648227-970b9780-1a2a-11eb-81c4-65ec2c87efc6.png)
-
 ## MITgcm path and run script
 
-The `MITgcm_path` variable provides the path to the MITgcm folder being used. The `testreport` function can be used to call the run script of the same name.
+The `MITgcm_path` variable provides the path to the MITgcm folder being used. The `MITgcm_compile` and `MITgcm_run` functions can be used to, respectively, compile and run a `MITgcm` configuration. This is currently done via the `testreport` script.
+
+![Compiling and running MITgcm](https://user-images.githubusercontent.com/20276764/111093453-56ab4280-850f-11eb-8587-20b6f944e05a.png)
 
 ```@docs
+MITgcm_cleanup
+MITgcm_compile 
+MITgcm_run
 testreport
 ```
 
@@ -32,6 +35,8 @@ read_nctiles
 
 ## Format conversions
 
+![The impossible MITgcm rendering](https://user-images.githubusercontent.com/20276764/97648227-970b9780-1a2a-11eb-81c4-65ec2c87efc6.png)
+
 ```@docs
 findtiles
 cube2compact
@@ -46,4 +51,3 @@ convert2gcmfaces
 SeaWaterDensity
 MixedLayerDepth
 ```
-

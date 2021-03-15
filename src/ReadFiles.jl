@@ -206,7 +206,7 @@ end
 """
     read_meta(metafile)
 
-Read a `MITgcm` metadata file, parse it, and return as a NamedTyple
+Read a `MITgcm` metadata file, parse it, and return as a NamedTuple
 
 ```
 p="./hs94.cs-32x32x5/run/"
@@ -257,7 +257,7 @@ end
 """
     read_meta(pth::String,fil::String)
 
-Read a `MITgcm` metadata files, parse them, and return as an array of NamedTyple
+Read a `MITgcm` metadata files, parse them, and return as an array of NamedTuple
 
 ```
 p="./hs94.cs-32x32x5/run/"

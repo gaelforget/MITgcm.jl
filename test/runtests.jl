@@ -18,7 +18,11 @@ using Test
     mld=MixedLayerDepth(T,S,D,"BM");
     @test isapprox(mld,134.0)
 
-    tmp=testreport("front_relax");
+    #running and reading in verification experiments
+    exps=verification_experiments()
+    @test isa(exps,Array)
+
+    tmp=testreport("front_relax")
     @test isa(tmp,Base.Process)
 
     pth=MITgcm_path*"verification/front_relax/run/"
@@ -28,7 +32,10 @@ using Test
     @test isa(tmp,Array)
 
     #read / write functions
-    tmp=testreport("advect_cs")
+    MITgcm_cleanup("advect_cs")
+    MITgcm_compile("advect_cs")
+    MITgcm_run("advect_cs")
+
     pth=MITgcm_path*"verification/advect_cs/run/"
     fil=joinpath(pth,"available_diagnostics.log")
     read_available_diagnostics("ETAN";filename=fil)
