@@ -21,10 +21,10 @@ begin
 end
 
 # ╔═╡ f588eaba-84ef-11eb-0755-bf1b85b2b561
-("compile","run","monitor","plot")
+("inspect","monitor","plot")
 
 # ╔═╡ a28f7354-84eb-11eb-1830-1f401bf2db97
-@bind myexp Select([exps[i].name for i in 1:length(exps)])
+@bind myexp Select([exps[i].name for i in 1:length(exps)],default="advect_xy")
 
 # ╔═╡ f91c3396-84ef-11eb-2665-cfa350d38737
 begin

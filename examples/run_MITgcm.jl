@@ -21,7 +21,12 @@ begin
 end
 
 # ╔═╡ a28f7354-84eb-11eb-1830-1f401bf2db97
-@bind myexp Select([exps[i].name for i in 1:length(exps)])
+begin
+	do_cleanup=true
+	do_compile=true
+	do_run=true
+	@bind myexp Select([exps[i].name for i in 1:length(exps)],default="advect_cs")
+end
 
 # ╔═╡ f91c3396-84ef-11eb-2665-cfa350d38737
 begin
@@ -29,11 +34,20 @@ begin
 	TextField((80, 8), "name = $(exps[iexp].name)\n\nbuild  = $(exps[iexp].build) \n\nrun    = $(exps[iexp].run)")
 end
 
-# ╔═╡ f588eaba-84ef-11eb-0755-bf1b85b2b561
-("compile","run","monitor","plot")
+# ╔═╡ 02a95138-8524-11eb-0bce-1f899f85ee47
+exps[iexp].name
+
+# ╔═╡ df2b2c8e-851d-11eb-0602-2ddd06ab5d72
+begin
+	do_cleanup ? MITgcm_cleanup(exps[iexp].name) : nothing
+	do_compile ? MITgcm_compile(exps[iexp].name) : nothing
+	do_run ? MITgcm_run(exps[iexp].name) : nothing
+	("cleanup","compile","run")
+end
 
 # ╔═╡ Cell order:
 # ╟─a28f7354-84eb-11eb-1830-1f401bf2db97
 # ╟─f91c3396-84ef-11eb-2665-cfa350d38737
-# ╟─f588eaba-84ef-11eb-0755-bf1b85b2b561
+# ╟─02a95138-8524-11eb-0bce-1f899f85ee47
+# ╟─df2b2c8e-851d-11eb-0602-2ddd06ab5d72
 # ╟─8cf4d8ca-84eb-11eb-22d2-255ce7237090
