@@ -22,10 +22,15 @@ using Test
     exps=verification_experiments()
     @test isa(exps,Array)
 
-    tmp=testreport("front_relax")
+    tmp=testreport("advect_xy")
     @test isa(tmp,Base.Process)
 
-    pth=MITgcm_path*"verification/front_relax/run/"
+    fil=joinpath(MITgcm_path,"verification","advect_xy","run","data")
+    namelist,_,_=read_namelist(fil)
+    @test isa(namelist,NamedTuple)
+    @test isa(namelist.PARM01,Dict)
+
+    pth=joinpath(MITgcm_path,"verification","advect_xy","run")
     tmp=read_mdsio(pth,"XC.001.001")
     @test isa(tmp,Array)
     tmp=read_mdsio(pth,"XC")

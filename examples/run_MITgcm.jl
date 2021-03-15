@@ -34,7 +34,7 @@ begin
 	do_cleanup=false
 	do_compile=false
 	do_run=false
-	exps[iexp].name
+	(exps[iexp].name,do_cleanup,do_compile,do_run)
 end
 
 # ╔═╡ df2b2c8e-851d-11eb-0602-2ddd06ab5d72
@@ -42,7 +42,7 @@ begin
 	do_cleanup ? MITgcm_cleanup(exps[iexp].name) : nothing
 	do_compile ? MITgcm_compile(exps[iexp].name) : nothing
 	do_run ? MITgcm_run(exps[iexp].name) : nothing
-	(do_cleanup,do_compile,do_run)
+	(exps[iexp].name,do_cleanup,do_compile,do_run)
 end
 
 # ╔═╡ Cell order:

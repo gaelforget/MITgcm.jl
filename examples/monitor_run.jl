@@ -48,51 +48,10 @@ begin
 	@bind mydats Select([dats[i] for i in 1:length(dats)])
 end
 
-# ╔═╡ b57666da-84fd-11eb-11a4-5161e1b5beb6
-begin
-"""
-    read_namelist(fil)
-
-Read a `MITgcm` namelist file, parse it, and return as a NamedTuple
-"""
-function read_namelist(fil)
-
-    meta = read(fil,String)
-    meta = split(meta,"\n")
-    meta = meta[findall((!isempty).(meta))]
-    meta = meta[findall(first.(meta).!=='#')]
-    groups = meta[findall(occursin.('&',meta))]
-	groups = [Symbol(groups[1+2*(i-1)][3:end]) for i in 1:Int(length(groups)/2)]
-	params = fill(Dict(),length(groups))
-		
-	for i in 1:length(groups)
-		ii=1+findall(occursin.(String(groups[i]),meta))[1]
-		i1=ii
-		tmp0=Dict()
-		while !occursin('&',meta[ii])
-			if occursin('=',meta[ii])
-				tmp1=split(meta[ii],'=')
-				tmp2=split(tmp1[2],',')
-				tmp0[Symbol(strip(tmp1[1]))]=strip(tmp2[1])
-			else
-				println("ignoring line -- likely part of an array ...")
-			end
-			ii += 1
-		end
-		params[i]=tmp0			
-	end
-		
-#	params=(; zip(Symbol.(groups),params)...)
-#    return meta,groups,params
-	return (; zip(Symbol.(groups),params)...),groups,meta
-end
-	🏁
-end
-
 # ╔═╡ 348c692e-84fe-11eb-3288-dd0a1dedce90
 begin
 	fil=joinpath(MITgcm_path,"verification",exps[iexp].name,"run",mydats)
-	namelist,groups,lines=read_namelist(fil)
+	namelist=read_namelist(fil)
 	🏁
 end
 
@@ -122,6 +81,5 @@ TextField((40, length(params)+2),params_txt)
 # ╟─ca7bb004-8510-11eb-379f-632c3b40723d
 # ╟─a3392068-8514-11eb-14ab-4b807c5325d3
 # ╟─8cf4d8ca-84eb-11eb-22d2-255ce7237090
-# ╠═9bdb94da-8510-11eb-01a6-c9a1519baa68
-# ╠═348c692e-84fe-11eb-3288-dd0a1dedce90
-# ╟─b57666da-84fd-11eb-11a4-5161e1b5beb6
+# ╟─9bdb94da-8510-11eb-01a6-c9a1519baa68
+# ╟─348c692e-84fe-11eb-3288-dd0a1dedce90
