@@ -4,7 +4,6 @@
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://gaelforget.github.io/MITgcmTools.jl/dev)
 [![Build Status](https://travis-ci.org/gaelforget/MITgcmTools.jl.svg?branch=master)](https://travis-ci.org/gaelforget/MITgcmTools.jl)
 
-[![Codecov](https://codecov.io/gh/gaelforget/MITgcmTools.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/gaelforget/MITgcmTools.jl)
 [![DOI](https://zenodo.org/badge/236192181.svg)](https://zenodo.org/badge/latestdoi/236192181)
 
 Set of tools for running [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest), analyzing its results, and preparing model inputs.
