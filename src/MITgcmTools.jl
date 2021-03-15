@@ -27,6 +27,7 @@ testreport("front_relax");
 """
 function testreport(nm::String,ext="")
     c=`$(MITgcm_path)/verification/testreport -t $(MITgcm_path)/verification/$(nm) $ext`
+    isempty(ext) ? c=`$(MITgcm_path)/verification/testreport -t $(MITgcm_path)/verification/$(nm)` : nothing
     run(c)
 end
 
