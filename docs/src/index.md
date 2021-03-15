@@ -1,6 +1,7 @@
 # MITgcmTools.jl
 
-Set of tools for running [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest), analyzing its results, and preparing model inputs.
+Set of tools for running [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest), analyzing its results, and preparing model inputs. Examples are provided in `test/runtests.jl` as well as in `examples/run_MITgcm.jl`, `monitor_run.jl`, etc.
+
 
 ![Simulated particles from HS94 on cube sphere grid](https://user-images.githubusercontent.com/20276764/111042787-12377e00-840d-11eb-8ddb-64cc1cfd57fd.png)
 
@@ -11,7 +12,7 @@ Set of tools for running [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge
 
 ## MITgcm path and run script
 
-The `MITgcm_path` variable provides the path to the MITgcm folder being used. The `MITgcm_compile` and `MITgcm_run` functions can be used to, respectively, compile and run a `MITgcm` configuration. This is currently done via the `testreport` script.
+The `MITgcm_path` variable provides the path to the MITgcm folder being used. The `MITgcm_compile` and `MITgcm_run` functions can be used to, respectively, compile and run a `MITgcm` configuration. _Note: `MITgcm_run` etc rely on the `testreport` script._ 
 
 ![Compiling and running MITgcm](https://user-images.githubusercontent.com/20276764/111093453-56ab4280-850f-11eb-8587-20b6f944e05a.png)
 
