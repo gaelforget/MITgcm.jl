@@ -12,9 +12,9 @@ Set of tools for running [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge
 
 ## MITgcm path and run script
 
-The `MITgcm_path` variable provides the path to the MITgcm folder being used. The `MITgcm_compile` and `MITgcm_run` functions can be used to, respectively, compile and run a `MITgcm` configuration. _Note: `MITgcm_run` etc rely on the `testreport` script._ 
+The `MITgcm_path` variable provides the path to the MITgcm folder being used. The `MITgcm_compile` and `MITgcm_run` functions can be used to, respectively, compile and run a `MITgcm` configuration (via the `testreport` script). An interactive / reactive example can be found in the `examples/run_MITgcm.jl` Pluto notebook shown below.
 
-![Compiling and running MITgcm](https://user-images.githubusercontent.com/20276764/111093453-56ab4280-850f-11eb-8587-20b6f944e05a.png)
+![Compiling and running MITgcm](https://user-images.githubusercontent.com/20276764/111195521-b7c82a00-8592-11eb-86a0-c85969de0850.png)
 
 ```@docs
 MITgcm_cleanup
