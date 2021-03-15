@@ -6,7 +6,8 @@ include("ReadFiles.jl")
 include("FormatConversions.jl")
 include("PhysicalOceanography.jl")
 
-export MITgcm_path, testreport, verification_experiments
+export MITgcm_path, MITgcm_cleanup, MITgcm_compile, MITgcm_run
+export verification_experiments, testreport
 export read_mdsio, read_meta, read_available_diagnostics
 export read_bin, read_flt, read_nctiles, findtiles
 export cube2compact, compact2cube, convert2array, convert2gcmfaces
@@ -18,16 +19,31 @@ MITgcm_hash = artifact_hash("MITgcm", artifact_toml)
 MITgcm_path = joinpath(artifact_path(MITgcm_hash)*"/","MITgcm-checkpoint67s/")
 
 """
-    testreport(nam::String)
+    testreport(nam::String,ext="")
 
 ```
-tmp=testreport("front_relax");
+testreport("front_relax");
 ```
 """
-function testreport(nm::String)
-    c=`$(MITgcm_path)/verification/testreport -t $(MITgcm_path)/verification/$(nm)`
+function testreport(nm::String,ext="")
+    c=`$(MITgcm_path)/verification/testreport -t $(MITgcm_path)/verification/$(nm) $ext`
     run(c)
 end
+
+"""
+    MITgcm_cleanup(nam::String)
+"""
+MITgcm_cleanup(nam::String) = testreport(nam,"-clean")
+
+"""
+    MITgcm_compile(nam::String)
+"""
+MITgcm_compile(nam::String) = testreport("front_relax","-norun")
+
+"""
+    MITgcm_run(nam::String)
+"""
+MITgcm_run(nam::String) = testreport("front_relax","-runonly")
 
 """
     verification_experiments()
