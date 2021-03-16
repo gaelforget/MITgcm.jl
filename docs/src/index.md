@@ -29,6 +29,7 @@ testreport
 read_mdsio
 read_meta
 read_namelist
+write_namelist
 read_available_diagnostics
 read_bin
 read_flt

@@ -26,17 +26,17 @@ using Test
     @test isa(tmp,Base.Process)
 
     fil=joinpath(MITgcm_path,"verification","advect_xy","run","data")
-    namelist=read_namelist(fil)
-    write_namelist(fil*"_new",namelist)
+    nml=read(fil,MITgcm_namelist())
+    write(fil*"_new",nml)
 	
     parse_param("1.0")
     parse_param(".TRUE.")
     parse_param(".false.")
     parse_param("10")
 
-    @test isa(namelist,MITgcm_namelist)
-    @test namelist.groups[1]==:PARM01
-    @test namelist.params[1][:implicitFreeSurface]
+    @test isa(nml,MITgcm_namelist)
+    @test nml.groups[1]==:PARM01
+    @test nml.params[1][:implicitFreeSurface]
 
     pth=joinpath(MITgcm_path,"verification","advect_xy","run")
     tmp=read_mdsio(pth,"XC.001.001")

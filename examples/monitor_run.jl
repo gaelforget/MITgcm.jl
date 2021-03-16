@@ -87,29 +87,29 @@ end
 # ╔═╡ 348c692e-84fe-11eb-3288-dd0a1dedce90
 begin
 	fil=joinpath(MITgcm_path,"verification",exps[iexp].name,"run",mydats)
-	namelist=read_namelist(fil)
+	nml=read(fil,MITgcm_namelist())
 	🏁
 end
 
 # ╔═╡ ca7bb004-8510-11eb-379f-632c3b40723d
 try
-	@bind mynamelist Select(String.(namelist.groups))
+	@bind nmlgroup Select(String.(nml.groups))
 catch e
 	"Error: could not find any namelist in $(pth)"
 end
 
 # ╔═╡ 15746ef0-8617-11eb-1160-5f48a95d94d0
 begin
-	tmplist=deepcopy(namelist)
+	tmplist=deepcopy(nml)
 	tmplist.params[1][:rhoConst]=1030.0
-	fil[end-3:end]!=="_new" ? write_namelist(fil*"_new",tmplist) : nothing
+	fil[end-3:end]!=="_new" ? write(fil*"_new",tmplist) : nothing
 	🏁
 end
 
 # ╔═╡ 9bdb94da-8510-11eb-01a6-c9a1519baa68
 begin
-	inml=findall(namelist.groups.==Symbol(mynamelist))[1]
-	tmpA=namelist.params[inml]
+	inml=findall(nml.groups.==Symbol(nmlgroup))[1]
+	tmpA=nml.params[inml]
 	params=(; zip(keys(tmpA),values(tmpA))...)	
 	🏁
 end

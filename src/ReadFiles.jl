@@ -353,10 +353,16 @@ Save a `MITgcm` namelist file. In the example below, one is read from file, modi
 
 ```
 using MITgcmTools
-testreport("advect_xy")
 fil=joinpath(MITgcm_path,"verification","advect_xy","run","data")
-namelist=read_namelist(fil)
+nml=read_namelist(fil)
 write_namelist(fil*"_new",namelist)
+```
+
+or 
+
+```
+nml=read(fil,MITgcm_namelist())
+write(fil*"_new",nml)
 ```
 """
 function write_namelist(fil,namelist)

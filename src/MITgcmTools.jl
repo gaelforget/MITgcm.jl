@@ -37,6 +37,10 @@ Base.@kwdef struct MITgcm_namelist
     params :: Array{Dict{Symbol,Any},1} = Array{Dict{Symbol,Any},1}(undef, 0)
 end
 
+import Base:read,write
+read(fil::AbstractString,nml::MITgcm_namelist) = read_namelist(fil)
+write(fil::AbstractString,nml::MITgcm_namelist) = write_namelist(fil,nml)
+
 """
     testreport(nam::String,ext="")
 
