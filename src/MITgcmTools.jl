@@ -108,17 +108,21 @@ function save_namelist(fil,namelist)
 				y=missing
 				isa(x,Bool)&&x==true ? y=".TRUE." : nothing
 				isa(x,Bool)&&x==false ? y=".FALSE." : nothing
-				
-				ismissing(y)&&isa(x,SubString)&&(!occursin('*',x)) ? y="'$x'" : nothing
+				if isa(x,Array)
+                    tmpy=[""]
+                    [tmpy[1]*=x[ii]*"," for ii in 1:length(x)]
+                    y=tmpy[1]
+                end
+				ismissing(y)&&isa(x,AbstractString)&&(!occursin('*',x)) ? y="'$x'" : nothing
 				ismissing(y) ? y="$x" : nothing
 				y[end]==',' ? y=y[1:end-1] : nothing
 				txt[i]=y
 			end
 			
-		params=[" $(keys(params)[i]) = $(txt[i]),\n" for i in 1:length(params)]
+		txtparams=[" $(keys(params)[i]) = $(txt[i]),\n" for i in 1:length(params)]
 
 		write(fid," &$(ii)\n")
-		[write(fid,params[i]) for i in 1:length(params)]
+		[write(fid,txtparams[i]) for i in 1:length(txtparams)]
 		write(fid," &\n")
 		write(fid," \n")
 	end

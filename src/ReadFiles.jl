@@ -337,6 +337,12 @@ function parse_param(p1)
 			end
 		end
 	end
+    if isa(p2,AbstractString)
+        if occursin(',',p2)
+            p2=split(p2,',')
+            p2=p2[findall( (!isempty).(p2) )]
+        end
+    end
 	return p2
 end
 

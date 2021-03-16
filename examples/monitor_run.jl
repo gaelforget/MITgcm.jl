@@ -60,10 +60,9 @@ md"""## Select a namelist and parameter group
 _Note: `data` and `PARM01`, e.g., should be found in any model run directory,_ **once the model has been run for that configuration**
 
 _Note: one can use e.g. `run MITgcm.jl` notebook or the `MITgcm run()` function to rerun the various model configurations_
-"""
 
-# ╔═╡ 6702b58e-8625-11eb-2373-e58eb4e371bd
-exps[iexp].name
+Model config currently monitored is **$(exps[iexp].name)** , let's take a deeper look into its namelist files.
+"""
 
 # ╔═╡ d7f2c656-8512-11eb-2fdf-47a3e57a55e6
 begin
@@ -101,9 +100,9 @@ end
 
 # ╔═╡ 15746ef0-8617-11eb-1160-5f48a95d94d0
 begin
-	#fil_new=joinpath(MITgcm_path,"verification",exps[iexp].name,"run",mydats*"_new")
-	#save_namelist(fil_new,namelist)
-	save_namelist(fil*"_new",namelist)
+	tmplist=deepcopy(namelist)
+	tmplist.PARM01[:rhoConst]=1030.0
+	fil[end-3:end]!=="_new" ? save_namelist(fil*"_new",tmplist) : nothing
 	🏁
 end
 
@@ -123,7 +122,6 @@ end
 # ╟─a28f7354-84eb-11eb-1830-1f401bf2db97
 # ╟─f91c3396-84ef-11eb-2665-cfa350d38737
 # ╟─f051e094-85ab-11eb-22d4-5bd61ac572a1
-# ╟─6702b58e-8625-11eb-2373-e58eb4e371bd
 # ╟─d7f2c656-8512-11eb-2fdf-47a3e57a55e6
 # ╟─ca7bb004-8510-11eb-379f-632c3b40723d
 # ╟─345071c4-8611-11eb-1a91-e914c1f315d5
