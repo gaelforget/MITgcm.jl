@@ -101,7 +101,7 @@ begin
 	tmpA=namelist[Symbol(mynamelist)]
 	params=(; zip(keys(tmpA),values(tmpA))...)
 	
-	tmpB=["$(keys(params)[i]) = $(params[i]) \n" for i in 1:length(params)]
+	tmpB=["$(keys(params)[i]) = $(parse_param(params[i])) \n" for i in 1:length(params)]
 	params_txt=""
 	[params_txt=params_txt*tmpB[i] for i in 1:length(tmpB)]	
 	

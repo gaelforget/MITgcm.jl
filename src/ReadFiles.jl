@@ -307,6 +307,37 @@ function read_namelist(fil)
 end
 
 """
+    parse_param(p1)
+
+Parse namelist parameter and return in corresponding type
+"""
+function parse_param(p1)
+	p2=missing
+	if p1==".TRUE."||p1==".true."
+		p2=true
+	elseif p1==".FALSE."||p1==".false."
+		p2=false
+	else
+        if first(p1)=='\''
+			p2=p1[2:end-1]
+        elseif occursin('.',p1)
+			try
+				p2=parse(Float64,p1)
+			catch
+				p2=p1
+			end
+		else
+			try
+				p2=parse(Int,p1)
+			catch
+				p2=p1
+			end
+		end
+	end
+	return p2
+end
+
+"""
     read_meta(pth::String,fil::String)
 
 Read a `MITgcm` metadata files, parse them, and return as an array of NamedTuple

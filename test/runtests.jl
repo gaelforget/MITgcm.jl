@@ -27,6 +27,10 @@ using Test
 
     fil=joinpath(MITgcm_path,"verification","advect_xy","run","data")
     namelist=read_namelist(fil)
+    parse_param("1.0")
+    parse_param(".TRUE.")
+    parse_param(".false.")
+    parse_param("10")
     @test isa(namelist,NamedTuple)
     @test isa(namelist.PARM01,Dict)
 
