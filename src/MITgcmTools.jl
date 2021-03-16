@@ -9,7 +9,7 @@ include("PhysicalOceanography.jl")
 export MITgcm_path, MITgcm_cleanup, MITgcm_compile, MITgcm_run
 export verification_experiments, testreport, read_namelist
 export read_mdsio, read_meta, read_available_diagnostics
-export read_bin, read_flt, read_nctiles, findtiles
+export read_bin, read_flt, read_nctiles, findtiles, parse_param
 export cube2compact, compact2cube, convert2array, convert2gcmfaces
 export SeaWaterDensity, MixedLayerDepth
 

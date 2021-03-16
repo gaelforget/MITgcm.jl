@@ -293,13 +293,16 @@ function read_namelist(fil)
                 end
             else
                 try
-                    tmp0[k0[1]]=tmp0[k0[1]]*","*strip(meta[ii])[1:end-1]
+                    tmp0[k0[1]]=tmp0[k0[1]]*strip(meta[ii])
                 catch
                     println("ignoring line -- unclear why ...")
                 end
 			end
 			ii += 1
 		end
+        for ii in keys(tmp0)
+            tmp0[ii]=parse_param(tmp0[ii])
+        end
 		params[i]=tmp0			
 	end
 		
