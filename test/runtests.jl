@@ -27,14 +27,16 @@ using Test
 
     fil=joinpath(MITgcm_path,"verification","advect_xy","run","data")
     namelist=read_namelist(fil)
-	save_namelist(fil*"_new",namelist)
+    write_namelist(fil*"_new",namelist)
 	
     parse_param("1.0")
     parse_param(".TRUE.")
     parse_param(".false.")
     parse_param("10")
-    @test isa(namelist,NamedTuple)
-    @test isa(namelist.PARM01,Dict)
+
+    @test isa(namelist,MITgcm_namelist)
+    @test namelist.groups[1]==:PARM01
+    @test namelist.params[1][:implicitFreeSurface]
 
     pth=joinpath(MITgcm_path,"verification","advect_xy","run")
     tmp=read_mdsio(pth,"XC.001.001")

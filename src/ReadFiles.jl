@@ -306,7 +306,7 @@ function read_namelist(fil)
 		params[i]=tmp0			
 	end
 		
-	return (; zip(Symbol.(groups),params)...)
+    return MITgcm_namelist(Symbol.(groups),params)
 end
 
 """
@@ -347,22 +347,23 @@ function parse_param(p1)
 end
 
 """
-    save_namelist(fil)
+    write_namelist(fil)
 
-Save a `MITgcm` namelist file. In the example below, one is read from file, modified, and then saved to a new file using save_namelist.
+Save a `MITgcm` namelist file. In the example below, one is read from file, modified, and then saved to a new file using write_namelist.
 
 ```
 using MITgcmTools
 testreport("advect_xy")
 fil=joinpath(MITgcm_path,"verification","advect_xy","run","data")
 namelist=read_namelist(fil)
-save_namelist(fil*"_new",namelist)
+write_namelist(fil*"_new",namelist)
 ```
 """
-function save_namelist(fil,namelist)
+function write_namelist(fil,namelist)
 	fid = open(fil, "w")
-	for ii in keys(namelist)
-		tmpA=namelist[ii] 
+	for jj in 1:length(namelist.groups)
+        ii=namelist.groups[jj]
+		tmpA=namelist.params[jj] 
 		params=(; zip(keys(tmpA),values(tmpA))...)
 			
 			txt=fill("",length(params))
