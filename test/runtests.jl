@@ -27,6 +27,8 @@ using Test
 
     fil=joinpath(MITgcm_path,"verification","advect_xy","run","data")
     namelist=read_namelist(fil)
+	save_namelist(fil*"_new",namelist)
+	
     parse_param("1.0")
     parse_param(".TRUE.")
     parse_param(".false.")

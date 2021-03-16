@@ -7,7 +7,7 @@ include("FormatConversions.jl")
 include("PhysicalOceanography.jl")
 
 export MITgcm_path, MITgcm_cleanup, MITgcm_compile, MITgcm_run
-export verification_experiments, testreport, read_namelist
+export verification_experiments, testreport, read_namelist, save_namelist
 export read_mdsio, read_meta, read_available_diagnostics
 export read_bin, read_flt, read_nctiles, findtiles, parse_param
 export cube2compact, compact2cube, convert2array, convert2gcmfaces
@@ -81,6 +81,48 @@ function verification_experiments()
     end
 
     [(name=lst[i],build=pkg_build[i],run=pkg_run[i]) for i in 1:length(lst)]
+end
+
+"""
+    save_namelist(fil)
+
+Save a `MITgcm` namelist file. In the example below, one is read from file, modified, and then saved to a new file using save_namelist.
+
+```
+using MITgcmTools
+testreport("advect_xy")
+fil=joinpath(MITgcm_path,"verification","advect_xy","run","data")
+namelist=read_namelist(fil)
+save_namelist(fil*"_new",namelist)
+```
+"""
+function save_namelist(fil,namelist)
+	fid = open(fil, "w")
+	for ii in keys(namelist)
+		tmpA=namelist[ii] 
+		params=(; zip(keys(tmpA),values(tmpA))...)
+			
+			txt=fill("",length(params))
+			for i in 1:length(params)
+				x=params[i]
+				y=missing
+				isa(x,Bool)&&x==true ? y=".TRUE." : nothing
+				isa(x,Bool)&&x==false ? y=".FALSE." : nothing
+				
+				ismissing(y)&&isa(x,SubString)&&(!occursin('*',x)) ? y="'$x'" : nothing
+				ismissing(y) ? y="$x" : nothing
+				y[end]==',' ? y=y[1:end-1] : nothing
+				txt[i]=y
+			end
+			
+		params=[" $(keys(params)[i]) = $(txt[i]),\n" for i in 1:length(params)]
+
+		write(fid," &$(ii)\n")
+		[write(fid,params[i]) for i in 1:length(params)]
+		write(fid," &\n")
+		write(fid," \n")
+	end
+	close(fid)
 end
 
 #more:

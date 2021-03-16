@@ -101,36 +101,10 @@ end
 
 # ╔═╡ 15746ef0-8617-11eb-1160-5f48a95d94d0
 begin
-	function save_namelist(fil,namelist)
-	fid = open(fil, "w")
-	for ii in keys(namelist)
-		tmpA=namelist[ii] 
-		params=(; zip(keys(tmpA),values(tmpA))...)
-			
-			txt=fill("",length(params))
-			for i in 1:length(params)
-				x=params[i]
-				y=missing
-				isa(x,Bool)&&x==true ? y=".TRUE." : nothing
-				isa(x,Bool)&&x==false ? y=".FALSE." : nothing
-				
-				ismissing(y)&&isa(x,SubString)&&(!occursin('*',x)) ? y="'$x'" : nothing
-				ismissing(y) ? y="$x" : nothing
-				y[end]==',' ? y=y[1:end-1] : nothing
-				txt[i]=y
-			end
-			
-		params=[" $(keys(params)[i]) = $(txt[i]),\n" for i in 1:length(params)]
-
-		write(fid," &$(ii)\n")
-		[write(fid,params[i]) for i in 1:length(params)]
-		write(fid," &\n")
-		write(fid," \n")
-	end
-	close(fid)
-	end
-	save_namelist("data.dev",namelist)
-	#"saved!"
+	#fil_new=joinpath(MITgcm_path,"verification",exps[iexp].name,"run",mydats*"_new")
+	#save_namelist(fil_new,namelist)
+	save_namelist(fil*"_new",namelist)
+	🏁
 end
 
 # ╔═╡ 9bdb94da-8510-11eb-01a6-c9a1519baa68
@@ -149,11 +123,11 @@ end
 # ╟─a28f7354-84eb-11eb-1830-1f401bf2db97
 # ╟─f91c3396-84ef-11eb-2665-cfa350d38737
 # ╟─f051e094-85ab-11eb-22d4-5bd61ac572a1
-# ╠═6702b58e-8625-11eb-2373-e58eb4e371bd
+# ╟─6702b58e-8625-11eb-2373-e58eb4e371bd
 # ╟─d7f2c656-8512-11eb-2fdf-47a3e57a55e6
 # ╟─ca7bb004-8510-11eb-379f-632c3b40723d
 # ╟─345071c4-8611-11eb-1a91-e914c1f315d5
-# ╠═15746ef0-8617-11eb-1160-5f48a95d94d0
-# ╠═8cf4d8ca-84eb-11eb-22d2-255ce7237090
-# ╠═9bdb94da-8510-11eb-01a6-c9a1519baa68
-# ╠═348c692e-84fe-11eb-3288-dd0a1dedce90
+# ╟─15746ef0-8617-11eb-1160-5f48a95d94d0
+# ╟─8cf4d8ca-84eb-11eb-22d2-255ce7237090
+# ╟─9bdb94da-8510-11eb-01a6-c9a1519baa68
+# ╟─348c692e-84fe-11eb-3288-dd0a1dedce90
