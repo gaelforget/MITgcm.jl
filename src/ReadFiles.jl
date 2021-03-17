@@ -293,17 +293,110 @@ function read_namelist(fil)
                 end
             else
                 try
-                    tmp0[k0[1]]=tmp0[k0[1]]*","*strip(meta[ii])[1:end-1]
+                    tmp0[k0[1]]=tmp0[k0[1]]*strip(meta[ii])
                 catch
                     println("ignoring line -- unclear why ...")
                 end
 			end
 			ii += 1
 		end
+        for ii in keys(tmp0)
+            tmp0[ii]=parse_param(tmp0[ii])
+        end
 		params[i]=tmp0			
 	end
 		
-	return (; zip(Symbol.(groups),params)...)
+    return MITgcm_namelist(Symbol.(groups),params)
+end
+
+"""
+    parse_param(p1)
+
+Parse namelist parameter and return in corresponding type
+"""
+function parse_param(p1)
+	p2=missing
+	if p1==".TRUE."||p1==".true."
+		p2=true
+	elseif p1==".FALSE."||p1==".false."
+		p2=false
+	else
+        if first(p1)=='\''
+			p2=p1[2:end-1]
+        elseif occursin('.',p1)
+			try
+				p2=parse(Float64,p1)
+			catch
+				p2=p1
+			end
+		else
+			try
+				p2=parse(Int,p1)
+			catch
+				p2=p1
+			end
+		end
+	end
+    if isa(p2,AbstractString)
+        if occursin(',',p2)
+            p2=split(p2,',')
+            p2=p2[findall( (!isempty).(p2) )]
+        end
+    end
+	return p2
+end
+
+"""
+    write_namelist(fil)
+
+Save a `MITgcm` namelist file. In the example below, one is read from file, modified, and then saved to a new file using write_namelist.
+
+```
+using MITgcmTools
+fil=joinpath(MITgcm_path,"verification","advect_xy","run","data")
+nml=read_namelist(fil)
+write_namelist(fil*"_new",namelist)
+```
+
+or 
+
+```
+nml=read(fil,MITgcm_namelist())
+write(fil*"_new",nml)
+```
+"""
+function write_namelist(fil,namelist)
+	fid = open(fil, "w")
+	for jj in 1:length(namelist.groups)
+        ii=namelist.groups[jj]
+		tmpA=namelist.params[jj] 
+		params=(; zip(keys(tmpA),values(tmpA))...)
+			
+			txt=fill("",length(params))
+			for i in 1:length(params)
+				x=params[i]
+				y=missing
+				isa(x,Bool)&&x==true ? y=".TRUE." : nothing
+				isa(x,Bool)&&x==false ? y=".FALSE." : nothing
+				if isa(x,Array)
+                    tmpy=[""]
+                    [tmpy[1]*=x[ii]*"," for ii in 1:length(x)]
+                    y=tmpy[1]
+                end
+				ismissing(y)&&isa(x,AbstractString)&&(!occursin('*',x)) ? y="'$x'" : nothing
+				ismissing(y) ? y="$x" : nothing
+				y[end]==',' ? y=y[1:end-1] : nothing
+				txt[i]=y
+			end
+			
+		txtparams=[" $(keys(params)[i]) = $(txt[i]),\n" for i in 1:length(params)]
+
+		write(fid," &$(ii)\n")
+		[write(fid,txtparams[i]) for i in 1:length(txtparams)]
+		write(fid," &\n")
+		write(fid," \n")
+	end
+	close(fid)
 end
 
 """

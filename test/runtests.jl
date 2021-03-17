@@ -23,12 +23,18 @@ using Test
     @test isa(exps,Array)
 
     tmp=testreport("advect_xy")
-    @test isa(tmp,Base.Process)
-
     fil=joinpath(MITgcm_path,"verification","advect_xy","run","data")
-    namelist=read_namelist(fil)
-    @test isa(namelist,NamedTuple)
-    @test isa(namelist.PARM01,Dict)
+    nml=read(fil,MITgcm_namelist())
+    write(fil*"_new",nml)
+	
+    parse_param("1.0")
+    parse_param(".TRUE.")
+    parse_param(".false.")
+    parse_param("10")
+
+    @test isa(nml,MITgcm_namelist)
+    @test nml.groups[1]==:PARM01
+    @test nml.params[1][:implicitFreeSurface]
 
     pth=joinpath(MITgcm_path,"verification","advect_xy","run")
     tmp=read_mdsio(pth,"XC.001.001")
@@ -36,10 +42,13 @@ using Test
     tmp=read_mdsio(pth,"XC")
     @test isa(tmp,Array)
 
+    @test MITgcm_clean("advect_cs")
+    @test MITgcm_build("advect_cs")
+    @test MITgcm_compile("advect_cs")
+    @test MITgcm_link("advect_cs")
+    @test MITgcm_run("advect_cs")
+
     #read / write functions
-    MITgcm_cleanup("advect_cs")
-    MITgcm_compile("advect_cs")
-    MITgcm_run("advect_cs")
 
     pth=MITgcm_path*"verification/advect_cs/run/"
     fil=joinpath(pth,"available_diagnostics.log")

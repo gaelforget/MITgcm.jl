@@ -56,30 +56,42 @@ end
 md"""## Trigger individual operations:
 
 _Note: letting each operation complete before triggering another one may be best_
+
+Selected model configuration : **$(exps[iexp].name)**
 """
 
 # ╔═╡ 8569269c-859c-11eb-1ab1-2d874dfa741b
-@bind do_cleanup Button("Clean up $(exps[iexp].name)   (incl. subfolders)")
+@bind do_cleanup Button("Clean up subfolders")
 
 # ╔═╡ f008ccaa-859c-11eb-1188-114843d333e6
 let
 	do_cleanup
-	MITgcm_cleanup(exps[iexp].name)
+	MITgcm_clean(exps[iexp].name)
 	🏁
 end
 
-# ╔═╡ 388d23a2-859d-11eb-0d5b-c728aa6b1aa6
-@bind do_compile Button("Compile $(exps[iexp].name)   (build/mitgcmuv)")
+# ╔═╡ 76291182-86d1-11eb-1524-73dc02ca7b64
+@bind do_build Button("Build mitgcmuv")
 
-# ╔═╡ 3b94cc6a-859d-11eb-2ae5-cbd79424e009
+# ╔═╡ 848241fe-86d1-11eb-3b30-b94aa0b4431d
 let
-	do_compile
-	MITgcm_compile(exps[iexp].name)
+	do_build
+	MITgcm_build(exps[iexp].name)
+	🏁
+end
+
+# ╔═╡ 11b024ac-86d1-11eb-1db9-47a5e41398e3
+@bind do_link Button("Link input files to run/")
+
+# ╔═╡ 31829f08-86d1-11eb-3e26-dfae038b4c01
+let
+	do_link
+	MITgcm_link(exps[iexp].name)
 	🏁
 end
 
 # ╔═╡ 5d826e4c-859d-11eb-133d-859c3abe3ebe
-@bind do_run Button("Run $(exps[iexp].name)   (all experiments)")
+@bind do_run Button("Run mitgcmuv in run/")
 
 # ╔═╡ 550d996a-859d-11eb-34bf-717389fbf809
 let
@@ -96,7 +108,9 @@ end
 # ╟─d90039c4-85a1-11eb-0d82-77db4decaa6e
 # ╟─8569269c-859c-11eb-1ab1-2d874dfa741b
 # ╟─f008ccaa-859c-11eb-1188-114843d333e6
-# ╟─388d23a2-859d-11eb-0d5b-c728aa6b1aa6
-# ╟─3b94cc6a-859d-11eb-2ae5-cbd79424e009
+# ╟─76291182-86d1-11eb-1524-73dc02ca7b64
+# ╟─848241fe-86d1-11eb-3b30-b94aa0b4431d
+# ╟─11b024ac-86d1-11eb-1db9-47a5e41398e3
+# ╟─31829f08-86d1-11eb-3e26-dfae038b4c01
 # ╟─5d826e4c-859d-11eb-133d-859c3abe3ebe
 # ╟─550d996a-859d-11eb-34bf-717389fbf809

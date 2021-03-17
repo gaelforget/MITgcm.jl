@@ -57,9 +57,9 @@ end
 # ╔═╡ f051e094-85ab-11eb-22d4-5bd61ac572a1
 md"""## Select a namelist and parameter group
 
-_Note: `data` and `PARM01`, e.g., should be found in any model run directory,_ **once the model has been run for that configuration**
+_Note: `data` and `PARM01`, e.g., should be found in any model run directory,_ **once the model has been run for that configuration**. _To run the model, if needed, please refer to the `run_MITgcm.jl` _notebook._
 
-_Note: one can use e.g. `run MITgcm.jl` notebook or the `MITgcm run()` function to rerun the various model configurations_
+Model configuration is **$(exps[iexp].name)**; let's take a deeper look into its parameters.
 """
 
 # ╔═╡ d7f2c656-8512-11eb-2fdf-47a3e57a55e6
@@ -82,38 +82,31 @@ begin
 	end
 end
 
+# ╔═╡ f40e76c4-86d5-11eb-15b0-cd55d6cd1e65
+md"""### Appendices"""
+
 # ╔═╡ 348c692e-84fe-11eb-3288-dd0a1dedce90
 begin
 	fil=joinpath(MITgcm_path,"verification",exps[iexp].name,"run",mydats)
-	namelist=read_namelist(fil)
+	nml=read(fil,MITgcm_namelist())
 	🏁
 end
 
 # ╔═╡ ca7bb004-8510-11eb-379f-632c3b40723d
 try
-	@bind mynamelist Select([String(keys(namelist)[i]) for i in 1:length(namelist)])
+	@bind nmlgroup Select(String.(nml.groups))
 catch e
 	"Error: could not find any namelist in $(pth)"
 end
 
 # ╔═╡ 9bdb94da-8510-11eb-01a6-c9a1519baa68
 begin
-	tmpA=namelist[Symbol(mynamelist)]
-	params=(; zip(keys(tmpA),values(tmpA))...)
-	
-	tmpB=["$(keys(params)[i]) = $(params[i]) \n" for i in 1:length(params)]
-	params_txt=""
-	[params_txt=params_txt*tmpB[i] for i in 1:length(tmpB)]	
-	
+	inml=findall(nml.groups.==Symbol(nmlgroup))[1]
 	🏁
 end
 
-# ╔═╡ a3392068-8514-11eb-14ab-4b807c5325d3
-try
-	TextField((40, length(params)+2),params_txt)
-catch e
-	"Error: could not find any namelist in $(pth)"
-end	
+# ╔═╡ e50726aa-86d3-11eb-0418-fff8fb79ef95
+nml.params[inml]
 
 # ╔═╡ Cell order:
 # ╟─f588eaba-84ef-11eb-0755-bf1b85b2b561
@@ -123,7 +116,8 @@ end
 # ╟─f051e094-85ab-11eb-22d4-5bd61ac572a1
 # ╟─d7f2c656-8512-11eb-2fdf-47a3e57a55e6
 # ╟─ca7bb004-8510-11eb-379f-632c3b40723d
-# ╟─a3392068-8514-11eb-14ab-4b807c5325d3
+# ╟─e50726aa-86d3-11eb-0418-fff8fb79ef95
+# ╟─f40e76c4-86d5-11eb-15b0-cd55d6cd1e65
 # ╟─8cf4d8ca-84eb-11eb-22d2-255ce7237090
 # ╟─9bdb94da-8510-11eb-01a6-c9a1519baa68
 # ╟─348c692e-84fe-11eb-3288-dd0a1dedce90

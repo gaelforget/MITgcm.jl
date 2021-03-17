@@ -6,10 +6,10 @@ include("ReadFiles.jl")
 include("FormatConversions.jl")
 include("PhysicalOceanography.jl")
 
-export MITgcm_path, MITgcm_cleanup, MITgcm_compile, MITgcm_run
-export verification_experiments, testreport, read_namelist
+export MITgcm_path, MITgcm_clean, MITgcm_build, MITgcm_compile, MITgcm_link, MITgcm_run
+export verification_experiments, testreport, read_namelist, write_namelist
 export read_mdsio, read_meta, read_available_diagnostics
-export read_bin, read_flt, read_nctiles, findtiles
+export read_bin, read_flt, read_nctiles, findtiles, parse_param
 export cube2compact, compact2cube, convert2array, convert2gcmfaces
 export SeaWaterDensity, MixedLayerDepth
 
@@ -17,6 +17,29 @@ p=dirname(pathof(MITgcmTools))
 artifact_toml = joinpath(p, "../Artifacts.toml")
 MITgcm_hash = artifact_hash("MITgcm", artifact_toml)
 MITgcm_path = joinpath(artifact_path(MITgcm_hash)*"/","MITgcm-checkpoint67s/")
+
+export MITgcm_namelist
+
+"""
+    MITgcm_namelist
+
+```
+using MITgcmTools
+fil=joinpath(MITgcm_path,"verification","advect_xy","run","data")
+nml=read_namelist(fil)
+MITgcm_namelist(nml.groups,nml.params)
+MITgcm_namelist(groups=nml.groups,params=nml.params)
+MITgcm_namelist(groups=nml.groups)
+```
+"""
+Base.@kwdef struct MITgcm_namelist
+    groups :: Array{Symbol,1} = Array{Symbol,1}(undef, 0)
+    params :: Array{Dict{Symbol,Any},1} = Array{Dict{Symbol,Any},1}(undef, 0)
+end
+
+import Base:read,write
+read(fil::AbstractString,nml::MITgcm_namelist) = read_namelist(fil)
+write(fil::AbstractString,nml::MITgcm_namelist) = write_namelist(fil,nml)
 
 """
     testreport(nam::String,ext="")
@@ -26,26 +49,59 @@ testreport("front_relax");
 ```
 """
 function testreport(nm::String,ext="")
+    pth=pwd()
     cd(tempdir())
     c=`$(MITgcm_path)/verification/testreport -t $(MITgcm_path)/verification/$(nm) $ext`
     isempty(ext) ? c=`$(MITgcm_path)/verification/testreport -t $(MITgcm_path)/verification/$(nm)` : nothing
     run(c)
+    cd(pth)
+    return true
 end
 
 """
-    MITgcm_cleanup(nam::String)
+    MITgcm_clean(nam::String)
 """
-MITgcm_cleanup(nam::String) = testreport(nam,"-clean")
+MITgcm_clean(nam::String) = testreport(nam,"-clean")
+
+"""
+    MITgcm_build(nam::String)
+"""
+MITgcm_build(nam::String) = testreport(nam,"-norun")
 
 """
     MITgcm_compile(nam::String)
 """
-MITgcm_compile(nam::String) = testreport(nam,"-norun")
+function MITgcm_compile(nam::String)
+    pth=pwd()
+    cd("$(MITgcm_path)/verification/$(nam)/build")
+    try
+        run(`make`)
+    catch e
+        println("model compilation may have failed")
+    end
+    cd(pth)
+    return true
+end
+
+"""
+    MITgcm_link(nam::String)
+"""
+MITgcm_link(nam::String) = testreport(nam,"-runonly")
 
 """
     MITgcm_run(nam::String)
 """
-MITgcm_run(nam::String) = testreport(nam,"-runonly")
+function MITgcm_run(nam::String)
+    pth=pwd()
+    cd("$(MITgcm_path)/verification/$(nam)/run")
+    try
+        run(pipeline(`./mitgcmuv`,"output.txt"))
+    catch e
+        println("model run may have failed")
+    end
+    cd(pth)
+    return true
+end
 
 """
     verification_experiments()

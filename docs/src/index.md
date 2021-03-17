@@ -17,8 +17,10 @@ The `MITgcm_path` variable provides the path to the MITgcm folder being used. Th
 ![Compiling and running MITgcm](https://user-images.githubusercontent.com/20276764/111195521-b7c82a00-8592-11eb-86a0-c85969de0850.png)
 
 ```@docs
-MITgcm_cleanup
+MITgcm_clean
+MITgcm_build
 MITgcm_compile 
+MITgcm_link
 MITgcm_run
 testreport
 ```
@@ -29,6 +31,7 @@ testreport
 read_mdsio
 read_meta
 read_namelist
+write_namelist
 read_available_diagnostics
 read_bin
 read_flt
