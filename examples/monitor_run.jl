@@ -57,11 +57,9 @@ end
 # ╔═╡ f051e094-85ab-11eb-22d4-5bd61ac572a1
 md"""## Select a namelist and parameter group
 
-_Note: `data` and `PARM01`, e.g., should be found in any model run directory,_ **once the model has been run for that configuration**
+_Note: `data` and `PARM01`, e.g., should be found in any model run directory,_ **once the model has been run for that configuration**. _To run the model, if needed, please refer to the `run_MITgcm.jl` _notebook._
 
-_Note: one can use e.g. `run MITgcm.jl` notebook or the `MITgcm run()` function to rerun the various model configurations_
-
-Model config currently monitored is **$(exps[iexp].name)** , let's take a deeper look into its namelist files.
+Model configuration is **$(exps[iexp].name)**; let's take a deeper look into its parameters.
 """
 
 # ╔═╡ d7f2c656-8512-11eb-2fdf-47a3e57a55e6
@@ -84,6 +82,9 @@ begin
 	end
 end
 
+# ╔═╡ f40e76c4-86d5-11eb-15b0-cd55d6cd1e65
+md"""### Appendices"""
+
 # ╔═╡ 348c692e-84fe-11eb-3288-dd0a1dedce90
 begin
 	fil=joinpath(MITgcm_path,"verification",exps[iexp].name,"run",mydats)
@@ -98,24 +99,14 @@ catch e
 	"Error: could not find any namelist in $(pth)"
 end
 
-# ╔═╡ 15746ef0-8617-11eb-1160-5f48a95d94d0
-begin
-	tmplist=deepcopy(nml)
-	tmplist.params[1][:rhoConst]=1030.0
-	fil[end-3:end]!=="_new" ? write(fil*"_new",tmplist) : nothing
-	🏁
-end
-
 # ╔═╡ 9bdb94da-8510-11eb-01a6-c9a1519baa68
 begin
 	inml=findall(nml.groups.==Symbol(nmlgroup))[1]
-	tmpA=nml.params[inml]
-	params=(; zip(keys(tmpA),values(tmpA))...)	
 	🏁
 end
 
-# ╔═╡ 345071c4-8611-11eb-1a91-e914c1f315d5
-[(keys(params)[i],values(params)[i]) for i in 1:length(params)]
+# ╔═╡ e50726aa-86d3-11eb-0418-fff8fb79ef95
+nml.params[inml]
 
 # ╔═╡ Cell order:
 # ╟─f588eaba-84ef-11eb-0755-bf1b85b2b561
@@ -125,8 +116,8 @@ end
 # ╟─f051e094-85ab-11eb-22d4-5bd61ac572a1
 # ╟─d7f2c656-8512-11eb-2fdf-47a3e57a55e6
 # ╟─ca7bb004-8510-11eb-379f-632c3b40723d
-# ╟─345071c4-8611-11eb-1a91-e914c1f315d5
-# ╟─15746ef0-8617-11eb-1160-5f48a95d94d0
+# ╟─e50726aa-86d3-11eb-0418-fff8fb79ef95
+# ╟─f40e76c4-86d5-11eb-15b0-cd55d6cd1e65
 # ╟─8cf4d8ca-84eb-11eb-22d2-255ce7237090
 # ╟─9bdb94da-8510-11eb-01a6-c9a1519baa68
 # ╟─348c692e-84fe-11eb-3288-dd0a1dedce90
