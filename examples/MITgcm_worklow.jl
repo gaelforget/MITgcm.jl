@@ -15,7 +15,7 @@ end
 
 # ╔═╡ 8cf4d8ca-84eb-11eb-22d2-255ce7237090
 begin
-	using MITgcmTools, PlutoUI, Printf
+	using MITgcmTools, PlutoUI, Printf, GR
 	exps=verification_experiments()
 	🏁 = "🏁"
 end
@@ -56,7 +56,7 @@ begin
 	
 	name = $(exps[iexp].name)
 	
-	build options = $(exps[iexp].build)
+	build options = $([exps[iexp].build[i]*", " for i in 1:length(exps[iexp].build)])
 	
 	run options = $(exps[iexp].run)
 	"""
@@ -96,7 +96,7 @@ Below we increase the run duration (`endTime` or `nTimeSteps` in parameter group
 ```
 tmplist=deepcopy(nml)
 i1=findall((nml.groups.==:PARM03))[1]
-tmplist.params[i1][:endTime] .*= 2.
+tmplist.params[i1][:nTimeSteps] = 10
 ```
 
 2. Update parameter file
@@ -116,14 +116,13 @@ Click on button when ready to start model run in **$(exps[iexp].name)**
 """
 
 # ╔═╡ 6f618b2c-86bd-11eb-1607-a179a349378e
-@bind do_run Button("Start model run")
+@bind do_run2 Button("Start model run")
 
-# ╔═╡ 96492c18-86bd-11eb-35ca-dff79e6e7818
-let
-	do_run
-	MITgcm_run(exps[iexp].name)
-	🏁
-end
+# ╔═╡ 0f920f90-86e9-11eb-3f6d-2d530bd2e9db
+md"""## Plot Model Result
+
+Here we show average temperature in **$(exps[iexp].name)**
+"""
 
 # ╔═╡ af176e6c-8695-11eb-3e34-91fbdb9c52fa
 md"""### Appendices"""
@@ -150,24 +149,48 @@ md"""Selected model : **$(exps[iexp].name)**; namelist file : **$mydats**; param
 begin
 	tmplist=deepcopy(nml)
 	i1=findall((nml.groups.==:PARM03))[1]
-	haskey(tmplist.params[i1],:endTime) ? tmplist.params[i1][:endTime]*=2. : nothing
-	haskey(tmplist.params[i1],:nTimeSteps) ? tmplist.params[i1][:nTimeSteps]*=2 : nothing
+	haskey(tmplist.params[i1],:endTime) ? tmplist.params[i1][:endTime]*=1. : nothing
+	haskey(tmplist.params[i1],:nTimeSteps) ? tmplist.params[i1][:nTimeSteps]*=1 : nothing
+	
+	#tmplist.params[i1][:nTimeSteps]=50
 	
 	rm(fil)
-	write(fil,tmplist)	
+	write(fil,tmplist)
+	
+	do_run1="🐎"
+end
+
+# ╔═╡ 96492c18-86bd-11eb-35ca-dff79e6e7818
+begin
+	do_run1
+	do_run2
+	MITgcm_run(exps[iexp].name)
+	refresh_plot=true
 	🏁
+end
+
+# ╔═╡ d0bbb668-86e0-11eb-1a9b-8f2b0175f7c1
+begin
+	refresh_plot
+	
+	filout=joinpath(MITgcm_path,"verification",exps[iexp].name,"run","output.txt")
+	filstat=joinpath(MITgcm_path,"verification",exps[iexp].name,"run","onestat.txt")
+	run(pipeline(`grep dynstat_theta_mean $(filout)`,filstat))
+	
+	tmp0 = read(filstat,String)
+	tmp0 = split(tmp0,"\n")
+	Tmean=[parse(Float64,split(tmp0[i],"=")[2]) for i in 1:length(tmp0)-1]
+	plot(Tmean)	
 end
 
 # ╔═╡ 52d7c7a2-8693-11eb-016f-4fc3eb516d44
 begin
         inml=findall(nml.groups.==Symbol(nmlgroup))[1]
-        tmpA=nml.params[inml]
-        params=(; zip(keys(tmpA),values(tmpA))...)
         🏁
 end
 
-# ╔═╡ 345071c4-8611-11eb-1a91-e914c1f315d5
-[(keys(params)[i],values(params)[i]) for i in 1:length(params)]
+# ╔═╡ 910da802-86e3-11eb-0d09-35de97a2a6ff
+nml.params[inml]
 
 # ╔═╡ Cell order:
 # ╟─f588eaba-84ef-11eb-0755-bf1b85b2b561
@@ -178,12 +201,14 @@ end
 # ╟─be7d5ee2-86cb-11eb-2ef3-bd7757133661
 # ╟─d7f2c656-8512-11eb-2fdf-47a3e57a55e6
 # ╟─ca7bb004-8510-11eb-379f-632c3b40723d
-# ╟─345071c4-8611-11eb-1a91-e914c1f315d5
+# ╟─910da802-86e3-11eb-0d09-35de97a2a6ff
 # ╟─c7670d00-868c-11eb-1889-4d3ffe621dd2
 # ╟─15746ef0-8617-11eb-1160-5f48a95d94d0
 # ╟─4b62b282-86bd-11eb-2fed-bbbe8ef2d4af
 # ╟─6f618b2c-86bd-11eb-1607-a179a349378e
 # ╟─96492c18-86bd-11eb-35ca-dff79e6e7818
+# ╟─0f920f90-86e9-11eb-3f6d-2d530bd2e9db
+# ╟─d0bbb668-86e0-11eb-1a9b-8f2b0175f7c1
 # ╟─af176e6c-8695-11eb-3e34-91fbdb9c52fa
 # ╟─8cf4d8ca-84eb-11eb-22d2-255ce7237090
 # ╟─348c692e-84fe-11eb-3288-dd0a1dedce90
