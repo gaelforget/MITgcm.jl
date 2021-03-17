@@ -23,8 +23,6 @@ using Test
     @test isa(exps,Array)
 
     tmp=testreport("advect_xy")
-    @test isa(tmp,Base.Process)
-
     fil=joinpath(MITgcm_path,"verification","advect_xy","run","data")
     nml=read(fil,MITgcm_namelist())
     write(fil*"_new",nml)
@@ -44,10 +42,13 @@ using Test
     tmp=read_mdsio(pth,"XC")
     @test isa(tmp,Array)
 
+    @test MITgcm_clean("advect_cs")
+    @test MITgcm_build("advect_cs")
+    @test MITgcm_compile("advect_cs")
+    @test MITgcm_link("advect_cs")
+    @test MITgcm_run("advect_cs")
+
     #read / write functions
-    MITgcm_cleanup("advect_cs")
-    MITgcm_compile("advect_cs")
-    MITgcm_run("advect_cs")
 
     pth=MITgcm_path*"verification/advect_cs/run/"
     fil=joinpath(pth,"available_diagnostics.log")

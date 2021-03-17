@@ -6,7 +6,7 @@ include("ReadFiles.jl")
 include("FormatConversions.jl")
 include("PhysicalOceanography.jl")
 
-export MITgcm_path, MITgcm_cleanup, MITgcm_compile, MITgcm_run
+export MITgcm_path, MITgcm_clean, MITgcm_build, MITgcm_compile, MITgcm_link, MITgcm_run
 export verification_experiments, testreport, read_namelist, write_namelist
 export read_mdsio, read_meta, read_available_diagnostics
 export read_bin, read_flt, read_nctiles, findtiles, parse_param
@@ -49,26 +49,59 @@ testreport("front_relax");
 ```
 """
 function testreport(nm::String,ext="")
+    pth=pwd()
     cd(tempdir())
     c=`$(MITgcm_path)/verification/testreport -t $(MITgcm_path)/verification/$(nm) $ext`
     isempty(ext) ? c=`$(MITgcm_path)/verification/testreport -t $(MITgcm_path)/verification/$(nm)` : nothing
     run(c)
+    cd(pth)
+    return true
 end
 
 """
-    MITgcm_cleanup(nam::String)
+    MITgcm_clean(nam::String)
 """
-MITgcm_cleanup(nam::String) = testreport(nam,"-clean")
+MITgcm_clean(nam::String) = testreport(nam,"-clean")
+
+"""
+    MITgcm_build(nam::String)
+"""
+MITgcm_build(nam::String) = testreport(nam,"-norun")
 
 """
     MITgcm_compile(nam::String)
 """
-MITgcm_compile(nam::String) = testreport(nam,"-norun")
+function MITgcm_compile(nam::String)
+    pth=pwd()
+    cd("$(MITgcm_path)/verification/$(nam)/build")
+    try
+        run(`make`)
+    catch e
+        println("model compilation may have failed")
+    end
+    cd(pth)
+    return true
+end
+
+"""
+    MITgcm_link(nam::String)
+"""
+MITgcm_link(nam::String) = testreport(nam,"-runonly")
 
 """
     MITgcm_run(nam::String)
 """
-MITgcm_run(nam::String) = testreport(nam,"-runonly")
+function MITgcm_run(nam::String)
+    pth=pwd()
+    cd("$(MITgcm_path)/verification/$(nam)/run")
+    try
+        run(pipeline(`./mitgcmuv`,"output.txt"))
+    catch e
+        println("model run may have failed")
+    end
+    cd(pth)
+    return true
+end
 
 """
     verification_experiments()
