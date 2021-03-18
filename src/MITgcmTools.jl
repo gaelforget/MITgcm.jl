@@ -44,16 +44,29 @@ write(fil::AbstractString,nml::MITgcm_namelist) = write_namelist(fil,nml)
 """
     testreport(nam::String,ext="")
 
+Run the testreport script for one model config `nam` (or "all"),
+with additional options (optional) speficied in `ext`
+
 ```
-testreport("front_relax");
+using MITgcmTools
+testreport("front_relax")
 ```
 """
 function testreport(nm::String,ext="")
     pth=pwd()
     cd(tempdir())
-    c=`$(MITgcm_path)/verification/testreport -t $(MITgcm_path)/verification/$(nm) $ext`
-    isempty(ext) ? c=`$(MITgcm_path)/verification/testreport -t $(MITgcm_path)/verification/$(nm)` : nothing
-    run(c)
+    println(pwd())
+    if nm!=="all"
+        lst=[nm]
+    else
+        exps=verification_experiments()
+        lst=[exps[i].name for i in 1:length(exps)]
+    end
+    for nm in lst
+        c=`$(MITgcm_path)/verification/testreport -t $(MITgcm_path)/verification/$(nm) $ext`
+        isempty(ext) ? c=`$(MITgcm_path)/verification/testreport -t $(MITgcm_path)/verification/$(nm)` : nothing
+        run(c)
+    end
     cd(pth)
     return true
 end
