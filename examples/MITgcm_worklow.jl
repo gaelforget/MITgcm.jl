@@ -29,7 +29,7 @@ begin
 	### 
 
 
-	Here we use scan an MITgcm run folder interactivetly to generate something like this:
+	Here we setup, run and plot MITgcm interactively via **`MITgcmTools.jl`** to generate something like this:
 	
 	$(Resource(imgA, :width => 240))
 	
@@ -46,7 +46,7 @@ _Note: changing this top level parameter should update multiple-choice menus and
 """
 
 # ╔═╡ a28f7354-84eb-11eb-1830-1f401bf2db97
-@bind myexp Select([exps[i].name for i in 1:length(exps)],default="advect_xy")
+@bind myexp Select([exps[i].name for i in 1:length(exps)],default="vermix")
 
 # ╔═╡ 2ff78cac-868b-11eb-2d56-79ea1f874453
 begin
@@ -67,8 +67,11 @@ md"""## Browse Model Parameters
 
 **Once the model has been run for a configuration**, then `data` and `PARM01` should be found in the model run directory. 
 
-If in doubt, or something seems to have gone wrong, then you may want to call `testreport(exps[iexp].name)` to clean up, recompile, and rerun the chosen model configuration. After restarting this notebook, you should then be able to call `MITgcm_run(exps[iexp].name)` to rerun the already compiled model with modified parameters as shown below.
+_Note: If in doubt, or e.g. an error message suggests that something has gone wrong, then you may want to call `testreport(exps[iexp].name)` to clean up, recompile, and rerun the chosen model configuration. Then restart this notebook and you should be able to call_ `MITgcm_run(exps[iexp].name)` _to rerun the already compiled model with modified parameters as shown below._
 """
+
+# ╔═╡ f93bde1a-8811-11eb-35f5-e325bd730161
+@bind reload_nml Button("Refresh Parameters")
 
 # ╔═╡ d7f2c656-8512-11eb-2fdf-47a3e57a55e6
 begin
@@ -89,25 +92,13 @@ end
 # ╔═╡ c7670d00-868c-11eb-1889-4d3ffe621dd2
 md"""## Modify Parameter File
 
-Below we increase the run duration (`endTime` or `nTimeSteps` in parameter group `PARM03`) in two steps.
+In the code cell below, we can change the run duration for the **$(exps[iexp].name)** configuration.
 
-1. Modify parameter
-
-```
-tmplist=deepcopy(nml)
-i1=findall((nml.groups.==:PARM03))[1]
-tmplist.params[i1][:nTimeSteps] = 10
-```
-
-2. Update parameter file
-
-```
-rm(fil)
-write(fil,tmplist)
-```
-
-Model config currently monitored is **$(exps[iexp].name)**
+_Note: some MITgcm experiments use `nTimeSteps` while others use `endTime`. Trying to use both in the same run generates an error message (conflicting specifications)._
 """
+
+# ╔═╡ dff9a4c8-880c-11eb-37e1-439de05c5166
+@bind update_file Select(["allset" => "Use Given Parameters", "update" => "Update Parameter File"])
 
 # ╔═╡ 4b62b282-86bd-11eb-2fed-bbbe8ef2d4af
 md"""## Run Modified Model
@@ -116,7 +107,7 @@ Click on button when ready to start model run in **$(exps[iexp].name)**
 """
 
 # ╔═╡ 6f618b2c-86bd-11eb-1607-a179a349378e
-@bind do_run2 Button("Start model run")
+@bind do_run2 Button("Restart Model")
 
 # ╔═╡ 0f920f90-86e9-11eb-3f6d-2d530bd2e9db
 md"""## Plot Model Result
@@ -128,7 +119,9 @@ Here we show average temperature in **$(exps[iexp].name)**
 md"""### Appendices"""
 
 # ╔═╡ 348c692e-84fe-11eb-3288-dd0a1dedce90
-begin
+begin	
+	update_file
+	reload_nml
 	fil=joinpath(MITgcm_path,"verification",exps[iexp].name,"run",mydats)
 	nml=read(fil,MITgcm_namelist())
 	🏁
@@ -147,16 +140,22 @@ md"""Selected model : **$(exps[iexp].name)**; namelist file : **$mydats**; param
 
 # ╔═╡ 15746ef0-8617-11eb-1160-5f48a95d94d0
 begin
+	update_file
+	
 	tmplist=deepcopy(nml)
 	i1=findall((nml.groups.==:PARM03))[1]
-	haskey(tmplist.params[i1],:endTime) ? tmplist.params[i1][:endTime]*=1. : nothing
-	haskey(tmplist.params[i1],:nTimeSteps) ? tmplist.params[i1][:nTimeSteps]*=1 : nothing
 	
-	#tmplist.params[i1][:nTimeSteps]=50
+	if haskey(tmplist.params[i1],:nTimeSteps)
+		tmplist.params[i1][:nTimeSteps]+=1
+	else
+		tmplist.params[i1][:endTime]+=tmplist.params[i1][:deltaT]
+	end
 	
-	rm(fil)
-	write(fil,tmplist)
-	
+	if update_file!=="allset"
+		rm(fil)
+		write(fil,tmplist)
+	end
+
 	do_run1="🐎"
 end
 
@@ -189,7 +188,7 @@ begin
         🏁
 end
 
-# ╔═╡ 910da802-86e3-11eb-0d09-35de97a2a6ff
+# ╔═╡ 385bd57a-8810-11eb-289a-47fcc1ec5d51
 nml.params[inml]
 
 # ╔═╡ Cell order:
@@ -199,10 +198,12 @@ nml.params[inml]
 # ╟─2ff78cac-868b-11eb-2d56-79ea1f874453
 # ╟─f051e094-85ab-11eb-22d4-5bd61ac572a1
 # ╟─be7d5ee2-86cb-11eb-2ef3-bd7757133661
+# ╟─f93bde1a-8811-11eb-35f5-e325bd730161
 # ╟─d7f2c656-8512-11eb-2fdf-47a3e57a55e6
 # ╟─ca7bb004-8510-11eb-379f-632c3b40723d
-# ╟─910da802-86e3-11eb-0d09-35de97a2a6ff
+# ╟─385bd57a-8810-11eb-289a-47fcc1ec5d51
 # ╟─c7670d00-868c-11eb-1889-4d3ffe621dd2
+# ╟─dff9a4c8-880c-11eb-37e1-439de05c5166
 # ╟─15746ef0-8617-11eb-1160-5f48a95d94d0
 # ╟─4b62b282-86bd-11eb-2fed-bbbe8ef2d4af
 # ╟─6f618b2c-86bd-11eb-1607-a179a349378e
