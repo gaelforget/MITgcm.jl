@@ -105,25 +105,6 @@ begin
 	end
 end
 
-# ╔═╡ 734e2b5a-8866-11eb-0025-bd9544f4c30d
-begin
-	#Read grid (as if rectangular domain for initial test) 
-	
-	XC=read_mdsio(pth,"XC"); siz=size(XC)
-
-	mread(xx::Array,x::MeshArray) = read(xx,x)	
-	function mread(fil::String,x::MeshArray)
-		d=dirname(fil)
-		b=basename(fil)[1:end-5]
-		read(read_mdsio(d,b),x)
-	end
-
-	γ=gcmgrid(pth,"PeriodicChannel",1,fill(siz,1), [siz[1] siz[2]], eltype(XC), mread, write)
-	Γ=GridLoad(γ)
-	
-	🏁
-end
-
 # ╔═╡ c7670d00-868c-11eb-1889-4d3ffe621dd2
 md"""## Modify Parameter File
 
@@ -232,11 +213,29 @@ begin
 	plot(Tmean)	
 end
 
+# ╔═╡ 734e2b5a-8866-11eb-0025-bd9544f4c30d
+begin
+	#Read grid (as if rectangular domain for initial test) 
+	
+	XC=read_mdsio(pth,"XC"); siz=size(XC)
+
+	mread(xx::Array,x::MeshArray) = read(xx,x)	
+	function mread(fil::String,x::MeshArray)
+		d=dirname(fil)
+		b=basename(fil)[1:end-5]
+		read(read_mdsio(d,b),x)
+	end
+
+	γ=gcmgrid(pth,"PeriodicChannel",1,fill(siz,1), [siz[1] siz[2]], eltype(XC), mread, write)
+	Γ=GridLoad(γ)
+	
+	🏁
+end
+
 # ╔═╡ Cell order:
 # ╟─f588eaba-84ef-11eb-0755-bf1b85b2b561
 # ╟─98b6621c-85ab-11eb-29d1-af0433598c6a
 # ╟─a28f7354-84eb-11eb-1830-1f401bf2db97
-# ╟─734e2b5a-8866-11eb-0025-bd9544f4c30d
 # ╟─2ff78cac-868b-11eb-2d56-79ea1f874453
 # ╟─ee0ed0a0-8817-11eb-124d-a197f1d4545a
 # ╟─f051e094-85ab-11eb-22d4-5bd61ac572a1
@@ -258,3 +257,4 @@ end
 # ╟─348c692e-84fe-11eb-3288-dd0a1dedce90
 # ╟─52d7c7a2-8693-11eb-016f-4fc3eb516d44
 # ╟─eca925ba-8816-11eb-1d6d-39bf08bfe979
+# ╟─734e2b5a-8866-11eb-0025-bd9544f4c30d
