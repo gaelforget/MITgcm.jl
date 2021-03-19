@@ -15,8 +15,16 @@ end
 
 # ╔═╡ 8cf4d8ca-84eb-11eb-22d2-255ce7237090
 begin
-	using MITgcmTools, PlutoUI, Printf, GR
+	using MITgcmTools, MeshArrays, PlutoUI, Printf, GR
 	exps=verification_experiments()
+	
+	tst=fill(false,length(exps))
+	for i in 1:length(exps)
+		pth0=joinpath(MITgcm_path,"verification",exps[i].name,"run")
+		tst[i]=!isempty(findall(occursin.("XC",readdir(pth0))))
+	end
+	exps=exps[findall(tst)]
+	
 	🏁 = "🏁"
 end
 
@@ -46,7 +54,7 @@ _Note: changing this top level parameter should update multiple-choice menus and
 """
 
 # ╔═╡ a28f7354-84eb-11eb-1830-1f401bf2db97
-@bind myexp Select([exps[i].name for i in 1:length(exps)],default="vermix")
+@bind myexp Select([exps[i].name for i in 1:length(exps)],default="advect_xy")
 
 # ╔═╡ 2ff78cac-868b-11eb-2d56-79ea1f874453
 begin
@@ -72,15 +80,6 @@ If `mitcmuv` is not found at this stage then it is assumed that the chosen model
 Once `mitgcmuv` is found, then a `🏁` should appear just below.
 """
 
-# ╔═╡ eca925ba-8816-11eb-1d6d-39bf08bfe979
-begin
-	filexe=joinpath(MITgcm_path,"verification",exps[iexp].name,"build","mitgcmuv")
-	!isfile(filexe) ? testreport(exps[iexp].name) : nothing
-	filout=joinpath(MITgcm_path,"verification",exps[iexp].name,"run","output.txt")
-	filstat=joinpath(MITgcm_path,"verification",exps[iexp].name,"run","onestat.txt")
-	🏁
-end
-
 # ╔═╡ f051e094-85ab-11eb-22d4-5bd61ac572a1
 md"""## Browse Model Parameters
 
@@ -104,6 +103,25 @@ begin
 	catch e
 		"Error: could not find any namelist in $(pth)"
 	end
+end
+
+# ╔═╡ 734e2b5a-8866-11eb-0025-bd9544f4c30d
+begin
+	#Read grid (as if rectangular domain for initial test) 
+	
+	XC=read_mdsio(pth,"XC"); siz=size(XC)
+
+	mread(xx::Array,x::MeshArray) = read(xx,x)	
+	function mread(fil::String,x::MeshArray)
+		d=dirname(fil)
+		b=basename(fil)[1:end-5]
+		read(read_mdsio(d,b),x)
+	end
+
+	γ=gcmgrid(pth,"PeriodicChannel",1,fill(siz,1), [siz[1] siz[2]], eltype(XC), mread, write)
+	Γ=GridLoad(γ)
+	
+	🏁
 end
 
 # ╔═╡ c7670d00-868c-11eb-1889-4d3ffe621dd2
@@ -185,6 +203,24 @@ begin
 	🏁
 end
 
+# ╔═╡ 52d7c7a2-8693-11eb-016f-4fc3eb516d44
+begin
+        inml=findall(nml.groups.==Symbol(nmlgroup))[1]
+        🏁
+end
+
+# ╔═╡ 385bd57a-8810-11eb-289a-47fcc1ec5d51
+nml.params[inml]
+
+# ╔═╡ eca925ba-8816-11eb-1d6d-39bf08bfe979
+begin
+	filexe=joinpath(MITgcm_path,"verification",exps[iexp].name,"build","mitgcmuv")
+	!isfile(filexe) ? testreport(exps[iexp].name) : nothing
+	filout=joinpath(MITgcm_path,"verification",exps[iexp].name,"run","output.txt")
+	filstat=joinpath(MITgcm_path,"verification",exps[iexp].name,"run","onestat.txt")
+	🏁
+end
+
 # ╔═╡ d0bbb668-86e0-11eb-1a9b-8f2b0175f7c1
 begin
 	refresh_plot
@@ -196,22 +232,13 @@ begin
 	plot(Tmean)	
 end
 
-# ╔═╡ 52d7c7a2-8693-11eb-016f-4fc3eb516d44
-begin
-        inml=findall(nml.groups.==Symbol(nmlgroup))[1]
-        🏁
-end
-
-# ╔═╡ 385bd57a-8810-11eb-289a-47fcc1ec5d51
-nml.params[inml]
-
 # ╔═╡ Cell order:
 # ╟─f588eaba-84ef-11eb-0755-bf1b85b2b561
 # ╟─98b6621c-85ab-11eb-29d1-af0433598c6a
 # ╟─a28f7354-84eb-11eb-1830-1f401bf2db97
+# ╟─734e2b5a-8866-11eb-0025-bd9544f4c30d
 # ╟─2ff78cac-868b-11eb-2d56-79ea1f874453
 # ╟─ee0ed0a0-8817-11eb-124d-a197f1d4545a
-# ╟─eca925ba-8816-11eb-1d6d-39bf08bfe979
 # ╟─f051e094-85ab-11eb-22d4-5bd61ac572a1
 # ╟─be7d5ee2-86cb-11eb-2ef3-bd7757133661
 # ╟─f93bde1a-8811-11eb-35f5-e325bd730161
@@ -230,3 +257,4 @@ nml.params[inml]
 # ╟─8cf4d8ca-84eb-11eb-22d2-255ce7237090
 # ╟─348c692e-84fe-11eb-3288-dd0a1dedce90
 # ╟─52d7c7a2-8693-11eb-016f-4fc3eb516d44
+# ╟─eca925ba-8816-11eb-1d6d-39bf08bfe979
