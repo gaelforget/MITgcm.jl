@@ -62,12 +62,29 @@ begin
 	"""
 end
 
+# ╔═╡ ee0ed0a0-8817-11eb-124d-a197f1d4545a
+md"""### Where Is `mitgcmuv` located?
+
+The model executable `mitcmuv` is normally found in the `build/` subfolder of the selected experiment.
+
+If `mitcmuv` is not found at this stage then it is assumed that the chosen model configuration has never been compiled -- such that we need to compile and run the model a first time. This might take a lot longer than a normal model run due to the one-time cost of compiling the model.
+
+Once `mitgcmuv` is found, then a `🏁` should appear just below.
+"""
+
+# ╔═╡ eca925ba-8816-11eb-1d6d-39bf08bfe979
+begin
+	filexe=joinpath(MITgcm_path,"verification",exps[iexp].name,"build","mitgcmuv")
+	!isfile(filexe) ? testreport(exps[iexp].name) : nothing
+	filout=joinpath(MITgcm_path,"verification",exps[iexp].name,"run","output.txt")
+	filstat=joinpath(MITgcm_path,"verification",exps[iexp].name,"run","onestat.txt")
+	🏁
+end
+
 # ╔═╡ f051e094-85ab-11eb-22d4-5bd61ac572a1
 md"""## Browse Model Parameters
 
-**Once the model has been run for a configuration**, then `data` and `PARM01` should be found in the model run directory. 
-
-_Note: If in doubt, or e.g. an error message suggests that something has gone wrong, then you may want to call `testreport(exps[iexp].name)` to clean up, recompile, and rerun the chosen model configuration. Then restart this notebook and you should be able to call_ `MITgcm_run(exps[iexp].name)` _to rerun the already compiled model with modified parameters as shown below._
+**Once the model has been run for the selected configuration**, then `data` and `PARM01` should be found in the model run directory. If an error message suggests that something has gone wrong, sometimes it helps to rerun `testreport(exps[iexp].name)` to clean up, recompile, and rerun the chosen model configuration (as shown above). After restarting this notebook, you should be able to call `MITgcm_run(exps[iexp].name)` to rerun the already compiled model with modified parameters (as done below).
 """
 
 # ╔═╡ f93bde1a-8811-11eb-35f5-e325bd730161
@@ -98,7 +115,7 @@ _Note: some MITgcm experiments use `nTimeSteps` while others use `endTime`. Tryi
 """
 
 # ╔═╡ dff9a4c8-880c-11eb-37e1-439de05c5166
-@bind update_file Select(["allset" => "Use Given Parameters", "update" => "Update Parameter File"])
+@bind update_file Select(["allset" => "Use Previous Parameters", "update" => "Update Parameter File"])
 
 # ╔═╡ 4b62b282-86bd-11eb-2fed-bbbe8ef2d4af
 md"""## Run Modified Model
@@ -171,9 +188,6 @@ end
 # ╔═╡ d0bbb668-86e0-11eb-1a9b-8f2b0175f7c1
 begin
 	refresh_plot
-	
-	filout=joinpath(MITgcm_path,"verification",exps[iexp].name,"run","output.txt")
-	filstat=joinpath(MITgcm_path,"verification",exps[iexp].name,"run","onestat.txt")
 	run(pipeline(`grep dynstat_theta_mean $(filout)`,filstat))
 	
 	tmp0 = read(filstat,String)
@@ -196,6 +210,8 @@ nml.params[inml]
 # ╟─98b6621c-85ab-11eb-29d1-af0433598c6a
 # ╟─a28f7354-84eb-11eb-1830-1f401bf2db97
 # ╟─2ff78cac-868b-11eb-2d56-79ea1f874453
+# ╟─ee0ed0a0-8817-11eb-124d-a197f1d4545a
+# ╟─eca925ba-8816-11eb-1d6d-39bf08bfe979
 # ╟─f051e094-85ab-11eb-22d4-5bd61ac572a1
 # ╟─be7d5ee2-86cb-11eb-2ef3-bd7757133661
 # ╟─f93bde1a-8811-11eb-35f5-e325bd730161
