@@ -32,12 +32,12 @@ end
 """
     MITgcm_clean(config::MITgcm_config)
 """
-MITgcm_clean(config::MITgcm_config) = testreport(config.name,"-clean")
+MITgcm_clean(config::MITgcm_config) = testreport(config,"-clean")
 
 """
     MITgcm_build(config::MITgcm_config)
 """
-MITgcm_build(config::MITgcm_config) = testreport(config.name,"-norun")
+MITgcm_build(config::MITgcm_config) = testreport(config,"-norun")
 
 """
     MITgcm_compile(config::MITgcm_config)
@@ -58,7 +58,7 @@ end
 """
     MITgcm_link(config::MITgcm_config)
 """
-MITgcm_link(config::MITgcm_config) = testreport(config.name,"-runonly")
+MITgcm_link(config::MITgcm_config) = testreport(config,"-runonly")
 
 """
     MITgcm_run(config::MITgcm_config)

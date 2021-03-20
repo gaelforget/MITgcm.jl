@@ -23,7 +23,7 @@ begin
 		pth0=joinpath(MITgcm_path,"verification",exps[i].name,"run")
 		tst[i]=!isempty(findall(occursin.("XC",readdir(pth0))))
 	end
-	exps=exps[findall(tst)]
+	#exps=exps[findall(tst)]
 	
 	🏁 = "🏁"
 end
@@ -83,7 +83,7 @@ Once `mitgcmuv` is found, then a `🏁` should appear just below.
 # ╔═╡ eca925ba-8816-11eb-1d6d-39bf08bfe979
 begin
 	filexe=joinpath(MITgcm_path,"verification",exps[iexp].name,"build","mitgcmuv")
-	!isfile(filexe) ? testreport(exps[iexp].name) : nothing
+	!isfile(filexe) ? testreport(exps[iexp]) : nothing
 	filout=joinpath(MITgcm_path,"verification",exps[iexp].name,"run","output.txt")
 	filstat=joinpath(MITgcm_path,"verification",exps[iexp].name,"run","onestat.txt")
 	🏁
@@ -217,17 +217,21 @@ nml.params[inml]
 begin
 	#Read grid (as if rectangular domain for initial test) 
 	
-	XC=read_mdsio(pth,"XC"); siz=size(XC)
+	try
+		XC=read_mdsio(pth,"XC"); siz=size(XC)
 
-	mread(xx::Array,x::MeshArray) = read(xx,x)	
-	function mread(fil::String,x::MeshArray)
-		d=dirname(fil)
-		b=basename(fil)[1:end-5]
-		read(read_mdsio(d,b),x)
+		mread(xx::Array,x::MeshArray) = read(xx,x)	
+		function mread(fil::String,x::MeshArray)
+			d=dirname(fil)
+			b=basename(fil)[1:end-5]
+			read(read_mdsio(d,b),x)
+		end
+
+		γ=gcmgrid(pth,"PeriodicChannel",1,fill(siz,1), [siz[1] siz[2]], eltype(XC), mread, write)
+		Γ=GridLoad(γ)
+	catch e
+		println("no grid files")
 	end
-
-	γ=gcmgrid(pth,"PeriodicChannel",1,fill(siz,1), [siz[1] siz[2]], eltype(XC), mread, write)
-	Γ=GridLoad(γ)
 	
 	🏁
 end
