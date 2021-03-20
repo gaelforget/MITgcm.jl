@@ -80,6 +80,15 @@ If `mitcmuv` is not found at this stage then it is assumed that the chosen model
 Once `mitgcmuv` is found, then a `🏁` should appear just below.
 """
 
+# ╔═╡ eca925ba-8816-11eb-1d6d-39bf08bfe979
+begin
+	filexe=joinpath(MITgcm_path,"verification",exps[iexp].name,"build","mitgcmuv")
+	!isfile(filexe) ? testreport(exps[iexp].name) : nothing
+	filout=joinpath(MITgcm_path,"verification",exps[iexp].name,"run","output.txt")
+	filstat=joinpath(MITgcm_path,"verification",exps[iexp].name,"run","onestat.txt")
+	🏁
+end
+
 # ╔═╡ f051e094-85ab-11eb-22d4-5bd61ac572a1
 md"""## Browse Model Parameters
 
@@ -162,7 +171,7 @@ begin
 	i1=findall((nml.groups.==:PARM03))[1]
 	
 	if haskey(tmplist.params[i1],:nTimeSteps)
-		tmplist.params[i1][:nTimeSteps]+=1
+		tmplist.params[i1][:nTimeSteps]+=2
 	else
 		tmplist.params[i1][:endTime]+=tmplist.params[i1][:deltaT]
 	end
@@ -184,24 +193,6 @@ begin
 	🏁
 end
 
-# ╔═╡ 52d7c7a2-8693-11eb-016f-4fc3eb516d44
-begin
-        inml=findall(nml.groups.==Symbol(nmlgroup))[1]
-        🏁
-end
-
-# ╔═╡ 385bd57a-8810-11eb-289a-47fcc1ec5d51
-nml.params[inml]
-
-# ╔═╡ eca925ba-8816-11eb-1d6d-39bf08bfe979
-begin
-	filexe=joinpath(MITgcm_path,"verification",exps[iexp].name,"build","mitgcmuv")
-	!isfile(filexe) ? testreport(exps[iexp].name) : nothing
-	filout=joinpath(MITgcm_path,"verification",exps[iexp].name,"run","output.txt")
-	filstat=joinpath(MITgcm_path,"verification",exps[iexp].name,"run","onestat.txt")
-	🏁
-end
-
 # ╔═╡ d0bbb668-86e0-11eb-1a9b-8f2b0175f7c1
 begin
 	refresh_plot
@@ -212,6 +203,15 @@ begin
 	Tmean=[parse(Float64,split(tmp0[i],"=")[2]) for i in 1:length(tmp0)-1]
 	plot(Tmean)	
 end
+
+# ╔═╡ 52d7c7a2-8693-11eb-016f-4fc3eb516d44
+begin
+        inml=findall(nml.groups.==Symbol(nmlgroup))[1]
+        🏁
+end
+
+# ╔═╡ 385bd57a-8810-11eb-289a-47fcc1ec5d51
+nml.params[inml]
 
 # ╔═╡ 734e2b5a-8866-11eb-0025-bd9544f4c30d
 begin
@@ -238,6 +238,7 @@ end
 # ╟─a28f7354-84eb-11eb-1830-1f401bf2db97
 # ╟─2ff78cac-868b-11eb-2d56-79ea1f874453
 # ╟─ee0ed0a0-8817-11eb-124d-a197f1d4545a
+# ╟─eca925ba-8816-11eb-1d6d-39bf08bfe979
 # ╟─f051e094-85ab-11eb-22d4-5bd61ac572a1
 # ╟─be7d5ee2-86cb-11eb-2ef3-bd7757133661
 # ╟─f93bde1a-8811-11eb-35f5-e325bd730161
@@ -256,5 +257,4 @@ end
 # ╟─8cf4d8ca-84eb-11eb-22d2-255ce7237090
 # ╟─348c692e-84fe-11eb-3288-dd0a1dedce90
 # ╟─52d7c7a2-8693-11eb-016f-4fc3eb516d44
-# ╟─eca925ba-8816-11eb-1d6d-39bf08bfe979
 # ╟─734e2b5a-8866-11eb-0025-bd9544f4c30d
