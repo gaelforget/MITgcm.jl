@@ -9,7 +9,8 @@ using MITgcmTools
 testreport("front_relax")
 ```
 """
-function testreport(nm::String,ext="")
+function testreport(config::MITgcm_config,ext="")
+    nm=config.name
     pth=pwd()
     cd(tempdir())
     println(pwd())
@@ -29,19 +30,20 @@ function testreport(nm::String,ext="")
 end
 
 """
-    MITgcm_clean(nam::String)
+    MITgcm_clean(config::MITgcm_config)
 """
-MITgcm_clean(nam::String) = testreport(nam,"-clean")
+MITgcm_clean(config::MITgcm_config) = testreport(config.name,"-clean")
 
 """
-    MITgcm_build(nam::String)
+    MITgcm_build(config::MITgcm_config)
 """
-MITgcm_build(nam::String) = testreport(nam,"-norun")
+MITgcm_build(config::MITgcm_config) = testreport(config.name,"-norun")
 
 """
-    MITgcm_compile(nam::String)
+    MITgcm_compile(config::MITgcm_config)
 """
-function MITgcm_compile(nam::String)
+function MITgcm_compile(config::MITgcm_config)
+    nam=config.name
     pth=pwd()
     cd("$(MITgcm_path)/verification/$(nam)/build")
     try
@@ -54,14 +56,15 @@ function MITgcm_compile(nam::String)
 end
 
 """
-    MITgcm_link(nam::String)
+    MITgcm_link(config::MITgcm_config)
 """
-MITgcm_link(nam::String) = testreport(nam,"-runonly")
+MITgcm_link(config::MITgcm_config) = testreport(config.name,"-runonly")
 
 """
-    MITgcm_run(nam::String)
+    MITgcm_run(config::MITgcm_config)
 """
-function MITgcm_run(nam::String)
+function MITgcm_run(config::MITgcm_config)
+    nam=config.name
     pth=pwd()
     cd("$(MITgcm_path)/verification/$(nam)/run")
     try

@@ -2,11 +2,14 @@ module MITgcmTools
 
 using Dates, DataFrames, NetCDF, Printf, MeshArrays, SparseArrays, Pkg.Artifacts
 
+include("Types.jl")
 include("ReadFiles.jl")
+include("ModelSteps.jl")
 include("FormatConversions.jl")
 include("PhysicalOceanography.jl")
 
-export MITgcm_path, MITgcm_clean, MITgcm_build, MITgcm_compile, MITgcm_link, MITgcm_run
+export MITgcm_path, MITgcm_config, MITgcm_namelist
+export MITgcm_clean, MITgcm_build, MITgcm_compile, MITgcm_link, MITgcm_run
 export verification_experiments, testreport, read_namelist, write_namelist
 export read_mdsio, read_meta, read_available_diagnostics
 export read_bin, read_flt, read_nctiles, findtiles, parse_param
@@ -17,44 +20,6 @@ p=dirname(pathof(MITgcmTools))
 artifact_toml = joinpath(p, "../Artifacts.toml")
 MITgcm_hash = artifact_hash("MITgcm", artifact_toml)
 MITgcm_path = joinpath(artifact_path(MITgcm_hash)*"/","MITgcm-checkpoint67s/")
-
-export MITgcm_namelist, MITgcm_config
-
-"""
-    MITgcm_namelist
-
-```
-using MITgcmTools
-fil=joinpath(MITgcm_path,"verification","advect_xy","run","data")
-nml=read_namelist(fil)
-MITgcm_namelist(nml.groups,nml.params)
-MITgcm_namelist(groups=nml.groups,params=nml.params)
-MITgcm_namelist(groups=nml.groups)
-```
-"""
-Base.@kwdef struct MITgcm_namelist
-    groups :: Array{Symbol,1} = Array{Symbol,1}(undef, 0)
-    params :: Array{Dict{Symbol,Any},1} = Array{Dict{Symbol,Any},1}(undef, 0)
-end
-
-import Base:read,write
-read(fil::AbstractString,nml::MITgcm_namelist) = read_namelist(fil)
-write(fil::AbstractString,nml::MITgcm_namelist) = write_namelist(fil,nml)
-
-"""
-    MITgcm_config
-
-```
-using MITgcmTools
-exps=verification_experiments()
-MITgcm_config(exps[end]...)
-```
-"""
-Base.@kwdef struct MITgcm_config
-    name :: String = ""
-    build_options :: Array{String,1} = Array{String,1}(undef, 0)
-    runtime_options :: Array{String,1} = Array{String,1}(undef, 0)
-end
 
 """
     verification_experiments()

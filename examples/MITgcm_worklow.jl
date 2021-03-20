@@ -188,7 +188,7 @@ end
 begin
 	do_run1
 	do_run2
-	MITgcm_run(exps[iexp].name)
+	MITgcm_run(exps[iexp])
 	refresh_plot=true
 	🏁
 end

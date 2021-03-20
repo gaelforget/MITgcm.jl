@@ -22,8 +22,10 @@ using Test
     exps=verification_experiments()
     @test isa(exps,Array)
 
-    tmp=testreport("advect_xy")
-    fil=joinpath(MITgcm_path,"verification","advect_xy","run","data")
+    config=MITgcm_config(name="advect_xy")
+
+    #tmp=testreport(config)
+    fil=joinpath(MITgcm_path,"verification",config.name,"run","data")
     nml=read(fil,MITgcm_namelist())
     write(fil*"_new",nml)
 	
@@ -36,17 +38,21 @@ using Test
     @test nml.groups[1]==:PARM01
     @test nml.params[1][:implicitFreeSurface]
 
-    pth=joinpath(MITgcm_path,"verification","advect_xy","run")
+    config=MITgcm_config(name="advect_cs")
+
+    pth=joinpath(MITgcm_path,"verification",config.name,"run")
     tmp=read_mdsio(pth,"XC.001.001")
     @test isa(tmp,Array)
     tmp=read_mdsio(pth,"XC")
     @test isa(tmp,Array)
 
-    @test MITgcm_clean("advect_cs")
-    @test MITgcm_build("advect_cs")
-    @test MITgcm_compile("advect_cs")
-    @test MITgcm_link("advect_cs")
-    @test MITgcm_run("advect_cs")
+    config=MITgcm_config(name="advect_cs")
+
+    @test MITgcm_clean(config)
+    @test MITgcm_build(config)
+    @test MITgcm_compile(config)
+    @test MITgcm_link(config)
+    @test MITgcm_run(config)
 
     #read / write functions
 
@@ -101,7 +107,8 @@ using Test
 
     ##
 
-    tmp=testreport("flt_example")
+    config=MITgcm_config(name="flt_example")
+    tmp=testreport(config)
     pth=MITgcm_path*"verification/flt_example/run/"
     tmp=read_flt(pth,Float32)
     
