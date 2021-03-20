@@ -172,8 +172,12 @@ begin
 	
 	if haskey(tmplist.params[i1],:nTimeSteps)
 		tmplist.params[i1][:nTimeSteps]+=2
-	else
+	elseif haskey(tmplist.params[i1],:deltaT)
 		tmplist.params[i1][:endTime]+=tmplist.params[i1][:deltaT]
+	elseif haskey(tmplist.params[i1],:deltaTtracer)
+		tmplist.params[i1][:endTime]+=tmplist.params[i1][:deltaTtracer]
+	elseif haskey(tmplist.params[i1],:deltaTClock)
+		tmplist.params[i1][:endTime]+=tmplist.params[i1][:deltaTClock]
 	end
 	
 	if update_file!=="allset"
