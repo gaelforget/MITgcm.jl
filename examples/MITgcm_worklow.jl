@@ -64,9 +64,9 @@ begin
 	
 	name = $(exps[iexp].name)
 	
-	build options = $([exps[iexp].build[i]*", " for i in 1:length(exps[iexp].build)])
+	build options = $([exps[iexp].build_options[i]*", " for i in 1:length(exps[iexp].build_options)])
 	
-	run options = $(exps[iexp].run)
+	run-time options = $(exps[iexp].runtime_options)
 	"""
 end
 

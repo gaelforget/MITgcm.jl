@@ -18,7 +18,7 @@ artifact_toml = joinpath(p, "../Artifacts.toml")
 MITgcm_hash = artifact_hash("MITgcm", artifact_toml)
 MITgcm_path = joinpath(artifact_path(MITgcm_hash)*"/","MITgcm-checkpoint67s/")
 
-export MITgcm_namelist
+export MITgcm_namelist, MITgcm_config
 
 """
     MITgcm_namelist
@@ -40,6 +40,21 @@ end
 import Base:read,write
 read(fil::AbstractString,nml::MITgcm_namelist) = read_namelist(fil)
 write(fil::AbstractString,nml::MITgcm_namelist) = write_namelist(fil,nml)
+
+"""
+    MITgcm_config
+
+```
+using MITgcmTools
+exps=verification_experiments()
+MITgcm_config(exps[end]...)
+```
+"""
+Base.@kwdef struct MITgcm_config
+    name :: String = ""
+    build_options :: Array{String,1} = Array{String,1}(undef, 0)
+    runtime_options :: Array{String,1} = Array{String,1}(undef, 0)
+end
 
 """
     testreport(nam::String,ext="")
@@ -149,7 +164,7 @@ function verification_experiments()
         pkg_run[i]=tmp1[findall([!occursin("&",i) for i in tmp1])]
     end
 
-    [(name=lst[i],build=pkg_build[i],run=pkg_run[i]) for i in 1:length(lst)]
+    [MITgcm_config(lst[i],pkg_build[i],pkg_run[i]) for i in 1:length(lst)]
 end
 
 #more:
