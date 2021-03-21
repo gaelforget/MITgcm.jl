@@ -70,9 +70,6 @@ begin
 	"""
 end
 
-# ╔═╡ 0e41dae4-89e8-11eb-0097-e5242b48cae0
-monitor(exps[iexp])
-
 # ╔═╡ ee0ed0a0-8817-11eb-124d-a197f1d4545a
 md"""### Where Is `mitgcmuv` located?
 
@@ -244,7 +241,6 @@ begin
 end
 
 # ╔═╡ Cell order:
-# ╠═0e41dae4-89e8-11eb-0097-e5242b48cae0
 # ╟─f588eaba-84ef-11eb-0755-bf1b85b2b561
 # ╟─98b6621c-85ab-11eb-29d1-af0433598c6a
 # ╟─a28f7354-84eb-11eb-1830-1f401bf2db97

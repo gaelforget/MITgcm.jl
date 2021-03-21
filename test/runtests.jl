@@ -54,6 +54,9 @@ using Test
     @test link(MC)
     @test start(MC)
 
+    push!(MC.status,"ended")
+    @test monitor(MC)=="ended"
+
     #read / write functions
 
     pth=MITgcm_path*"verification/advect_cs/run/"
