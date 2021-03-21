@@ -29,9 +29,9 @@ MITgcm_config(exps[end]...)
 ```
 """
 Base.@kwdef struct MITgcm_config <: AbstractModelConfig
-    Model_name :: String = "MITgcm"
-    Config_name :: String = ""
+    model :: String = "MITgcm"
+    configuration :: String = ""
     status :: Array{String,1} = Array{String,1}(undef, 0)
-    build_options :: Array{String,1} = Array{String,1}(undef, 0)
-    runtime_options :: Array{String,1} = Array{String,1}(undef, 0)
+    options :: Array{String,1} = Array{String,1}(undef, 0)
+    parameters :: Array{String,1} = Array{String,1}(undef, 0)
 end

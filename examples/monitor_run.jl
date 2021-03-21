@@ -51,7 +51,7 @@ end
 # ╔═╡ f91c3396-84ef-11eb-2665-cfa350d38737
 begin
 	iexp=findall([exps[i].name==myexp for i in 1:length(exps)])[1]
-	TextField((100, 8), "name = $(exps[iexp].name)\n\nbuild  = $(exps[iexp].build_options) \n\nrun    = $(exps[iexp].runtime_options)")
+	TextField((100, 8), "name = $(exps[iexp].name)\n\nbuild  = $(exps[iexp].options) \n\nrun    = $(exps[iexp].parameters)")
 end
 
 # ╔═╡ f051e094-85ab-11eb-22d4-5bd61ac572a1

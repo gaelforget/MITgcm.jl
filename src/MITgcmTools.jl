@@ -10,8 +10,8 @@ include("FormatConversions.jl")
 include("PhysicalOceanography.jl")
 
 export MITgcm_path, MITgcm_config, MITgcm_namelist
-export testreport, clean, build, compile, start
-#export link, pause, stop, clock, monitor, train, help
+export testreport, clean, build, compile, start, link
+#export pause, stop, clock, monitor, train, help
 export verification_experiments, read_namelist, write_namelist
 export read_mdsio, read_meta, read_available_diagnostics
 export read_bin, read_flt, read_nctiles, findtiles, parse_param
@@ -56,7 +56,7 @@ function verification_experiments()
         pkg_run[i]=tmp1[findall([!occursin("&",i) for i in tmp1])]
     end
 
-    [MITgcm_config(Config_name=lst[i],build_options=pkg_build[i],runtime_options=pkg_run[i]) for i in 1:length(lst)]
+    [MITgcm_config(configuration=lst[i],options=pkg_build[i],parameters=pkg_run[i]) for i in 1:length(lst)]
 end
 
 #more:
