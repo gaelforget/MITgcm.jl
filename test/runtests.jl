@@ -1,4 +1,4 @@
-using MITgcmTools, MeshArrays, OceanStateEstimation
+using MITgcmTools, ClimateModels, MeshArrays, OceanStateEstimation
 using Test
 
 @testset "MITgcmTools.jl" begin
