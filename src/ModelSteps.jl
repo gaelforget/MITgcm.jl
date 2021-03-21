@@ -10,7 +10,7 @@ testreport("front_relax")
 ```
 """
 function testreport(config::MITgcm_config,ext="")
-    nm=config.name
+    nm=config.Config_name
     pth=pwd()
     cd(tempdir())
     println(pwd())
@@ -18,7 +18,7 @@ function testreport(config::MITgcm_config,ext="")
         lst=[nm]
     else
         exps=verification_experiments()
-        lst=[exps[i].name for i in 1:length(exps)]
+        lst=[exps[i].Config_name for i in 1:length(exps)]
     end
     for nm in lst
         c=`$(MITgcm_path)/verification/testreport -t $(MITgcm_path)/verification/$(nm) $ext`
@@ -43,7 +43,7 @@ build(config::MITgcm_config) = testreport(config,"-norun")
     compile(config::MITgcm_config)
 """
 function compile(config::MITgcm_config)
-    nam=config.name
+    nam=config.Config_name
     pth=pwd()
     cd("$(MITgcm_path)/verification/$(nam)/build")
     try
@@ -66,7 +66,7 @@ import ClimateModels: start
     start(config::MITgcm_config)
 """
 function start(config::MITgcm_config)
-    nam=config.name
+    nam=config.Config_name
     pth=pwd()
     cd("$(MITgcm_path)/verification/$(nam)/run")
     try

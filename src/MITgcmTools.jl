@@ -56,7 +56,7 @@ function verification_experiments()
         pkg_run[i]=tmp1[findall([!occursin("&",i) for i in tmp1])]
     end
 
-    [MITgcm_config("MITgcm",lst[i],pkg_build[i],pkg_run[i]) for i in 1:length(lst)]
+    [MITgcm_config(Config_name=lst[i],build_options=pkg_build[i],runtime_options=pkg_run[i]) for i in 1:length(lst)]
 end
 
 #more:

@@ -15,12 +15,12 @@ end
 
 # ╔═╡ 8cf4d8ca-84eb-11eb-22d2-255ce7237090
 begin
-	using MITgcmTools, MeshArrays, PlutoUI, Printf, GR
+	using MITgcmTools, ClimateModels, PlutoUI, Printf, GR
 	exps=verification_experiments()
 	
 	tst=fill(false,length(exps))
 	for i in 1:length(exps)
-		pth0=joinpath(MITgcm_path,"verification",exps[i].name,"run")
+		pth0=joinpath(MITgcm_path,"verification",exps[i].Config_name,"run")
 		tst[i]=!isempty(findall(occursin.("XC",readdir(pth0))))
 	end
 	#exps=exps[findall(tst)]
@@ -54,21 +54,24 @@ _Note: changing this top level parameter should update multiple-choice menus and
 """
 
 # ╔═╡ a28f7354-84eb-11eb-1830-1f401bf2db97
-@bind myexp Select([exps[i].name for i in 1:length(exps)],default="advect_xy")
+@bind myexp Select([exps[i].Config_name for i in 1:length(exps)],default="advect_xy")
 
 # ╔═╡ 2ff78cac-868b-11eb-2d56-79ea1f874453
 begin
-	iexp=findall([exps[i].name==myexp for i in 1:length(exps)])[1]
+	iexp=findall([exps[i].Config_name==myexp for i in 1:length(exps)])[1]
 	
 	md"""###
 	
-	name = $(exps[iexp].name)
+	name = $(exps[iexp].Config_name)
 	
 	build options = $([exps[iexp].build_options[i]*", " for i in 1:length(exps[iexp].build_options)])
 	
 	run-time options = $(exps[iexp].runtime_options)
 	"""
 end
+
+# ╔═╡ 0e41dae4-89e8-11eb-0097-e5242b48cae0
+monitor(exps[iexp])
 
 # ╔═╡ ee0ed0a0-8817-11eb-124d-a197f1d4545a
 md"""### Where Is `mitgcmuv` located?
@@ -82,10 +85,10 @@ Once `mitgcmuv` is found, then a `🏁` should appear just below.
 
 # ╔═╡ eca925ba-8816-11eb-1d6d-39bf08bfe979
 begin
-	filexe=joinpath(MITgcm_path,"verification",exps[iexp].name,"build","mitgcmuv")
+	filexe=joinpath(MITgcm_path,"verification",exps[iexp].Config_name,"build","mitgcmuv")
 	!isfile(filexe) ? testreport(exps[iexp]) : nothing
-	filout=joinpath(MITgcm_path,"verification",exps[iexp].name,"run","output.txt")
-	filstat=joinpath(MITgcm_path,"verification",exps[iexp].name,"run","onestat.txt")
+	filout=joinpath(MITgcm_path,"verification",exps[iexp].Config_name,"run","output.txt")
+	filstat=joinpath(MITgcm_path,"verification",exps[iexp].Config_name,"run","onestat.txt")
 	🏁
 end
 
@@ -100,7 +103,7 @@ md"""## Browse Model Parameters
 
 # ╔═╡ d7f2c656-8512-11eb-2fdf-47a3e57a55e6
 begin
-	pth=joinpath(MITgcm_path,"verification",exps[iexp].name,"run")
+	pth=joinpath(MITgcm_path,"verification",exps[iexp].Config_name,"run")
 	function list_namelist_files(pth)
 		tmpA=readdir(pth)
 		tmpA=tmpA[findall([length(tmpA[i])>3 for i in 1:length(tmpA)])]
@@ -117,7 +120,7 @@ end
 # ╔═╡ c7670d00-868c-11eb-1889-4d3ffe621dd2
 md"""## Modify Parameter File
 
-In the code cell below, we can change the run duration for the **$(exps[iexp].name)** configuration.
+In the code cell below, we can change the run duration for the **$(exps[iexp].Config_name)** configuration.
 
 _Note: some MITgcm experiments use `nTimeSteps` while others use `endTime`. Trying to use both in the same run generates an error message (conflicting specifications)._
 """
@@ -128,7 +131,7 @@ _Note: some MITgcm experiments use `nTimeSteps` while others use `endTime`. Tryi
 # ╔═╡ 4b62b282-86bd-11eb-2fed-bbbe8ef2d4af
 md"""## Run Modified Model
 
-Click on button when ready to start model run in **$(exps[iexp].name)**
+Click on button when ready to start model run in **$(exps[iexp].Config_name)**
 """
 
 # ╔═╡ 6f618b2c-86bd-11eb-1607-a179a349378e
@@ -137,7 +140,7 @@ Click on button when ready to start model run in **$(exps[iexp].name)**
 # ╔═╡ 0f920f90-86e9-11eb-3f6d-2d530bd2e9db
 md"""## Plot Model Result
 
-Here we show average temperature in **$(exps[iexp].name)**
+Here we show average temperature in **$(exps[iexp].Config_name)**
 """
 
 # ╔═╡ af176e6c-8695-11eb-3e34-91fbdb9c52fa
@@ -147,7 +150,7 @@ md"""### Appendices"""
 begin	
 	update_file
 	reload_nml
-	fil=joinpath(MITgcm_path,"verification",exps[iexp].name,"run",mydats)
+	fil=joinpath(MITgcm_path,"verification",exps[iexp].Config_name,"run",mydats)
 	nml=read(fil,MITgcm_namelist())
 	🏁
 end
@@ -160,7 +163,7 @@ catch e
 end
 
 # ╔═╡ be7d5ee2-86cb-11eb-2ef3-bd7757133661
-md"""Selected model : **$(exps[iexp].name)**; namelist file : **$mydats**; parameter group : **$nmlgroup**
+md"""Selected model : **$(exps[iexp].Config_name)**; namelist file : **$mydats**; parameter group : **$nmlgroup**
 """
 
 # ╔═╡ 15746ef0-8617-11eb-1160-5f48a95d94d0
@@ -241,6 +244,7 @@ begin
 end
 
 # ╔═╡ Cell order:
+# ╠═0e41dae4-89e8-11eb-0097-e5242b48cae0
 # ╟─f588eaba-84ef-11eb-0755-bf1b85b2b561
 # ╟─98b6621c-85ab-11eb-29d1-af0433598c6a
 # ╟─a28f7354-84eb-11eb-1830-1f401bf2db97
