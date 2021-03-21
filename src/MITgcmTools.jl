@@ -9,8 +9,9 @@ include("FormatConversions.jl")
 include("PhysicalOceanography.jl")
 
 export MITgcm_path, MITgcm_config, MITgcm_namelist
-export MITgcm_clean, MITgcm_build, MITgcm_compile, MITgcm_link, MITgcm_run
-export verification_experiments, testreport, read_namelist, write_namelist
+export testreport, clean, build, compile, link, start
+#export pause, stop, clock, monitor, train, help
+export verification_experiments, read_namelist, write_namelist
 export read_mdsio, read_meta, read_available_diagnostics
 export read_bin, read_flt, read_nctiles, findtiles, parse_param
 export cube2compact, compact2cube, convert2array, convert2gcmfaces
@@ -19,7 +20,7 @@ export SeaWaterDensity, MixedLayerDepth
 p=dirname(pathof(MITgcmTools))
 artifact_toml = joinpath(p, "../Artifacts.toml")
 MITgcm_hash = artifact_hash("MITgcm", artifact_toml)
-MITgcm_path = joinpath(artifact_path(MITgcm_hash)*"/","MITgcm-checkpoint67s/")
+MITgcm_path = joinpath(artifact_path(MITgcm_hash)*"/","MITgcm/")
 
 """
     verification_experiments()

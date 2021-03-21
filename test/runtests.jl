@@ -48,11 +48,11 @@ using Test
 
     config=MITgcm_config(name="advect_cs")
 
-    @test MITgcm_clean(config)
-    @test MITgcm_build(config)
-    @test MITgcm_compile(config)
-    @test MITgcm_link(config)
-    @test MITgcm_run(config)
+    @test clean(config)
+    @test build(config)
+    @test compile(config)
+    @test link(config)
+    @test start(config)
 
     #read / write functions
 

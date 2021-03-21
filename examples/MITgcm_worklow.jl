@@ -92,7 +92,7 @@ end
 # ╔═╡ f051e094-85ab-11eb-22d4-5bd61ac572a1
 md"""## Browse Model Parameters
 
-**Once the model has been run for the selected configuration**, then `data` and `PARM01` should be found in the model run directory. If an error message suggests that something has gone wrong, sometimes it helps to rerun `testreport(exps[iexp].name)` to clean up, recompile, and rerun the chosen model configuration (as shown above). After restarting this notebook, you should be able to call `MITgcm_run(exps[iexp].name)` to rerun the already compiled model with modified parameters (as done below).
+**Once the model has been run for the selected configuration**, then `data` and `PARM01` should be found in the model run directory. If an error message suggests that something has gone wrong, sometimes it helps to rerun `testreport(exps[iexp])` to clean up, recompile, and rerun the chosen model configuration (as shown above). After restarting this notebook, you should be able to call `run(exps[iexp])` to rerun the already compiled model with modified parameters (as done below).
 """
 
 # ╔═╡ f93bde1a-8811-11eb-35f5-e325bd730161
@@ -171,7 +171,7 @@ begin
 	i1=findall((nml.groups.==:PARM03))[1]
 	
 	if haskey(tmplist.params[i1],:nTimeSteps)
-		tmplist.params[i1][:nTimeSteps]+=2
+		tmplist.params[i1][:nTimeSteps]+=20
 	elseif haskey(tmplist.params[i1],:deltaT)
 		tmplist.params[i1][:endTime]+=tmplist.params[i1][:deltaT]
 	elseif haskey(tmplist.params[i1],:deltaTtracer)
@@ -192,7 +192,7 @@ end
 begin
 	do_run1
 	do_run2
-	MITgcm_run(exps[iexp])
+	start(exps[iexp])
 	refresh_plot=true
 	🏁
 end

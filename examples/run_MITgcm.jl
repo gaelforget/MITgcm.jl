@@ -46,10 +46,16 @@ end
 # ╔═╡ a28f7354-84eb-11eb-1830-1f401bf2db97
 @bind myexp Select([exps[i].name for i in 1:length(exps)],default="advect_xy")
 
+# ╔═╡ 7fa8a460-89d4-11eb-19bb-bbacdd32719a
+begin
+	iexp2=findall([exps[i].name==myexp for i in 1:length(exps)])[1]
+	exps[iexp2]	
+end
+
 # ╔═╡ f91c3396-84ef-11eb-2665-cfa350d38737
 begin
 	iexp=findall([exps[i].name==myexp for i in 1:length(exps)])[1]
-	TextField((80, 8), "name = $(exps[iexp].name)\n\nbuild  = $(exps[iexp].build) \n\nrun    = $(exps[iexp].run)")
+	TextField((80, 8), "name = $(exps[iexp].name)\n\nbuild  = $(exps[iexp].build_options) \n\nrun    = $(exps[iexp].runtime_options)")
 end
 
 # ╔═╡ d90039c4-85a1-11eb-0d82-77db4decaa6e
@@ -66,7 +72,7 @@ Selected model configuration : **$(exps[iexp].name)**
 # ╔═╡ f008ccaa-859c-11eb-1188-114843d333e6
 let
 	do_cleanup
-	MITgcm_clean(exps[iexp].name)
+	clean(exps[iexp])
 	🏁
 end
 
@@ -76,7 +82,7 @@ end
 # ╔═╡ 848241fe-86d1-11eb-3b30-b94aa0b4431d
 let
 	do_build
-	MITgcm_build(exps[iexp].name)
+	build(exps[iexp])
 	🏁
 end
 
@@ -86,7 +92,7 @@ end
 # ╔═╡ 31829f08-86d1-11eb-3e26-dfae038b4c01
 let
 	do_link
-	MITgcm_link(exps[iexp].name)
+	link(exps[iexp])
 	🏁
 end
 
@@ -96,7 +102,7 @@ end
 # ╔═╡ 550d996a-859d-11eb-34bf-717389fbf809
 let
 	do_run
-	MITgcm_run(exps[iexp].name)
+	start(exps[iexp])
 	🏁
 end
 
@@ -104,6 +110,7 @@ end
 # ╟─6ef93b0e-859f-11eb-1b3b-d76b26d678dc
 # ╟─8cf4d8ca-84eb-11eb-22d2-255ce7237090
 # ╟─a28f7354-84eb-11eb-1830-1f401bf2db97
+# ╟─7fa8a460-89d4-11eb-19bb-bbacdd32719a
 # ╟─f91c3396-84ef-11eb-2665-cfa350d38737
 # ╟─d90039c4-85a1-11eb-0d82-77db4decaa6e
 # ╟─8569269c-859c-11eb-1ab1-2d874dfa741b

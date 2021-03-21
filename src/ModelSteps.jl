@@ -30,19 +30,19 @@ function testreport(config::MITgcm_config,ext="")
 end
 
 """
-    MITgcm_clean(config::MITgcm_config)
+    clean(config::MITgcm_config)
 """
-MITgcm_clean(config::MITgcm_config) = testreport(config,"-clean")
+clean(config::MITgcm_config) = testreport(config,"-clean")
 
 """
-    MITgcm_build(config::MITgcm_config)
+    build(config::MITgcm_config)
 """
-MITgcm_build(config::MITgcm_config) = testreport(config,"-norun")
+build(config::MITgcm_config) = testreport(config,"-norun")
 
 """
-    MITgcm_compile(config::MITgcm_config)
+    compile(config::MITgcm_config)
 """
-function MITgcm_compile(config::MITgcm_config)
+function compile(config::MITgcm_config)
     nam=config.name
     pth=pwd()
     cd("$(MITgcm_path)/verification/$(nam)/build")
@@ -56,14 +56,14 @@ function MITgcm_compile(config::MITgcm_config)
 end
 
 """
-    MITgcm_link(config::MITgcm_config)
+    link(config::MITgcm_config)
 """
-MITgcm_link(config::MITgcm_config) = testreport(config,"-runonly")
+link(config::MITgcm_config) = testreport(config,"-runonly")
 
 """
-    MITgcm_run(config::MITgcm_config)
+    start(config::MITgcm_config)
 """
-function MITgcm_run(config::MITgcm_config)
+function start(config::MITgcm_config)
     nam=config.name
     pth=pwd()
     cd("$(MITgcm_path)/verification/$(nam)/run")
