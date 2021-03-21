@@ -60,6 +60,8 @@ end
 """
 link(config::MITgcm_config) = testreport(config,"-runonly")
 
+import ClimateModels: start
+
 """
     start(config::MITgcm_config)
 """

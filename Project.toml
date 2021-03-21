@@ -4,6 +4,7 @@ authors = ["gaelforget <gforget@mit.edu>"]
 version = "0.1.14"
 
 [deps]
+ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 MeshArrays = "cb8c808f-1acf-59a3-9d2b-6e38d009f683"
