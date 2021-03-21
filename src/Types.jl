@@ -31,7 +31,8 @@ MITgcm_config(exps[end]...)
 Base.@kwdef struct MITgcm_config <: AbstractModelConfig
     model :: String = "MITgcm"
     configuration :: String = ""
-    status :: Array{String,1} = Array{String,1}(undef, 0)
     options :: Array{String,1} = Array{String,1}(undef, 0)
-    parameters :: Array{String,1} = Array{String,1}(undef, 0)
+    inputs :: Array{String,1} = Array{String,1}(undef, 0)
+    outputs :: Array{String,1} = Array{String,1}(undef, 0)
+    status :: Array{String,1} = Array{String,1}(undef, 0)
 end

@@ -66,7 +66,7 @@ begin
 	
 	build options = $([exps[iexp].options[i]*", " for i in 1:length(exps[iexp].options)])
 	
-	run-time options = $(exps[iexp].parameters)
+	run-time options = $(exps[iexp].inputs)
 	"""
 end
 
