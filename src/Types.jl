@@ -25,7 +25,7 @@ write(fil::AbstractString,nml::MITgcm_namelist) = write_namelist(fil,nml)
 ```
 using MITgcmTools
 exps=verification_experiments()
-MITgcm_config(exps[end]...)
+exps[end]
 ```
 """
 Base.@kwdef struct MITgcm_config <: AbstractModelConfig

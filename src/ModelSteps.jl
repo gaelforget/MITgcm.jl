@@ -29,6 +29,8 @@ function testreport(config::MITgcm_config,ext="")
     return true
 end
 
+import ClimateModels: start, compile, build, clean
+
 """
     clean(config::MITgcm_config)
 """
@@ -59,8 +61,6 @@ end
     link(config::MITgcm_config)
 """
 link(config::MITgcm_config) = testreport(config,"-q")
-
-import ClimateModels: start
 
 """
     start(config::MITgcm_config)
