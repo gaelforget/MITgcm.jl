@@ -35,4 +35,7 @@ Base.@kwdef struct MITgcm_config <: AbstractModelConfig
     inputs :: Array{String,1} = Array{String,1}(undef, 0)
     outputs :: Array{String,1} = Array{String,1}(undef, 0)
     status :: Array{String,1} = Array{String,1}(undef, 0)
+    channel :: Channel{Any} = Channel{Any}(10) 
+    folder :: String = tempdir()
+    ID :: UUID = UUIDs.uuid4()
 end

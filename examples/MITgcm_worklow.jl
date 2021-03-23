@@ -234,6 +234,8 @@ begin
 		γ=gcmgrid(pth,"PeriodicChannel",1,fill(siz,1), [siz[1] siz[2]], eltype(XC), mread, write)
 		Γ=GridLoad(γ)
 	catch e
+		γ=[]
+		Γ=[]
 		println("no grid files")
 	end
 	
