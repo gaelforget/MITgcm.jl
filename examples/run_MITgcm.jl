@@ -102,7 +102,7 @@ end
 # ╔═╡ 550d996a-859d-11eb-34bf-717389fbf809
 let
 	do_run
-	start(exps[iexp])
+	launch(exps[iexp])
 	🏁
 end
 

@@ -52,7 +52,7 @@ using Test
     @test build(MC)
     @test compile(MC)
     @test link(MC)
-    @test start(MC)
+    @test launch(MC)
 
     push!(MC.status,"ended")
     @test monitor(MC)=="ended"

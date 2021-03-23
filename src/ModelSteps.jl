@@ -29,7 +29,7 @@ function testreport(config::MITgcm_config,ext="")
     return true
 end
 
-import ClimateModels: start, compile, build, clean
+import ClimateModels: launch, compile, build, clean
 
 """
     clean(config::MITgcm_config)
@@ -63,9 +63,9 @@ end
 link(config::MITgcm_config) = testreport(config,"-q")
 
 """
-    start(config::MITgcm_config)
+    launch(config::MITgcm_config)
 """
-function start(config::MITgcm_config)
+function launch(config::MITgcm_config)
     nam=config.configuration
     pth=pwd()
     cd("$(MITgcm_path)/verification/$(nam)/run")

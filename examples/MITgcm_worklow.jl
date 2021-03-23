@@ -128,11 +128,11 @@ _Note: some MITgcm experiments use `nTimeSteps` while others use `endTime`. Tryi
 # ╔═╡ 4b62b282-86bd-11eb-2fed-bbbe8ef2d4af
 md"""## Run Modified Model
 
-Click on button when ready to start model run in **$(exps[iexp].configuration)**
+Click on button when ready to run the model **$(exps[iexp].configuration)**
 """
 
 # ╔═╡ 6f618b2c-86bd-11eb-1607-a179a349378e
-@bind do_run2 Button("Restart Model")
+@bind do_run2 Button("Launch Model")
 
 # ╔═╡ 0f920f90-86e9-11eb-3f6d-2d530bd2e9db
 md"""## Plot Model Result
@@ -192,7 +192,7 @@ end
 begin
 	do_run1
 	do_run2
-	start(exps[iexp])
+	launch(exps[iexp])
 	refresh_plot=true
 	🏁
 end

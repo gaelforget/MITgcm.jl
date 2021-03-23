@@ -10,7 +10,7 @@ include("FormatConversions.jl")
 include("PhysicalOceanography.jl")
 
 export MITgcm_path, MITgcm_config, MITgcm_namelist
-export testreport, clean, build, compile, start, link
+export testreport, clean, build, compile, launch, link
 #export pause, stop, clock, monitor, train, help
 export verification_experiments, read_namelist, write_namelist
 export read_mdsio, read_meta, read_available_diagnostics
