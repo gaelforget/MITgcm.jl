@@ -56,7 +56,15 @@ function verification_experiments()
         pkg_run[i]=tmp1[findall([!occursin("&",i) for i in tmp1])]
     end
 
-    [MITgcm_config(configuration=lst[i],options=pkg_build[i],inputs=pkg_run[i]) for i in 1:length(lst)]
+    exps=fill(MITgcm_config(),length(lst))
+    for i in 1:length(lst)
+        ID = UUIDs.uuid4()
+        folder = joinpath(tempdir(),string(ID))
+        exps[i]=MITgcm_config(configuration=lst[i],options=pkg_build[i],
+        inputs=pkg_run[i],ID=ID,folder=folder)
+    end
+
+    return exps
 end
 
 #more:

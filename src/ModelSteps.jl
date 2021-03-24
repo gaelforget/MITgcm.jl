@@ -60,20 +60,65 @@ end
 """
     link(config::MITgcm_config)
 """
-link(config::MITgcm_config) = testreport(config,"-q")
+#link(config::MITgcm_config) = testreport(config,"-q")
+function link(config::MITgcm_config)
+    !isdir(joinpath(config.folder)) ? mkdir(joinpath(config.folder)) : nothing
+    !isdir(joinpath(config.folder,"run")) ? mkdir(joinpath(config.folder,"run")) : nothing
+    if !isfile(joinpath(config.folder,"run","data"))
+        p="$(MITgcm_path)/verification/$(config.configuration)/input"
+        f=readdir(p)
+        [symlink(joinpath(p,f[i]),joinpath(config.folder,"run",f[i])) for i in 1:length(f)]
+    end
+    #replace relative paths with absolutes then exe prepare_run
+    if isfile(joinpath(config.folder,"run","prepare_run"))
+        pth=pwd()
+        cd(joinpath(config.folder,"run"))
+        #
+        fil="prepare_run"
+        meta = read(fil,String)
+        meta = split(meta,"\n")
+        ii=findall(occursin.("../../",meta))
+        for i in ii
+            meta[i]=replace(meta[i],"../../" => "$(MITgcm_path)/verification/")
+        end
+        ii=findall(occursin.("../",meta))
+        for i in ii
+            meta[i]=replace(meta[i],"../" => "$(MITgcm_path)/verification/$(config.configuration)")
+        end
+        #rm old file from run dir
+        rm(fil)
+        #write new file in run dir
+        txt=["$(meta[i])\n" for i in 1:length(meta)]
+        fid = open(fil, "w")
+		[write(fid,txt[i]) for i in 1:length(txt)]
+    	close(fid)
+        #execute prepare_run
+        chmod(fil,0o777)
+        run(`./$(fil)`)
+        #
+        cd(pth)
+    end
+
+    if !isfile(joinpath(config.folder,"run","mitgcmuv"))
+        f="$(MITgcm_path)/verification/$(config.configuration)/build/mitgcmuv"
+        symlink(f,joinpath(config.folder,"run","mitgcmuv")) 
+    end
+
+    return `$(fil)`
+end
 
 """
     launch(config::MITgcm_config)
 """
 function launch(config::MITgcm_config)
-    nam=config.configuration
     pth=pwd()
-    cd("$(MITgcm_path)/verification/$(nam)/run")
+    cd(joinpath(config.folder,"run"))
+    tmp=["STOP NORMAL END"]
     try
         run(pipeline(`./mitgcmuv`,"output.txt"))
     catch e
-        println("model run may have failed")
+        tmp[1]="model run may have failed"
     end
     cd(pth)
-    return true
+    return tmp
 end
