@@ -23,9 +23,9 @@ using Test
     @test isa(exps,Array)
 
     MC=MITgcm_config(configuration="advect_xy")
+    setup(MC)
 
-    tmp=testreport(MC)
-    fil=joinpath(MITgcm_path,"verification",MC.configuration,"run","data")
+    fil=joinpath(MC.folder,"run","data")
     nml=read(fil,MITgcm_namelist())
     write(fil*"_new",nml)
 	
@@ -38,35 +38,36 @@ using Test
     @test nml.groups[1]==:PARM01
     @test nml.params[1][:implicitFreeSurface]
 
-    MC=MITgcm_config(configuration="advect_cs")
+    #
 
-    pth=joinpath(MITgcm_path,"verification",MC.configuration,"run")
+    myexp="advect_cs"
+    iexp=findall([exps[i].configuration==myexp for i in 1:length(exps)])[1]
+    MC=exps[iexp]
+
+    @test clean(MC)
+    @test build(MC)
+    @test compile(MC)
+    @test setup(MC)
+    @test launch(MC)
+
+    push!(MC.status,"ended")
+    @test monitor(MC)=="ended"
+    
+    pth=joinpath(MC.folder,"run")
     tmp=read_mdsio(pth,"XC.001.001")
     @test isa(tmp,Array)
     tmp=read_mdsio(pth,"XC")
     @test isa(tmp,Array)
 
-    MC=MITgcm_config(configuration="advect_cs")
-
-    @test clean(MC)
-    @test build(MC)
-    @test compile(MC)
-    @test link(MC)
-    @test launch(MC)
-
-    push!(MC.status,"ended")
-    @test monitor(MC)=="ended"
-
     #read / write functions
 
-    pth=MITgcm_path*"verification/advect_cs/run/"
     fil=joinpath(pth,"available_diagnostics.log")
     read_available_diagnostics("ETAN";filename=fil)
 
     readcube(xx::Array,x::MeshArray) = read(cube2compact(xx),x)
     function readcube(fil::String,x::MeshArray) 
         p=dirname(fil)*"/"
-        b=basename(fil)[1:end-5]    
+        b=basename(fil)[1:end-5]
         xx=read_mdsio(p,b)
         read(cube2compact(xx),x)
     end

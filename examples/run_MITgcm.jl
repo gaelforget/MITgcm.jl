@@ -92,7 +92,7 @@ end
 # ╔═╡ 31829f08-86d1-11eb-3e26-dfae038b4c01
 let
 	do_link
-	link(exps[iexp])
+	setup(exps[iexp])
 	🏁
 end
 

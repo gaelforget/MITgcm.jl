@@ -6,7 +6,8 @@ with additional options (optional) speficied in `ext`
 
 ```
 using MITgcmTools
-testreport("front_relax")
+testreport(MITgcm_config(configuration="front_relax"),"-norun")
+#testreport(MITgcm_config(configuration="all"),"-norun")
 ```
 """
 function testreport(config::MITgcm_config,ext="")
@@ -29,7 +30,7 @@ function testreport(config::MITgcm_config,ext="")
     return true
 end
 
-import ClimateModels: launch, compile, build, clean
+import ClimateModels: launch, compile, build, clean, setup
 
 """
     clean(config::MITgcm_config)
@@ -58,10 +59,10 @@ function compile(config::MITgcm_config)
 end
 
 """
-    link(config::MITgcm_config)
+    setup(config::MITgcm_config)
 """
-#link(config::MITgcm_config) = testreport(config,"-q")
-function link(config::MITgcm_config)
+#setup(config::MITgcm_config) = testreport(config,"-q")
+function setup(config::MITgcm_config)
     !isdir(joinpath(config.folder)) ? mkdir(joinpath(config.folder)) : nothing
     !isdir(joinpath(config.folder,"run")) ? mkdir(joinpath(config.folder,"run")) : nothing
     if !isfile(joinpath(config.folder,"run","data"))
@@ -104,13 +105,15 @@ function link(config::MITgcm_config)
         symlink(f,joinpath(config.folder,"run","mitgcmuv")) 
     end
 
-    return `$(fil)`
+    put!(config.channel,MITgcm_launch)
+
+    return true
 end
 
 """
-    launch(config::MITgcm_config)
+    MITgcm_launch(config::MITgcm_config)
 """
-function launch(config::MITgcm_config)
+function MITgcm_launch(config::MITgcm_config)
     pth=pwd()
     cd(joinpath(config.folder,"run"))
     tmp=["STOP NORMAL END"]
