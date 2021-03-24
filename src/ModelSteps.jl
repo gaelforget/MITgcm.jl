@@ -123,5 +123,5 @@ function MITgcm_launch(config::MITgcm_config)
         tmp[1]="model run may have failed"
     end
     cd(pth)
-    return tmp
+    return tmp[1]
 end

@@ -48,7 +48,7 @@ using Test
     @test build(MC)
     @test compile(MC)
     @test setup(MC)
-    @test launch(MC)
+    @test launch(MC)=="STOP NORMAL END"
 
     push!(MC.status,"ended")
     @test monitor(MC)=="ended"
