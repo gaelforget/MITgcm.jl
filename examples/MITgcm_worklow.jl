@@ -16,15 +16,7 @@ end
 # ╔═╡ 8cf4d8ca-84eb-11eb-22d2-255ce7237090
 begin
 	using MITgcmTools, ClimateModels, PlutoUI, Printf, GR
-	exps=verification_experiments()
-	
-	tst=fill(false,length(exps))
-	for i in 1:length(exps)
-		pth0=joinpath(MITgcm_path,"verification",exps[i].configuration,"run")
-		tst[i]=!isempty(findall(occursin.("XC",readdir(pth0))))
-	end
-	#exps=exps[findall(tst)]
-	
+	exps=verification_experiments()	
 	🏁 = "🏁"
 end
 
@@ -83,9 +75,9 @@ Once `mitgcmuv` is found, then a `🏁` should appear just below.
 # ╔═╡ eca925ba-8816-11eb-1d6d-39bf08bfe979
 begin
 	filexe=joinpath(MITgcm_path,"verification",exps[iexp].configuration,"build","mitgcmuv")
-	!isfile(filexe) ? testreport(exps[iexp]) : nothing
-	filout=joinpath(MITgcm_path,"verification",exps[iexp].configuration,"run","output.txt")
-	filstat=joinpath(MITgcm_path,"verification",exps[iexp].configuration,"run","onestat.txt")
+	!isfile(filexe) ? build(exps[iexp]) : nothing
+	filout=joinpath(exps[iexp].folder,"run","output.txt")
+	filstat=joinpath(exps[iexp].folder,"run","onestat.txt")
 	🏁
 end
 
@@ -100,7 +92,7 @@ md"""## Browse Model Parameters
 
 # ╔═╡ d7f2c656-8512-11eb-2fdf-47a3e57a55e6
 begin
-	pth=joinpath(MITgcm_path,"verification",exps[iexp].configuration,"run")
+	pth=joinpath(MITgcm_path,"verification",exps[iexp].configuration,"input")
 	function list_namelist_files(pth)
 		tmpA=readdir(pth)
 		tmpA=tmpA[findall([length(tmpA[i])>3 for i in 1:length(tmpA)])]
@@ -134,6 +126,9 @@ Click on button when ready to run the model **$(exps[iexp].configuration)**
 # ╔═╡ 6f618b2c-86bd-11eb-1607-a179a349378e
 @bind do_run2 Button("Launch Model")
 
+# ╔═╡ ad2486de-8c9c-11eb-3bbb-7fe3e041fe74
+
+
 # ╔═╡ 0f920f90-86e9-11eb-3f6d-2d530bd2e9db
 md"""## Plot Model Result
 
@@ -147,7 +142,7 @@ md"""### Appendices"""
 begin	
 	update_file
 	reload_nml
-	fil=joinpath(MITgcm_path,"verification",exps[iexp].configuration,"run",mydats)
+	fil=joinpath(MITgcm_path,"verification",exps[iexp].configuration,"input",mydats)
 	nml=read(fil,MITgcm_namelist())
 	🏁
 end
@@ -192,6 +187,7 @@ end
 begin
 	do_run1
 	do_run2
+	setup(exps[iexp])
 	launch(exps[iexp])
 	refresh_plot=true
 	🏁
@@ -213,9 +209,6 @@ begin
         inml=findall(nml.groups.==Symbol(nmlgroup))[1]
         🏁
 end
-
-# ╔═╡ 385bd57a-8810-11eb-289a-47fcc1ec5d51
-nml.params[inml]
 
 # ╔═╡ 734e2b5a-8866-11eb-0025-bd9544f4c30d
 begin
@@ -254,12 +247,12 @@ end
 # ╟─f93bde1a-8811-11eb-35f5-e325bd730161
 # ╟─d7f2c656-8512-11eb-2fdf-47a3e57a55e6
 # ╟─ca7bb004-8510-11eb-379f-632c3b40723d
-# ╟─385bd57a-8810-11eb-289a-47fcc1ec5d51
 # ╟─c7670d00-868c-11eb-1889-4d3ffe621dd2
 # ╟─dff9a4c8-880c-11eb-37e1-439de05c5166
 # ╟─15746ef0-8617-11eb-1160-5f48a95d94d0
 # ╟─4b62b282-86bd-11eb-2fed-bbbe8ef2d4af
 # ╟─6f618b2c-86bd-11eb-1607-a179a349378e
+# ╟─ad2486de-8c9c-11eb-3bbb-7fe3e041fe74
 # ╟─96492c18-86bd-11eb-35ca-dff79e6e7818
 # ╟─0f920f90-86e9-11eb-3f6d-2d530bd2e9db
 # ╟─d0bbb668-86e0-11eb-1a9b-8f2b0175f7c1
