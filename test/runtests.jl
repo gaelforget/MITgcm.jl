@@ -44,7 +44,7 @@ using Test
     iexp=findall([exps[i].configuration==myexp for i in 1:length(exps)])[1]
     MC=exps[iexp]
 
-    @test clean(MC)
+    @test clean(MC)=="no task left in pipeline"
     @test build(MC)
     @test compile(MC)
     @test setup(MC)

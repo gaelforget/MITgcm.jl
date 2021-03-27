@@ -34,8 +34,24 @@ import ClimateModels: compile, build, clean, setup
 
 """
     clean(config::MITgcm_config)
+
+Cancel any remaining task (config.channel), clean up the build 
+directory (via testreport), and clean the run directory (via rm).
 """
-clean(config::MITgcm_config) = testreport(config,"-clean")
+function clean(config::MITgcm_config)
+    #cancel any remaining task
+    while !isempty(config.channel)
+        take!(config.channel)
+    end
+    #clean up build directory
+    testreport(config,"-clean")
+    #clean up run directory
+    if isdir(joinpath(config.folder,"run"))
+        rm(joinpath(config.folder,"run"),recursive=true)
+    end
+    #
+    return "no task left in pipeline"
+end
 
 """
     build(config::MITgcm_config)
