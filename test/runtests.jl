@@ -25,7 +25,7 @@ using Test
     MC=MITgcm_config(configuration="advect_xy")
     setup(MC)
 
-    fil=joinpath(MC.folder,"run","data")
+    fil=joinpath(MC.folder,string(MC.ID),"run","data")
     nml=read(fil,MITgcm_namelist())
     write(fil*"_new",nml)
 	
@@ -48,12 +48,11 @@ using Test
     @test build(MC)
     @test compile(MC)
     @test setup(MC)
-    @test launch(MC)=="STOP NORMAL END"
 
     push!(MC.status,"ended")
     @test monitor(MC)=="ended"
     
-    pth=joinpath(MC.folder,"run")
+    pth=joinpath(MC.folder,string(MC.ID),"run")
     tmp=read_mdsio(pth,"XC.001.001")
     @test isa(tmp,Array)
     tmp=read_mdsio(pth,"XC")
