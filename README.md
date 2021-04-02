@@ -3,6 +3,7 @@
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://gaelforget.github.io/MITgcmTools.jl/stable)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://gaelforget.github.io/MITgcmTools.jl/dev)
 [![Build Status](https://travis-ci.org/gaelforget/MITgcmTools.jl.svg?branch=master)](https://travis-ci.org/gaelforget/MITgcmTools.jl)
+[![codecov](https://codecov.io/gh/gaelforget/MITgcmTools.jl/branch/master/graph/badge.svg?token=zUK0vO5K3J)](https://codecov.io/gh/gaelforget/MITgcmTools.jl)
 
 [![DOI](https://zenodo.org/badge/236192181.svg)](https://zenodo.org/badge/latestdoi/236192181)
 
