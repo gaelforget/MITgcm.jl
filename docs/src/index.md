@@ -10,19 +10,23 @@ Set of tools for running [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge
 ```@index
 ```
 
-## MITgcm path and run script
+## Explore And Run MITgcm
 
-The `MITgcm_path` variable provides the path to the MITgcm folder being used. The `MITgcm_compile` and `MITgcm_run` functions can be used to, respectively, compile and run a `MITgcm` configuration (via the `testreport` script). An interactive / reactive example can be found in the `examples/run_MITgcm.jl` Pluto notebook shown below.
+The `MITgcm_path` variable provides the path to the MITgcm folder being used. The `MITgcm_launch` function can be used to run a `MITgcm` configuration either directly or (recommended) using the climate model interface (see `ClimateModels.jl`). 
+
+Interactive / reactive notebooks (see `Pluto.jl`) are found in the `examples/` folder (e.g. `run_MITgcm.jl`  depicted below). The `verification_experiments` function provides a list of the most-standard MITgcm configurations that can all be run in such fashion.
 
 ![Compiling and running MITgcm](https://user-images.githubusercontent.com/20276764/111195521-b7c82a00-8592-11eb-86a0-c85969de0850.png)
 
 ```@docs
-MITgcm_clean
-MITgcm_build
-MITgcm_compile 
-MITgcm_link
-MITgcm_run
+MITgcm_config
+MITgcm_namelist
+clean
+compile 
+setup
+MITgcm_launch
 testreport
+verification_experiments
 ```
 
 ## Reading MITgcm outputs
