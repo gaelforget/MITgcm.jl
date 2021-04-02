@@ -1,6 +1,9 @@
 """
     MITgcm_namelist
 
+Data structure representing a MITgcm _namelist_ file, such as `data.pkg`, 
+which contain model parameters (`params`) organized in `groups`
+
 ```
 using MITgcmTools
 fil=joinpath(MITgcm_path,"verification","advect_xy","run","data")
@@ -21,6 +24,8 @@ write(fil::AbstractString,nml::MITgcm_namelist) = write_namelist(fil,nml)
 
 """
     MITgcm_config
+
+Concrete type of `AbstractModelConfig` for `MITgcm`    
 
 ```
 using MITgcmTools

@@ -22,6 +22,7 @@ Interactive / reactive notebooks (see `Pluto.jl`) are found in the `examples/` f
 MITgcm_config
 MITgcm_namelist
 clean
+build
 compile 
 setup
 MITgcm_launch

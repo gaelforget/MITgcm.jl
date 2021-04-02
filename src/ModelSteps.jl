@@ -54,11 +54,15 @@ end
 
 """
     build(config::MITgcm_config)
+
+Part of the climate model interface -- specialized for `MITgcm`
 """
 build(config::MITgcm_config) = testreport(config,"-norun")
 
 """
     compile(config::MITgcm_config)
+
+Part of the climate model interface -- specialized for `MITgcm`
 """
 function compile(config::MITgcm_config)
     nam=config.configuration
@@ -75,6 +79,8 @@ end
 
 """
     setup(config::MITgcm_config)
+
+Part of the climate model interface -- specialized for `MITgcm`
 """
 #setup(config::MITgcm_config) = testreport(config,"-q")
 function setup(config::MITgcm_config)
@@ -131,6 +137,8 @@ end
 
 """
     MITgcm_launch(config::MITgcm_config)
+
+Part of the climate model interface -- specialized for `MITgcm`
 """
 function MITgcm_launch(config::MITgcm_config)
     pth=pwd()
