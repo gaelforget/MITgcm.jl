@@ -3,6 +3,13 @@
 *.jl.mem
 .DS_Store
 /Manifest.toml
+docs/Manifest.toml
+test/Manifest.toml
 /dev/
 /docs/build/
 /docs/site/
+examples/HS94*jld2
+examples/HS94*mp4
+examples/HS94*png
+examples/run_HS94
+devel

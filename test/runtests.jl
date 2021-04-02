@@ -1,4 +1,4 @@
-using MITgcmTools, MeshArrays, OceanStateEstimation
+using MITgcmTools, ClimateModels, MeshArrays, OceanStateEstimation
 using Test
 
 @testset "MITgcmTools.jl" begin
@@ -22,8 +22,10 @@ using Test
     exps=verification_experiments()
     @test isa(exps,Array)
 
-    tmp=testreport("advect_xy")
-    fil=joinpath(MITgcm_path,"verification","advect_xy","run","data")
+    MC=MITgcm_config(configuration="advect_xy")
+    setup(MC)
+
+    fil=joinpath(MC.folder,string(MC.ID),"run","data")
     nml=read(fil,MITgcm_namelist())
     write(fil*"_new",nml)
 	
@@ -36,28 +38,36 @@ using Test
     @test nml.groups[1]==:PARM01
     @test nml.params[1][:implicitFreeSurface]
 
-    pth=joinpath(MITgcm_path,"verification","advect_xy","run")
+    #
+
+    myexp="advect_cs"
+    iexp=findall([exps[i].configuration==myexp for i in 1:length(exps)])[1]
+    MC=exps[iexp]
+
+    @test clean(MC)=="no task left in pipeline"
+    @test build(MC)
+    @test compile(MC)
+    @test setup(MC)
+
+    push!(MC.status,"ended")
+    @test monitor(MC)=="ended"
+    
+    launch(MC)
+    pth=joinpath(MC.folder,string(MC.ID),"run")
     tmp=read_mdsio(pth,"XC.001.001")
     @test isa(tmp,Array)
     tmp=read_mdsio(pth,"XC")
     @test isa(tmp,Array)
 
-    @test MITgcm_clean("advect_cs")
-    @test MITgcm_build("advect_cs")
-    @test MITgcm_compile("advect_cs")
-    @test MITgcm_link("advect_cs")
-    @test MITgcm_run("advect_cs")
-
     #read / write functions
 
-    pth=MITgcm_path*"verification/advect_cs/run/"
     fil=joinpath(pth,"available_diagnostics.log")
     read_available_diagnostics("ETAN";filename=fil)
 
     readcube(xx::Array,x::MeshArray) = read(cube2compact(xx),x)
     function readcube(fil::String,x::MeshArray) 
         p=dirname(fil)*"/"
-        b=basename(fil)[1:end-5]    
+        b=basename(fil)[1:end-5]
         xx=read_mdsio(p,b)
         read(cube2compact(xx),x)
     end
@@ -101,7 +111,8 @@ using Test
 
     ##
 
-    tmp=testreport("flt_example")
+    MC=MITgcm_config(configuration="flt_example")
+    tmp=testreport(MC)
     pth=MITgcm_path*"verification/flt_example/run/"
     tmp=read_flt(pth,Float32)
     

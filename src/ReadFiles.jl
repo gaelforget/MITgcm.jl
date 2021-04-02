@@ -463,6 +463,8 @@ z=read_mdsio(p,"T.0000000000")
 function read_mdsio(pth::String,fil::String)
     f=readdir(pth)
     kk=findall(occursin.(fil,f).*occursin.(".data",f))
+    f=f[kk]
+    kk=findall([ (f[i][1:length(fil)]==fil)*(f[i][1+length(fil)]=='.') for i in 1:length(f)])
 
     m=[read_meta(joinpath(pth,f[k])) for k in kk]
     T=eval(:($(Symbol(m[1].dataprec))))

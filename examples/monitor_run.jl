@@ -46,12 +46,12 @@ end
 	"""
 
 # ╔═╡ a28f7354-84eb-11eb-1830-1f401bf2db97
-@bind myexp Select([exps[i].name for i in 1:length(exps)],default="advect_xy")
+@bind myexp Select([exps[i].configuration for i in 1:length(exps)],default="advect_xy")
 
 # ╔═╡ f91c3396-84ef-11eb-2665-cfa350d38737
 begin
-	iexp=findall([exps[i].name==myexp for i in 1:length(exps)])[1]
-	TextField((100, 8), "name = $(exps[iexp].name)\n\nbuild  = $(exps[iexp].build) \n\nrun    = $(exps[iexp].run)")
+	iexp=findall([exps[i].configuration==myexp for i in 1:length(exps)])[1]
+	TextField((100, 8), "name = $(myexp)\n\nbuild  = $(exps[iexp].options) \n\nrun    = $(exps[iexp].inputs)")
 end
 
 # ╔═╡ f051e094-85ab-11eb-22d4-5bd61ac572a1
@@ -59,7 +59,7 @@ md"""## Select a namelist and parameter group
 
 _Note: `data` and `PARM01`, e.g., should be found in any model run directory,_ **once the model has been run for that configuration**. _To run the model, if needed, please refer to the `run_MITgcm.jl` _notebook._
 
-Model configuration is **$(exps[iexp].name)**; let's take a deeper look into its parameters.
+Model configuration is **$myexp**; let's take a deeper look into its parameters.
 """
 
 # ╔═╡ d7f2c656-8512-11eb-2fdf-47a3e57a55e6
@@ -68,7 +68,7 @@ begin
 #    tmp=[isfile(joinpath(pth,i,"code","packages.conf")) for i in lst]
 #    lst=lst[findall(tmp)]
 	
-	pth=joinpath(MITgcm_path,"verification",exps[iexp].name,"run")
+	pth=joinpath(MITgcm_path,"verification",myexp,"run")
 	function list_namelist_files(pth)
 		tmpA=readdir(pth)
 		tmpA=tmpA[findall([length(tmpA[i])>3 for i in 1:length(tmpA)])]
@@ -87,7 +87,7 @@ md"""### Appendices"""
 
 # ╔═╡ 348c692e-84fe-11eb-3288-dd0a1dedce90
 begin
-	fil=joinpath(MITgcm_path,"verification",exps[iexp].name,"run",mydats)
+	fil=joinpath(MITgcm_path,"verification",myexp,"run",mydats)
 	nml=read(fil,MITgcm_namelist())
 	🏁
 end
