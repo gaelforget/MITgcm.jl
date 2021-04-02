@@ -52,6 +52,7 @@ using Test
     push!(MC.status,"ended")
     @test monitor(MC)=="ended"
     
+    launch(MC)
     pth=joinpath(MC.folder,string(MC.ID),"run")
     tmp=read_mdsio(pth,"XC.001.001")
     @test isa(tmp,Array)
