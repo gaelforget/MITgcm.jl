@@ -46,9 +46,8 @@ function clean(config::MITgcm_config)
     #clean up build directory
     testreport(config,"-clean")
     #clean up run directory
-    if isdir(joinpath(config.folder,"run"))
-        rm(joinpath(config.folder,"run"),recursive=true)
-    end
+    pp=joinpath(config.folder,string(config.ID),"run")
+    isdir(pp) ? rm(pp,recursive=true) : nothing
     #
     return "no task left in pipeline"
 end
@@ -80,16 +79,18 @@ end
 #setup(config::MITgcm_config) = testreport(config,"-q")
 function setup(config::MITgcm_config)
     !isdir(joinpath(config.folder)) ? mkdir(joinpath(config.folder)) : nothing
-    !isdir(joinpath(config.folder,"run")) ? mkdir(joinpath(config.folder,"run")) : nothing
-    if !isfile(joinpath(config.folder,"run","data"))
+    !isdir(joinpath(config.folder,string(config.ID))) ? mkdir(joinpath(config.folder,string(config.ID))) : nothing
+    pp=joinpath(config.folder,string(config.ID),"run")
+    !isdir(pp) ? mkdir(pp) : nothing
+    if !isfile(joinpath(pp,"data"))
         p="$(MITgcm_path)/verification/$(config.configuration)/input"
         f=readdir(p)
-        [symlink(joinpath(p,f[i]),joinpath(config.folder,"run",f[i])) for i in 1:length(f)]
+        [symlink(joinpath(p,f[i]),joinpath(pp,f[i])) for i in 1:length(f)]
     end
     #replace relative paths with absolutes then exe prepare_run
-    if isfile(joinpath(config.folder,"run","prepare_run"))
+    if isfile(joinpath(pp,"prepare_run"))
         pth=pwd()
-        cd(joinpath(config.folder,"run"))
+        cd(pp)
         #
         fil="prepare_run"
         meta = read(fil,String)
@@ -116,10 +117,12 @@ function setup(config::MITgcm_config)
         cd(pth)
     end
 
-    if !isfile(joinpath(config.folder,"run","mitgcmuv"))
+    if !islink(joinpath(pp,"mitgcmuv"))
         f="$(MITgcm_path)/verification/$(config.configuration)/build/mitgcmuv"
-        symlink(f,joinpath(config.folder,"run","mitgcmuv")) 
+        symlink(f,joinpath(pp,"mitgcmuv")) 
     end
+
+    init_git_log(config)
 
     put!(config.channel,MITgcm_launch)
 
@@ -131,7 +134,7 @@ end
 """
 function MITgcm_launch(config::MITgcm_config)
     pth=pwd()
-    cd(joinpath(config.folder,"run"))
+    cd(joinpath(config.folder,string(config.ID),"run"))
     tmp=["STOP NORMAL END"]
     try
         run(pipeline(`./mitgcmuv`,"output.txt"))

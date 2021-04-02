@@ -21,7 +21,7 @@ export SeaWaterDensity, MixedLayerDepth
 p=dirname(pathof(MITgcmTools))
 artifact_toml = joinpath(p, "../Artifacts.toml")
 MITgcm_hash = artifact_hash("MITgcm", artifact_toml)
-MITgcm_path = joinpath(artifact_path(MITgcm_hash)*"/","MITgcm/")
+MITgcm_path = joinpath(artifact_path(MITgcm_hash)*"/","MITgcm-checkpoint67s/")
 
 """
     verification_experiments()
@@ -59,9 +59,8 @@ function verification_experiments()
     exps=fill(MITgcm_config(),length(lst))
     for i in 1:length(lst)
         ID = UUIDs.uuid4()
-        folder = joinpath(tempdir(),string(ID))
         exps[i]=MITgcm_config(configuration=lst[i],options=pkg_build[i],
-        inputs=pkg_run[i],ID=ID,folder=folder)
+        inputs=pkg_run[i],ID=ID)
     end
 
     return exps
