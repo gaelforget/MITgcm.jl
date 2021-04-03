@@ -37,6 +37,8 @@ import ClimateModels: compile, build, clean, setup
 
 Cancel any remaining task (config.channel), clean up the build 
 directory (via testreport), and clean the run directory (via rm).
+
+(part of the climate model interface as specialized for `MITgcm`)
 """
 function clean(config::MITgcm_config)
     #cancel any remaining task
@@ -55,14 +57,20 @@ end
 """
     build(config::MITgcm_config)
 
-Part of the climate model interface -- specialized for `MITgcm`
+Build the model using `testreport(config,"-norun")` which links all code
+files, headers, etc  in place before compiling the model
+
+(part of the climate model interface as specialized for `MITgcm`)
+
 """
 build(config::MITgcm_config) = testreport(config,"-norun")
 
 """
     compile(config::MITgcm_config)
 
-Part of the climate model interface -- specialized for `MITgcm`
+Compile the model using `make` in `build/` that has already been setup.
+
+(part of the climate model interface as specialized for `MITgcm`)
 """
 function compile(config::MITgcm_config)
     nam=config.configuration
@@ -80,9 +88,13 @@ end
 """
     setup(config::MITgcm_config)
 
-Part of the climate model interface -- specialized for `MITgcm`
+Create a `run/` folder and link everything there as needed to be ready to run model as 
+normally done for most-standard MITgcm configurations (incl. `prepare_run` and `mitgcmuv`).
+Call `init_git_log(config)` to setup git tracker and `put!(config.channel,MITgcm_launch)` 
+to be executed via `launch(config)` later.
+
+(part of the climate model interface as specialized for `MITgcm`)
 """
-#setup(config::MITgcm_config) = testreport(config,"-q")
 function setup(config::MITgcm_config)
     !isdir(joinpath(config.folder)) ? mkdir(joinpath(config.folder)) : nothing
     !isdir(joinpath(config.folder,string(config.ID))) ? mkdir(joinpath(config.folder,string(config.ID))) : nothing
@@ -138,7 +150,9 @@ end
 """
     MITgcm_launch(config::MITgcm_config)
 
-Part of the climate model interface -- specialized for `MITgcm`
+Go to `run/` folder and effectively call `mitgcmuv > output.txt`
+
+(part of the climate model interface as specialized for `MITgcm`)
 """
 function MITgcm_launch(config::MITgcm_config)
     pth=pwd()
