@@ -1,7 +1,6 @@
 # MITgcmTools.jl
 
-Set of tools for running [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest), analyzing its results, and preparing model inputs. Examples are provided in `test/runtests.jl` as well as in `examples/run_MITgcm.jl`, `monitor_run.jl`, etc.
-
+Set of tools for running [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest), analyzing its results, and preparing model inputs. Examples are provided in `test/runtests.jl` as well as in `MITgcm_worklow.jl`,  `run_MITgcm.jl`, `monitor_run.jl`, and other notebooks in `examples/`.
 
 ![Simulated particles from HS94 on cube sphere grid](https://user-images.githubusercontent.com/20276764/111042787-12377e00-840d-11eb-8ddb-64cc1cfd57fd.png)
 
@@ -15,15 +14,20 @@ The `verification_experiments` function provides a list of the most-standard MIT
 ![Compiling and running MITgcm](https://user-images.githubusercontent.com/20276764/111195521-b7c82a00-8592-11eb-86a0-c85969de0850.png)
 
 ```@docs
-MITgcm_config
+testreport
+verification_experiments
 MITgcm_namelist
-clean
+```
+
+## ClimateModels / MITgcm interface
+
+```@docs
+MITgcm_config
 build
 compile 
 setup
 MITgcm_launch
-testreport
-verification_experiments
+clean
 ```
 
 ## Reading MITgcm outputs
