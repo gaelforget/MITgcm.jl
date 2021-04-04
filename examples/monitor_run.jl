@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.12.21
+# v0.14.0
 
 using Markdown
 using InteractiveUtils
@@ -51,6 +51,10 @@ end
 # ╔═╡ f91c3396-84ef-11eb-2665-cfa350d38737
 begin
 	iexp=findall([exps[i].configuration==myexp for i in 1:length(exps)])[1]
+	builddir=joinpath(MITgcm_path,"verification",myexp,"build")
+	rundir=joinpath(exps[iexp].folder,string(exps[iexp].ID),"run")
+
+	!isdir(rundir) ? setup(exps[iexp]) : nothing
 	TextField((100, 8), "name = $(myexp)\n\nbuild  = $(exps[iexp].options) \n\nrun    = $(exps[iexp].inputs)")
 end
 
@@ -64,17 +68,17 @@ Model configuration is **$myexp**; let's take a deeper look into its parameters.
 
 # ╔═╡ d7f2c656-8512-11eb-2fdf-47a3e57a55e6
 begin
-#    lst=readdir(pth)
-#    tmp=[isfile(joinpath(pth,i,"code","packages.conf")) for i in lst]
-#    lst=lst[findall(tmp)]
+    lst=readdir(builddir)
+    tmp=[isfile(joinpath(builddir,i,"code","packages.conf")) for i in lst]
+    lst=lst[findall(tmp)]
 	
-	pth=joinpath(MITgcm_path,"verification",myexp,"run")
 	function list_namelist_files(pth)
 		tmpA=readdir(pth)
 		tmpA=tmpA[findall([length(tmpA[i])>3 for i in 1:length(tmpA)])]
 		tmpA=tmpA[findall([tmpA[i][1:4]=="data" for i in 1:length(tmpA)])]
 	end
-	dats=list_namelist_files(pth)
+	
+	dats=list_namelist_files(rundir)
 	try
 		@bind mydats Select([dats[i] for i in 1:length(dats)])
 	catch e
@@ -87,7 +91,7 @@ md"""### Appendices"""
 
 # ╔═╡ 348c692e-84fe-11eb-3288-dd0a1dedce90
 begin
-	fil=joinpath(MITgcm_path,"verification",myexp,"run",mydats)
+	fil=joinpath(rundir,mydats)
 	nml=read(fil,MITgcm_namelist())
 	🏁
 end
@@ -96,7 +100,7 @@ end
 try
 	@bind nmlgroup Select(String.(nml.groups))
 catch e
-	"Error: could not find any namelist in $(pth)"
+	"Error: could not find any namelist in $(rundir)"
 end
 
 # ╔═╡ 9bdb94da-8510-11eb-01a6-c9a1519baa68

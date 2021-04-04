@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.12.21
+# v0.14.0
 
 using Markdown
 using InteractiveUtils
@@ -22,8 +22,6 @@ end
 
 # ╔═╡ f588eaba-84ef-11eb-0755-bf1b85b2b561
 begin
-	imgA="https://user-images.githubusercontent.com/20276764/111042787-12377e00-840d-11eb-8ddb-64cc1cfd57fd.png"
-	imgB="https://user-images.githubusercontent.com/20276764/97648227-970b9780-1a2a-11eb-81c4-65ec2c87efc6.png"
 	md"""# MITgcm_workflow.jl
 
 	### 
@@ -31,11 +29,7 @@ begin
 
 	Here we setup, run and plot MITgcm interactively via **`MITgcmTools.jl`** to generate something like this:
 	
-	$(Resource(imgA, :width => 240))
-	
-	### 
-	
-	$(Resource(imgB, :width => 120))
+	![plot](https://user-images.githubusercontent.com/20276764/111042787-12377e00-840d-11eb-8ddb-64cc1cfd57fd.png)
 	"""
 end
 
@@ -76,8 +70,9 @@ Once `mitgcmuv` is found, then a `🏁` should appear just below.
 begin
 	filexe=joinpath(MITgcm_path,"verification",exps[iexp].configuration,"build","mitgcmuv")
 	!isfile(filexe) ? build(exps[iexp]) : nothing
-	filout=joinpath(exps[iexp].folder,"run","output.txt")
-	filstat=joinpath(exps[iexp].folder,"run","onestat.txt")
+	rundir=joinpath(exps[iexp].folder,string(exps[iexp].ID),"run")
+	filout=joinpath(rundir,"output.txt")
+	filstat=joinpath(rundir,"onestat.txt")
 	🏁
 end
 
@@ -235,6 +230,15 @@ begin
 	🏁
 end
 
+# ╔═╡ 901d2844-83be-4767-b169-dfb7701ce15e
+begin
+	md"""### 
+	
+	![plot](https://user-images.githubusercontent.com/20276764/97648227-970b9780-1a2a-11eb-81c4-65ec2c87efc6.png)
+
+	"""
+end
+
 # ╔═╡ Cell order:
 # ╟─f588eaba-84ef-11eb-0755-bf1b85b2b561
 # ╟─98b6621c-85ab-11eb-29d1-af0433598c6a
@@ -261,3 +265,4 @@ end
 # ╟─348c692e-84fe-11eb-3288-dd0a1dedce90
 # ╟─52d7c7a2-8693-11eb-016f-4fc3eb516d44
 # ╟─734e2b5a-8866-11eb-0025-bd9544f4c30d
+# ╟─901d2844-83be-4767-b169-dfb7701ce15e
