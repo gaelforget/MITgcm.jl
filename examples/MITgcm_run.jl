@@ -30,10 +30,13 @@ begin
 	imgB="https://user-images.githubusercontent.com/20276764/97648227-970b9780-1a2a-11eb-81c4-65ec2c87efc6.png"
 	md"""# run_MITgcm.jl
 
-	### 
+	###
 
-
-	Here we use MITgcm interactivetly to generate something like this:
+	Here we use [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) interactively via [MITgcmTools.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/) to generate something like the result shown below. 
+	
+	###
+	
+	This includes compiling and running the model via the simple interface defined in [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl).
 	
 	$(Resource(imgA, :width => 240))
 	
@@ -106,6 +109,12 @@ let
 	🏁
 end
 
+# ╔═╡ a04c1cd6-3b9e-4e69-b986-c863b120bb0b
+begin
+	rundir=joinpath(exps[iexp].folder,string(exps[iexp].ID),"run")
+	readdir(rundir)
+end
+
 # ╔═╡ Cell order:
 # ╟─6ef93b0e-859f-11eb-1b3b-d76b26d678dc
 # ╟─8cf4d8ca-84eb-11eb-22d2-255ce7237090
@@ -121,3 +130,4 @@ end
 # ╟─31829f08-86d1-11eb-3e26-dfae038b4c01
 # ╟─5d826e4c-859d-11eb-133d-859c3abe3ebe
 # ╟─550d996a-859d-11eb-34bf-717389fbf809
+# ╟─a04c1cd6-3b9e-4e69-b986-c863b120bb0b

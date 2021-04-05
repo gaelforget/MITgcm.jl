@@ -24,15 +24,14 @@ end
 begin
 	imgA="https://user-images.githubusercontent.com/20276764/111042787-12377e00-840d-11eb-8ddb-64cc1cfd57fd.png"
 	imgB="https://user-images.githubusercontent.com/20276764/97648227-970b9780-1a2a-11eb-81c4-65ec2c87efc6.png"
-	md"""# monitor_run.jl
+	md"""# MITgcm_configurations.jl
 
 	### 
 
-
-	Here we use scan an MITgcm run folder interactivetly to generate something like this:
+	Here we simply scan [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) configuration folders using [MITgcmTools.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/) and inspect their various parameter groups. 
 	
-	$(Resource(imgA, :width => 240))
-	
+	_Models are neither build nor run in this specific notebook -- please refer to `MITgcm run.jl` for more on that._
+		
 	### 
 	
 	$(Resource(imgB, :width => 120))
@@ -40,13 +39,13 @@ begin
 end
 
 # ╔═╡ 98b6621c-85ab-11eb-29d1-af0433598c6a
-	md"""## Select model configuration:
+	md"""## Select Model Configuration
 	
 	_Note: this will update the multiple-choices menu sequence below_
 	"""
 
 # ╔═╡ a28f7354-84eb-11eb-1830-1f401bf2db97
-@bind myexp Select([exps[i].configuration for i in 1:length(exps)],default="advect_xy")
+@bind myexp Select([exps[i].configuration for i in 1:length(exps)],default="advect_cs")
 
 # ╔═╡ f91c3396-84ef-11eb-2665-cfa350d38737
 begin
@@ -59,11 +58,9 @@ begin
 end
 
 # ╔═╡ f051e094-85ab-11eb-22d4-5bd61ac572a1
-md"""## Select a namelist and parameter group
+md"""## Select Parameter Group (or _Namelist_)
 
-_Note: `data` and `PARM01`, e.g., should be found in any model run directory,_ **once the model has been run for that configuration**. _To run the model, if needed, please refer to the `run_MITgcm.jl` _notebook._
-
-Model configuration is **$myexp**; let's take a deeper look into its parameters.
+_Note: `data` and `PARM01`, e.g., are expected to be found in any MITgcm run directory._
 """
 
 # ╔═╡ d7f2c656-8512-11eb-2fdf-47a3e57a55e6
@@ -103,6 +100,11 @@ catch e
 	"Error: could not find any namelist in $(rundir)"
 end
 
+# ╔═╡ e73fda3a-f05a-49b4-a83d-e7b535467106
+md"""## Inspect Parameters
+
+Now showing : **$myexp / $mydats / $nmlgroup**"""
+
 # ╔═╡ 9bdb94da-8510-11eb-01a6-c9a1519baa68
 begin
 	inml=findall(nml.groups.==Symbol(nmlgroup))[1]
@@ -120,6 +122,7 @@ nml.params[inml]
 # ╟─f051e094-85ab-11eb-22d4-5bd61ac572a1
 # ╟─d7f2c656-8512-11eb-2fdf-47a3e57a55e6
 # ╟─ca7bb004-8510-11eb-379f-632c3b40723d
+# ╟─e73fda3a-f05a-49b4-a83d-e7b535467106
 # ╟─e50726aa-86d3-11eb-0418-fff8fb79ef95
 # ╟─f40e76c4-86d5-11eb-15b0-cd55d6cd1e65
 # ╟─8cf4d8ca-84eb-11eb-22d2-255ce7237090

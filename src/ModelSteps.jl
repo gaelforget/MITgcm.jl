@@ -140,7 +140,8 @@ function setup(config::MITgcm_config)
         symlink(f,joinpath(pp,"mitgcmuv")) 
     end
 
-    init_git_log(config)
+    logdir=joinpath(config.folder,string(config.ID),"log")
+    !isdir(logdir) ? init_git_log(config) : nothing
 
     put!(config.channel,MITgcm_launch)
 
