@@ -30,7 +30,7 @@ Pluto.run()
   
 - `MITgcm_configurations.jl` : explore MITgcm configurations and their parameters.
 - `MITgcm_worklow.jl` : build, setup, run, and plot for any standard configuration.
-- `run_MITgcm.jl` : a more detailed look into compiling and running the model.
+- `MITgcm_run.jl` : a more detailed look into compiling and running the model.
 </details>
 
 <details>
