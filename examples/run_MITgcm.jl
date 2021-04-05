@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.12.21
+# v0.14.0
 
 using Markdown
 using InteractiveUtils
@@ -102,7 +102,7 @@ end
 # ╔═╡ 550d996a-859d-11eb-34bf-717389fbf809
 let
 	do_run
-	launch(exps[iexp])
+	MITgcm_launch(exps[iexp])
 	🏁
 end
 
