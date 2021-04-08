@@ -12,6 +12,11 @@ testreport(MITgcm_config(configuration="front_relax"),"-norun")
 """
 function testreport(config::MITgcm_config,ext="")
     nm=config.configuration
+    try
+        pth=pwd()
+    catch e
+        cd()
+    end
     pth=pwd()
     cd(tempdir())
     println(pwd())
@@ -74,6 +79,11 @@ Compile the model using `make` in `build/` that has already been setup.
 """
 function compile(config::MITgcm_config)
     nam=config.configuration
+    try
+        pth=pwd()
+    catch e
+        cd()
+    end
     pth=pwd()
     cd("$(MITgcm_path)/verification/$(nam)/build")
     try
@@ -107,6 +117,11 @@ function setup(config::MITgcm_config)
     end
     #replace relative paths with absolutes then exe prepare_run
     if isfile(joinpath(pp,"prepare_run"))
+		try
+			pth=pwd()
+		catch e
+			cd()
+		end
         pth=pwd()
         cd(pp)
         #
@@ -156,6 +171,11 @@ Go to `run/` folder and effectively call `mitgcmuv > output.txt`
 (part of the climate model interface as specialized for `MITgcm`)
 """
 function MITgcm_launch(config::MITgcm_config)
+    try
+        pth=pwd()
+    catch e
+        cd()
+    end
     pth=pwd()
     cd(joinpath(config.folder,string(config.ID),"run"))
     tmp=["STOP NORMAL END"]
