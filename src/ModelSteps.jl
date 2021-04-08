@@ -16,8 +16,8 @@ function testreport(config::MITgcm_config,ext="")
         pth=pwd()
     catch e
         cd()
-        pth=pwd()
     end
+    pth=pwd()
     cd(tempdir())
     println(pwd())
     if nm!=="all"
@@ -83,8 +83,8 @@ function compile(config::MITgcm_config)
         pth=pwd()
     catch e
         cd()
-        pth=pwd()
     end
+    pth=pwd()
     cd("$(MITgcm_path)/verification/$(nam)/build")
     try
         run(`make`)
@@ -121,8 +121,8 @@ function setup(config::MITgcm_config)
 			pth=pwd()
 		catch e
 			cd()
-			pth=pwd()
 		end
+        pth=pwd()
         cd(pp)
         #
         fil="prepare_run"
@@ -175,8 +175,8 @@ function MITgcm_launch(config::MITgcm_config)
         pth=pwd()
     catch e
         cd()
-        pth=pwd()
     end
+    pth=pwd()
     cd(joinpath(config.folder,string(config.ID),"run"))
     tmp=["STOP NORMAL END"]
     try
