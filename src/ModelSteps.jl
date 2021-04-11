@@ -158,6 +158,36 @@ function setup(config::MITgcm_config)
     logdir=joinpath(config.folder,string(config.ID),"log")
     !isdir(logdir) ? init_git_log(config) : nothing
 
+    #Replace namelists with editeable versions in log/
+    #
+    #- read from run folder, rewrite to log/parameter_files
+    #- mv all namelists to ../original_parameter_files
+    #- link from log/parameter_files to here (run/)
+    #(- add to git with message = original params)
+
+    pth=joinpath(config.folder,string(config.ID),"run")
+    function list_namelist_files(pth)
+            tmpA=readdir(pth)
+            tmpA=tmpA[findall([length(tmpA[i])>3 for i in 1:length(tmpA)])]
+            tmpA=tmpA[findall([tmpA[i][1:4]=="data" for i in 1:length(tmpA)])]
+    end
+    nmlfiles=list_namelist_files(pth)
+
+    pth_log=joinpath(config.folder,string(config.ID),"log","tracked_parameters")
+    !isdir(pth_log) ? mkdir(pth_log) : nothing
+    for fil in nmlfiles
+        nml=read(joinpath(pth,fil),MITgcm_namelist())
+        write(joinpath(pth_log,fil),nml)
+    end
+
+    pth_mv=joinpath(config.folder,string(config.ID),"original_parameters")
+    !isdir(pth_mv) ? mkdir(pth_mv) : nothing
+    for fil in nmlfiles
+        mv(joinpath(pth,fil),joinpath(pth_mv,fil))
+        symlink(joinpath(pth_log,fil),joinpath(pth,fil))
+    end
+
+    #add model run to scheduled tasks
     put!(config.channel,MITgcm_launch)
 
     return true

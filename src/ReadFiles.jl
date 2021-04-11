@@ -321,7 +321,7 @@ function parse_param(p1)
 	elseif p1==".FALSE."||p1==".false."
 		p2=false
 	else
-        if first(p1)=='\''
+        if first(p1)=='\''&&!occursin(',',p1)
 			p2=p1[2:end-1]
         elseif occursin('.',p1)
 			try
@@ -341,6 +341,7 @@ function parse_param(p1)
         if occursin(',',p2)
             p2=split(p2,',')
             p2=p2[findall( (!isempty).(p2) )]
+			p2=[parse_param(p3) for p3 in p2]
         end
     end
 	return p2
@@ -372,22 +373,26 @@ function write_namelist(fil,namelist)
 		tmpA=namelist.params[jj] 
 		params=(; zip(keys(tmpA),values(tmpA))...)
 			
-			txt=fill("",length(params))
-			for i in 1:length(params)
-				x=params[i]
-				y=missing
-				isa(x,Bool)&&x==true ? y=".TRUE." : nothing
-				isa(x,Bool)&&x==false ? y=".FALSE." : nothing
-				if isa(x,Array)
-                    tmpy=[""]
-                    [tmpy[1]*=x[ii]*"," for ii in 1:length(x)]
-                    y=tmpy[1]
-                end
-				ismissing(y)&&isa(x,AbstractString)&&(!occursin('*',x)) ? y="'$x'" : nothing
-				ismissing(y) ? y="$x" : nothing
-				y[end]==',' ? y=y[1:end-1] : nothing
-				txt[i]=y
-			end
+        txt=fill("",length(params))
+        for i in 1:length(params)
+            x=params[i]
+            y=missing
+            isa(x,Bool)&&x==true ? y=".TRUE." : nothing
+            isa(x,Bool)&&x==false ? y=".FALSE." : nothing
+            if isa(x,Array)&&(eltype(x)<:AbstractString)
+                tmpy=[""]
+                [tmpy[1]*="'"*x[ii]*"'," for ii in 1:length(x)]
+                y=tmpy[1]
+            elseif isa(x,Array)
+                tmpy=[""]
+                [tmpy[1]*=x[ii]*"," for ii in 1:length(x)]
+                y=tmpy[1]
+            end
+            ismissing(y)&&isa(x,AbstractString)&&(!occursin('*',x)) ? y="'$x'" : nothing
+            ismissing(y) ? y="$x" : nothing
+            y[end]==',' ? y=y[1:end-1] : nothing
+            txt[i]=y
+        end
 			
 		txtparams=[" $(keys(params)[i]) = $(txt[i]),\n" for i in 1:length(params)]
 
