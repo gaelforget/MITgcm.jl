@@ -80,7 +80,7 @@ Return a `MeshArray` map of tile indices, `mytiles["tileNo"]`, for tile
 size `ni,nj` and extract grid variables accordingly.
 """
 function findtiles(ni::Int,nj::Int,mygrid::gcmgrid)
-    mytiles = Dict()
+    mytiles = OrderedDict()
 
     GridVariables=GridLoad(mygrid)
 
@@ -235,7 +235,7 @@ function read_meta(metafile)
     meta = split.(meta,"=")
     meta = [[replace(x[1]," "=>"") x[2]] for x in meta]
 
-    metaDict = Dict{String,Any}(m[1] => m[2] for m in meta)
+    metaDict = OrderedDict{String,Any}(m[1] => m[2] for m in meta)
 
     for k in keys(metaDict)
         val = eval(Meta.parse(metaDict[k]))
@@ -274,12 +274,12 @@ function read_namelist(fil)
     meta = meta[findall(first.(meta).!=='#')]
     groups = meta[findall(occursin.('&',meta))]
 	groups = [Symbol(groups[1+2*(i-1)][3:end]) for i in 1:Int(length(groups)/2)]
-	params = fill(Dict(),length(groups))
+	params = fill(OrderedDict(),length(groups))
 		
 	for i in 1:length(groups)
 		ii=1+findall(occursin.(String(groups[i]),meta))[1]
 		i1=ii
-		tmp0=Dict()
+		tmp0=OrderedDict()
         k0=[:unknown]
 		while !occursin('&',meta[ii])
 			if occursin('=',meta[ii])
@@ -494,7 +494,7 @@ function read_available_diagnostics(fldname::String; filename="available_diagnos
     line = split(line,'|')
     line = lstrip.(rstrip.(line))
 
-    diagInfo = Dict([
+    diagInfo = OrderedDict([
     "diagNum" => parse(Int,line[1]),
     "fldname" => line[2],
     "levs" => parse(Int,line[3]),
