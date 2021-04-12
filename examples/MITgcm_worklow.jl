@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.14.0
+# v0.14.1
 
 using Markdown
 using InteractiveUtils
@@ -68,6 +68,7 @@ begin
 	rundir=joinpath(exps[iexp].folder,string(exps[iexp].ID),"run")
 	filout=joinpath(rundir,"output.txt")
 	filstat=joinpath(rundir,"onestat.txt")
+	setup(exps[iexp])
 	filexe
 end
 
@@ -82,22 +83,18 @@ Once model has been compiled and the run directory setup, we are ready to call `
 # ╔═╡ f7e66980-9ec5-43cf-98b1-37aa6823d64a
 rundir
 
-# ╔═╡ f93bde1a-8811-11eb-35f5-e325bd730161
-@bind reload_nml Button("Refresh Parameters")
-
 # ╔═╡ d7f2c656-8512-11eb-2fdf-47a3e57a55e6
 begin
-	pth=joinpath(MITgcm_path,"verification",exps[iexp].configuration,"input")
 	function list_namelist_files(pth)
 		tmpA=readdir(pth)
 		tmpA=tmpA[findall([length(tmpA[i])>3 for i in 1:length(tmpA)])]
 		tmpA=tmpA[findall([tmpA[i][1:4]=="data" for i in 1:length(tmpA)])]
 	end
-	dats=list_namelist_files(pth)
+	dats=list_namelist_files(rundir)
 	try
 		@bind mydats Select([dats[i] for i in 1:length(dats)])
 	catch e
-		"Error: could not find any namelist in $(pth)"
+		"Error: could not find any namelist in $(rundir)"
 	end
 end
 
@@ -125,6 +122,32 @@ _Note: some configurations use `nTimeSteps`, others use `endTime`, but using bot
 # ╔═╡ dff9a4c8-880c-11eb-37e1-439de05c5166
 @bind update_file Select(["allset" => "Use Previous Parameters", "update" => "Update Parameter File"])
 
+# ╔═╡ 15746ef0-8617-11eb-1160-5f48a95d94d0
+begin
+	update_file
+	
+	tmpfil=joinpath(rundir,"data")
+	tmplist=read(tmpfil,MITgcm_namelist())
+	i1=findall((tmplist.groups.==:PARM03))[1]
+	
+	if haskey(tmplist.params[i1],:nTimeSteps)
+		tmplist.params[i1][:nTimeSteps]+=20
+	elseif haskey(tmplist.params[i1],:deltaT)
+		tmplist.params[i1][:endTime]+=tmplist.params[i1][:deltaT]
+	elseif haskey(tmplist.params[i1],:deltaTtracer)
+		tmplist.params[i1][:endTime]+=tmplist.params[i1][:deltaTtracer]
+	elseif haskey(tmplist.params[i1],:deltaTClock)
+		tmplist.params[i1][:endTime]+=tmplist.params[i1][:deltaTClock]
+	end
+	
+	if update_file!=="allset"
+		rm(tmpfil)
+		write(tmpfil,tmplist)
+	end
+
+	do_run1="🐎"
+end
+
 # ╔═╡ 4b62b282-86bd-11eb-2fed-bbbe8ef2d4af
 md"""## Run Model
 
@@ -138,65 +161,21 @@ This should also happen automatically after modifying parameters.
 # ╔═╡ 6f618b2c-86bd-11eb-1607-a179a349378e
 @bind do_run2 Button("Launch Model")
 
+# ╔═╡ 96492c18-86bd-11eb-35ca-dff79e6e7818
+begin
+	do_run1
+	do_run2
+	isempty(exps[iexp].channel) ? put!(exps[iexp].channel,MITgcm_launch) : nothing
+	launch(exps[iexp])
+	refresh_plot=true
+	🏁
+end
+
 # ╔═╡ 0f920f90-86e9-11eb-3f6d-2d530bd2e9db
 md"""## Plot Model Result
 
 Here we show average temperature in **$(exps[iexp].configuration)**
 """
-
-# ╔═╡ af176e6c-8695-11eb-3e34-91fbdb9c52fa
-md"""### Appendices"""
-
-# ╔═╡ 348c692e-84fe-11eb-3288-dd0a1dedce90
-begin	
-	update_file
-	reload_nml
-	fil=joinpath(MITgcm_path,"verification",exps[iexp].configuration,"input",mydats)
-	nml=read(fil,MITgcm_namelist())
-	🏁
-end
-
-# ╔═╡ ca7bb004-8510-11eb-379f-632c3b40723d
-try
-	@bind nmlgroup Select(String.(nml.groups))
-catch e
-	"Error: could not find any namelist in $(pth)"
-end
-
-# ╔═╡ 15746ef0-8617-11eb-1160-5f48a95d94d0
-begin
-	update_file
-	
-	tmplist=deepcopy(nml)
-	i1=findall((nml.groups.==:PARM03))[1]
-	
-	if haskey(tmplist.params[i1],:nTimeSteps)
-		tmplist.params[i1][:nTimeSteps]+=20
-	elseif haskey(tmplist.params[i1],:deltaT)
-		tmplist.params[i1][:endTime]+=tmplist.params[i1][:deltaT]
-	elseif haskey(tmplist.params[i1],:deltaTtracer)
-		tmplist.params[i1][:endTime]+=tmplist.params[i1][:deltaTtracer]
-	elseif haskey(tmplist.params[i1],:deltaTClock)
-		tmplist.params[i1][:endTime]+=tmplist.params[i1][:deltaTClock]
-	end
-	
-	if update_file!=="allset"
-		rm(fil)
-		write(fil,tmplist)
-	end
-
-	do_run1="🐎"
-end
-
-# ╔═╡ 96492c18-86bd-11eb-35ca-dff79e6e7818
-begin
-	do_run1
-	do_run2
-	setup(exps[iexp])
-	launch(exps[iexp])
-	refresh_plot=true
-	🏁
-end
 
 # ╔═╡ d0bbb668-86e0-11eb-1a9b-8f2b0175f7c1
 begin
@@ -208,6 +187,27 @@ begin
 	Tmean=[parse(Float64,split(tmp0[i],"=")[2]) for i in 1:length(tmp0)-1]
 	plot(Tmean)	
 end
+
+# ╔═╡ af176e6c-8695-11eb-3e34-91fbdb9c52fa
+md"""### Appendices"""
+
+# ╔═╡ 348c692e-84fe-11eb-3288-dd0a1dedce90
+begin	
+	do_run1
+	fil=joinpath(rundir,mydats)
+	nml=read(fil,MITgcm_namelist())
+	🏁
+end
+
+# ╔═╡ ca7bb004-8510-11eb-379f-632c3b40723d
+try
+	@bind nmlgroup Select(String.(nml.groups))
+catch e
+	"Error: could not find any namelist in $(rundir)"
+end
+
+# ╔═╡ 1c4fc1a0-4061-46f5-8f3d-b88fe5e6dc3e
+fil
 
 # ╔═╡ 52d7c7a2-8693-11eb-016f-4fc3eb516d44
 begin
@@ -223,7 +223,7 @@ begin
 	#Read grid (as if rectangular domain for initial test) 
 	
 	try
-		XC=read_mdsio(pth,"XC"); siz=size(XC)
+		XC=read_mdsio(rundir,"XC"); siz=size(XC)
 
 		mread(xx::Array,x::MeshArray) = read(xx,x)	
 		function mread(fil::String,x::MeshArray)
@@ -232,7 +232,7 @@ begin
 			read(read_mdsio(d,b),x)
 		end
 
-		γ=gcmgrid(pth,"PeriodicChannel",1,fill(siz,1), [siz[1] siz[2]], eltype(XC), mread, write)
+		γ=gcmgrid(rundir,"PeriodicChannel",1,fill(siz,1), [siz[1] siz[2]], eltype(XC), mread, write)
 		Γ=GridLoad(γ)
 	catch e
 		γ=[]
@@ -261,13 +261,13 @@ end
 # ╟─eca925ba-8816-11eb-1d6d-39bf08bfe979
 # ╟─f051e094-85ab-11eb-22d4-5bd61ac572a1
 # ╟─f7e66980-9ec5-43cf-98b1-37aa6823d64a
-# ╟─f93bde1a-8811-11eb-35f5-e325bd730161
 # ╟─d7f2c656-8512-11eb-2fdf-47a3e57a55e6
 # ╟─ca7bb004-8510-11eb-379f-632c3b40723d
 # ╟─d87b220a-2c4f-4943-8e79-fd42ebec81b9
 # ╟─c7670d00-868c-11eb-1889-4d3ffe621dd2
 # ╟─dff9a4c8-880c-11eb-37e1-439de05c5166
 # ╟─15746ef0-8617-11eb-1160-5f48a95d94d0
+# ╟─1c4fc1a0-4061-46f5-8f3d-b88fe5e6dc3e
 # ╟─4b62b282-86bd-11eb-2fed-bbbe8ef2d4af
 # ╟─6f618b2c-86bd-11eb-1607-a179a349378e
 # ╟─96492c18-86bd-11eb-35ca-dff79e6e7818
