@@ -30,11 +30,11 @@ end
 
 # ╔═╡ f588eaba-84ef-11eb-0755-bf1b85b2b561
 begin
-	md"""# MITgcm_workflow.jl
+	md"""# MITgcm_workflow.jl (Climate Model Interface Demo)
 
 	### 
 
-	Here we setup, run and plot [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) interactively via [MITgcmTools.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/) to generate something like this:
+	Here we setup, run and plot the [MIT general circulation model](https://mitgcm.readthedocs.io/en/latest/?badge=latest) interactively via [MITgcmTools.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/) that can generate something like this for the Atmosphere:
 	
 	![plot](https://user-images.githubusercontent.com/20276764/111042787-12377e00-840d-11eb-8ddb-64cc1cfd57fd.png)
 	"""
