@@ -339,7 +339,7 @@ function parse_param(p1)
 	end
     if isa(p2,AbstractString)
         if occursin(',',p2)
-            p2=split(p2,',')
+            p2=strip.(split(p2,','))
             p2=p2[findall( (!isempty).(p2) )]
 			p2=[parse_param(p3) for p3 in p2]
         end
@@ -385,7 +385,7 @@ function write_namelist(fil,namelist)
                 y=tmpy[1]
             elseif isa(x,Array)
                 tmpy=[""]
-                [tmpy[1]*=x[ii]*"," for ii in 1:length(x)]
+                [tmpy[1]*=string(x[ii])*"," for ii in 1:length(x)]
                 y=tmpy[1]
             end
             ismissing(y)&&isa(x,AbstractString)&&(!occursin('*',x)) ? y="'$x'" : nothing
