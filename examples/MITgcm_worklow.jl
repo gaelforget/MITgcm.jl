@@ -15,6 +15,14 @@ end
 
 # ╔═╡ 8cf4d8ca-84eb-11eb-22d2-255ce7237090
 begin
+	import Pkg
+    Pkg.activate(mktempdir())
+    Pkg.add([
+        Pkg.PackageSpec(name="MITgcmTools", version="0.1"),
+        Pkg.PackageSpec(name="ClimateModels", version="0.1"),
+        Pkg.PackageSpec(name="PlutoUI", version="0.7"),
+        Pkg.PackageSpec(name="GR", version="0.57"),
+    ])
 	using MITgcmTools, ClimateModels, PlutoUI, Printf, GR
 	exps=verification_experiments()	
 	🏁 = "🏁"
