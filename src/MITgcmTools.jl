@@ -1,7 +1,7 @@
 module MITgcmTools
 
 using Dates, Printf, SparseArrays, Pkg.Artifacts, UUIDs
-using DataFrames, NetCDF, MeshArrays, ClimateModels
+using OrderedCollections, DataFrames, NetCDF, MeshArrays, ClimateModels
 
 include("Types.jl")
 include("ReadFiles.jl")

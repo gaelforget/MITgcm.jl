@@ -5,7 +5,7 @@ Data structure representing a MITgcm _namelist_ file, such as `data.pkg`, which 
 
 ```
     groups :: Array{Symbol,1} = Array{Symbol,1}(undef, 0)
-    params :: Array{Dict{Symbol,Any},1} = Array{Dict{Symbol,Any},1}(undef, 0)
+    params :: Array{OrderedDict{Symbol,Any},1} = Array{OrderedDict{Symbol,Any},1}(undef, 0)
 ```
 
 with model parameters (`params`) being organized in `groups` as done in the files.
@@ -21,7 +21,7 @@ MITgcm_namelist(groups=nml.groups)
 """
 Base.@kwdef struct MITgcm_namelist
     groups :: Array{Symbol,1} = Array{Symbol,1}(undef, 0)
-    params :: Array{Dict{Symbol,Any},1} = Array{Dict{Symbol,Any},1}(undef, 0)
+    params :: Array{OrderedDict{Symbol,Any},1} = Array{OrderedDict{Symbol,Any},1}(undef, 0)
 end
 
 import Base:read,write

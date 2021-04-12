@@ -80,7 +80,7 @@ Return a `MeshArray` map of tile indices, `mytiles["tileNo"]`, for tile
 size `ni,nj` and extract grid variables accordingly.
 """
 function findtiles(ni::Int,nj::Int,mygrid::gcmgrid)
-    mytiles = Dict()
+    mytiles = OrderedDict()
 
     GridVariables=GridLoad(mygrid)
 
@@ -235,7 +235,7 @@ function read_meta(metafile)
     meta = split.(meta,"=")
     meta = [[replace(x[1]," "=>"") x[2]] for x in meta]
 
-    metaDict = Dict{String,Any}(m[1] => m[2] for m in meta)
+    metaDict = OrderedDict{String,Any}(m[1] => m[2] for m in meta)
 
     for k in keys(metaDict)
         val = eval(Meta.parse(metaDict[k]))
@@ -274,12 +274,12 @@ function read_namelist(fil)
     meta = meta[findall(first.(meta).!=='#')]
     groups = meta[findall(occursin.('&',meta))]
 	groups = [Symbol(groups[1+2*(i-1)][3:end]) for i in 1:Int(length(groups)/2)]
-	params = fill(Dict(),length(groups))
+	params = fill(OrderedDict(),length(groups))
 		
 	for i in 1:length(groups)
 		ii=1+findall(occursin.(String(groups[i]),meta))[1]
 		i1=ii
-		tmp0=Dict()
+		tmp0=OrderedDict()
         k0=[:unknown]
 		while !occursin('&',meta[ii])
 			if occursin('=',meta[ii])
@@ -321,7 +321,7 @@ function parse_param(p1)
 	elseif p1==".FALSE."||p1==".false."
 		p2=false
 	else
-        if first(p1)=='\''
+        if first(p1)=='\''&&!occursin(',',p1)
 			p2=p1[2:end-1]
         elseif occursin('.',p1)
 			try
@@ -339,8 +339,9 @@ function parse_param(p1)
 	end
     if isa(p2,AbstractString)
         if occursin(',',p2)
-            p2=split(p2,',')
+            p2=strip.(split(p2,','))
             p2=p2[findall( (!isempty).(p2) )]
+			p2=[parse_param(p3) for p3 in p2]
         end
     end
 	return p2
@@ -372,22 +373,26 @@ function write_namelist(fil,namelist)
 		tmpA=namelist.params[jj] 
 		params=(; zip(keys(tmpA),values(tmpA))...)
 			
-			txt=fill("",length(params))
-			for i in 1:length(params)
-				x=params[i]
-				y=missing
-				isa(x,Bool)&&x==true ? y=".TRUE." : nothing
-				isa(x,Bool)&&x==false ? y=".FALSE." : nothing
-				if isa(x,Array)
-                    tmpy=[""]
-                    [tmpy[1]*=x[ii]*"," for ii in 1:length(x)]
-                    y=tmpy[1]
-                end
-				ismissing(y)&&isa(x,AbstractString)&&(!occursin('*',x)) ? y="'$x'" : nothing
-				ismissing(y) ? y="$x" : nothing
-				y[end]==',' ? y=y[1:end-1] : nothing
-				txt[i]=y
-			end
+        txt=fill("",length(params))
+        for i in 1:length(params)
+            x=params[i]
+            y=missing
+            isa(x,Bool)&&x==true ? y=".TRUE." : nothing
+            isa(x,Bool)&&x==false ? y=".FALSE." : nothing
+            if isa(x,Array)&&(eltype(x)<:AbstractString)
+                tmpy=[""]
+                [tmpy[1]*="'"*x[ii]*"'," for ii in 1:length(x)]
+                y=tmpy[1]
+            elseif isa(x,Array)
+                tmpy=[""]
+                [tmpy[1]*=string(x[ii])*"," for ii in 1:length(x)]
+                y=tmpy[1]
+            end
+            ismissing(y)&&isa(x,AbstractString)&&(!occursin('*',x)) ? y="'$x'" : nothing
+            ismissing(y) ? y="$x" : nothing
+            y[end]==',' ? y=y[1:end-1] : nothing
+            txt[i]=y
+        end
 			
 		txtparams=[" $(keys(params)[i]) = $(txt[i]),\n" for i in 1:length(params)]
 
@@ -494,7 +499,7 @@ function read_available_diagnostics(fldname::String; filename="available_diagnos
     line = split(line,'|')
     line = lstrip.(rstrip.(line))
 
-    diagInfo = Dict([
+    diagInfo = OrderedDict([
     "diagNum" => parse(Int,line[1]),
     "fldname" => line[2],
     "levs" => parse(Int,line[3]),
