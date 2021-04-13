@@ -21,16 +21,16 @@ begin
         Pkg.PackageSpec(name="MITgcmTools", version="0.1"),
         Pkg.PackageSpec(name="ClimateModels", version="0.1"),
         Pkg.PackageSpec(name="PlutoUI", version="0.7"),
-        Pkg.PackageSpec(name="GR", version="0.57"),
+        Pkg.PackageSpec(name="Plots", version="1.11"),
     ])
-	using MITgcmTools, ClimateModels, PlutoUI, Printf, GR
+	using MITgcmTools, ClimateModels, PlutoUI, Printf, Plots
 	exps=verification_experiments()	
 	🏁 = "🏁"
 end
 
 # ╔═╡ f588eaba-84ef-11eb-0755-bf1b85b2b561
 begin
-	md"""# MITgcm_workflow.jl (Climate Model Interface Demo)
+	md"""# MITgcm_workflow.jl (Model Interface Demo)
 
 	### 
 
@@ -47,7 +47,7 @@ _Note: changing this top level parameter should update multiple-choice menus and
 """
 
 # ╔═╡ a28f7354-84eb-11eb-1830-1f401bf2db97
-@bind myexp Select([exps[i].configuration for i in 1:length(exps)],default="global_with_exf")
+@bind myexp Select([exps[i].configuration for i in 1:length(exps)],default="advect_xz")
 
 # ╔═╡ 766f87b8-f3d4-4e39-8cae-d91679d9af6f
 begin
@@ -56,7 +56,7 @@ begin
 end
 
 # ╔═╡ ee0ed0a0-8817-11eb-124d-a197f1d4545a
-md"""### Where Is `mitgcmuv` located?
+md"""### Where Is `mitgcmuv` compiled?
 
 ###
 
@@ -81,15 +81,59 @@ begin
 end
 
 # ╔═╡ f051e094-85ab-11eb-22d4-5bd61ac572a1
-md"""## Browse Model Parameters
+md"""### Where Is `mitgcmuv` run?
 
-Once the model has been setup for the selected configuration, then `data` and `PARM01` should be found in the model run directory which should appear just below. 
-
-Once model has been compiled and the run directory setup, we are ready to call `launch(exps[iexp])` and thus run the model as done below. If an error message suggests that something has gone wrong, sometimes it helps to run the `clean(exps[iexp])` and restart this notebook.
+Once the model has been setup for the selected configuration, then the model run directory should appear just below this text. Once the model has been compiled and the run directory setup, we are ready to call `launch(exps[iexp])` and run the model as done later on. 
 """
 
 # ╔═╡ f7e66980-9ec5-43cf-98b1-37aa6823d64a
 rundir
+
+# ╔═╡ 5d775d7b-98d6-4d96-aee2-bae961379fd4
+md"""## Run Model"""
+
+# ╔═╡ 4b62b282-86bd-11eb-2fed-bbbe8ef2d4af
+md"""Click on button when ready to run the model **$(exps[iexp].configuration)**. 
+
+This should also happen automatically once at first, and once after modifying parameters.
+"""
+
+# ╔═╡ 6f618b2c-86bd-11eb-1607-a179a349378e
+@bind do_run1 Button("Launch Model")
+
+# ╔═╡ 6404fddf-3c46-4015-9580-b9159c76b30a
+md"""### Explore Model Output
+
+###
+
+Below is a list of all files (by default) contained in the `run/` directory. 
+
+To narrow the search, try typing something in the text field 👉 $(@bind search_txt TextField(; default=""))	👈
+"""
+
+# ╔═╡ 0f920f90-86e9-11eb-3f6d-2d530bd2e9db
+md"""### Plot Model Result
+
+###
+
+Here we show temperature in **$(exps[iexp].configuration)**
+"""
+
+# ╔═╡ e6c10fb5-ee95-41a0-982e-3910a8ce1d00
+md"""
+
+When it shows maps, the plot below can be animated by clicking on `start`.
+
+$(@bind t_slow Clock(1.0, true))
+"""
+
+# ╔═╡ c7670d00-868c-11eb-1889-4d3ffe621dd2
+md"""## Modify Parameters
+
+###
+
+**First, select a model parameter group** (or the default): 
+"""
 
 # ╔═╡ d7f2c656-8512-11eb-2fdf-47a3e57a55e6
 begin
@@ -106,102 +150,11 @@ begin
 	end
 end
 
-# ╔═╡ c7670d00-868c-11eb-1889-4d3ffe621dd2
-md"""## Modify Parameters
-
-###
-
-In the example just below, we change the run duration for the **$(exps[iexp].configuration)** configuration. 
-
-###
-
-Selecting **Update Parameter File** triggers the following sequence:
-
-- update file in the run directory
-- launch the model
-- update the plot accordingly 
-
-###
-
-_Note: some configurations use `nTimeSteps`, others use `endTime`, but using both at once generates an error message._
-
-"""
-
-# ╔═╡ dff9a4c8-880c-11eb-37e1-439de05c5166
-@bind update_file Select(["allset" => "Use Previous Parameters", "update" => "Update Parameter File"])
-
-# ╔═╡ 15746ef0-8617-11eb-1160-5f48a95d94d0
-begin
-	update_file
-	
-	tmpfil=joinpath(rundir,"data")
-	tmplist=read(tmpfil,MITgcm_namelist())
-	i1=findall((tmplist.groups.==:PARM03))[1]
-	
-	if haskey(tmplist.params[i1],:nTimeSteps)
-		tmplist.params[i1][:nTimeSteps]+=20
-	elseif haskey(tmplist.params[i1],:deltaT)
-		tmplist.params[i1][:endTime]+=tmplist.params[i1][:deltaT]
-	elseif haskey(tmplist.params[i1],:deltaTtracer)
-		tmplist.params[i1][:endTime]+=tmplist.params[i1][:deltaTtracer]
-	elseif haskey(tmplist.params[i1],:deltaTClock)
-		tmplist.params[i1][:endTime]+=tmplist.params[i1][:deltaTClock]
-	end
-	
-	if update_file!=="allset"
-		rm(tmpfil)
-		write(tmpfil,tmplist)
-	end
-
-	do_run1="🐎"
-end
-
-# ╔═╡ 4b62b282-86bd-11eb-2fed-bbbe8ef2d4af
-md"""## Run Model
-
-###
-
-Click on button when ready to run the model **$(exps[iexp].configuration)**. 
-
-This should also happen automatically after modifying parameters.
-"""
-
-# ╔═╡ 6f618b2c-86bd-11eb-1607-a179a349378e
-@bind do_run2 Button("Launch Model")
-
-# ╔═╡ 96492c18-86bd-11eb-35ca-dff79e6e7818
-begin
-	do_run1
-	do_run2
-	isempty(exps[iexp].channel) ? put!(exps[iexp].channel,MITgcm_launch) : nothing
-	launch(exps[iexp])
-	refresh_plot=true
-	🏁
-end
-
-# ╔═╡ 0f920f90-86e9-11eb-3f6d-2d530bd2e9db
-md"""## Plot Model Result
-
-Here we show average temperature in **$(exps[iexp].configuration)**
-"""
-
-# ╔═╡ d0bbb668-86e0-11eb-1a9b-8f2b0175f7c1
-begin
-	refresh_plot
-	run(pipeline(`grep dynstat_theta_mean $(filout)`,filstat))
-	
-	tmp0 = read(filstat,String)
-	tmp0 = split(tmp0,"\n")
-	Tmean=[parse(Float64,split(tmp0[i],"=")[2]) for i in 1:length(tmp0)-1]
-	plot(Tmean)	
-end
-
 # ╔═╡ af176e6c-8695-11eb-3e34-91fbdb9c52fa
 md"""### Appendices"""
 
 # ╔═╡ 348c692e-84fe-11eb-3288-dd0a1dedce90
 begin	
-	do_run1
 	fil=joinpath(rundir,mydats)
 	nml=read(fil,MITgcm_namelist())
 	🏁
@@ -214,8 +167,28 @@ catch e
 	"Error: could not find any namelist in $(rundir)"
 end
 
-# ╔═╡ 1c4fc1a0-4061-46f5-8f3d-b88fe5e6dc3e
-fil
+# ╔═╡ 002171f5-8d6d-4197-8a3c-642f3337a01b
+begin
+	nmlgroup
+	
+	md"""
+	
+	**Then, enter parameter name** (without ":") **and new value:** 
+	
+	parameter name 👉 $(@bind p_name TextField(; default=""))	👈
+	
+	new value 👉 $(@bind p_value TextField(; default=""))	👈
+	
+	**Once ready, click** `Update & Relaunch` **to:**
+
+	- update parameter file
+	- rerun the model
+	- update the plots 
+
+	$(@bind update_param Button("Update & Relaunch"))
+	
+	"""
+end
 
 # ╔═╡ 52d7c7a2-8693-11eb-016f-4fc3eb516d44
 begin
@@ -223,8 +196,76 @@ begin
         🏁
 end
 
-# ╔═╡ d87b220a-2c4f-4943-8e79-fd42ebec81b9
-nml.params[inml]
+# ╔═╡ e658d885-ad25-4b47-b0ee-6c97a204f731
+begin
+	update_param
+	nml.params[inml]
+end
+
+# ╔═╡ 15746ef0-8617-11eb-1160-5f48a95d94d0
+begin
+	update_param
+	
+	if !isempty(p_value)
+		tmptype=typeof(nml.params[inml][Symbol(p_name)])
+		nml.params[inml][Symbol(p_name)]=parse(tmptype,p_value)
+		tmpfil=joinpath(rundir,mydats)
+		
+		rm(tmpfil)
+		write(tmpfil,nml)
+	end
+	
+	#@bind do_run2 Button("Launch Model")
+	do_run2="🐎"
+end
+
+# ╔═╡ 96492c18-86bd-11eb-35ca-dff79e6e7818
+begin
+	do_run1
+	do_run2
+	isempty(exps[iexp].channel) ? put!(exps[iexp].channel,MITgcm_launch) : nothing
+	launch(exps[iexp])
+	refresh_plot=true
+	🏁
+end
+
+# ╔═╡ 6edcbba3-8485-44d2-940a-e4f2df019373
+begin
+	refresh_plot
+	list1=readdir(rundir)
+	search_txt!=="*" ? list1[findall(occursin.(search_txt,list1))] : list1
+end
+
+# ╔═╡ d0bbb668-86e0-11eb-1a9b-8f2b0175f7c1
+begin
+	refresh_plot
+
+	run(pipeline(`grep dynstat_theta_mean $(filout)`,filstat))
+
+	tmp0 = read(filstat,String)
+	tmp0 = split(tmp0,"\n")
+	Tmean=[parse(Float64,split(tmp0[i],"=")[2]) for i in 1:length(tmp0)-1]
+end
+
+# ╔═╡ 8ad9d646-4eec-45b9-938b-21df34da2d6b
+begin
+	refresh_plot
+	
+	if exps[iexp].configuration=="advect_xy"||exps[iexp].configuration=="advect_xz"
+		tmp2=readdir(rundir)
+		tmp2=tmp2[findall(occursin.("T.0000",tmp2))]
+		tmp2=tmp2[findall(occursin.("001.001.data",tmp2))]
+		tmp2=[i[1:end-13] for i in tmp2]
+	
+		i=mod(t_slow,length(tmp2))
+		tmp3=read_mdsio(rundir,tmp2[i+1])
+		length(size(tmp3))==3 ? tmp3=dropdims(tmp3;dims=2) : nothing
+		
+		contourf(tmp3,levels=(-0.04:0.02:0.2),leg=:none,c = :terrain)
+	else
+		plot(Tmean,label="mean temperature")
+	end
+end
 
 # ╔═╡ 734e2b5a-8866-11eb-0025-bd9544f4c30d
 begin
@@ -269,18 +310,22 @@ end
 # ╟─eca925ba-8816-11eb-1d6d-39bf08bfe979
 # ╟─f051e094-85ab-11eb-22d4-5bd61ac572a1
 # ╟─f7e66980-9ec5-43cf-98b1-37aa6823d64a
-# ╟─d7f2c656-8512-11eb-2fdf-47a3e57a55e6
-# ╟─ca7bb004-8510-11eb-379f-632c3b40723d
-# ╟─d87b220a-2c4f-4943-8e79-fd42ebec81b9
-# ╟─c7670d00-868c-11eb-1889-4d3ffe621dd2
-# ╟─dff9a4c8-880c-11eb-37e1-439de05c5166
-# ╟─15746ef0-8617-11eb-1160-5f48a95d94d0
-# ╟─1c4fc1a0-4061-46f5-8f3d-b88fe5e6dc3e
+# ╟─5d775d7b-98d6-4d96-aee2-bae961379fd4
 # ╟─4b62b282-86bd-11eb-2fed-bbbe8ef2d4af
 # ╟─6f618b2c-86bd-11eb-1607-a179a349378e
 # ╟─96492c18-86bd-11eb-35ca-dff79e6e7818
+# ╟─6404fddf-3c46-4015-9580-b9159c76b30a
+# ╟─6edcbba3-8485-44d2-940a-e4f2df019373
 # ╟─0f920f90-86e9-11eb-3f6d-2d530bd2e9db
 # ╟─d0bbb668-86e0-11eb-1a9b-8f2b0175f7c1
+# ╟─e6c10fb5-ee95-41a0-982e-3910a8ce1d00
+# ╟─8ad9d646-4eec-45b9-938b-21df34da2d6b
+# ╟─c7670d00-868c-11eb-1889-4d3ffe621dd2
+# ╟─d7f2c656-8512-11eb-2fdf-47a3e57a55e6
+# ╟─ca7bb004-8510-11eb-379f-632c3b40723d
+# ╟─e658d885-ad25-4b47-b0ee-6c97a204f731
+# ╟─002171f5-8d6d-4197-8a3c-642f3337a01b
+# ╟─15746ef0-8617-11eb-1160-5f48a95d94d0
 # ╟─af176e6c-8695-11eb-3e34-91fbdb9c52fa
 # ╟─8cf4d8ca-84eb-11eb-22d2-255ce7237090
 # ╟─348c692e-84fe-11eb-3288-dd0a1dedce90
