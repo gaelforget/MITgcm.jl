@@ -206,6 +206,8 @@ function setup(config::MITgcm_config)
         symlink(joinpath(pth_log,fil),joinpath(pth,fil))
     end
 
+    git_log_prm(config)
+
     #add model run to scheduled tasks
     put!(config.channel,MITgcm_launch)
 
