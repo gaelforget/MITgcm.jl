@@ -193,20 +193,23 @@ function setup(config::MITgcm_config)
     nmlfiles=list_namelist_files(pth)
 
     pth_log=joinpath(config.folder,string(config.ID),"log","tracked_parameters")
-    !isdir(pth_log) ? mkdir(pth_log) : nothing
-    for fil in nmlfiles
-        nml=read(joinpath(pth,fil),MITgcm_namelist())
-        write(joinpath(pth_log,fil),nml)
-    end
+    if !isdir(pth_log)    
+        mkdir(pth_log)
 
-    pth_mv=joinpath(config.folder,string(config.ID),"original_parameters")
-    !isdir(pth_mv) ? mkdir(pth_mv) : nothing
-    for fil in nmlfiles
-        mv(joinpath(pth,fil),joinpath(pth_mv,fil))
-        symlink(joinpath(pth_log,fil),joinpath(pth,fil))
-    end
+        for fil in nmlfiles
+            nml=read(joinpath(pth,fil),MITgcm_namelist())
+            write(joinpath(pth_log,fil),nml)
+        end
 
-    git_log_prm(config)
+        pth_mv=joinpath(config.folder,string(config.ID),"original_parameters")
+        !isdir(pth_mv) ? mkdir(pth_mv) : nothing
+        for fil in nmlfiles
+            mv(joinpath(pth,fil),joinpath(pth_mv,fil))
+            symlink(joinpath(pth_log,fil),joinpath(pth,fil))
+        end
+
+        git_log_prm(config)
+    end
 
     #add model run to scheduled tasks
     put!(config.channel,MITgcm_launch)
