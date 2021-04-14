@@ -26,15 +26,21 @@ begin
 	using MITgcmTools, ClimateModels, PlutoUI, Printf, Plots
 	exps=verification_experiments()	
 	🏁 = "🏁"
+	
+	md"""😸"""
 end
 
 # ╔═╡ f588eaba-84ef-11eb-0755-bf1b85b2b561
 begin
-	md"""# MITgcm_workflow.jl (Model Interface Demo)
+	md"""# Model Interface Demo
 
 	### 
 
-	Here we setup, run and plot the [MIT general circulation model](https://mitgcm.readthedocs.io/en/latest/?badge=latest) interactively via [MITgcmTools.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/) that can generate something like this for the Atmosphere:
+	Here we setup, run and plot the [MIT general circulation model](https://mitgcm.readthedocs.io/en/latest/?badge=latest) interactively via [MITgcmTools.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/), which can generate something like the Atmosphere example shown below. 
+	
+	The notebook demonstrates the use of the climate model interface (`build`, `setup`, `launch`, etc) defined in [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl) and implemented for MITgcm.
+	The `log/` subfolder is a byproduct of the climate model interface, which uses `git` to document wokflows as they happen and allow us to reproduce them later. The _Modify Parameters_ section demonstrates the interactive use of this functionality. Adding analysis / processing steps can be done similarly.
+
 	
 	![plot](https://user-images.githubusercontent.com/20276764/111042787-12377e00-840d-11eb-8ddb-64cc1cfd57fd.png)
 	"""
@@ -43,7 +49,15 @@ end
 # ╔═╡ 98b6621c-85ab-11eb-29d1-af0433598c6a
 md"""## Select Model Configuration
 
-_Note: changing this top level parameter should update multiple-choice menus and results below_
+###
+
+_Note:_ 
+
+_changing the top level parameter just below will update multiple-choice menus and results afterwards._ 
+
+_Be aware, however, that selecting a new model configuration typically means recompiling the model._ 
+
+_This can take a lot longer than a normal model run due to the one-time cost of compiling the model (see below for more on this)._
 """
 
 # ╔═╡ a28f7354-84eb-11eb-1830-1f401bf2db97
@@ -64,7 +78,7 @@ The model executable `mitcmuv` is generally found in the `$(MITgcm_path)/verific
 
 
 
-If `mitcmuv` is not found at this stage then it is assumed that the chosen model configuration has never been compiled -- such that we need to compile and run the model a first time. This might take a lot longer than a normal model run due to the one-time cost of compiling the model.
+If `mitcmuv` is not found at this stage then it is assumed that the chosen model configuration has never been compiled -- such that we need to do that before we can run the model. It should also be noted that compiling the model can take a lot longer than running it for a few time steps (as done in this notebook's sample model runs).
 
 Once `mitgcmuv` is found, then the executable file name should appear just below.
 """
@@ -84,7 +98,7 @@ end
 # ╔═╡ f051e094-85ab-11eb-22d4-5bd61ac572a1
 md"""### Where Is `mitgcmuv` run?
 
-Once the model has been setup for the selected configuration, then the model run directory should appear just below this text. Once the model has been compiled and the run directory setup, we are ready to call `launch(exps[iexp])` and run the model as done later on. 
+Once the model has been compliled and setup for the selected configuration, the model run directory path should appear just below this comment bloc. At this point, we are ready to call `launch` to run the model. 
 """
 
 # ╔═╡ f7e66980-9ec5-43cf-98b1-37aa6823d64a
@@ -94,9 +108,11 @@ rundir
 md"""## Run Model"""
 
 # ╔═╡ 4b62b282-86bd-11eb-2fed-bbbe8ef2d4af
-md"""Click on button when ready to run the model **$(exps[iexp].configuration)**. 
+md"""
 
 This should also happen automatically once at first, and once after modifying parameters.
+
+You can also click on the `Launch Model` button to trigger a model run manually.
 """
 
 # ╔═╡ 6f618b2c-86bd-11eb-1607-a179a349378e
@@ -107,9 +123,9 @@ md"""### Explore Model Output
 
 ###
 
-Below is a list of all files (by default) contained in the `run/` directory. 
+Below is a list of all files (by default) contained in the `run/` directory. Clicking on a list like this should expand its display.
 
-To narrow the search, try typing something in the text field 👉 $(@bind search_txt TextField(; default=""))	👈
+To narrow the selection, try typing something in the text field 👉 $(@bind search_txt TextField(; default=""))	👈
 """
 
 # ╔═╡ 0f920f90-86e9-11eb-3f6d-2d530bd2e9db
@@ -117,13 +133,15 @@ md"""### Plot Model Result
 
 ###
 
-Here we show temperature in **$(exps[iexp].configuration)**
+Here we show mean temperature in **$(exps[iexp].configuration)** as a function of time. 
+
+_Note: in the absence of air-sea fluxes, for example, this quantity is "conserved" but in other configurarions it can vary with time._
 """
 
 # ╔═╡ e6c10fb5-ee95-41a0-982e-3910a8ce1d00
 md"""
 
-When it shows maps, the plot below can be animated by clicking on `start`.
+If a map appears below (only for some configurations), then it can be animated by clicking on `start`.
 
 $(@bind t_slow Clock(1.0, true))
 """
@@ -132,6 +150,8 @@ $(@bind t_slow Clock(1.0, true))
 md"""## Modify Parameters
 
 ###
+
+Often we want to experiment with parameters e.g. to tune models, generate more output, or generate a model ensemble. The climate model interface provides a simple way to do this interactively and document changes via `git` along the way.
 
 **First, select a model parameter group** (or the default): 
 """
@@ -152,13 +172,18 @@ begin
 end
 
 # ╔═╡ af176e6c-8695-11eb-3e34-91fbdb9c52fa
-md"""### Appendices"""
+md"""### Appendices
+
+###
+
+Code cells below handle Julia packages and help set up the notebook.
+"""
 
 # ╔═╡ 348c692e-84fe-11eb-3288-dd0a1dedce90
 begin	
 	fil=joinpath(rundir,mydats)
 	nml=read(fil,MITgcm_namelist())
-	🏁
+	md"""😸"""
 end
 
 # ╔═╡ ca7bb004-8510-11eb-379f-632c3b40723d
@@ -193,8 +218,8 @@ end
 
 # ╔═╡ 52d7c7a2-8693-11eb-016f-4fc3eb516d44
 begin
-        inml=findall(nml.groups.==Symbol(nmlgroup))[1]
-        🏁
+	inml=findall(nml.groups.==Symbol(nmlgroup))[1]
+	md"""😸"""
 end
 
 # ╔═╡ e658d885-ad25-4b47-b0ee-6c97a204f731
@@ -221,6 +246,8 @@ begin
 	
 	#@bind do_run2 Button("Launch Model")
 	do_run2="🐎"
+	
+	md"""🐎"""
 end
 
 # ╔═╡ 96492c18-86bd-11eb-35ca-dff79e6e7818
@@ -230,7 +257,9 @@ begin
 	isempty(exps[iexp].channel) ? put!(exps[iexp].channel,MITgcm_launch) : nothing
 	launch(exps[iexp])
 	refresh_plot=true
-	🏁
+	md"""Model run for the **$(exps[iexp].configuration)** configuration has completed!
+	
+	🏇 🏁 🏁 🏁 🎉 🎊 """
 end
 
 # ╔═╡ 6edcbba3-8485-44d2-940a-e4f2df019373
@@ -293,7 +322,7 @@ begin
 		println("no grid files")
 	end
 	
-	🏁
+	md"""😸"""
 end
 
 # ╔═╡ 901d2844-83be-4767-b169-dfb7701ce15e
