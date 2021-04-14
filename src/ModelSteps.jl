@@ -29,7 +29,7 @@ function testreport(config::MITgcm_config,ext="")
     for nm in lst
         c=`$(MITgcm_path)/verification/testreport -t $(MITgcm_path)/verification/$(nm) $ext`
         isempty(ext) ? c=`$(MITgcm_path)/verification/testreport -t $(MITgcm_path)/verification/$(nm)` : nothing
-        run(c)
+        @suppress run(c)
     end
     cd(pth)
     return true
@@ -62,13 +62,32 @@ end
 """
     build(config::MITgcm_config)
 
-Build the model using `testreport(config,"-norun")` which links all code
-files, headers, etc  in place before compiling the model
+Build the model using `genmake2`, `make depend`, and `make`. These link all 
+code files, headers, etc  in the `build/` folder before compiling the model
 
 (part of the climate model interface as specialized for `MITgcm`)
-
 """
-build(config::MITgcm_config) = testreport(config,"-norun")
+#build(config::MITgcm_config) = testreport(config,"-j 4")
+function build(config::MITgcm_config)
+    nam=config.configuration
+    try
+        pth=pwd()
+    catch e
+        cd()
+    end
+    pth=pwd()
+    cd("$(MITgcm_path)/verification/$(nam)/build")
+    try
+        @suppress run(`../../../tools/genmake2 -mods=../code`) #$ext
+        @suppress run(`make clean`)
+        @suppress run(`make depend`)
+        @suppress run(`make -j 4`)
+    catch e
+        println("model compilation may have failed")
+    end
+    cd(pth)
+    return true
+end
 
 """
     compile(config::MITgcm_config)
@@ -87,7 +106,7 @@ function compile(config::MITgcm_config)
     pth=pwd()
     cd("$(MITgcm_path)/verification/$(nam)/build")
     try
-        run(`make`)
+        @suppress run(`make`)
     catch e
         println("model compilation may have failed")
     end
@@ -145,7 +164,7 @@ function setup(config::MITgcm_config)
     	close(fid)
         #execute prepare_run
         chmod(fil,0o777)
-        run(`./$(fil)`)
+        @suppress run(`./$(fil)`)
         #
         cd(pth)
     end
@@ -174,17 +193,22 @@ function setup(config::MITgcm_config)
     nmlfiles=list_namelist_files(pth)
 
     pth_log=joinpath(config.folder,string(config.ID),"log","tracked_parameters")
-    !isdir(pth_log) ? mkdir(pth_log) : nothing
-    for fil in nmlfiles
-        nml=read(joinpath(pth,fil),MITgcm_namelist())
-        write(joinpath(pth_log,fil),nml)
-    end
+    if !isdir(pth_log)    
+        mkdir(pth_log)
 
-    pth_mv=joinpath(config.folder,string(config.ID),"original_parameters")
-    !isdir(pth_mv) ? mkdir(pth_mv) : nothing
-    for fil in nmlfiles
-        mv(joinpath(pth,fil),joinpath(pth_mv,fil))
-        symlink(joinpath(pth_log,fil),joinpath(pth,fil))
+        for fil in nmlfiles
+            nml=read(joinpath(pth,fil),MITgcm_namelist())
+            write(joinpath(pth_log,fil),nml)
+        end
+
+        pth_mv=joinpath(config.folder,string(config.ID),"original_parameters")
+        !isdir(pth_mv) ? mkdir(pth_mv) : nothing
+        for fil in nmlfiles
+            mv(joinpath(pth,fil),joinpath(pth_mv,fil))
+            symlink(joinpath(pth_log,fil),joinpath(pth,fil))
+        end
+
+        git_log_prm(config)
     end
 
     #add model run to scheduled tasks
@@ -210,7 +234,7 @@ function MITgcm_launch(config::MITgcm_config)
     cd(joinpath(config.folder,string(config.ID),"run"))
     tmp=["STOP NORMAL END"]
     try
-        run(pipeline(`./mitgcmuv`,"output.txt"))
+        @suppress run(pipeline(`./mitgcmuv`,"output.txt"))
     catch e
         tmp[1]="model run may have failed"
     end

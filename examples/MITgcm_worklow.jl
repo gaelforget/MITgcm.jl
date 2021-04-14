@@ -77,6 +77,7 @@ begin
 	filout=joinpath(rundir,"output.txt")
 	filstat=joinpath(rundir,"onestat.txt")
 	setup(exps[iexp])
+	git_log_prm(exps[iexp])
 	filexe
 end
 
@@ -209,10 +210,13 @@ begin
 	if !isempty(p_value)
 		tmptype=typeof(nml.params[inml][Symbol(p_name)])
 		nml.params[inml][Symbol(p_name)]=parse(tmptype,p_value)
-		tmpfil=joinpath(rundir,mydats)
 		
+		tmpfil=joinpath(rundir,mydats)
 		rm(tmpfil)
 		write(tmpfil,nml)
+
+		tmpfil=joinpath("tracked_parameters",mydats)
+		git_log_fil(exps[iexp],tmpfil,"update parameter file")
 	end
 	
 	#@bind do_run2 Button("Launch Model")
