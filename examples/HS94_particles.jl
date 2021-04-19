@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.14.0
+# v0.14.2
 
 using Markdown
 using InteractiveUtils
@@ -175,7 +175,7 @@ f2
 	f3=plot(𝐼)
 
 # ╔═╡ Cell order:
-# ╠═02005854-3442-4c65-910b-e8a000805d17
+# ╟─02005854-3442-4c65-910b-e8a000805d17
 # ╟─a6ebb38e-2dcd-4126-bfa1-220df3180b94
 # ╟─bf462d7b-28af-4fc5-9952-e631051df4cd
 # ╟─05cbf6ff-032f-4090-8981-da931f9e1521

@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.14.1
+# v0.14.2
 
 using Markdown
 using InteractiveUtils
@@ -51,14 +51,8 @@ end
 
 # ╔═╡ 7fa8a460-89d4-11eb-19bb-bbacdd32719a
 begin
-	iexp2=findall([exps[i].configuration==myexp for i in 1:length(exps)])[1]
-	exps[iexp2]	
-end
-
-# ╔═╡ f91c3396-84ef-11eb-2665-cfa350d38737
-begin
 	iexp=findall([exps[i].configuration==myexp for i in 1:length(exps)])[1]
-	TextField((80, 8), "name = $myexp\n\nbuild  = $(exps[iexp].options) \n\nrun    = $(exps[iexp].inputs)")
+	exps[iexp]	
 end
 
 # ╔═╡ d90039c4-85a1-11eb-0d82-77db4decaa6e
@@ -120,7 +114,6 @@ end
 # ╟─8cf4d8ca-84eb-11eb-22d2-255ce7237090
 # ╟─a28f7354-84eb-11eb-1830-1f401bf2db97
 # ╟─7fa8a460-89d4-11eb-19bb-bbacdd32719a
-# ╟─f91c3396-84ef-11eb-2665-cfa350d38737
 # ╟─d90039c4-85a1-11eb-0d82-77db4decaa6e
 # ╟─8569269c-859c-11eb-1ab1-2d874dfa741b
 # ╟─f008ccaa-859c-11eb-1188-114843d333e6
