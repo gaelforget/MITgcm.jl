@@ -196,9 +196,18 @@ function setup(config::MITgcm_config)
     if !isdir(pth_log)    
         mkdir(pth_log)
 
+        toTOML=OrderedDict()
         for fil in nmlfiles
             nml=read(joinpath(pth,fil),MITgcm_namelist())
             write(joinpath(pth_log,fil),nml)
+            #
+            ni=length(nml.groups); tmp1=OrderedDict()
+            [push!(tmp1,(nml.groups[i] => nml.params[i])) for i in 1:ni]
+            fil=="data" ? tmp2="main" : tmp2=fil[6:end]
+            push!(toTOML,(tmp2 => tmp1))
+        end
+        open(joinpath(pth_log,"parameters.toml"), "w") do io
+            TOML.print(io, toTOML)
         end
 
         pth_mv=joinpath(config.folder,string(config.ID),"original_parameters")
