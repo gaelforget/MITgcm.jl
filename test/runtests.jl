@@ -49,8 +49,8 @@ using Test
     @test compile(MC)
     @test setup(MC)
 
-    push!(MC.status,"ended")
-    @test monitor(MC)=="ended"
+    push!(MC.status,("setup" => "ended"))
+    monitor(MC)
     
     launch(MC)
     pth=joinpath(MC.folder,string(MC.ID),"run")

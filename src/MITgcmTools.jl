@@ -1,6 +1,6 @@
 module MITgcmTools
 
-using Dates, Printf, SparseArrays, Pkg.Artifacts, UUIDs, Suppressor, TOML
+using Dates, Printf, SparseArrays, Pkg.Artifacts, UUIDs, Suppressor
 using OrderedCollections, DataFrames, NetCDF, MeshArrays, ClimateModels
 
 include("Types.jl")
@@ -62,8 +62,7 @@ function verification_experiments()
     exps=fill(MITgcm_config(),length(lst))
     for i in 1:length(lst)
         ID = UUIDs.uuid4()
-        exps[i]=MITgcm_config(configuration=lst[i],options=pkg_build[i],
-        inputs=pkg_run[i],ID=ID)
+        exps[i]=MITgcm_config(configuration=lst[i],ID=ID)
     end
 
     return exps
