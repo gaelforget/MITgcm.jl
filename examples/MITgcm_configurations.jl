@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.14.1
+# v0.14.2
 
 using Markdown
 using InteractiveUtils
@@ -54,7 +54,7 @@ begin
 	rundir=joinpath(exps[iexp].folder,string(exps[iexp].ID),"run")
 
 	!isdir(rundir) ? setup(exps[iexp]) : nothing
-	TextField((100, 8), "name = $(myexp)\n\nbuild  = $(exps[iexp].options) \n\nrun    = $(exps[iexp].inputs)")
+	TextField((100, 4), "name = $(myexp)\n\nrun time options = $(keys(exps[iexp].inputs))")
 end
 
 # ╔═╡ f051e094-85ab-11eb-22d4-5bd61ac572a1

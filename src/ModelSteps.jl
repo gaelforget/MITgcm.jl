@@ -119,7 +119,7 @@ end
 
 Create a `run/` folder and link everything there as needed to be ready to run model as 
 normally done for most-standard MITgcm configurations (incl. `prepare_run` and `mitgcmuv`).
-Call `init_git_log(config)` to setup git tracker and `put!(config.channel,MITgcm_launch)` 
+Call `git_log_init(config)` to setup git tracker and `put!(config.channel,MITgcm_launch)` 
 to be executed via `launch(config)` later.
 
 (part of the climate model interface as specialized for `MITgcm`)
@@ -175,7 +175,7 @@ function setup(config::MITgcm_config)
     end
 
     logdir=joinpath(config.folder,string(config.ID),"log")
-    !isdir(logdir) ? init_git_log(config) : nothing
+    !isdir(logdir) ? git_log_init(config) : nothing
 
     #Replace namelists with editeable versions in log/
     #
@@ -196,10 +196,17 @@ function setup(config::MITgcm_config)
     if !isdir(pth_log)    
         mkdir(pth_log)
 
+        params=OrderedDict()
         for fil in nmlfiles
             nml=read(joinpath(pth,fil),MITgcm_namelist())
             write(joinpath(pth_log,fil),nml)
+            #
+            ni=length(nml.groups); tmp1=OrderedDict()
+            [push!(tmp1,(nml.groups[i] => nml.params[i])) for i in 1:ni]
+            fil=="data" ? tmp2="main" : tmp2=fil[6:end]
+            push!(params,(Symbol(tmp2) => tmp1))
         end
+        push!(config.inputs,params...)
 
         pth_mv=joinpath(config.folder,string(config.ID),"original_parameters")
         !isdir(pth_mv) ? mkdir(pth_mv) : nothing

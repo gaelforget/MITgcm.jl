@@ -36,10 +36,10 @@ Concrete type of `AbstractModelConfig` for `MITgcm` which contains
 ```
     model :: String = "MITgcm"
     configuration :: String = ""
-    options :: Array{String,1} = Array{String,1}(undef, 0)
-    inputs :: Array{String,1} = Array{String,1}(undef, 0)
-    outputs :: Array{String,1} = Array{String,1}(undef, 0)
-    status :: Array{String,1} = Array{String,1}(undef, 0)
+    options :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+    inputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+    outputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+    status :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
     channel :: Channel{Any} = Channel{Any}(10) 
     folder :: String = tempdir()
     ID :: UUID = UUIDs.uuid4()
@@ -60,10 +60,10 @@ exps[end]
 Base.@kwdef struct MITgcm_config <: AbstractModelConfig
     model :: String = "MITgcm"
     configuration :: String = ""
-    options :: Array{String,1} = Array{String,1}(undef, 0)
-    inputs :: Array{String,1} = Array{String,1}(undef, 0)
-    outputs :: Array{String,1} = Array{String,1}(undef, 0)
-    status :: Array{String,1} = Array{String,1}(undef, 0)
+    options :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+    inputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+    outputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+    status :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
     channel :: Channel{Any} = Channel{Any}(10) 
     folder :: String = tempdir()
     ID :: UUID = UUIDs.uuid4()
