@@ -5,8 +5,8 @@ using Test
 
     #format conversions
     (γ,Γ)=GridOfOnes("CubeSphere",30,30)
-    @test isa(convert2gcmfaces(Γ["XC"]),Array)
-    @test isa(convert2array(Γ["XC"]),Array)
+    @test isa(convert2gcmfaces(Γ.XC),Array)
+    @test isa(convert2array(Γ.XC),Array)
 
     #physical oceanography
     (ρP,ρI,ρR) = SeaWaterDensity(3.,35.5,3000.)
@@ -76,8 +76,8 @@ using Test
     
     γ=gcmgrid(pth,"CubeSphere",6,fill((32, 32),6), [192 32], Float64, readcube, writecube)
     Γ = GridLoad(γ)
-    tmp1=writecube(Γ["XC"])
-    tmp2=readcube(tmp1,Γ["XC"])
+    tmp1=writecube(Γ.XC)
+    tmp2=readcube(tmp1,Γ.XC)
 
     @test isa(tmp2,MeshArray)
 

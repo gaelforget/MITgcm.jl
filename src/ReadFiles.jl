@@ -87,8 +87,8 @@ function findtiles(ni::Int,nj::Int,mygrid::gcmgrid)
     mytiles["nFaces"]=mygrid.nFaces;
     mytiles["ioSize"]=mygrid.ioSize;
 
-    XC=GridVariables["XC"];
-    YC=GridVariables["YC"];
+    XC=GridVariables.XC;
+    YC=GridVariables.YC;
     XC11=similar(XC); YC11=similar(XC);
     XCNINJ=similar(XC); YCNINJ=similar(XC);
     iTile=similar(XC); jTile=similar(XC); tileNo=similar(XC);
