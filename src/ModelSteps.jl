@@ -40,8 +40,7 @@ import ClimateModels: compile, build, clean, setup
 """
     clean(config::MITgcm_config)
 
-Cancel any remaining task (config.channel), clean up the build 
-directory (via testreport), and clean the run directory (via rm).
+Cancel any remaining task (config.channel) and clean up the run directory (via rm).
 
 (part of the climate model interface as specialized for `MITgcm`)
 """
@@ -50,8 +49,6 @@ function clean(config::MITgcm_config)
     while !isempty(config.channel)
         take!(config.channel)
     end
-    #clean up build directory
-    testreport(config,"-clean")
     #clean up run directory
     pp=joinpath(config.folder,string(config.ID),"run")
     isdir(pp) ? rm(pp,recursive=true) : nothing
@@ -106,7 +103,7 @@ function compile(config::MITgcm_config)
     pth=pwd()
     cd("$(MITgcm_path)/verification/$(nam)/build")
     try
-        @suppress run(`make`)
+        @suppress run(`make -j 4`)
     catch e
         println("model compilation may have failed")
     end
