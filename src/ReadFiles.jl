@@ -381,12 +381,12 @@ function write_namelist(fil,namelist)
             isa(x,Bool)&&x==false ? y=".FALSE." : nothing
             if isa(x,Array)&&(eltype(x)<:AbstractString)
                 tmpy=[""]
-                [tmpy[1]*="'"*x[ii]*"'," for ii in 1:length(x)]
-                y=tmpy[1]
+                [tmpy[1]*="'"*x[ii]*"', \n " for ii in 1:length(x)]
+                y=tmpy[1][1:end-4]
             elseif isa(x,Array)
                 tmpy=[""]
-                [tmpy[1]*=string(x[ii])*"," for ii in 1:length(x)]
-                y=tmpy[1]
+                [tmpy[1]*=string(x[ii])*", \n " for ii in 1:length(x)]
+                y=tmpy[1][1:end-4]
             end
             ismissing(y)&&isa(x,AbstractString)&&(!occursin('*',x)) ? y="'$x'" : nothing
             ismissing(y) ? y="$x" : nothing

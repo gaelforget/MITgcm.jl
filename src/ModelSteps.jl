@@ -35,7 +35,7 @@ function testreport(config::MITgcm_config,ext="")
     return true
 end
 
-import ClimateModels: compile, build, clean, setup
+import ClimateModels: compile, build, setup, clean
 
 """
     clean(config::MITgcm_config)
