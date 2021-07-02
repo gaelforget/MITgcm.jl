@@ -59,12 +59,11 @@ end
 """
     build(config::MITgcm_config)
 
-Build the model using `genmake2`, `make depend`, and `make`. These link all 
+Build the model using `genmake2`, `make depend`, and `make`. The first two link all 
 code files, headers, etc  in the `build/` folder before compiling the model
 
 (part of the climate model interface as specialized for `MITgcm`)
 """
-#build(config::MITgcm_config) = testreport(config,"-j 4")
 function build(config::MITgcm_config)
     nam=config.configuration
     try
@@ -84,6 +83,25 @@ function build(config::MITgcm_config)
     end
     cd(pth)
     return true
+end
+
+"""
+    build(config::MITgcm_config,options::String)
+
+Build the model using `genmake2`, `make depend`, and `make` unless otherwise
+specified via `options`. The `genmake2` and `make depend` commands link all 
+code files, headers, etc  in the `build/` folder before `make` compiles the model.
+
+(part of the climate model interface as specialized for `MITgcm`)
+"""
+function build(config::MITgcm_config,options::String)
+    nam=config.configuration
+    if options=="--allow-skip"
+        tst=!isfile(joinpath(MITgcm_path,"verification",nam,"build","mitgcmuv"))
+        tst ? build(config) : nothing
+    else
+        build(config)
+    end
 end
 
 """
