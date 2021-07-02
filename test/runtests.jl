@@ -46,6 +46,7 @@ using Test
 
     @test clean(MC)=="no task left in pipeline"
     @test build(MC)
+    @test build(MC,"--allow-skip")
     @test compile(MC)
     @test setup(MC)
 
