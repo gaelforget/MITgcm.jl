@@ -114,7 +114,7 @@ using Test
 
     MC=MITgcm_config(configuration="flt_example")
     tmp=testreport(MC)
-    pth=MITgcm_path*"verification/flt_example/run/"
+    pth=MITgcm_path[1]*"verification/flt_example/run/"
     tmp=read_flt(pth,Float32)
     
     @test isa(tmp[1,1],Number)

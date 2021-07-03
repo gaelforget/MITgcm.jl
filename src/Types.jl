@@ -12,7 +12,7 @@ with model parameters (`params`) being organized in `groups` as done in the file
 
 ```
 using MITgcmTools
-fil=joinpath(MITgcm_path,"verification","advect_xy","run","data")
+fil=joinpath(MITgcm_path[1],"verification","advect_xy","run","data")
 nml=read_namelist(fil)
 MITgcm_namelist(nml.groups,nml.params)
 MITgcm_namelist(groups=nml.groups,params=nml.params)
