@@ -1,6 +1,6 @@
 [MITgcm]
-git-tree-sha1 = "2a487e9ebac361f2f1875273148ba68f84877b69"
+git-tree-sha1 = "8af7b7026d9be5c9fa887d20083fccec3990beb8"
 
     [[MITgcm.download]]
-    sha256 = "d0e27345869440128332b88a08142d0d3250cf33c83d06a18c163b2e2101539b"
-    url = "https://zenodo.org/record/5068261/files/MITgcm_test.tar.gz?download=1"
+    sha256 = "8133fc50e658b5552e4662b6bb2ae846cf8481e5868a9563650421adbddf766a"
+    url = "https://zenodo.org/record/5068276/files/MITgcm_test.tar.gz?download=1"
