@@ -1,7 +1,6 @@
 [MITgcm]
-git-tree-sha1 = "e0cfbb53d17227599b745220342b872eeca62456"
-lazy = true
+git-tree-sha1 = "2a487e9ebac361f2f1875273148ba68f84877b69"
 
     [[MITgcm.download]]
-    sha256 = "917c23045dab1939a5f0879192b2347c38d178e58f1ff6b2d91bb67bc8cc7e31"
-    url = "https://github.com/MITgcm/MITgcm/archive/refs/tags/checkpoint67z.tar.gz"
+    sha256 = "d0e27345869440128332b88a08142d0d3250cf33c83d06a18c163b2e2101539b"
+    url = "https://zenodo.org/record/5068261/files/MITgcm_test.tar.gz?download=1"
