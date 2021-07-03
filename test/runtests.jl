@@ -1,5 +1,7 @@
 using MITgcmTools, ClimateModels, MeshArrays, OceanStateEstimation
-using Test
+using Test, Pkg.Artifacts
+
+artifact"MITgcm"
 
 @testset "MITgcmTools.jl" begin
 
