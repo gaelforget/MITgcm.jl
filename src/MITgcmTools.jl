@@ -9,7 +9,8 @@ include("ModelSteps.jl")
 include("FormatConversions.jl")
 include("PhysicalOceanography.jl")
 
-export MITgcm_path, MITgcm_config, MITgcm_namelist, MITgcm_launch
+export MITgcm_path, MITgcm_download
+export MITgcm_config, MITgcm_namelist, MITgcm_launch
 export testreport, build, compile, setup, clean
 #export pause, stop, clock, monitor, train, help
 export verification_experiments, read_namelist, write_namelist
@@ -23,6 +24,7 @@ artifact_toml = joinpath(p, "../Artifacts.toml")
 MITgcm_hash = artifact_hash("MITgcm", artifact_toml)
 MITgcm_path = [ joinpath(artifact_path(MITgcm_hash)*"/","MITgcm-checkpoint67z/"),
                 joinpath(artifact_path(MITgcm_hash)*"/","MITgcm-checkpoint67z/")]
+MITgcm_download() = artifact"MITgcm"
 
 """
     verification_experiments()

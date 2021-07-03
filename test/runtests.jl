@@ -1,7 +1,7 @@
 using MITgcmTools, ClimateModels, MeshArrays, OceanStateEstimation
-using Test, Pkg.Artifacts
+using Test
 
-artifact"MITgcm"
+MITgcm_download()
 
 @testset "MITgcmTools.jl" begin
 
