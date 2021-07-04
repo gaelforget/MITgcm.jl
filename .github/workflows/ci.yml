@@ -23,6 +23,9 @@ jobs:
           - macos-latest
         arch:
           - x64
+        compiler:
+          - gcc
+          - gfortran
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1
