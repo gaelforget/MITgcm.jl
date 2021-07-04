@@ -27,21 +27,20 @@ function testreport(config::MITgcm_config,ext="")
         lst=[exps[i].configuration for i in 1:length(exps)]
     end
     for nm in lst
-        c=`$(MITgcm_path)/verification/testreport -t $(MITgcm_path)/verification/$(nm) $ext`
-        isempty(ext) ? c=`$(MITgcm_path)/verification/testreport -t $(MITgcm_path)/verification/$(nm)` : nothing
+        c=`$(MITgcm_path[1])/verification/testreport -t $(MITgcm_path[1])/verification/$(nm) $ext`
+        isempty(ext) ? c=`$(MITgcm_path[1])/verification/testreport -t $(MITgcm_path[1])/verification/$(nm)` : nothing
         @suppress run(c)
     end
     cd(pth)
     return true
 end
 
-import ClimateModels: compile, build, clean, setup
+import ClimateModels: compile, build, setup, clean
 
 """
     clean(config::MITgcm_config)
 
-Cancel any remaining task (config.channel), clean up the build 
-directory (via testreport), and clean the run directory (via rm).
+Cancel any remaining task (config.channel) and clean up the run directory (via rm).
 
 (part of the climate model interface as specialized for `MITgcm`)
 """
@@ -50,8 +49,6 @@ function clean(config::MITgcm_config)
     while !isempty(config.channel)
         take!(config.channel)
     end
-    #clean up build directory
-    testreport(config,"-clean")
     #clean up run directory
     pp=joinpath(config.folder,string(config.ID),"run")
     isdir(pp) ? rm(pp,recursive=true) : nothing
@@ -62,12 +59,11 @@ end
 """
     build(config::MITgcm_config)
 
-Build the model using `genmake2`, `make depend`, and `make`. These link all 
+Build the model using `genmake2`, `make depend`, and `make`. The first two link all 
 code files, headers, etc  in the `build/` folder before compiling the model
 
 (part of the climate model interface as specialized for `MITgcm`)
 """
-#build(config::MITgcm_config) = testreport(config,"-j 4")
 function build(config::MITgcm_config)
     nam=config.configuration
     try
@@ -76,7 +72,7 @@ function build(config::MITgcm_config)
         cd()
     end
     pth=pwd()
-    cd("$(MITgcm_path)/verification/$(nam)/build")
+    cd("$(MITgcm_path[1])/verification/$(nam)/build")
     try
         @suppress run(`../../../tools/genmake2 -mods=../code`) #$ext
         @suppress run(`make clean`)
@@ -86,6 +82,26 @@ function build(config::MITgcm_config)
         println("model compilation may have failed")
     end
     cd(pth)
+    return true
+end
+
+"""
+    build(config::MITgcm_config,options::String)
+
+Build the model using `genmake2`, `make depend`, and `make` unless otherwise
+specified via `options`. The `genmake2` and `make depend` commands link all 
+code files, headers, etc  in the `build/` folder before `make` compiles the model.
+
+(part of the climate model interface as specialized for `MITgcm`)
+"""
+function build(config::MITgcm_config,options::String)
+    nam=config.configuration
+    if options=="--allow-skip"
+        tst=!isfile(joinpath(MITgcm_path[1],"verification",nam,"build","mitgcmuv"))
+        tst ? build(config) : nothing
+    else
+        build(config)
+    end
     return true
 end
 
@@ -104,9 +120,9 @@ function compile(config::MITgcm_config)
         cd()
     end
     pth=pwd()
-    cd("$(MITgcm_path)/verification/$(nam)/build")
+    cd("$(MITgcm_path[1])/verification/$(nam)/build")
     try
-        @suppress run(`make`)
+        @suppress run(`make -j 4`)
     catch e
         println("model compilation may have failed")
     end
@@ -130,7 +146,7 @@ function setup(config::MITgcm_config)
     pp=joinpath(config.folder,string(config.ID),"run")
     !isdir(pp) ? mkdir(pp) : nothing
     if !isfile(joinpath(pp,"data"))
-        p="$(MITgcm_path)/verification/$(config.configuration)/input"
+        p="$(MITgcm_path[1])/verification/$(config.configuration)/input"
         f=readdir(p)
         [symlink(joinpath(p,f[i]),joinpath(pp,f[i])) for i in 1:length(f)]
     end
@@ -149,11 +165,11 @@ function setup(config::MITgcm_config)
         meta = split(meta,"\n")
         ii=findall(occursin.("../../",meta))
         for i in ii
-            meta[i]=replace(meta[i],"../../" => "$(MITgcm_path)/verification/")
+            meta[i]=replace(meta[i],"../../" => "$(MITgcm_path[1])/verification/")
         end
         ii=findall(occursin.("../",meta))
         for i in ii
-            meta[i]=replace(meta[i],"../" => "$(MITgcm_path)/verification/$(config.configuration)")
+            meta[i]=replace(meta[i],"../" => "$(MITgcm_path[1])/verification/$(config.configuration)")
         end
         #rm old file from run dir
         rm(fil)
@@ -170,7 +186,7 @@ function setup(config::MITgcm_config)
     end
 
     if !islink(joinpath(pp,"mitgcmuv"))
-        f="$(MITgcm_path)/verification/$(config.configuration)/build/mitgcmuv"
+        f="$(MITgcm_path[1])/verification/$(config.configuration)/build/mitgcmuv"
         symlink(f,joinpath(pp,"mitgcmuv")) 
     end
 

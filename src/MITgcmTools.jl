@@ -9,9 +9,10 @@ include("ModelSteps.jl")
 include("FormatConversions.jl")
 include("PhysicalOceanography.jl")
 
-export MITgcm_path, MITgcm_config, MITgcm_namelist, MITgcm_launch
-export testreport, clean, build, compile, setup
-#export launch, pause, stop, clock, monitor, train, help
+export MITgcm_path, MITgcm_download
+export MITgcm_config, MITgcm_namelist, MITgcm_launch
+export testreport, build, compile, setup, clean
+#export pause, stop, clock, monitor, train, help
 export verification_experiments, read_namelist, write_namelist
 export read_mdsio, read_meta, read_available_diagnostics
 export read_bin, read_flt, read_nctiles, findtiles, parse_param
@@ -21,7 +22,9 @@ export SeaWaterDensity, MixedLayerDepth
 p=dirname(pathof(MITgcmTools))
 artifact_toml = joinpath(p, "../Artifacts.toml")
 MITgcm_hash = artifact_hash("MITgcm", artifact_toml)
-MITgcm_path = joinpath(artifact_path(MITgcm_hash)*"/","MITgcm-checkpoint67s/")
+MITgcm_path = [ joinpath(artifact_path(MITgcm_hash)*"/","MITgcm-checkpoint67s/"),
+                joinpath(artifact_path(MITgcm_hash)*"/","MITgcm-checkpoint67s/")]
+MITgcm_download() = artifact"MITgcm"
 
 """
     verification_experiments()
@@ -34,7 +37,7 @@ exps=verification_experiments()
 ```
 """
 function verification_experiments()
-    pth=joinpath(MITgcm_path,"verification")
+    pth=joinpath(MITgcm_path[1],"verification")
     lst=readdir(pth)
     tmp=[isfile(joinpath(pth,i,"code","packages.conf")) for i in lst]
     tmp2=[isfile(joinpath(pth,i,"code","SIZE.h")) for i in lst]
