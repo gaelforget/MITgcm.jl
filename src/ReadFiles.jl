@@ -262,7 +262,7 @@ Read a `MITgcm` namelist file, parse it, and return as a NamedTuple
 ```
 using MITgcmTools
 testreport("advect_xy")
-fil=joinpath(MITgcm_path,"verification","advect_xy","run","data")
+fil=joinpath(MITgcm_path[1],"verification","advect_xy","run","data")
 namelist=read_namelist(fil)
 ```
 """
@@ -354,7 +354,7 @@ Save a `MITgcm` namelist file. In the example below, one is read from file, modi
 
 ```
 using MITgcmTools
-fil=joinpath(MITgcm_path,"verification","advect_xy","run","data")
+fil=joinpath(MITgcm_path[1],"verification","advect_xy","run","data")
 nml=read_namelist(fil)
 write_namelist(fil*"_new",namelist)
 ```
@@ -381,12 +381,12 @@ function write_namelist(fil,namelist)
             isa(x,Bool)&&x==false ? y=".FALSE." : nothing
             if isa(x,Array)&&(eltype(x)<:AbstractString)
                 tmpy=[""]
-                [tmpy[1]*="'"*x[ii]*"'," for ii in 1:length(x)]
-                y=tmpy[1]
+                [tmpy[1]*="'"*x[ii]*"', \n " for ii in 1:length(x)]
+                y=tmpy[1][1:end-4]
             elseif isa(x,Array)
                 tmpy=[""]
-                [tmpy[1]*=string(x[ii])*"," for ii in 1:length(x)]
-                y=tmpy[1]
+                [tmpy[1]*=string(x[ii])*", \n " for ii in 1:length(x)]
+                y=tmpy[1][1:end-4]
             end
             ismissing(y)&&isa(x,AbstractString)&&(!occursin('*',x)) ? y="'$x'" : nothing
             ismissing(y) ? y="$x" : nothing

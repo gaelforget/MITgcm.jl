@@ -1,6 +1,8 @@
 using MITgcmTools, ClimateModels, MeshArrays, OceanStateEstimation
 using Test
 
+#MITgcm_download()
+
 @testset "MITgcmTools.jl" begin
 
     #format conversions
@@ -46,6 +48,7 @@ using Test
 
     @test clean(MC)=="no task left in pipeline"
     @test build(MC)
+    @test build(MC,"--allow-skip")
     @test compile(MC)
     @test setup(MC)
 
@@ -113,7 +116,7 @@ using Test
 
     MC=MITgcm_config(configuration="flt_example")
     tmp=testreport(MC)
-    pth=MITgcm_path*"verification/flt_example/run/"
+    pth=MITgcm_path[1]*"verification/flt_example/run/"
     tmp=read_flt(pth,Float32)
     
     @test isa(tmp[1,1],Number)
