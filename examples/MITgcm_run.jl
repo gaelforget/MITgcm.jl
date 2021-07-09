@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.14.2
+# v0.14.8
 
 using Markdown
 using InteractiveUtils
@@ -79,7 +79,7 @@ end
 # ╔═╡ 848241fe-86d1-11eb-3b30-b94aa0b4431d
 let
 	do_build
-	build(exps[iexp])
+	build(exps[iexp],"--allow-skip")
 	🏁
 end
 
