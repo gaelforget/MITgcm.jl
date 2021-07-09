@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.14.2
+# v0.14.8
 
 using Markdown
 using InteractiveUtils
@@ -50,7 +50,7 @@ end
 # ╔═╡ f91c3396-84ef-11eb-2665-cfa350d38737
 begin
 	iexp=findall([exps[i].configuration==myexp for i in 1:length(exps)])[1]
-	builddir=joinpath(MITgcm_path,"verification",myexp,"build")
+	builddir=joinpath(MITgcm_path[1],"verification",myexp,"build")
 	rundir=joinpath(exps[iexp].folder,string(exps[iexp].ID),"run")
 
 	!isdir(rundir) ? setup(exps[iexp]) : nothing

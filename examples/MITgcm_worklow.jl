@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.14.1
+# v0.14.8
 
 using Markdown
 using InteractiveUtils
@@ -15,14 +15,14 @@ end
 
 # ╔═╡ 8cf4d8ca-84eb-11eb-22d2-255ce7237090
 begin
-	import Pkg
-    Pkg.activate(mktempdir())
-    Pkg.add([
-        Pkg.PackageSpec(name="MITgcmTools", version="0.1"),
-        Pkg.PackageSpec(name="ClimateModels", version="0.1"),
-        Pkg.PackageSpec(name="PlutoUI", version="0.7"),
-        Pkg.PackageSpec(name="Plots", version="1.11"),
-    ])
+#	import Pkg
+#    Pkg.activate(mktempdir())
+#    Pkg.add([
+#        Pkg.PackageSpec(name="MITgcmTools", version="0.1"),
+#        Pkg.PackageSpec(name="ClimateModels", version="0.1"),
+#        Pkg.PackageSpec(name="PlutoUI", version="0.7"),
+#        Pkg.PackageSpec(name="Plots", version="1.11"),
+#    ])
 	using MITgcmTools, ClimateModels, PlutoUI, Printf, Plots
 	exps=verification_experiments()	
 	🏁 = "🏁"
@@ -85,7 +85,7 @@ Once `mitgcmuv` is found, then the executable file name should appear just below
 
 # ╔═╡ eca925ba-8816-11eb-1d6d-39bf08bfe979
 begin
-	filexe=joinpath(MITgcm_path,"verification",exps[iexp].configuration,"build","mitgcmuv")
+	filexe=joinpath(MITgcm_path[1],"verification",exps[iexp].configuration,"build","mitgcmuv")
 	!isfile(filexe) ? build(exps[iexp]) : nothing
 	rundir=joinpath(exps[iexp].folder,string(exps[iexp].ID),"run")
 	filout=joinpath(rundir,"output.txt")
