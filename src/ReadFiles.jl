@@ -293,7 +293,7 @@ function read_namelist(fil)
                 end
             else
                 try
-                    tmp0[k0[1]]=tmp0[k0[1]]*strip(meta[ii])
+                    tmp0[k0[1]]=tmp0[k0[1]]*","*strip(meta[ii])
                 catch
                     println("ignoring line -- unclear why ...")
                 end
