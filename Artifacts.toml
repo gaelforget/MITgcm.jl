@@ -1,6 +1,6 @@
 [MITgcm]
-git-tree-sha1 = "c1054339e0822e847d82dd219680aa150eb3433f"
+git-tree-sha1 = "3734b99092fac0d93b5db35e72310d7973024d7b"
 
     [[MITgcm.download]]
-    sha256 = "0ad3139c5835db20c744fd50b46d307593a5c8fc3d6b6dd5e01a0eb22438977b"
-    url = "https://github.com/MITgcm/MITgcm/archive/checkpoint67s.tar.gz"
+    sha256 = "eb869b7d096347e60144b4aad87b9cd2bfb6afe9a323441048a66e372d1f26ba"
+    url = "https://github.com/MITgcm/MITgcm/archive/refs/tags/checkpoint68a.tar.gz"
