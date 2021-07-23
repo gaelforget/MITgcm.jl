@@ -143,22 +143,33 @@ to be executed via `launch(config)` later.
 function setup(config::MITgcm_config)
     !isdir(joinpath(config.folder)) ? mkdir(joinpath(config.folder)) : nothing
     !isdir(joinpath(config.folder,string(config.ID))) ? mkdir(joinpath(config.folder,string(config.ID))) : nothing
-    pp=joinpath(config.folder,string(config.ID),"run")
-    !isdir(pp) ? mkdir(pp) : nothing
-    if !isfile(joinpath(pp,"data"))
-        p="$(MITgcm_path[1])/verification/$(config.configuration)/input"
+
+    pth_run=joinpath(config.folder,string(config.ID),"run")
+    !isdir(pth_run) ? mkdir(pth_run) : nothing
+
+    pth_log=joinpath(config.folder,string(config.ID),"log","tracked_parameters")
+    pth_mv=joinpath(config.folder,string(config.ID),"original_parameters")
+
+    if !isfile(joinpath(pth_run,"data"))&&isfile(joinpath(pth_log,"data"))
+        p=pth_log
         f=readdir(p)
-        [symlink(joinpath(p,f[i]),joinpath(pp,f[i])) for i in 1:length(f)]
+        [symlink(joinpath(p,f[i]),joinpath(pth_run,f[i])) for i in 1:length(f)]
     end
+
+    p="$(MITgcm_path[1])/verification/$(config.configuration)/input"
+    tmpA=readdir(p)
+    f=tmpA[findall([!isfile(joinpath(pth_run,tmpA[i])) for i in 1:length(tmpA)])]
+    [symlink(joinpath(p,f[i]),joinpath(pth_run,f[i])) for i in 1:length(f)]
+
     #replace relative paths with absolutes then exe prepare_run
-    if isfile(joinpath(pp,"prepare_run"))
+    if isfile(joinpath(pth_run,"prepare_run"))
 		try
 			pth=pwd()
 		catch e
 			cd()
 		end
         pth=pwd()
-        cd(pp)
+        cd(pth_run)
         #
         fil="prepare_run"
         meta = read(fil,String)
@@ -185,9 +196,9 @@ function setup(config::MITgcm_config)
         cd(pth)
     end
 
-    if !islink(joinpath(pp,"mitgcmuv"))
+    if !islink(joinpath(pth_run,"mitgcmuv"))
         f="$(MITgcm_path[1])/verification/$(config.configuration)/build/mitgcmuv"
-        symlink(f,joinpath(pp,"mitgcmuv")) 
+        symlink(f,joinpath(pth_run,"mitgcmuv")) 
     end
 
     logdir=joinpath(config.folder,string(config.ID),"log")
@@ -200,21 +211,20 @@ function setup(config::MITgcm_config)
     #- link from log/parameter_files to here (run/)
     #(- add to git with message = original params)
 
-    pth=joinpath(config.folder,string(config.ID),"run")
-    function list_namelist_files(pth)
-            tmpA=readdir(pth)
+    function list_namelist_files(pth_run)
+            tmpA=readdir(pth_run)
             tmpA=tmpA[findall([length(tmpA[i])>3 for i in 1:length(tmpA)])]
-            tmpA=tmpA[findall([tmpA[i][1:4]=="data" for i in 1:length(tmpA)])]
+            tmpA=tmpA[findall([tmpA[i][1:4]=="data"||tmpA[i]=="eedata"||
+                    tmpA[i]=="prepare_run" for i in 1:length(tmpA)])]
     end
-    nmlfiles=list_namelist_files(pth)
+    nmlfiles=list_namelist_files(pth_run)
 
-    pth_log=joinpath(config.folder,string(config.ID),"log","tracked_parameters")
     if !isdir(pth_log)    
         mkdir(pth_log)
 
         params=OrderedDict()
         for fil in nmlfiles
-            nml=read(joinpath(pth,fil),MITgcm_namelist())
+            nml=read(joinpath(pth_run,fil),MITgcm_namelist())
             write(joinpath(pth_log,fil),nml)
             #
             ni=length(nml.groups); tmp1=OrderedDict()
@@ -224,11 +234,10 @@ function setup(config::MITgcm_config)
         end
         push!(config.inputs,params...)
 
-        pth_mv=joinpath(config.folder,string(config.ID),"original_parameters")
         !isdir(pth_mv) ? mkdir(pth_mv) : nothing
         for fil in nmlfiles
-            mv(joinpath(pth,fil),joinpath(pth_mv,fil))
-            symlink(joinpath(pth_log,fil),joinpath(pth,fil))
+            mv(joinpath(pth_run,fil),joinpath(pth_mv,fil))
+            symlink(joinpath(pth_log,fil),joinpath(pth_run,fil))
         end
 
         git_log_prm(config)
