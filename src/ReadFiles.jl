@@ -12,7 +12,7 @@ Initially, the output looked like `(grid=gr,packages=pac,params_time=par1,params
 function scan_rundir(pth::String)
     #1 standard output
     filout=joinpath(pth,"output.txt")
-    !isfield(filout) ? filout=joinpath(pth,"STDOUT.0000") : nothing
+    !isfile(filout) ? filout=joinpath(pth,"STDOUT.0000") : nothing
     tmp=readlines(filout)
     ll = findall(occursin.("======================================================",tmp))
     #1.1 grid
@@ -34,7 +34,7 @@ function scan_rundir(pth::String)
     for i in list1
         lx = findall(occursin.(i,tmp))
         lx = lx[findall((lx.>l0).&&(lx.<l1))[1]]
-        par1[Symbol(i)] = Int(parse(Float64,tmp[lx+1][20:end]))
+        par1[Symbol(i)] = parse(Float64,tmp[lx+1][20:end])
     end
     par1=(; zip(Symbol.(keys(par1)), values(par1))...)
 
