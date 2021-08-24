@@ -1,6 +1,68 @@
 
 
 """
+    scan_rundir(pth::String)
+
+Scan a MITgcm run directory and standard output text file 
+("output.txt" or "STDOUT.0000") and return a NamedTuple of
+collected information (various formats)
+
+Initially, the output looked like `(grid=gr,packages=pac,params_time=par1,params_grid=par2,completed=co)`
+"""
+function scan_rundir(pth::String)
+    #1 standard output
+    filout=joinpath(pth,"output.txt")
+    !isfield(filout) ? filout=joinpath(pth,"STDOUT.0000") : nothing
+    tmp=readlines(filout)
+    ll = findall(occursin.("======================================================",tmp))
+    #1.1 grid
+    l0 = findall(occursin.("Computational Grid Specification",tmp))[1]
+    l1 = minimum(ll[findall(ll.>l0+2)])
+    gr = tmp[l0+2:l1]
+    #1.2 packages
+    l0 = findall(occursin.("PACKAGES_BOOT: On/Off package Summary",tmp))[1]
+    l1 = findall(occursin.("PACKAGES_BOOT: End of package Summary",tmp))[1]
+    pac = tmp[l0:l1]
+    #1.3 parameters (time, grid)
+    l0 = findall(occursin.("Time stepping paramters",tmp))[1]
+    l1 = findall(occursin.("Gridding paramters",tmp))[1]
+    l2 = findall(occursin.("End of Model config. summary",tmp))[1]
+
+    par1=Dict()
+    list1=["deltaTClock","nIter0","nTimeSteps","nEndIter",
+            "pChkPtFreq","dumpFreq","monitorFreq"]
+    for i in list1
+        lx = findall(occursin.(i,tmp))
+        lx = lx[findall((lx.>l0).&&(lx.<l1))[1]]
+        par1[Symbol(i)] = Int(parse(Float64,tmp[lx+1][20:end]))
+    end
+    par1=(; zip(Symbol.(keys(par1)), values(par1))...)
+
+    par2=Dict()
+    list1=["usingCartesianGrid","usingCylindricalGrid","usingSphericalPolarGrid","usingCurvilinearGrid"]
+    for i in list1
+        lx = findall(occursin.(i,tmp))
+        lx = lx[findall((lx.>l1).&&(lx.<l2))[1]]
+        par2[Symbol(i)] = strip(tmp[lx+1][20:end])=="T"
+    end
+    par2=(; zip(Symbol.(keys(par2)), values(par2))...)
+
+    #1.4 monitors
+    #1.5 run completed
+    co = tmp[end]=="PROGRAM MAIN: Execution ended Normally"
+
+    #2 output files
+    #2.1 pickups
+    #2.2 diags
+    #2.3 snapshots
+    #2.4 tave
+    #2.5 mnc
+
+    return (grid=gr,packages=pac,
+    params_time=par1,params_grid=par2,completed=co)
+end
+
+"""
     read_nctiles(fileName,fldName,mygrid)
 
 Read model output from NCTiles file and convert to MeshArray instance.
@@ -485,6 +547,14 @@ function read_mdsio(pth::String,fil::String)
 
     return x
 end
+
+function read_mdsio(fil::String,x::MeshArray)
+    bas=split(basename(fil),'.')[1]
+    xx=read_mdsio(dirname(fil),string(bas))
+    return x.grid.read(xx,x)
+end
+  
+read_mdsio(xx::Array,x::MeshArray) = MeshArrays.read(xx::Array,x::MeshArray)
 
 """
     read_available_diagnostics(fldname::String; filename="available_diagnostics.log")
