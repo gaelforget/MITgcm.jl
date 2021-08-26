@@ -65,7 +65,7 @@ i=findall(tst_XC)[ii]
 
 # ╔═╡ 211ab33e-d482-49dd-9448-0f5c6e63a280
 begin
-	Γ=exp_GridLoad(i)
+	Γ=MITgcmTools.GridLoad_mdsio(exps[i])
 	
 	is2d=sum(vec_ioSize[i].>1)==2
 	if sc[i].params_grid.usingCartesianGrid
@@ -89,6 +89,9 @@ begin
 	dd=Float64.(Γ.Depth)
 	minimum(dd),maximum(dd)
 end
+
+# ╔═╡ 7ae5afd6-8295-478b-a291-287cc9462f2e
+typeof(exps[1])	
 
 # ╔═╡ d43a7659-9466-449c-9bf1-0c7ee668ce82
 md"""## 2. Select Config. : netcdf output cases
@@ -137,9 +140,10 @@ sc[j].params_grid
 # ╟─a444cf7e-cbe1-4e13-981b-184f1a64d3d5
 # ╟─49e5553c-b316-4c2c-821a-0dd6148006dc
 # ╟─92b6319a-a56d-483e-a7eb-6f71966364c5
+# ╠═7ae5afd6-8295-478b-a291-287cc9462f2e
 # ╟─d43a7659-9466-449c-9bf1-0c7ee668ce82
 # ╟─9a6583c8-325d-49e9-95cb-f10a33d16394
-# ╟─ce15c4e2-e6d9-4908-a336-14de39fd3c20
+# ╠═ce15c4e2-e6d9-4908-a336-14de39fd3c20
 # ╟─91cf76da-1137-4f12-9a1f-b9b44a920911
 # ╟─4e6a4410-9823-48fb-a9db-5e6296fa8d32
 # ╟─4f9c9197-9d83-4545-8d41-92c904a29c9f

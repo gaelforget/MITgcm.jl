@@ -35,28 +35,6 @@ for i in 1:length(exps)
     end
 end
 
-function exp_GridLoad(iexp)
-    println(iexp)
-    #
-    myexp=exps[iexp].configuration; rundir=joinpath(rep,myexp,"run")
-    tmp=read_mdsio(rundir,"XC")
-    exps_ioSize=size(tmp)
-    elty=eltype(tmp)
-    #
-    if sc[iexp].params_grid.usingCurvilinearGrid
-        readcube(xx::Array,x::MeshArray) = read_mdsio(cube2compact(xx),x)
-        readcube(fil::String,x::MeshArray) = read_mdsio(fil::String,x::MeshArray)
-        writecube(x::MeshArray) = compact2cube(write(x))
-        writecube(fil::String,x::MeshArray) = write(fil::String,x::MeshArray)    
-        γ=gcmgrid(rundir,"CubeSphere",6,fill((32,32),6),[32 32*6],elty, readcube, writecube)
-    else
-        s1=exps_ioSize
-        s2=[s1[1] s1[2]]
-        γ=gcmgrid(rundir,"PeriodicDomain",1,fill(s1,1),s2,elty, read_mdsio, write)
-    end
-    Γ=GridLoad(γ)
-end
-
 #for i in findall(tst_XC)
 #    show(exps[i])
 #    exp_GridLoad(i)    

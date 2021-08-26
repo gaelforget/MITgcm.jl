@@ -556,14 +556,19 @@ function read_mdsio(pth::String,fil::String)
     return x
 end
 
+#for the gcmgrid interface in MeshArrays.jl
 function read_mdsio(fil::String,x::MeshArray)
     bas=split(basename(fil),'.')[1]
     xx=read_mdsio(dirname(fil),string(bas))
     return x.grid.read(xx,x)
 end
-  
+
+#for the gcmgrid interface in MeshArrays.jl
 read_mdsio(xx::Array,x::MeshArray) = MeshArrays.read(xx::Array,x::MeshArray)
 
+"""
+    read_mnc(pth::String,fil::String,var::String)
+"""
 function read_mnc(pth::String,fil::String,var::String)
     lst=readdir(pth)
     lst=lst[findall(occursin.(fil,lst).*occursin.(".nc",lst))]
@@ -590,6 +595,9 @@ function read_mnc(pth::String,fil::String,var::String)
     x
 end
 
+"""
+    GridLoad_mnc(γ::gcmgrid)
+"""
 function GridLoad_mnc(γ::gcmgrid)
     pth=joinpath(γ.path,"mnc_test_0001")
     XC=read_mnc(pth,"grid","XC")
@@ -597,6 +605,31 @@ function GridLoad_mnc(γ::gcmgrid)
     Depth=read_mnc(pth,"grid","Depth")
     tmp=MeshArray(γ,γ.ioPrec)
     (XC=γ.read(XC,tmp), YC=γ.read(YC,tmp), Depth=γ.read(Depth,tmp))
+end
+
+"""
+    GridLoad_mdsio(myexp::MITgcm_config)
+"""
+function GridLoad_mdsio(myexp::MITgcm_config)
+    pth=joinpath(MITgcm_path[1],"verification")
+    rundir=joinpath(pth,myexp.configuration,"run")
+    tmp=read_mdsio(rundir,"XC")
+    exps_ioSize=size(tmp)
+    elty=eltype(tmp)
+    sc=MITgcmTools.scan_rundir(rundir)
+    #
+    if sc.params_grid.usingCurvilinearGrid
+        readcube(xx::Array,x::MeshArray) = read_mdsio(cube2compact(xx),x)
+        readcube(fil::String,x::MeshArray) = read_mdsio(fil::String,x::MeshArray)
+        writecube(x::MeshArray) = compact2cube(write(x))
+        writecube(fil::String,x::MeshArray) = write(fil::String,x::MeshArray)    
+        γ=gcmgrid(rundir,"CubeSphere",6,fill((32,32),6),[32 32*6],elty, readcube, writecube)
+    else
+        s1=exps_ioSize
+        s2=[s1[1] s1[2]]
+        γ=gcmgrid(rundir,"PeriodicDomain",1,fill(s1,1),s2,elty, read_mdsio, write)
+    end
+    Γ=GridLoad(γ)
 end
 
 """
