@@ -625,6 +625,48 @@ function GridLoad_mnc(γ::gcmgrid)
 end
 
 """
+    GridLoad_mnc(myexp::MITgcm_config)
+"""
+function GridLoad_mnc(myexp::MITgcm_config)
+    pth=joinpath(MITgcm_path[1],"verification")
+    rundir=joinpath(pth,myexp.configuration,"run")
+	pth=joinpath(rundir,"mnc_test_0001")
+	tmp=MITgcmTools.read_mnc(pth,"grid","XC")
+    exps_ioSize=size(tmp)
+    elty=eltype(tmp)
+    sc=MITgcmTools.scan_rundir(rundir)
+    #
+    if sc.params_grid.usingCurvilinearGrid&&(exps_ioSize==(192,32))
+        γ=gcmgrid(rundir,"CubeSphere",6,fill((32,32),6),[32 32*6],elty, read, write)
+        c=cube2compact
+    elseif sc.params_grid.usingCurvilinearGrid&&(exps_ioSize==(384,16))
+        γ=gcmgrid(rundir,"CubeSphere",6,fill((32,32),6),[32 32*6],elty, read, write)
+        function c(tmp)
+            tmp2=reshape(tmp,(32,12,16))
+            tmp3=Array{eltype(tmp2)}(undef,32*6,32)
+            for i in 1:6
+                ii=collect((i-1)*32 .+(1:32))
+                tmp3[ii,1:16]=tmp2[:,2*i-1,:]
+                tmp3[ii,17:32]=tmp2[:,2*i,:]
+            end
+            cube2compact(tmp3)
+        end
+    else
+        s1=exps_ioSize
+        s2=[s1[1] s1[2]]
+        γ=gcmgrid(rundir,"PeriodicDomain",1,fill(s1,1),s2,elty, read, write)
+        c=(x->x)
+    end
+    #
+    pth=joinpath(γ.path,"mnc_test_0001")
+    XC=c(read_mnc(pth,"grid","XC"))
+    YC=c(read_mnc(pth,"grid","YC"))
+    Depth=c(read_mnc(pth,"grid","Depth"))
+    tmp=MeshArray(γ,γ.ioPrec)
+    (XC=γ.read(XC,tmp), YC=γ.read(YC,tmp), Depth=γ.read(Depth,tmp))
+end
+
+"""
     GridLoad_mdsio(myexp::MITgcm_config)
 """
 function GridLoad_mdsio(myexp::MITgcm_config)

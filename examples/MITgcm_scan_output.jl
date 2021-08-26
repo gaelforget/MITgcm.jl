@@ -60,7 +60,7 @@ _Note: this will update the plot and text display below_
 """
 
 # ╔═╡ 7c37d2bd-2a10-4a42-9029-87d636c3a054
-@bind ii NumberField(1:length(list_mdsio); default=1)
+@bind ii NumberField(1:length(list_mdsio); default=2)
 
 # ╔═╡ 211ab33e-d482-49dd-9448-0f5c6e63a280
 begin
@@ -79,7 +79,7 @@ begin
 end
 
 # ╔═╡ a444cf7e-cbe1-4e13-981b-184f1a64d3d5
- exps[i]
+ exps[list_mdsio[ii]]
 
 # ╔═╡ 49e5553c-b316-4c2c-821a-0dd6148006dc
 sc[i].params_grid
@@ -104,24 +104,24 @@ begin
 	j=list_mnc[jj]
 	rundir=joinpath(rep,exps[j].configuration,"run"); exps[j]
 	
-	pth=joinpath(rundir,"mnc_test_0001")
-	XC=MITgcmTools.read_mnc(pth,"grid","XC")
-	s1=(sc[j].params_grid.sNx*sc[j].params_grid.nSx,sc[j].params_grid.sNx*sc[j].params_grid.nSx)
-    s2=[s1[1] s1[2]]
-	elty=eltype(XC)
-	
-	γ_mnc=gcmgrid(rundir,"PeriodicDomain",1,fill(s1,1),s2,elty, read, write)
+	Γ_mnc=MITgcmTools.GridLoad_mnc(exps[j])
 
-	Γ_mnc=MITgcmTools.GridLoad_mnc(γ_mnc)
-	
-	plot_as_plane(Γ_mnc)
+	is2d_mnc=sum(sc[j].params_files.ioSize.>1)==2
+	if sc[j].params_grid.usingCartesianGrid
+		f_mnc=plot_as_plane(Γ_mnc)
+	elseif is2d_mnc
+		f_mnc=plot_as_sphere(Γ_mnc)
+	else
+		f_mnc="no display available"
+	end
+	f_mnc
 end
 
 # ╔═╡ 52500893-60c9-4f62-ae38-9e07ee76a34b
- exps[j]
+ exps[list_mnc[jj]]
 
 # ╔═╡ 4f9c9197-9d83-4545-8d41-92c904a29c9f
-sc[j].params_grid
+sc[list_mnc[jj]].params_grid
 
 # ╔═╡ Cell order:
 # ╟─f883622e-dada-4acf-9c90-2c3a3373da66
