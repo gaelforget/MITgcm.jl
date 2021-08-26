@@ -27,7 +27,7 @@ begin
 end
 
 # ╔═╡ f883622e-dada-4acf-9c90-2c3a3373da66
-md"""## 0. Packages And Config Lists
+md"""## 0. Packages And Lists
 """
 
 # ╔═╡ 8ab359c9-7090-4671-8856-e775ee4e7556
@@ -61,7 +61,7 @@ _Note: this will update the plot and text display below_
 """
 
 # ╔═╡ 7c37d2bd-2a10-4a42-9029-87d636c3a054
-@bind ii NumberField(1:length(list_exps); default=2)
+@bind ii NumberField(1:length(list_exps); default=14)
 
 # ╔═╡ 211ab33e-d482-49dd-9448-0f5c6e63a280
 begin
