@@ -45,6 +45,14 @@ function scan_rundir(pth::String)
         lx = lx[findall((lx.>l1).&&(lx.<l2))[1]]
         par2[Symbol(i)] = strip(tmp[lx+1][20:end])=="T"
     end
+
+	b=["nPx","nPy","nSx","nSy","sNx","sNy","Nx","Ny","Nr"]
+	for bb in b
+		i1=findall(occursin.(bb,gr))[1]
+		tmp=parse(Int,split(split(gr[i1][20:end],";")[1],"=")[2])
+		par2[Symbol(bb)] = tmp
+	end
+
     par2=(; zip(Symbol.(keys(par2)), values(par2))...)
 
     #1.4 monitors
@@ -58,7 +66,7 @@ function scan_rundir(pth::String)
     #2.4 tave
     #2.5 mnc
 
-    return (grid=gr,packages=pac,
+    return (packages=pac,
     params_time=par1,params_grid=par2,completed=co)
 end
 
@@ -555,6 +563,41 @@ function read_mdsio(fil::String,x::MeshArray)
 end
   
 read_mdsio(xx::Array,x::MeshArray) = MeshArrays.read(xx::Array,x::MeshArray)
+
+function read_mnc(pth::String,fil::String,var::String)
+    lst=readdir(pth)
+    lst=lst[findall(occursin.(fil,lst).*occursin.(".nc",lst))]
+
+    fil=joinpath(pth,lst[1])
+    ncfile=MITgcmTools.NetCDF.open(fil)
+    ncatts=ncfile.gatts
+    s=(ncatts["Nx"],ncatts["Ny"])
+    T = Float64
+    x = Array{T,length(s)}(undef,s)
+
+    for f in lst
+        fil=joinpath(pth,f)
+        ncfile=MITgcmTools.NetCDF.open(fil)
+        ncatts=ncfile.gatts
+        b=(ncatts["bi"],ncatts["bj"])
+        s=(ncatts["sNx"],ncatts["sNy"])
+        ii=(b[1]-1)*s[1] .+ collect(1:s[1])
+        jj=(b[2]-1)*s[2] .+ collect(1:s[2])
+        v = MITgcmTools.NetCDF.open(fil, var)
+        x[ii,jj]=v[:,:]
+    end
+
+    x
+end
+
+function GridLoad_mnc(γ::gcmgrid)
+    pth=joinpath(γ.path,"mnc_test_0001")
+    XC=read_mnc(pth,"grid","XC")
+    YC=read_mnc(pth,"grid","YC")
+    Depth=read_mnc(pth,"grid","Depth")
+    tmp=MeshArray(γ,γ.ioPrec)
+    (XC=γ.read(XC,tmp), YC=γ.read(YC,tmp), Depth=γ.read(Depth,tmp))
+end
 
 """
     read_available_diagnostics(fldname::String; filename="available_diagnostics.log")
