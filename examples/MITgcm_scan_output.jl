@@ -16,31 +16,48 @@ end
 # ╔═╡ bb47e9ec-05ce-11ec-265e-85e1b4e90854
 begin
 	import Pkg
-	    # careful: this is _not_ a reproducible environment
-	    # activate the global environment
-	    Pkg.activate()
+	Pkg.activate() # activate the global environment
+	
 	using MITgcmTools, MeshArrays, PlutoUI, GLMakie
-	"all set with packages"
-end
-
-# ╔═╡ 8ab359c9-7090-4671-8856-e775ee4e7556
-begin
-	p=dirname(pathof(MITgcmTools))
-	include(joinpath(p,"scan_rundir_loop.jl"))
 	
 	p=dirname(pathof(MeshArrays))
 	include(joinpath(p,"..","examples","Makie.jl"))
 
-
-	rep=joinpath(MITgcm_path[1],"verification")
-	exps=verification_experiments()
-	
-	[exps[i].configuration for i in 1:length(exps)]
+	"all set with packages"
 end
 
 # ╔═╡ f883622e-dada-4acf-9c90-2c3a3373da66
 md"""## 0. Packages And Config Lists
 """
+
+# ╔═╡ 8ab359c9-7090-4671-8856-e775ee4e7556
+begin
+	rep=joinpath(MITgcm_path[1],"verification")
+	exps=verification_experiments()
+	
+	sc=Vector{Any}(nothing, length(exps))
+	for i in 1:length(exps)
+		myexp=exps[i].configuration; rundir=joinpath(rep,myexp,"run")
+		sc[i]=MITgcmTools.scan_rundir(rundir)
+	end
+
+	tst_XC=Vector{Any}(nothing, length(exps))
+	tst_mnc=Vector{Any}(nothing, length(exps))
+	vec_ioSize=Vector{Any}(nothing, length(exps))
+
+	for i in 1:length(exps)
+		myexp=exps[i].configuration; rundir=joinpath(rep,myexp,"run")
+		tst_XC[i] = !isempty(filter(x -> occursin("XC",x), readdir(rundir)))
+		tst_mnc[i] = isdir(joinpath(rundir,"mnc_test_0001"))
+		if tst_XC[i] 
+			myexp=exps[i].configuration; rundir=joinpath(rep,myexp,"run")
+			tmp=read_mdsio(rundir,"XC")
+			vec_ioSize[i]=size(tmp)
+		end
+	end
+	
+	[exps[i].configuration for i in 1:length(exps)]
+end
 
 # ╔═╡ c221da29-f3b1-4f09-a85d-7e4330eeddf9
 findall(tst_XC)
@@ -90,9 +107,6 @@ begin
 	minimum(dd),maximum(dd)
 end
 
-# ╔═╡ 7ae5afd6-8295-478b-a291-287cc9462f2e
-typeof(exps[1])	
-
 # ╔═╡ d43a7659-9466-449c-9bf1-0c7ee668ce82
 md"""## 2. Select Config. : netcdf output cases
 
@@ -140,7 +154,6 @@ sc[j].params_grid
 # ╟─a444cf7e-cbe1-4e13-981b-184f1a64d3d5
 # ╟─49e5553c-b316-4c2c-821a-0dd6148006dc
 # ╟─92b6319a-a56d-483e-a7eb-6f71966364c5
-# ╠═7ae5afd6-8295-478b-a291-287cc9462f2e
 # ╟─d43a7659-9466-449c-9bf1-0c7ee668ce82
 # ╟─9a6583c8-325d-49e9-95cb-f10a33d16394
 # ╠═ce15c4e2-e6d9-4908-a336-14de39fd3c20
