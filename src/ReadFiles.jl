@@ -60,6 +60,23 @@ function scan_rundir(pth::String)
     co = tmp[end]=="PROGRAM MAIN: Execution ended Normally"
 
     #2 output files
+
+    #2.1 type (mdsio or mnc?) and overall size (ioSize) of output 
+    tst_mdsio = !isempty(filter(x -> occursin("XC",x), readdir(pth)))
+    pth_mnc=joinpath(pth,"mnc_test_0001")
+    tst_mnc = isdir(pth_mnc)
+    ioSize=Array{Any}(undef,1)
+    if tst_mdsio
+        tmp=read_mdsio(pth,"XC")
+        ioSize[1]=size(tmp)
+    end
+    if tst_mnc
+        tmp=MITgcmTools.read_mnc(pth_mnc,"grid","XC")
+        ioSize[1]=size(tmp)
+    end
+
+    par3=(use_mdsio=tst_mdsio,use_mnc=tst_mnc,ioSize=ioSize[1])
+
     #2.1 pickups
     #2.2 diags
     #2.3 snapshots
@@ -67,7 +84,7 @@ function scan_rundir(pth::String)
     #2.5 mnc
 
     return (packages=pac,
-    params_time=par1,params_grid=par2,completed=co)
+    params_time=par1,params_grid=par2,params_files=par3,completed=co)
 end
 
 """
