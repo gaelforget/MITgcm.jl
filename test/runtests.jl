@@ -72,7 +72,11 @@ using Test
     setup(MC)
     build(MC,"--allow-skip")
     launch(MC)
-    Γ=GridLoad_mnc(MC)
+    if isdir(joinpath(myexp.folder,string(myexp.ID),"run","mnc_test_0001"))
+        Γ=GridLoad_mnc(MC)
+    else
+        Γ=GridLoad_mdsio(MC)
+    end
     @test isa(Γ,NamedTuple)
 
     #read / write functions
