@@ -72,7 +72,7 @@ using Test
     setup(MC)
     build(MC,"--allow-skip")
     launch(MC)
-    if isdir(joinpath(myexp.folder,string(myexp.ID),"run","mnc_test_0001"))
+    if isdir(joinpath(MC.folder,string(MC.ID),"run","mnc_test_0001"))
         Γ=GridLoad_mnc(MC)
     else
         Γ=GridLoad_mdsio(MC)
