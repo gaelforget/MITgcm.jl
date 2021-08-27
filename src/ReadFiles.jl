@@ -33,7 +33,7 @@ function scan_rundir(pth::String)
             "pChkPtFreq","dumpFreq","monitorFreq"]
     for i in list1
         lx = findall(occursin.(i,tmp))
-        lx = lx[findall((lx.>l0).&&(lx.<l1))[1]]
+        lx = lx[findall((lx.>l0).*(lx.<l1))[1]]
         par1[Symbol(i)] = parse(Float64,tmp[lx+1][20:end])
     end
     par1=(; zip(Symbol.(keys(par1)), values(par1))...)
@@ -42,7 +42,7 @@ function scan_rundir(pth::String)
     list1=["usingCartesianGrid","usingCylindricalGrid","usingSphericalPolarGrid","usingCurvilinearGrid"]
     for i in list1
         lx = findall(occursin.(i,tmp))
-        lx = lx[findall((lx.>l1).&&(lx.<l2))[1]]
+        lx = lx[findall((lx.>l1).*(lx.<l2))[1]]
         par2[Symbol(i)] = strip(tmp[lx+1][20:end])=="T"
     end
 
