@@ -62,6 +62,23 @@ using Test
     tmp=read_mdsio(pth,"XC")
     @test isa(tmp,Array)
 
+    scan_rundir(pth)
+    Γ=GridLoad_mdsio(MC)
+    @test isa(Γ,NamedTuple)
+
+    myexp="MLAdjust"
+    iexp=findall([exps[i].configuration==myexp for i in 1:length(exps)])[1]
+    MC=exps[iexp]
+    setup(MC)
+    build(MC,"--allow-skip")
+    launch(MC)
+    if isdir(joinpath(MC.folder,string(MC.ID),"run","mnc_test_0001"))
+        Γ=GridLoad_mnc(MC)
+    else
+        Γ=GridLoad_mdsio(MC)
+    end
+    @test isa(Γ,NamedTuple)
+
     #read / write functions
 
     fil=joinpath(pth,"available_diagnostics.log")

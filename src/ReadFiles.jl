@@ -1,6 +1,93 @@
 
 
 """
+    scan_rundir(pth::String)
+
+Scan a MITgcm run directory and standard output text file 
+("output.txt" or "STDOUT.0000") and return a NamedTuple of
+collected information (various formats)
+
+Initially, the output looked like `(grid=gr,packages=pac,params_time=par1,params_grid=par2,completed=co)`
+"""
+function scan_rundir(pth::String)
+    #1 standard output
+    filout=joinpath(pth,"output.txt")
+    !isfile(filout) ? filout=joinpath(pth,"STDOUT.0000") : nothing
+    tmp=readlines(filout)
+    ll = findall(occursin.("======================================================",tmp))
+    #1.1 grid
+    l0 = findall(occursin.("Computational Grid Specification",tmp))[1]
+    l1 = minimum(ll[findall(ll.>l0+2)])
+    gr = tmp[l0+2:l1]
+    #1.2 packages
+    l0 = findall(occursin.("PACKAGES_BOOT: On/Off package Summary",tmp))[1]
+    l1 = findall(occursin.("PACKAGES_BOOT: End of package Summary",tmp))[1]
+    pac = tmp[l0:l1]
+    #1.3 parameters (time, grid)
+    l0 = findall(occursin.("Time stepping paramters",tmp))[1]
+    l1 = findall(occursin.("Gridding paramters",tmp))[1]
+    l2 = findall(occursin.("End of Model config. summary",tmp))[1]
+
+    par1=Dict()
+    list1=["deltaTClock","nIter0","nTimeSteps","nEndIter",
+            "pChkPtFreq","dumpFreq","monitorFreq"]
+    for i in list1
+        lx = findall(occursin.(i,tmp))
+        lx = lx[findall((lx.>l0).*(lx.<l1))[1]]
+        par1[Symbol(i)] = parse(Float64,tmp[lx+1][20:end])
+    end
+    par1=(; zip(Symbol.(keys(par1)), values(par1))...)
+
+    par2=Dict()
+    list1=["usingCartesianGrid","usingCylindricalGrid","usingSphericalPolarGrid","usingCurvilinearGrid"]
+    for i in list1
+        lx = findall(occursin.(i,tmp))
+        lx = lx[findall((lx.>l1).*(lx.<l2))[1]]
+        par2[Symbol(i)] = strip(tmp[lx+1][20:end])=="T"
+    end
+
+	b=["nPx","nPy","nSx","nSy","sNx","sNy","Nx","Ny","Nr"]
+	for bb in b
+		i1=findall(occursin.(bb,gr))[1]
+		tmp=parse(Int,split(split(gr[i1][20:end],";")[1],"=")[2])
+		par2[Symbol(bb)] = tmp
+	end
+
+    par2=(; zip(Symbol.(keys(par2)), values(par2))...)
+
+    #1.4 monitors
+    #1.5 run completed
+    co = tmp[end]=="PROGRAM MAIN: Execution ended Normally"
+
+    #2 output files
+
+    #2.1 type (mdsio or mnc?) and overall size (ioSize) of output 
+    tst_mdsio = !isempty(filter(x -> occursin("XC",x), readdir(pth)))
+    pth_mnc=joinpath(pth,"mnc_test_0001")
+    tst_mnc = isdir(pth_mnc)
+    ioSize=Array{Any}(undef,1)
+    if tst_mdsio
+        tmp=read_mdsio(pth,"XC")
+        ioSize[1]=size(tmp)
+    end
+    if tst_mnc
+        tmp=MITgcmTools.read_mnc(pth_mnc,"grid","XC")
+        ioSize[1]=size(tmp)
+    end
+
+    par3=(use_mdsio=tst_mdsio,use_mnc=tst_mnc,ioSize=ioSize[1])
+
+    #2.1 pickups
+    #2.2 diags
+    #2.3 snapshots
+    #2.4 tave
+    #2.5 mnc
+
+    return (packages=pac,
+    params_time=par1,params_grid=par2,params_files=par3,completed=co)
+end
+
+"""
     read_nctiles(fileName,fldName,mygrid)
 
 Read model output from NCTiles file and convert to MeshArray instance.
@@ -484,6 +571,132 @@ function read_mdsio(pth::String,fil::String)
     end
 
     return x
+end
+
+#for the gcmgrid interface in MeshArrays.jl
+function read_mdsio(fil::String,x::MeshArray)
+    bas=split(basename(fil),'.')[1]
+    xx=read_mdsio(dirname(fil),string(bas))
+    return x.grid.read(xx,x)
+end
+
+#for the gcmgrid interface in MeshArrays.jl
+read_mdsio(xx::Array,x::MeshArray) = MeshArrays.read(xx::Array,x::MeshArray)
+
+"""
+    read_mnc(pth::String,fil::String,var::String)
+"""
+function read_mnc(pth::String,fil::String,var::String)
+    lst=readdir(pth)
+    lst=lst[findall(occursin.(fil,lst).*occursin.(".nc",lst))]
+
+    fil=joinpath(pth,lst[1])
+    ncfile=MITgcmTools.NetCDF.open(fil)
+    ncatts=ncfile.gatts
+    s=(ncatts["Nx"],ncatts["Ny"])
+    T = Float64
+    x = Array{T,length(s)}(undef,s)
+
+    for f in lst
+        fil=joinpath(pth,f)
+        ncfile=MITgcmTools.NetCDF.open(fil)
+        ncatts=ncfile.gatts
+        b=(ncatts["bi"],ncatts["bj"])
+        s=(ncatts["sNx"],ncatts["sNy"])
+        ii=(b[1]-1)*s[1] .+ collect(1:s[1])
+        jj=(b[2]-1)*s[2] .+ collect(1:s[2])
+        v = MITgcmTools.NetCDF.open(fil, var)
+        x[ii,jj]=v[:,:]
+    end
+
+    x
+end
+
+"""
+    GridLoad_mnc(γ::gcmgrid)
+"""
+function GridLoad_mnc(γ::gcmgrid)
+    pth=joinpath(γ.path,"mnc_test_0001")
+    XC=read_mnc(pth,"grid","XC")
+    YC=read_mnc(pth,"grid","YC")
+    Depth=read_mnc(pth,"grid","Depth")
+    tmp=MeshArray(γ,γ.ioPrec)
+    (XC=γ.read(XC,tmp), YC=γ.read(YC,tmp), Depth=γ.read(Depth,tmp))
+end
+
+"""
+    GridLoad_mnc(myexp::MITgcm_config)
+"""
+function GridLoad_mnc(myexp::MITgcm_config)
+    if isdir(joinpath(myexp.folder,string(myexp.ID),"run"))
+        rundir=joinpath(myexp.folder,string(myexp.ID),"run")
+    else
+        pth=joinpath(MITgcm_path[1],"verification")
+        rundir=joinpath(pth,myexp.configuration,"run")
+    end
+	pth=joinpath(rundir,"mnc_test_0001")
+	tmp=MITgcmTools.read_mnc(pth,"grid","XC")
+    exps_ioSize=size(tmp)
+    elty=eltype(tmp)
+    sc=MITgcmTools.scan_rundir(rundir)
+    #
+    if sc.params_grid.usingCurvilinearGrid&&(exps_ioSize==(192,32))
+        γ=gcmgrid(rundir,"CubeSphere",6,fill((32,32),6),[32 32*6],elty, read, write)
+        c=cube2compact
+    elseif sc.params_grid.usingCurvilinearGrid&&(exps_ioSize==(384,16))
+        γ=gcmgrid(rundir,"CubeSphere",6,fill((32,32),6),[32 32*6],elty, read, write)
+        function c(tmp)
+            tmp2=reshape(tmp,(32,12,16))
+            tmp3=Array{eltype(tmp2)}(undef,32*6,32)
+            for i in 1:6
+                ii=collect((i-1)*32 .+(1:32))
+                tmp3[ii,1:16]=tmp2[:,2*i-1,:]
+                tmp3[ii,17:32]=tmp2[:,2*i,:]
+            end
+            cube2compact(tmp3)
+        end
+    else
+        s1=exps_ioSize
+        s2=[s1[1] s1[2]]
+        γ=gcmgrid(rundir,"PeriodicDomain",1,fill(s1,1),s2,elty, read, write)
+        c=(x->x)
+    end
+    #
+    pth=joinpath(γ.path,"mnc_test_0001")
+    XC=c(read_mnc(pth,"grid","XC"))
+    YC=c(read_mnc(pth,"grid","YC"))
+    Depth=c(read_mnc(pth,"grid","Depth"))
+    tmp=MeshArray(γ,γ.ioPrec)
+    (XC=γ.read(XC,tmp), YC=γ.read(YC,tmp), Depth=γ.read(Depth,tmp))
+end
+
+"""
+    GridLoad_mdsio(myexp::MITgcm_config)
+"""
+function GridLoad_mdsio(myexp::MITgcm_config)
+    if isdir(joinpath(myexp.folder,string(myexp.ID),"run"))
+        rundir=joinpath(myexp.folder,string(myexp.ID),"run")
+    else
+        pth=joinpath(MITgcm_path[1],"verification")
+        rundir=joinpath(pth,myexp.configuration,"run")
+    end
+    tmp=read_mdsio(rundir,"XC")
+    exps_ioSize=size(tmp)
+    elty=eltype(tmp)
+    sc=MITgcmTools.scan_rundir(rundir)
+    #
+    if sc.params_grid.usingCurvilinearGrid
+        readcube(xx::Array,x::MeshArray) = read_mdsio(cube2compact(xx),x)
+        readcube(fil::String,x::MeshArray) = read_mdsio(fil::String,x::MeshArray)
+        writecube(x::MeshArray) = compact2cube(write(x))
+        writecube(fil::String,x::MeshArray) = write(fil::String,x::MeshArray)    
+        γ=gcmgrid(rundir,"CubeSphere",6,fill((32,32),6),[32 32*6],elty, readcube, writecube)
+    else
+        s1=exps_ioSize
+        s2=[s1[1] s1[2]]
+        γ=gcmgrid(rundir,"PeriodicDomain",1,fill(s1,1),s2,elty, read_mdsio, write)
+    end
+    Γ=GridLoad(γ)
 end
 
 """
