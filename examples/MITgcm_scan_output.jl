@@ -38,7 +38,7 @@ begin
 	sc=Vector{Any}(nothing, length(exps))
 	for i in 1:length(exps)
 		myexp=exps[i].configuration; rundir=joinpath(rep,myexp,"run")
-		sc[i]=MITgcmTools.scan_rundir(rundir)
+		sc[i]=scan_rundir(rundir)
 	end
 	
 	list_exps=collect(1:length(exps))
@@ -67,9 +67,9 @@ _Note: this will update the plot and text display below_
 begin
 	i=list_exps[ii]
 	if sc[i].params_files.use_mdsio
-		Γ=MITgcmTools.GridLoad_mdsio(exps[i])
+		Γ=GridLoad_mdsio(exps[i])
 	else
-		Γ=MITgcmTools.GridLoad_mnc(exps[i])
+		Γ=GridLoad_mnc(exps[i])
 	end
 
 	is2d=sum(sc[i].params_files.ioSize.>1)==2

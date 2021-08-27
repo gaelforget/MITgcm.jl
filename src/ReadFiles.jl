@@ -628,8 +628,12 @@ end
     GridLoad_mnc(myexp::MITgcm_config)
 """
 function GridLoad_mnc(myexp::MITgcm_config)
-    pth=joinpath(MITgcm_path[1],"verification")
-    rundir=joinpath(pth,myexp.configuration,"run")
+    if isdir(joinpath(myexp.folder,string(myexp.ID),"run"))
+        rundir=joinpath(myexp.folder,string(myexp.ID),"run")
+    else
+        pth=joinpath(MITgcm_path[1],"verification")
+        rundir=joinpath(pth,myexp.configuration,"run")
+    end
 	pth=joinpath(rundir,"mnc_test_0001")
 	tmp=MITgcmTools.read_mnc(pth,"grid","XC")
     exps_ioSize=size(tmp)
@@ -670,8 +674,12 @@ end
     GridLoad_mdsio(myexp::MITgcm_config)
 """
 function GridLoad_mdsio(myexp::MITgcm_config)
-    pth=joinpath(MITgcm_path[1],"verification")
-    rundir=joinpath(pth,myexp.configuration,"run")
+    if isdir(joinpath(myexp.folder,string(myexp.ID),"run"))
+        rundir=joinpath(myexp.folder,string(myexp.ID),"run")
+    else
+        pth=joinpath(MITgcm_path[1],"verification")
+        rundir=joinpath(pth,myexp.configuration,"run")
+    end
     tmp=read_mdsio(rundir,"XC")
     exps_ioSize=size(tmp)
     elty=eltype(tmp)
