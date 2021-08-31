@@ -31,10 +31,10 @@ using Test
     nml=read(fil,MITgcm_namelist())
     write(fil*"_new",nml)
 	
-    parse_param("1.0")
-    parse_param(".TRUE.")
-    parse_param(".false.")
-    parse_param("10")
+    MITgcmTools.parse_param("1.0")
+    MITgcmTools.parse_param(".TRUE.")
+    MITgcmTools.parse_param(".false.")
+    MITgcmTools.parse_param("10")
 
     @test isa(nml,MITgcm_namelist)
     @test nml.groups[1]==:PARM01
