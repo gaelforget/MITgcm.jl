@@ -1,21 +1,22 @@
 # MITgcmTools.jl
 
-Set of tools for running [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest), analyzing its output, and/or modifying its inputs. A set of [Pluto.jl](https://github.com/fonsp/Pluto.jl) notebooks, which e.g. run `MITgcm` interactively, can be found in the `examples/` folder.
+Tools for using [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) or analyzing its output. This includes compiling, running a model configuration, or inspecting inputs and outputs. The [ClimateModels.jl](https://gaelforget.github.io/ClimateModels.jl/stable/) interface provides a standard framework for such workflows. 
 
 ## Main Features
 
-- Climate Model Interface
-- Read / Write Model Output
+- Read Model Output And Files
 - Standard MITgcm configurations
+- Climate Model Interface
+- [Examples](@ref) (notebooks in `examples/`)
 
 ## [Table Of Contents](@id main-contents)
 
 ```@contents
 Pages = [
-    "examples.md",
     "functionalities.md",
+    "examples.md",
 ]
-Depth = 2
+Depth = 3
 ```
 
 ![Simulated particles from HS94 on cube sphere grid](https://user-images.githubusercontent.com/20276764/111042787-12377e00-840d-11eb-8ddb-64cc1cfd57fd.png)
