@@ -21,6 +21,7 @@ Pluto.run()
 
 ## Examples / Analyzing Results
 
+- `MITgcm_scan_output.jl` : scan `output.txt`, read grid, viz with `Makie.jl` 
 - `HS94_plotmap.jl` : read `hs94.cs-32x32x5` output, interpolate, and plot map
 - `HS94_particles.jl` : compute particle trajectories from `hs94.cs-32x32x5` output
 - `HS94_Makie.jl` : example using `Makie.jl` instead of `Plots.jl`
