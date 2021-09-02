@@ -1,4 +1,5 @@
 using Documenter, MITgcmTools
+import PlutoSliderServer
 
 makedocs(;
     modules=[MITgcmTools],
@@ -15,8 +16,18 @@ makedocs(;
     repo="https://github.com/gaelforget/MITgcmTools.jl/blob/{commit}{path}#L{line}",
     sitename="MITgcmTools.jl",
     authors="gaelforget <gforget@mit.edu>",
-    assets=String[],
 )
+
+pth = joinpath(@__DIR__, "build","examples")
+lst=("HS94_Makie.jl","HS94_particles.jl","HS94_plotmap.jl","MITgcm_configurations.jl",
+"MITgcm_run.jl","MITgcm_scan_output.jl","MITgcm_worklow.jl")
+for i in lst
+    fil_in=joinpath(@__DIR__,"..","examples",i)
+    fil_out=joinpath(pth,i[1:end-2]*"html")
+    PlutoSliderServer.export_notebook(fil_in)
+    mv(fil_in[1:end-2]*"html",fil_out)
+    #cp(fil_in[1:end-2]*"html",fil_out)
+end
 
 deploydocs(;
     repo="github.com/gaelforget/MITgcmTools.jl",
