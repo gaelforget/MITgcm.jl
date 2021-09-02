@@ -6,7 +6,7 @@ using InteractiveUtils
 
 # ╔═╡ b96456b4-8267-11eb-043a-07fc1ee69d34
 begin
-	using JLD2, FileIO, DataFrames, GLMakie
+	using JLD2, FileIO, DataFrames, Makie
 	🏁 = "🏁"
 end
 
