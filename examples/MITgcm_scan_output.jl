@@ -15,9 +15,6 @@ end
 
 # ╔═╡ bb47e9ec-05ce-11ec-265e-85e1b4e90854
 begin
-	import Pkg
-	Pkg.activate() # activate the global environment
-	
 	using MITgcmTools, MeshArrays, PlutoUI, GLMakie
 	
 	p=dirname(pathof(MeshArrays))
