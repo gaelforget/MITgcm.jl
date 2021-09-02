@@ -28,18 +28,19 @@ Pluto.run()
 <details>
   <summary><b>Examples / Running Models </b></summary>
   
-- `MITgcm_configurations.jl` : explore MITgcm configurations and their parameters.
-- `MITgcm_worklow.jl` : build, setup, run, and plot for any standard configuration.
-- `MITgcm_run.jl` : a more detailed look into compiling and running the model.
+- [MITgcm_configurations.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/MITgcm_configurations.html) : explore MITgcm configurations and their parameters.
+- [MITgcm_worklow.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/MITgcm_worklow.html) : build, setup, run, and plot for any standard configuration.
+- [MITgcm_run.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/MITgcm_run.html) : a more detailed look into compiling and running the model.
 </details>
 
 <details>
   <summary><b>Examples / Analyzing Results </b></summary>
   
-- `MITgcm_scan_output.jl` : scan `output.txt`, read grid, viz with `Makie.jl` 
-- `HS94_plotmap.jl` : read `hs94.cs-32x32x5` output, interpolate, and plot map
-- `HS94_particles.jl` : compute particle trajectories from `hs94.cs-32x32x5` output
-- `HS94_Makie.jl` : example using `Makie.jl` instead of `Plots.jl`
+- [MITgcm\_scan\_output.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/MITgcm_scan_output.html) : scan `output.txt`, read grid, viz with `Makie.jl` 
+- [HS94_plotmap.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/HS94_plotmap.html)
+- [HS94_plotmap.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/HS94_plotmap.html) : read `hs94.cs-32x32x5` output, interpolate, and plot map
+- [HS94_particles.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/HS94_particles.html) : compute particle trajectories from `hs94.cs-32x32x5` output
+- [HS94_Makie.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/HS94_Makie.html) : example using `Makie.jl` instead of `Plots.jl`
 </details>
 
 <img src="https://user-images.githubusercontent.com/20276764/111042787-12377e00-840d-11eb-8ddb-64cc1cfd57fd.png" width="90%"> 
