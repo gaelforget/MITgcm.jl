@@ -43,3 +43,9 @@ end
 
 return exps
 end
+
+function verification_experiments(nam::String)
+    exps=verification_experiments()
+    iexp=findall([exps[i].configuration==nam for i in 1:length(exps)])[1]
+    exps[iexp]
+end

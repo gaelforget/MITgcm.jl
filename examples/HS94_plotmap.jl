@@ -12,8 +12,10 @@ begin
 	
 	#packages for I/O, interpolation, etc	
 	using MITgcmTools, MeshArrays, Plots
+	PICKUP_hs94_download()
 		
 	🏁 = "🏁"
+	"Downloads and pacakges : complete."
 end
 
 # ╔═╡ 19095067-33f5-495f-bc4d-ee6dacbf6ca8
@@ -56,17 +58,14 @@ function modify_params_HS94(myexp)
 
 end	
 
-# ╔═╡ 1bd679ff-64d3-4d5b-b828-0967182c90c3
-begin
-	exps=verification_experiments()
-	iexp=findall([exps[i].configuration=="hs94.cs-32x32x5" for i in 1:length(exps)])[1]
-	myexp=exps[iexp]
-end
-
 # ╔═╡ aad7e042-ba39-4518-8f3e-da59b77c13cb
 begin
+	myexp=verification_experiments("hs94.cs-32x32x5")
+	
 	setup(myexp)
+
 	modify_params_HS94(myexp)
+	
 	pth_run=joinpath(myexp.folder,string(myexp.ID),"run")
 
 	fil1="pickup.0000043200.data"
@@ -78,20 +77,24 @@ begin
 	step1=🏁
 end
 
+# ╔═╡ 207e4c15-7818-4dc3-a048-1dd36ba5a73e
+myexp
+
 # ╔═╡ 0aa37844-b4b9-4f58-adf7-15ae9a490993
 begin
-	step1
+	step1==🏁
 	MITgcmTools.launch(myexp)
 	step2=🏁
 end
 
 # ╔═╡ b77f7ff2-da7e-41b3-b3f6-3819b09cd33c
 begin
-	step2
+	step2==🏁
 
+	## read grid variables (for interpolation)
 	Γ = GridLoad_mdsio(myexp)
 	
-	## Interpolation setup for plotting
+	## setup interpolation (for plotting)
 	lon=[i for i=-179.5:1.0:179.5, j=-89.5:1.0:89.5]
 	lat=[j for i=-179.5:1.0:179.5, j=-89.5:1.0:89.5]
 	(f,i,j,w,_,_,_)=InterpolationFactors(Γ,vec(lon),vec(lat))
@@ -101,24 +104,24 @@ end
 
 # ╔═╡ 56a76f42-7d83-4600-a9a2-2b675b6efcaa
 begin
-	
+	step3==🏁
+
+
 	#list of output files (1 per time record)
 	ff=readdir(pth_run); fil="T.0000"
 	ff=ff[findall(occursin.(fil,ff).*occursin.(".data",ff))]	
 	nt=length(ff)
 	γ=Γ.XC.grid
-	
-	#function used to plot one time record
-	function myplot(fil)
-	    T=read(joinpath(pth_run,fil),MeshArray(γ,Float64))
-	    TT=Interpolate(T,IntFac...)
-	    contourf(vec(lon[:,1]),vec(lat[1,:]),TT,clims=(260.,320.))
-	end
-	
-	##
-	
-	f1=myplot(ff[end])	
+		
 	step4=🏁
+end
+
+# ╔═╡ 964108cd-4fe3-4bb8-85db-500618e21af7
+#function used to plot one time record
+function myplot(fil)
+	T=read(joinpath(pth_run,fil),MeshArray(γ,Float64))
+	TT=Interpolate(T,IntFac...)
+	contourf(vec(lon[:,1]),vec(lat[1,:]),TT,clims=(260.,320.))
 end
 
 # ╔═╡ ee0e6f28-aa26-48de-8ddd-8bb2d1102ee9
@@ -133,11 +136,12 @@ end
 
 # ╔═╡ Cell order:
 # ╟─19095067-33f5-495f-bc4d-ee6dacbf6ca8
-# ╟─fa968801-6892-4475-9b27-56472ca611b4
-# ╟─0aa37844-b4b9-4f58-adf7-15ae9a490993
+# ╟─207e4c15-7818-4dc3-a048-1dd36ba5a73e
+# ╟─ee0e6f28-aa26-48de-8ddd-8bb2d1102ee9
 # ╟─aad7e042-ba39-4518-8f3e-da59b77c13cb
-# ╟─1bd679ff-64d3-4d5b-b828-0967182c90c3
-# ╟─3668f786-9597-11eb-01a1-87d34b49eef9
+# ╟─0aa37844-b4b9-4f58-adf7-15ae9a490993
 # ╟─b77f7ff2-da7e-41b3-b3f6-3819b09cd33c
 # ╟─56a76f42-7d83-4600-a9a2-2b675b6efcaa
-# ╟─ee0e6f28-aa26-48de-8ddd-8bb2d1102ee9
+# ╟─3668f786-9597-11eb-01a1-87d34b49eef9
+# ╟─fa968801-6892-4475-9b27-56472ca611b4
+# ╟─964108cd-4fe3-4bb8-85db-500618e21af7
