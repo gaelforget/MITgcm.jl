@@ -15,6 +15,8 @@ begin
         Pkg.PackageSpec("IndividualDisplacements"),
         Pkg.PackageSpec("OrdinaryDiffEq"),
         Pkg.PackageSpec("Plots"),
+        Pkg.PackageSpec("JLD2"),
+        Pkg.PackageSpec("Dates"),
         Pkg.PackageSpec("DataFrames"),
         Pkg.PackageSpec("ColorSchemes"),
     ])
@@ -130,17 +132,19 @@ begin
 	𝐼
 end
 
+# ╔═╡ d6ce6158-bdf0-48cd-8c6e-d6c1191e6a07
+begin
+	using Dates, JLD2
+	M=(timestamp=now(),author="me",run="HS94")
+	I=(metadata=M, ID=𝐼.🆔, record=𝐼.🔴, position=𝐼.📌)
+	jldsave(joinpath(PICKUP_hs94_path,"HS94.jld2");I)
+	joinpath(PICKUP_hs94_path,"HS94.jld2")
+end
+
 # ╔═╡ 5a7af9d3-b800-44fd-9ffe-0580b51ee70a
 md""" ### Trajectory Computation
 
-The particle trajectory output is in tabular format. To save results to file, a simple yet general method is :
-
-```
-using Dates, JLD2
-M=(timestamp=now(),author="me",run="HS94")
-I=(metadata=M, ID=𝐼.🆔, record=𝐼.🔴, position=𝐼.📌)
-@save "HS94.jld2" I
-```
+The particle trajectory output is in tabular format. 
 """
 
 # ╔═╡ 7cc13ee0-ad61-4274-9c94-cbfa3974046b
@@ -162,6 +166,19 @@ begin
 	#Add longitude and latitude
 	add_lonlat!(𝐼.🔴,𝐷.XC,𝐷.YC)
 end
+
+# ╔═╡ 2d320d61-9e55-471e-b663-8d95f2055b84
+md"""### Save Results
+
+A simple yet general method is demonsstrated in the next cell:
+
+```
+using Dates, JLD2
+M=(timestamp=now(),author="me",run="HS94")
+I=(metadata=M, ID=𝐼.🆔, record=𝐼.🔴, position=𝐼.📌)
+jldsave(joinpath(PICKUP_hs94_path,"HS94.jld2");I)
+```
+"""
 
 # ╔═╡ 5129ac14-0861-40b5-b97e-0d0edd37849f
 md""" ### Plots
@@ -197,6 +214,8 @@ f2
 # ╟─e032b6d4-959d-11eb-28df-2112db1b1e4e
 # ╟─5a7af9d3-b800-44fd-9ffe-0580b51ee70a
 # ╟─7cc13ee0-ad61-4274-9c94-cbfa3974046b
+# ╟─2d320d61-9e55-471e-b663-8d95f2055b84
+# ╟─d6ce6158-bdf0-48cd-8c6e-d6c1191e6a07
 # ╟─5129ac14-0861-40b5-b97e-0d0edd37849f
 # ╟─a34adf36-81de-42c2-8407-d408041193b6
 # ╟─a1fdaf62-1b80-481e-a5c7-45e82c540368
