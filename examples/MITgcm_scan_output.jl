@@ -15,6 +15,16 @@ end
 
 # ╔═╡ bb47e9ec-05ce-11ec-265e-85e1b4e90854
 begin
+	using Pkg 
+	
+	Pkg.activate(mktempdir())
+    Pkg.add([
+        Pkg.PackageSpec(name="MITgcmTools", rev="master"),
+        Pkg.PackageSpec(name="MeshArrays", rev="master"),
+        Pkg.PackageSpec("PlutoUI"),
+        Pkg.PackageSpec("GLMakie"),
+    ])
+	
 	using MITgcmTools, MeshArrays, PlutoUI, GLMakie
 	
 	p=dirname(pathof(MeshArrays))
@@ -136,10 +146,10 @@ end
 # ╟─40f09d63-a884-41e8-ad07-7a850014ccfa
 # ╟─6c8260cc-35ae-4f6d-a3e8-df6f33ed3e81
 # ╟─adf96bf1-b405-4405-a747-e2835b670a25
-# ╠═7c37d2bd-2a10-4a42-9029-87d636c3a054
+# ╟─7c37d2bd-2a10-4a42-9029-87d636c3a054
 # ╟─1a6eca66-819c-49a9-b245-1faf3290b65d
 # ╟─44263dfc-68b9-4ed8-8d7a-3548cfecdace
-# ╠═fbc145ce-50a7-4fb6-8e50-f78a1723947a
+# ╟─fbc145ce-50a7-4fb6-8e50-f78a1723947a
 # ╟─211ab33e-d482-49dd-9448-0f5c6e63a280
 # ╟─a444cf7e-cbe1-4e13-981b-184f1a64d3d5
 # ╟─49e5553c-b316-4c2c-821a-0dd6148006dc
