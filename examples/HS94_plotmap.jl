@@ -95,6 +95,14 @@ end
 # ╔═╡ b77f7ff2-da7e-41b3-b3f6-3819b09cd33c
 begin
 	step2==🏁
+	
+	#copy files to known location for subsequent notebooks (Makie, particles, etc)
+	function cp_run_dir()
+		p2=joinpath(PICKUP_hs94_path,"run")
+		!isdir(p2) ? run(`cp -pr $pth_run $p2`) : nothing
+		isdir(p2)
+	end
+	cp_run_dir()
 
 	## read grid variables (for interpolation)
 	Γ = GridLoad_mdsio(myexp)
@@ -148,5 +156,5 @@ end
 # ╟─b77f7ff2-da7e-41b3-b3f6-3819b09cd33c
 # ╟─56a76f42-7d83-4600-a9a2-2b675b6efcaa
 # ╟─3668f786-9597-11eb-01a1-87d34b49eef9
-# ╟─fa968801-6892-4475-9b27-56472ca611b4
 # ╟─964108cd-4fe3-4bb8-85db-500618e21af7
+# ╟─fa968801-6892-4475-9b27-56472ca611b4
