@@ -89,12 +89,22 @@ myexp
 begin
 	step1==🏁
 	MITgcmTools.launch(myexp)
+	sc=scan_rundir(pth_run)
 	step2=🏁
 end
 
 # ╔═╡ b77f7ff2-da7e-41b3-b3f6-3819b09cd33c
 begin
 	step2==🏁
+	
+	#copy files to known location for subsequent notebooks (Makie, particles, etc)
+	function cp_run_dir()
+		p2=joinpath(PICKUP_hs94_path,"run")
+		tst = sc.completed&(!isdir(p2))
+		tst ? run(`cp -pr $pth_run $p2`) : nothing
+		isdir(p2)
+	end
+	cp_run_dir()
 
 	## read grid variables (for interpolation)
 	Γ = GridLoad_mdsio(myexp)
@@ -139,6 +149,12 @@ begin
 	gif(anim,pp*"hs94.cs.gif", fps = 8)
 end
 
+# ╔═╡ ca299148-6aa8-4379-88e3-c4500ddc779f
+stdout=readlines(joinpath(pth_run,"output.txt"))
+
+# ╔═╡ b1ca8b16-7b63-470b-90d0-6ea41eeb5211
+sc.completed
+
 # ╔═╡ Cell order:
 # ╟─19095067-33f5-495f-bc4d-ee6dacbf6ca8
 # ╟─207e4c15-7818-4dc3-a048-1dd36ba5a73e
@@ -148,5 +164,7 @@ end
 # ╟─b77f7ff2-da7e-41b3-b3f6-3819b09cd33c
 # ╟─56a76f42-7d83-4600-a9a2-2b675b6efcaa
 # ╟─3668f786-9597-11eb-01a1-87d34b49eef9
-# ╟─fa968801-6892-4475-9b27-56472ca611b4
 # ╟─964108cd-4fe3-4bb8-85db-500618e21af7
+# ╟─fa968801-6892-4475-9b27-56472ca611b4
+# ╟─ca299148-6aa8-4379-88e3-c4500ddc779f
+# ╟─b1ca8b16-7b63-470b-90d0-6ea41eeb5211

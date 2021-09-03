@@ -14,6 +14,9 @@ function scan_rundir(pth::String)
     filout=joinpath(pth,"output.txt")
     !isfile(filout) ? filout=joinpath(pth,"STDOUT.0000") : nothing
     tmp=readlines(filout)
+    #1.0 run completed
+    co = tmp[end]=="PROGRAM MAIN: Execution ended Normally"
+
     ll = findall(occursin.("======================================================",tmp))
     #1.1 grid
     l0 = findall(occursin.("Computational Grid Specification",tmp))[1]
@@ -56,8 +59,6 @@ function scan_rundir(pth::String)
     par2=(; zip(Symbol.(keys(par2)), values(par2))...)
 
     #1.4 monitors
-    #1.5 run completed
-    co = tmp[end]=="PROGRAM MAIN: Execution ended Normally"
 
     #2 output files
 
