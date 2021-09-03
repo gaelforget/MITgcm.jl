@@ -89,7 +89,7 @@ myexp
 begin
 	step1==🏁
 	MITgcmTools.launch(myexp)
-	sc=scan_rundir(pth_run)
+	isfile(joinpath(pth_run,"output.txt")) ? sc=scan_rundir(pth_run) : sc=(completed=false,)
 	step2=🏁
 end
 
@@ -149,11 +149,14 @@ begin
 	gif(anim,pp*"hs94.cs.gif", fps = 8)
 end
 
+# ╔═╡ 0ca84f4e-f5bf-40d0-bf46-7a0e70b7aded
+readdir(pth_run)
+
 # ╔═╡ ca299148-6aa8-4379-88e3-c4500ddc779f
 stdout=readlines(joinpath(pth_run,"output.txt"))
 
 # ╔═╡ b1ca8b16-7b63-470b-90d0-6ea41eeb5211
-sc.completed
+sc
 
 # ╔═╡ Cell order:
 # ╟─19095067-33f5-495f-bc4d-ee6dacbf6ca8
@@ -166,5 +169,6 @@ sc.completed
 # ╟─3668f786-9597-11eb-01a1-87d34b49eef9
 # ╟─964108cd-4fe3-4bb8-85db-500618e21af7
 # ╟─fa968801-6892-4475-9b27-56472ca611b4
-# ╟─ca299148-6aa8-4379-88e3-c4500ddc779f
-# ╟─b1ca8b16-7b63-470b-90d0-6ea41eeb5211
+# ╠═0ca84f4e-f5bf-40d0-bf46-7a0e70b7aded
+# ╠═ca299148-6aa8-4379-88e3-c4500ddc779f
+# ╠═b1ca8b16-7b63-470b-90d0-6ea41eeb5211
