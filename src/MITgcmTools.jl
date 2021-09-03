@@ -11,6 +11,7 @@ include("PhysicalOceanography.jl")
 include("verification_experiments.jl")
 
 export MITgcm_path, MITgcm_download
+export PICKUP_hs94_path, PICKUP_hs94_download
 export MITgcm_config, MITgcm_namelist, MITgcm_launch
 export testreport, build, compile, setup, clean
 #export pause, stop, clock, monitor, train, help
@@ -26,7 +27,10 @@ artifact_toml = joinpath(p, "../Artifacts.toml")
 MITgcm_hash = artifact_hash("MITgcm", artifact_toml)
 MITgcm_path = [ joinpath(artifact_path(MITgcm_hash)*"/","MITgcm-checkpoint68a/"),
                 joinpath(artifact_path(MITgcm_hash)*"/","MITgcm-checkpoint68a/")]
+PICKUP_hs94_path = artifact_path(artifact_hash("PICKUP_hs94", artifact_toml))
+
 MITgcm_download() = artifact"MITgcm"
+PICKUP_hs94_download() = artifact"PICKUP_hs94"
 
 #more:
 #
