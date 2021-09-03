@@ -593,7 +593,24 @@ function read_mnc(pth::String,fil::String,var::String)
     fil=joinpath(pth,lst[1])
     ncfile=MITgcmTools.NetCDF.open(fil)
     ncatts=ncfile.gatts
-    s=(ncatts["Nx"],ncatts["Ny"])
+
+    v = MITgcmTools.NetCDF.open(fil, var)
+    if haskey(v.atts,"coordinates")
+        has_RC=occursin("RC",v.atts["coordinates"])
+        has_iter=occursin("iter",v.atts["coordinates"])
+    else
+        has_RC=false
+        has_iter=false
+    end
+
+    if has_RC*has_iter
+        s=(ncatts["Nx"],ncatts["Ny"],Int64(v.dim[3].dimlen),Int64(v.dim[4].dimlen))
+    elseif has_RC|has_iter
+        s=(ncatts["Nx"],ncatts["Ny"],Int64(v.dim[3].dimlen))
+    else
+        s=(ncatts["Nx"],ncatts["Ny"])
+    end
+
     T = Float64
     x = Array{T,length(s)}(undef,s)
 
@@ -606,7 +623,13 @@ function read_mnc(pth::String,fil::String,var::String)
         ii=(b[1]-1)*s[1] .+ collect(1:s[1])
         jj=(b[2]-1)*s[2] .+ collect(1:s[2])
         v = MITgcmTools.NetCDF.open(fil, var)
-        x[ii,jj]=v[:,:]
+        if has_RC*has_iter
+            x[ii,jj,:,:]=v[:,:,:,:]
+        elseif has_RC|has_iter
+            x[ii,jj,:]=v[:,:,:]
+        elseif has_RC|has_iter
+            x[ii,jj]=v[:,:]
+        end
     end
 
     x
