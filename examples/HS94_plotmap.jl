@@ -5,10 +5,15 @@ using Markdown
 using InteractiveUtils
 
 # ╔═╡ 3668f786-9597-11eb-01a1-87d34b49eef9
-begin
-
+begin 
 	using Pkg
-	Pkg.activate()
+
+	Pkg.activate(mktempdir())
+    Pkg.add([
+        Pkg.PackageSpec(name="MITgcmTools", rev="master"),
+        Pkg.PackageSpec(name="MeshArrays", rev="master"),
+        Pkg.PackageSpec("Plots"),
+    ])
 	
 	#packages for I/O, interpolation, etc	
 	using MITgcmTools, MeshArrays, Plots
