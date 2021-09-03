@@ -19,8 +19,7 @@ makedocs(;
 )
 
 pth = joinpath(@__DIR__, "build","examples")
-lst=("HS94_Makie.jl","HS94_particles.jl","HS94_plotmap.jl","MITgcm_configurations.jl",
-"MITgcm_run.jl","MITgcm_scan_output.jl","MITgcm_worklow.jl")
+lst=("HS94_plotmap.jl",)
 for i in lst
     fil_in=joinpath(@__DIR__,"..","examples",i)
     fil_out=joinpath(pth,i[1:end-2]*"html")
