@@ -6,18 +6,7 @@ using InteractiveUtils
 
 # ╔═╡ b96456b4-8267-11eb-043a-07fc1ee69d34
 begin
-	using Pkg 
-	
-	Pkg.activate(mktempdir())
-    Pkg.add([
-        Pkg.PackageSpec(name="MITgcmTools", rev="master"),
-        Pkg.PackageSpec("JLD2"),
-        Pkg.PackageSpec("FileIO"),
-        Pkg.PackageSpec("DataFrames"),
-        Pkg.PackageSpec("GLMakie"),
-    ])
-	
-	using JLD2, FileIO, DataFrames, GLMakie, MITgcmTools
+	using JLD2, FileIO, DataFrames, WGLMakie, MITgcmTools
 	🏁 = "🏁"
 end
 
