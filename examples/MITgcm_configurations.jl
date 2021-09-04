@@ -28,9 +28,10 @@ begin
 
 	### 
 
-	Here we simply scan [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) configuration folders using [MITgcmTools.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/) and inspect their various parameter groups. 
+	This notebook scans configuration folders of [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) within `MITgcm/verification` using [MITgcmTools.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/). It then let's user inspect parameters. 
 	
-	_Models are neither build nor run in this specific notebook -- please refer to `MITgcm run.jl` for more on that._
+	!!! note
+	    Models are neither build nor run in this specific notebook -- please refer to the [examples deck](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/) for more on that topic.
 		
 	### 
 	
@@ -39,32 +40,40 @@ begin
 end
 
 # ╔═╡ 98b6621c-85ab-11eb-29d1-af0433598c6a
-	md"""## Select Model Configuration
-	
-	_Note: this will update the multiple-choices menu sequence below_
-	"""
+md"""## Select Model Configuration
+
+
+!!! note
+	If you use a live version of this notebook, selecting a different configuration from the list below will make the other notebook cells react (e.g. displayed contents). If you visualize an html version of this notebook, then cells wont react.
+"""
 
 # ╔═╡ a28f7354-84eb-11eb-1830-1f401bf2db97
 @bind myexp Select([exps[i].configuration for i in 1:length(exps)],default="advect_cs")
 
-# ╔═╡ f91c3396-84ef-11eb-2665-cfa350d38737
+# ╔═╡ f051e094-85ab-11eb-22d4-5bd61ac572a1
+md"""## Select Parameter Group (or _Namelist_)
+
+Each configuration has various groups of parameters, often called namelists, depending on compiled packages. The dropdown menus below let you navigate the various parameter groups -- the result is show in the next section.
+
+The chosen defaults, `data` and `PARM01`, are expected to be found in any MITgcm run directory. However, there can be many more parameters. 
+"""
+
+# ╔═╡ f40e76c4-86d5-11eb-15b0-cd55d6cd1e65
+md"""### Appendices
+
+The following cells select Julia packages and perform basic operations.
+"""
+
+# ╔═╡ 4965715d-93ca-496b-8ab1-238e9c6e34b4
 begin
 	iexp=findall([exps[i].configuration==myexp for i in 1:length(exps)])[1]
 	builddir=joinpath(MITgcm_path[1],"verification",myexp,"build")
 	rundir=joinpath(exps[iexp].folder,string(exps[iexp].ID),"run")
-
-	!isdir(rundir) ? setup(exps[iexp]) : nothing
-	TextField((100, 4), "name = $(myexp)\n\nrun time options = $(keys(exps[iexp].inputs))")
+	🏁
 end
 
-# ╔═╡ f051e094-85ab-11eb-22d4-5bd61ac572a1
-md"""## Select Parameter Group (or _Namelist_)
-
-_Note: `data` and `PARM01`, e.g., are expected to be found in any MITgcm run directory._
-"""
-
 # ╔═╡ d7f2c656-8512-11eb-2fdf-47a3e57a55e6
-begin
+begin	
     lst=readdir(builddir)
     tmp=[isfile(joinpath(builddir,i,"code","packages.conf")) for i in lst]
     lst=lst[findall(tmp)]
@@ -83,9 +92,6 @@ begin
 	end
 end
 
-# ╔═╡ f40e76c4-86d5-11eb-15b0-cd55d6cd1e65
-md"""### Appendices"""
-
 # ╔═╡ 348c692e-84fe-11eb-3288-dd0a1dedce90
 begin
 	fil=joinpath(rundir,mydats)
@@ -103,7 +109,9 @@ end
 # ╔═╡ e73fda3a-f05a-49b4-a83d-e7b535467106
 md"""## Inspect Parameters
 
-Now showing : **$myexp / $mydats / $nmlgroup**"""
+#
+
+Now displaying 👉 **$myexp / $mydats : $nmlgroup**"""
 
 # ╔═╡ 9bdb94da-8510-11eb-01a6-c9a1519baa68
 begin
@@ -705,7 +713,6 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╟─f588eaba-84ef-11eb-0755-bf1b85b2b561
 # ╟─98b6621c-85ab-11eb-29d1-af0433598c6a
 # ╟─a28f7354-84eb-11eb-1830-1f401bf2db97
-# ╟─f91c3396-84ef-11eb-2665-cfa350d38737
 # ╟─f051e094-85ab-11eb-22d4-5bd61ac572a1
 # ╟─d7f2c656-8512-11eb-2fdf-47a3e57a55e6
 # ╟─ca7bb004-8510-11eb-379f-632c3b40723d
@@ -715,5 +722,6 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╟─8cf4d8ca-84eb-11eb-22d2-255ce7237090
 # ╟─9bdb94da-8510-11eb-01a6-c9a1519baa68
 # ╟─348c692e-84fe-11eb-3288-dd0a1dedce90
+# ╟─4965715d-93ca-496b-8ab1-238e9c6e34b4
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
