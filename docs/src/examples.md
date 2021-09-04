@@ -13,13 +13,13 @@ using Pluto
 Pluto.run()
 ```
 
-- [HS94_Makie.jl](HS94_Makie.html)
-- [HS94_particles.jl](HS94_particles.html)
-- [HS94_plotmap.jl](HS94_plotmap.html)
 - [MITgcm_configurations.jl](MITgcm_configurations.html)
-- [MITgcm_run.jl](MITgcm_run.html)
-- [MITgcm\_scan\_output.jl](MITgcm_scan_output.html)
 - [MITgcm_worklow.jl](MITgcm_worklow.html)
+- [MITgcm_run.jl](MITgcm_run.html)
+- [HS94_plotmap.jl](HS94_plotmap.html)
+- [HS94_particles.jl](HS94_particles.html)
+- [HS94_Makie.jl](HS94_Makie.html)
+- [MITgcm\_scan\_output.jl](MITgcm_scan_output.html)
 
 ## Examples / Running Models
  
