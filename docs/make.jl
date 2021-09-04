@@ -1,5 +1,6 @@
 using Documenter, MITgcmTools
 import PlutoSliderServer
+using Plots, GLMakie
 
 makedocs(;
     modules=[MITgcmTools],
