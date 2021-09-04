@@ -81,9 +81,7 @@ begin
 
 	#readdir(joinpath(myexp.folder,string(myexp.ID),"log"))
 	step1=🏁
-	
-	isfile(joinpath(MITgcm_path[1],"verification",myexp.configuration,"build","mitgcmuv"))
-end
+	end
 
 # ╔═╡ 207e4c15-7818-4dc3-a048-1dd36ba5a73e
 myexp
@@ -93,13 +91,13 @@ begin
 	step1==🏁
 	MITgcm_launch(myexp)
 	step2=🏁
-	isfile(joinpath(pth_run,"output.txt"))
 end
 
 # ╔═╡ b77f7ff2-da7e-41b3-b3f6-3819b09cd33c
 begin
 	step2==🏁
 	
+#	isfile(joinpath(MITgcm_path[1],"verification",myexp.configuration,"build","mitgcmuv"))
 	isfile(joinpath(pth_run,"output.txt")) ? sc=scan_rundir(pth_run) : sc=(completed=false,)
 
 
@@ -171,9 +169,9 @@ readdir(PICKUP_hs94_path)
 # ╟─19095067-33f5-495f-bc4d-ee6dacbf6ca8
 # ╟─207e4c15-7818-4dc3-a048-1dd36ba5a73e
 # ╟─ee0e6f28-aa26-48de-8ddd-8bb2d1102ee9
-# ╠═aad7e042-ba39-4518-8f3e-da59b77c13cb
-# ╠═0aa37844-b4b9-4f58-adf7-15ae9a490993
-# ╠═b77f7ff2-da7e-41b3-b3f6-3819b09cd33c
+# ╟─aad7e042-ba39-4518-8f3e-da59b77c13cb
+# ╟─0aa37844-b4b9-4f58-adf7-15ae9a490993
+# ╟─b77f7ff2-da7e-41b3-b3f6-3819b09cd33c
 # ╟─56a76f42-7d83-4600-a9a2-2b675b6efcaa
 # ╟─3668f786-9597-11eb-01a1-87d34b49eef9
 # ╟─964108cd-4fe3-4bb8-85db-500618e21af7
