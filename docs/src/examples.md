@@ -1,7 +1,9 @@
 
 # Examples
 
-To load one of the notebooks using `Pluto.jl`: 
+Below are links to static versions of the examples which one can just open these in the web browser.
+
+If you instead want to run the notebooks using [Pluto.jl](https://plutojl.org) then youn could proceed as follows. 
 
 1. open `julia` in terminal window
 2. type the following commands at the `Julia` prompt
@@ -13,9 +15,11 @@ using Pluto
 Pluto.run()
 ```
 
+Within the [Pluto interface](https://github.com/fonsp/Pluto.jl/wiki/🔎-Basic-Commands-in-Pluto), you can then open and run any of the following notebooks. Compiling, however, MITgcm requires [a fortran compiler](https://fortran-lang.org/learn/os_setup/install_gfortran). This is a requirement for all notebooks except `MITgcm_configurations.jl`.
+
 - [MITgcm_configurations.jl](MITgcm_configurations.html)
-- [MITgcm_worklow.jl](MITgcm_worklow.html)
 - [MITgcm_run.jl](MITgcm_run.html)
+- [MITgcm_worklow.jl](MITgcm_worklow.html)
 - [HS94_plotmap.jl](HS94_plotmap.html)
 - [HS94_particles.jl](HS94_particles.html)
 - [HS94_Makie.jl](HS94_Makie.html)
