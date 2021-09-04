@@ -68,6 +68,7 @@ begin
 	myexp=verification_experiments("hs94.cs-32x32x5")
 	
 	setup(myexp)
+	build(myexp,"--allow-skip")
 
 	modify_params_HS94(myexp)
 	
