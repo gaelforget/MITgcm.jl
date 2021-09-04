@@ -24,7 +24,7 @@ end
 begin
 	imgA="https://user-images.githubusercontent.com/20276764/111042787-12377e00-840d-11eb-8ddb-64cc1cfd57fd.png"
 	imgB="https://user-images.githubusercontent.com/20276764/97648227-970b9780-1a2a-11eb-81c4-65ec2c87efc6.png"
-	md"""# MITgcm_configurations.jl
+	md"""# Standard MITgcm configurations
 
 	### 
 
