@@ -26,7 +26,7 @@ end
 begin
 	md"""# Particle Tracking
 
-	In this notebook, we setup, run and plot MITgcm output via [IndividualDisplacements.jl](https://juliaclimate.github.io/IndividualDisplacements.jl/dev/) to generate something like what's shown below. Model output from the `HS94_plotmap.jl` notebook are used to drive the particle advection model.
+	In this notebook, we setup, run and plot MITgcm output via [IndividualDisplacements.jl](https://juliaclimate.github.io/IndividualDisplacements.jl/dev/) to generate something like what's shown below. Model output from the `HS94_animation.jl` notebook are used to drive the particle advection model.
 	"""
 end
 
@@ -42,7 +42,7 @@ end
 # ╔═╡ a6ebb38e-2dcd-4126-bfa1-220df3180b94
 md""" ### Julia Packages And Model Files
 
-Model grid and output files are expected to be found in the folder indicated just below once the `HS94_plotmap.jl` notebook has completed running.
+Model grid and output files are expected to be found in the folder indicated just below once the `HS94_animation.jl` notebook has completed running.
 A list of grid variables should appear afterwards if files are indeed found as expected.
 
 $(TableOfContents())
@@ -1686,7 +1686,7 @@ version = "0.9.1+5"
 """
 
 # ╔═╡ Cell order:
-# ╠═02005854-3442-4c65-910b-e8a000805d17
+# ╟─02005854-3442-4c65-910b-e8a000805d17
 # ╟─c11e2e27-bd3c-4fb2-8d07-75417e7f452e
 # ╟─a6ebb38e-2dcd-4126-bfa1-220df3180b94
 # ╟─bf462d7b-28af-4fc5-9952-e631051df4cd
@@ -1696,7 +1696,7 @@ version = "0.9.1+5"
 # ╟─5a7af9d3-b800-44fd-9ffe-0580b51ee70a
 # ╠═7cc13ee0-ad61-4274-9c94-cbfa3974046b
 # ╟─2d320d61-9e55-471e-b663-8d95f2055b84
-# ╠═d6ce6158-bdf0-48cd-8c6e-d6c1191e6a07
+# ╟─d6ce6158-bdf0-48cd-8c6e-d6c1191e6a07
 # ╟─5129ac14-0861-40b5-b97e-0d0edd37849f
 # ╟─a34adf36-81de-42c2-8407-d408041193b6
 # ╟─a1fdaf62-1b80-481e-a5c7-45e82c540368

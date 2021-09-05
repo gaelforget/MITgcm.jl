@@ -36,7 +36,7 @@ Pluto.run()
 <details>
   <summary><b>Examples / Analyzing Results </b></summary>
   
-- [HS94_plotmap.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/HS94_plotmap.html) : read `hs94.cs-32x32x5` output, interpolate, and plot map
+- [HS94_animation.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/HS94_animation.html) : run `hs94.cs-32x32x5`, read output, interpolate, and animate map
 - [HS94_particles.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/HS94_particles.html) : compute particle trajectories from `hs94.cs-32x32x5` output
 - [HS94_Makie.jl](https://raw.githubusercontent.com/gaelforget/MITgcmTools.jl/master/examples/HS94_Makie.jl) : example using `Makie.jl` instead of `Plots.jl`
 - [MITgcm\_scan\_output.jl](https://raw.githubusercontent.com/gaelforget/MITgcmTools.jl/master/examples/MITgcm_scan_output.jl) : scan `output.txt`, read grid, viz with `Makie.jl` 
