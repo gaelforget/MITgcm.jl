@@ -1,12 +1,12 @@
 
 # Examples
 
-Below are links to static versions of the examples which one can open these a web browser.
+Below are links to static html versions of the examples which one can open with a web browser.
 
-If instead one wants to run the notebooks using [Pluto.jl](https://plutojl.org), then they might proceed as follows:
+If instead you wanted to run the notebooks using [Pluto.jl](https://plutojl.org), then you might proceed as follows:
 
 1. open `julia` in terminal window
-2. type the commands below at the `Julia` prompt
+2. type the commands shown below at the `Julia` prompt
 3. in web-browser, open one of the notebooks listed hereafter
 
 ```
@@ -15,7 +15,7 @@ using Pluto
 Pluto.run()
 ```
 
-Within the [Pluto interface](https://github.com/fonsp/Pluto.jl/wiki/🔎-Basic-Commands-in-Pluto), one can run the notebooks listed hereafter. Compiling MITgcm, however, requires [a fortran compiler](https://fortran-lang.org/learn/os_setup/install_gfortran). This is a requirement for all notebooks except `MITgcm_configurations.jl`.
+using the [Pluto interface](https://github.com/fonsp/Pluto.jl/wiki/🔎-Basic-Commands-in-Pluto). Let's note, however, that compiling MITgcm requires [a fortran compiler](https://fortran-lang.org/learn/os_setup/install_gfortran). This is a requirement for all notebooks except `MITgcm_configurations.jl`.
 
 - [MITgcm_configurations.jl](MITgcm_configurations.html) ; explore MITgcm configurations and their parameters.
 - [MITgcm_run.jl](MITgcm_run.html) : a more detailed look into compiling and running the model.
