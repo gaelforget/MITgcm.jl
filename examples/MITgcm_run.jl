@@ -18,11 +18,7 @@ begin
 	using MITgcmTools, PlutoUI, Printf
 	exps=verification_experiments()
 	🏁 = "🏁"
-	md"""## Select model configuration:
-	
-	!!! note
-		If you use a live version of this notebook, selecting a different configuration from the list below will make the other notebook cells react (e.g. displayed contents). If you visualize an html version of this notebook, then cells wont react.
-	"""
+	md"""## Select model configuration:"""
 end
 
 # ╔═╡ 6ef93b0e-859f-11eb-1b3b-d76b26d678dc
@@ -33,22 +29,26 @@ begin
 
 	###
 
-	Here we use [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) interactively via [MITgcmTools.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/) as needed to generate something like the result shown below. 
+	Here we use [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) interactively via [MITgcmTools.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/) as needed to generate e.g. something like this. 
 	
-	###
+	$(Resource(imgA, :width => 120))
 	
-	This includes compiling and running the model via the simple interface defined in [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl).	
+	This includes compiling and running the model via the simple interface defined in [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl).
 	
-	$(Resource(imgA, :width => 240))
-	
-	### 
-	
-	$(Resource(imgB, :width => 120))
+	!!! note
+		If you use a live version of this notebook, selecting a different configuration from the list below will make the other notebook cells react (e.g. displayed contents). If you visualize an html version of this notebook, then cells wont react.	
 	"""
 end
 
-# ╔═╡ a28f7354-84eb-11eb-1830-1f401bf2db97
-@bind myexp Select([exps[i].configuration for i in 1:length(exps)],default="advect_xy")
+# ╔═╡ b59456f8-4610-4803-98f8-dc06115f2451
+md""" Select one of the configurations listed in `verification_experiments()`.
+
+$(@bind myexp Select([exps[i].configuration for i in 1:length(exps)],default="advect_xy"))
+
+#
+
+Here is it's `MITgcm_config` data structure, `exps[iexp]` :
+"""
 
 # ╔═╡ 7fa8a460-89d4-11eb-19bb-bbacdd32719a
 begin
@@ -59,9 +59,19 @@ end
 # ╔═╡ d90039c4-85a1-11eb-0d82-77db4decaa6e
 md"""## Trigger individual operations:
 
-_Note: letting each operation complete before triggering another one may be best_
+The workflow below consists in four steps:
 
-Selected model configuration : **$myexp**
+```julia
+clean(exps[iexp])
+setup(exps[iexp])
+build(exps[iexp])
+MITgcm_launch(exps[iexp])
+```
+
+which can be triggered individually as shown below for the selected model configuration (**$myexp**).
+
+!!! tip
+	Letting each operation complete before triggering another one may work best.
 """
 
 # ╔═╡ 8569269c-859c-11eb-1ab1-2d874dfa741b
@@ -105,7 +115,9 @@ let
 end
 
 # ╔═╡ 3ff9f3f7-bc4f-4752-a7fc-e8cfcd59952d
-md"""Here are the files now found in the `run/` folder:
+md""" ## A Quick Look at the Results
+
+Here are the files now found in the `run/` folder:
 """
 
 # ╔═╡ a04c1cd6-3b9e-4e69-b986-c863b120bb0b
@@ -705,7 +717,7 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╔═╡ Cell order:
 # ╟─6ef93b0e-859f-11eb-1b3b-d76b26d678dc
 # ╟─8cf4d8ca-84eb-11eb-22d2-255ce7237090
-# ╟─a28f7354-84eb-11eb-1830-1f401bf2db97
+# ╟─b59456f8-4610-4803-98f8-dc06115f2451
 # ╟─7fa8a460-89d4-11eb-19bb-bbacdd32719a
 # ╟─d90039c4-85a1-11eb-0d82-77db4decaa6e
 # ╟─8569269c-859c-11eb-1ab1-2d874dfa741b
