@@ -67,21 +67,19 @@ The following cells select Julia packages and perform basic operations.
 # ╔═╡ 4965715d-93ca-496b-8ab1-238e9c6e34b4
 begin
 	iexp=findall([exps[i].configuration==myexp for i in 1:length(exps)])[1]
-	builddir=joinpath(MITgcm_path[1],"verification",myexp,"build")
+	builddir=joinpath(MITgcm_path[1],"verification",myexp)
 	rundir=joinpath(exps[iexp].folder,string(exps[iexp].ID),"run")
+	!isdir(rundir) ? setup(exps[iexp]) : nothing
 	🏁
 end
 
 # ╔═╡ d7f2c656-8512-11eb-2fdf-47a3e57a55e6
 begin	
-    lst=readdir(builddir)
-    tmp=[isfile(joinpath(builddir,i,"code","packages.conf")) for i in lst]
-    lst=lst[findall(tmp)]
-	
 	function list_namelist_files(pth)
 		tmpA=readdir(pth)
 		tmpA=tmpA[findall([length(tmpA[i])>3 for i in 1:length(tmpA)])]
 		tmpA=tmpA[findall([tmpA[i][1:4]=="data" for i in 1:length(tmpA)])]
+		tmpA=[tmpA[:];"eedata"]
 	end
 	
 	dats=list_namelist_files(rundir)
