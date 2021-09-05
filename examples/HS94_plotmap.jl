@@ -7,15 +7,17 @@ using InteractiveUtils
 # ╔═╡ 3668f786-9597-11eb-01a1-87d34b49eef9
 begin	
 	#packages for I/O, interpolation, etc	
-	using MITgcmTools, MeshArrays, Plots
+	using MITgcmTools, MeshArrays, Plots, PlutoUI
 	PICKUP_hs94_download()
-		
+			
 	🏁 = "🏁"
 	"Downloads and packages : complete."
 end
 
 # ╔═╡ 19095067-33f5-495f-bc4d-ee6dacbf6ca8
 begin
+	imgB="https://user-images.githubusercontent.com/20276764/113531401-b1780d00-9596-11eb-8e96-990cf9533ada.png"
+
 	md"""# Simple Atmosphere
 
 	### 
@@ -30,71 +32,108 @@ begin
 	
 	This should generate something like this:
 	
-	![plot](https://user-images.githubusercontent.com/20276764/113531401-b1780d00-9596-11eb-8e96-990cf9533ada.png)
+	$(Resource(imgB, :width => 240))
+	
+	$(TableOfContents())
+
+	!!! note
+		If you use a live version of this notebook, selecting a different configuration from the list below will make the other notebook cells react (e.g. displayed contents). If you visualize an html version of this notebook, then cells wont react.
 	"""
 end
 
 # ╔═╡ 207e4c15-7818-4dc3-a048-1dd36ba5a73e
-md""" ## Model Configuration
+begin
+	myexp=verification_experiments("hs94.cs-32x32x5")
+	pth_run=joinpath(myexp.folder,string(myexp.ID),"run")
+	md""" ## Model Configuration
 
-This is a data structure of type `MITgcm_config` (a concrete type of `AbstractModelConfig`).
-"""
+	This is a data structure of type `MITgcm_config` (a concrete type of `AbstractModelConfig`).
+	"""
+end	
+
+# ╔═╡ 2fd1ddf0-c3ee-4076-9f7f-b066da2baf50
+myexp
 
 # ╔═╡ bd0803d8-c70d-47b8-a76e-5765f4ba01c6
-md""" ## Worflow Steps"""
+md""" ## Worflow Steps
+
+The animation just above results from the following workflow steps:
+
+- setup & compile
+- run model
+- process output
+"""
+
+# ╔═╡ 9238b863-dd69-42ce-8f36-995b4757cc1a
+md""" #### Contents of model run folder
+
+The first cell below list all files found in files the run directory. The second displays the end of the standard output file (e.g. `output.txt`) generated during the model run. The third is the result of the `scan_rundir` function.
+"""
+
+# ╔═╡ 88a5819f-6f35-40e8-9a82-8fd6f97001b1
+md""" #### Contents of the pickup folder"""
+
+# ╔═╡ 37294d8a-a70e-419a-a60b-11d09930c6b0
+readdir(PICKUP_hs94_path)
 
 # ╔═╡ f0185b52-2297-4e8c-b44b-8c29b634607a
 md""" ## Appendices"""
 
 # ╔═╡ fa968801-6892-4475-9b27-56472ca611b4
-function modify_params_HS94(myexp)
-	par_path=joinpath(myexp.folder,string(myexp.ID),"log","tracked_parameters")
+begin
+	#function used to modify model parameters (e.g. duration)
+	function modify_params_HS94(myexp)
+		par_path=joinpath(myexp.folder,string(myexp.ID),"log","tracked_parameters")
 
-	fil=joinpath(par_path,"data")
-	nml=read(fil,MITgcm_namelist())
+		fil=joinpath(par_path,"data")
+		nml=read(fil,MITgcm_namelist())
 
-	nml.params[1][:useSingleCpuIO]=true
-	
-	nml.params[3][:nIter0]=43200
-	nml.params[3][:nTimeSteps]=720
-	nml.params[3][:monitorFreq]= 21600.0
+		nml.params[1][:useSingleCpuIO]=true
 
-	write(fil,nml)
-	#git_log_fil(myexp,fil,"update parameter file : "*split(fil,"/")[end])
+		nml.params[3][:nIter0]=43200
+		nml.params[3][:nTimeSteps]=720
+		nml.params[3][:monitorFreq]= 21600.0
 
-	fil=joinpath(par_path,"data.pkg")
-	nml=read(fil,MITgcm_namelist())
+		write(fil,nml)
+		#git_log_fil(myexp,fil,"update parameter file : "*split(fil,"/")[end])
 
-	nml.params[1][:useDiagnostics]=false
-	nml.params[1][:useMNC]=false
+		fil=joinpath(par_path,"data.pkg")
+		nml=read(fil,MITgcm_namelist())
 
-	write(fil,nml)
-	#git_log_fil(myexp,fil,"update parameter file : "*split(fil,"/")[end])
+		nml.params[1][:useDiagnostics]=false
+		nml.params[1][:useMNC]=false
 
-end	
+		write(fil,nml)
+		#git_log_fil(myexp,fil,"update parameter file : "*split(fil,"/")[end])
+
+	end
+
+	"helper function"
+end
 
 # ╔═╡ aad7e042-ba39-4518-8f3e-da59b77c13cb
-begin
-	myexp=verification_experiments("hs94.cs-32x32x5")
-	
+begin	
+	#set up run directory
 	setup(myexp)
+
+	#compile model if not already done
 	build(myexp,"--allow-skip")
 
+	#modify parameters to start from time step 43200, etc
 	modify_params_HS94(myexp)
-	
-	pth_run=joinpath(myexp.folder,string(myexp.ID),"run")
 
-	fil1="pickup.0000043200.data"
-	!isfile(joinpath(pth_run,fil1)) ? cp(joinpath(PICKUP_hs94_path,fil1),joinpath(pth_run,fil1)) : nothing
-	fil2="pickup.0000043200.meta"
-	!isfile(joinpath(pth_run,fil2)) ? cp(joinpath(PICKUP_hs94_path,fil2),joinpath(pth_run,fil2)) : nothing
+	#provide initial condition for time step 43200
+	fil1=joinpath(PICKUP_hs94_path,"pickup.0000043200.data")
+	fil2=joinpath(pth_run,"pickup.0000043200.data")
+	!isfile(fil2) ? cp(fil1,fil2) : nothing
+	
+	fil1=joinpath(PICKUP_hs94_path,"pickup.0000043200.meta")
+	fil2=joinpath(pth_run,"pickup.0000043200.meta")
+	!isfile(fil2) ? cp(fil1,fil2) : nothing
 
 	#readdir(joinpath(myexp.folder,string(myexp.ID),"log"))
 	step1=🏁
 end
-
-# ╔═╡ 2fd1ddf0-c3ee-4076-9f7f-b066da2baf50
-myexp
 
 # ╔═╡ 0aa37844-b4b9-4f58-adf7-15ae9a490993
 begin
@@ -128,58 +167,51 @@ begin
 	lat=[j for i=-179.5:1.0:179.5, j=-89.5:1.0:89.5]
 	(f,i,j,w,_,_,_)=InterpolationFactors(Γ,vec(lon),vec(lat))
 	IntFac=(f,i,j,w)
-	step3=🏁
-end
-
-# ╔═╡ 56a76f42-7d83-4600-a9a2-2b675b6efcaa
-begin
-	step3==🏁
-
-
+	
 	#list of output files (1 per time record)
 	ff=readdir(pth_run); fil="T.0000"
 	ff=ff[findall(occursin.(fil,ff).*occursin.(".data",ff))]	
 	nt=length(ff)
 	γ=Γ.XC.grid
-		
-	step4=🏁
-end
-
-# ╔═╡ 964108cd-4fe3-4bb8-85db-500618e21af7
-#function used to plot one time record
-function myplot(fil)
-	T=read(joinpath(pth_run,fil),MeshArray(γ,Float64))
-	TT=Interpolate(T,IntFac...)
-	contourf(vec(lon[:,1]),vec(lat[1,:]),TT,clims=(260.,320.))
+	
+	step3=🏁
 end
 
 # ╔═╡ ee0e6f28-aa26-48de-8ddd-8bb2d1102ee9
 begin
+	#function used to plot one time record
+	function myplot(fil,pth)
+		T=read(joinpath(pth,fil),MeshArray(γ,Float64))
+		TT=Interpolate(T,IntFac...)
+		contourf(vec(lon[:,1]),vec(lat[1,:]),TT,clims=(260.,320.))
+	end
+
+	#loop over model output files
 	dt=6
 	anim = @animate for i ∈ 1:dt:nt
-	    myplot(ff[i])
+	    myplot(ff[i],pth_run)
 	end
 	pp=tempdir()*"/"
+	
 	gif(anim,pp*"hs94.cs.gif", fps = 8)
 end
 
-# ╔═╡ 9238b863-dd69-42ce-8f36-995b4757cc1a
-md""" #### Contents of model run folder"""
-
 # ╔═╡ 0ca84f4e-f5bf-40d0-bf46-7a0e70b7aded
-ls_run_dir=readdir(pth_run)
+begin
+	step3==🏁
+	ls_run_dir=readdir(pth_run)
+	ls_run_dir
+end
 
 # ╔═╡ ca299148-6aa8-4379-88e3-c4500ddc779f
-stdout=readlines(joinpath(pth_run,"output.txt"))
+begin
+	step3==🏁
+	stdout=readlines(joinpath(pth_run,"output.txt"))
+	Dump(stdout)
+end
 
 # ╔═╡ b1ca8b16-7b63-470b-90d0-6ea41eeb5211
 sc
-
-# ╔═╡ 88a5819f-6f35-40e8-9a82-8fd6f97001b1
-md""" #### Contents of the pickup folder"""
-
-# ╔═╡ 37294d8a-a70e-419a-a60b-11d09930c6b0
-readdir(PICKUP_hs94_path)
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -187,11 +219,13 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 MITgcmTools = "62725fbc-3a66-4df3-9000-e33e85b3a198"
 MeshArrays = "cb8c808f-1acf-59a3-9d2b-6e38d009f683"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 
 [compat]
 MITgcmTools = "~0.1.26"
 MeshArrays = "~0.2.22"
 Plots = "~1.21.3"
+PlutoUI = "~0.7.9"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -821,6 +855,12 @@ git-tree-sha1 = "2dbafeadadcf7dadff20cd60046bba416b4912be"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 version = "1.21.3"
 
+[[deps.PlutoUI]]
+deps = ["Base64", "Dates", "InteractiveUtils", "JSON", "Logging", "Markdown", "Random", "Reexport", "Suppressor"]
+git-tree-sha1 = "44e225d5837e2a2345e69a1d1e01ac2443ff9fcb"
+uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+version = "0.7.9"
+
 [[deps.PooledArrays]]
 deps = ["DataAPI", "Future"]
 git-tree-sha1 = "a193d6ad9c45ada72c14b731a318bedd3c2f00cf"
@@ -1250,10 +1290,9 @@ version = "0.9.1+5"
 # ╟─2fd1ddf0-c3ee-4076-9f7f-b066da2baf50
 # ╟─ee0e6f28-aa26-48de-8ddd-8bb2d1102ee9
 # ╟─bd0803d8-c70d-47b8-a76e-5765f4ba01c6
-# ╟─aad7e042-ba39-4518-8f3e-da59b77c13cb
-# ╟─0aa37844-b4b9-4f58-adf7-15ae9a490993
+# ╠═aad7e042-ba39-4518-8f3e-da59b77c13cb
+# ╠═0aa37844-b4b9-4f58-adf7-15ae9a490993
 # ╟─b77f7ff2-da7e-41b3-b3f6-3819b09cd33c
-# ╟─56a76f42-7d83-4600-a9a2-2b675b6efcaa
 # ╟─9238b863-dd69-42ce-8f36-995b4757cc1a
 # ╟─0ca84f4e-f5bf-40d0-bf46-7a0e70b7aded
 # ╟─ca299148-6aa8-4379-88e3-c4500ddc779f
@@ -1262,7 +1301,6 @@ version = "0.9.1+5"
 # ╟─37294d8a-a70e-419a-a60b-11d09930c6b0
 # ╟─f0185b52-2297-4e8c-b44b-8c29b634607a
 # ╟─3668f786-9597-11eb-01a1-87d34b49eef9
-# ╟─964108cd-4fe3-4bb8-85db-500618e21af7
 # ╟─fa968801-6892-4475-9b27-56472ca611b4
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
