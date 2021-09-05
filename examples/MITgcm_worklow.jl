@@ -16,40 +16,33 @@ end
 # ╔═╡ 8cf4d8ca-84eb-11eb-22d2-255ce7237090
 begin
 	using MITgcmTools, ClimateModels, PlutoUI, Printf, Plots
-	exps=verification_experiments()	
-	🏁 = "🏁"
-	
+	exps=verification_experiments()		
 	md"""😸"""
 end
 
 # ╔═╡ f588eaba-84ef-11eb-0755-bf1b85b2b561
 begin
-	md"""# Model Interface Demo
+	md"""# Climate Model Interface
 
 	### 
 
-	Here we setup, run and plot the [MIT general circulation model](https://mitgcm.readthedocs.io/en/latest/?badge=latest) interactively via [MITgcmTools.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/), which can generate something like the Atmosphere example shown below. 
+	In this notebook we setup, compile, and run the [MIT general circulation model](https://mitgcm.readthedocs.io/en/latest/?badge=latest) interactively via [MITgcmTools.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/). We then read model output files and plot some of the numerical model result.
 	
-	The notebook demonstrates the use of the climate model interface (`build`, `setup`, `launch`, etc) defined in [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl) and implemented for MITgcm.
+	The notebook demonstrates the use of the **climate model interface** (`build`, `setup`, `launch`, etc) defined in [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl) and implemented for MITgcm.
 	The `log/` subfolder is a byproduct of the climate model interface, which uses `git` to document wokflows as they happen and allow us to reproduce them later. The _Modify Parameters_ section demonstrates the interactive use of this functionality. Adding analysis / processing steps can be done similarly.
-
-	
-	![plot](https://user-images.githubusercontent.com/20276764/111042787-12377e00-840d-11eb-8ddb-64cc1cfd57fd.png)
 	"""
 end
 
 # ╔═╡ 98b6621c-85ab-11eb-29d1-af0433598c6a
 md"""## Select Model Configuration
 
-###
+$(TableOfContents())
 
-_Note:_ 
+!!! note
+	If you use a live version of this notebook, selecting a different configuration from the list below will make the other notebook cells react (e.g. displayed contents). If you visualize an html version of this notebook, then cells wont react.
 
-_changing the top level parameter just below will update multiple-choice menus and results afterwards._ 
-
-_Be aware, however, that selecting a new model configuration typically means recompiling the model._ 
-
-_This can take a lot longer than a normal model run due to the one-time cost of compiling the model (see below for more on this)._
+!!! tip
+	Be aware, however, that selecting a new model configuration typically means recompiling the model._ This can take a lot longer than a normal model run due to the one-time cost of compiling the model (see below for more on this).
 """
 
 # ╔═╡ a28f7354-84eb-11eb-1830-1f401bf2db97
@@ -326,11 +319,10 @@ end
 
 # ╔═╡ 901d2844-83be-4767-b169-dfb7701ce15e
 begin
-	md"""### 
-	
-	![plot](https://user-images.githubusercontent.com/20276764/97648227-970b9780-1a2a-11eb-81c4-65ec2c87efc6.png)
-
-	"""
+	🏁 = "🏁"
+	imgA="https://user-images.githubusercontent.com/20276764/111042787-12377e00-840d-11eb-8ddb-64cc1cfd57fd.png"
+	imgB="https://user-images.githubusercontent.com/20276764/97648227-970b9780-1a2a-11eb-81c4-65ec2c87efc6.png"
+	md"""$(Resource(imgB, :width => 120))"""
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
