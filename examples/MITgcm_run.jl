@@ -15,33 +15,35 @@ end
 
 # ╔═╡ 8cf4d8ca-84eb-11eb-22d2-255ce7237090
 begin
+	🏁="🏁"
 	using MITgcmTools, PlutoUI, Printf
 	exps=verification_experiments()
-	🏁 = "🏁"
-	md"""## Select model configuration:"""
+	🏁
 end
 
 # ╔═╡ 6ef93b0e-859f-11eb-1b3b-d76b26d678dc
 begin
-	imgA="https://user-images.githubusercontent.com/20276764/111042787-12377e00-840d-11eb-8ddb-64cc1cfd57fd.png"
-	imgB="https://user-images.githubusercontent.com/20276764/97648227-970b9780-1a2a-11eb-81c4-65ec2c87efc6.png"
 	md"""# How to compile and run MITgcm
 
 	###
 
-	Here we use [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) interactively via [MITgcmTools.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/) as needed to generate e.g. something like this. 
-	
-	$(Resource(imgA, :width => 120))
+	Here we use [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) interactively via [MITgcmTools.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/) as needed in a typical modeling workflow. 
 	
 	This includes compiling and running the model via the simple interface defined in [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl).
-	
-	!!! note
-		If you use a live version of this notebook, selecting a different configuration from the list below will make the other notebook cells react (e.g. displayed contents). If you visualize an html version of this notebook, then cells wont react.	
 	"""
 end
 
+# ╔═╡ 2b5e1c5c-933d-41a6-9cce-b6b848b591a9
+md"""## Select model configuration:
+
+$(TableOfContents())
+
+!!! note
+	If you use a live version of this notebook, selecting a different configuration from the list below will make the other notebook cells react (e.g. displayed contents). If you visualize an html version of this notebook, then cells wont react.
+"""
+
 # ╔═╡ b59456f8-4610-4803-98f8-dc06115f2451
-md""" Select one of the configurations listed in `verification_experiments()`.
+md"""Select one of the configurations listed in `verification_experiments()`.
 
 $(@bind myexp Select([exps[i].configuration for i in 1:length(exps)],default="advect_xy"))
 
@@ -125,6 +127,19 @@ begin
 	do_cleanup; do_link; do_run;
 	rundir=joinpath(exps[iexp].folder,string(exps[iexp].ID),"run")
 	readdir(rundir)
+end
+
+# ╔═╡ baf468f8-4ae1-40d3-8077-91f81442d047
+md"""### Appendices
+
+The following cells select Julia packages and perform basic operations.
+"""
+
+# ╔═╡ 173e97bb-711a-4d3c-8bd3-a9b1da1743d5
+begin
+	imgA="https://user-images.githubusercontent.com/20276764/111042787-12377e00-840d-11eb-8ddb-64cc1cfd57fd.png"
+	imgB="https://user-images.githubusercontent.com/20276764/97648227-970b9780-1a2a-11eb-81c4-65ec2c87efc6.png"
+	md"""$(Resource(imgB, :width => 120))"""
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -716,7 +731,7 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 
 # ╔═╡ Cell order:
 # ╟─6ef93b0e-859f-11eb-1b3b-d76b26d678dc
-# ╟─8cf4d8ca-84eb-11eb-22d2-255ce7237090
+# ╟─2b5e1c5c-933d-41a6-9cce-b6b848b591a9
 # ╟─b59456f8-4610-4803-98f8-dc06115f2451
 # ╟─7fa8a460-89d4-11eb-19bb-bbacdd32719a
 # ╟─d90039c4-85a1-11eb-0d82-77db4decaa6e
@@ -730,5 +745,8 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╟─550d996a-859d-11eb-34bf-717389fbf809
 # ╟─3ff9f3f7-bc4f-4752-a7fc-e8cfcd59952d
 # ╟─a04c1cd6-3b9e-4e69-b986-c863b120bb0b
+# ╟─baf468f8-4ae1-40d3-8077-91f81442d047
+# ╟─8cf4d8ca-84eb-11eb-22d2-255ce7237090
+# ╟─173e97bb-711a-4d3c-8bd3-a9b1da1743d5
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

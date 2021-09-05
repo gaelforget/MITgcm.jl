@@ -17,31 +17,24 @@ end
 begin
 	using MITgcmTools, PlutoUI, Printf
 	exps=verification_experiments()
-	🏁 = "🏁"
 end
 
 # ╔═╡ f588eaba-84ef-11eb-0755-bf1b85b2b561
 begin
-	imgA="https://user-images.githubusercontent.com/20276764/111042787-12377e00-840d-11eb-8ddb-64cc1cfd57fd.png"
-	imgB="https://user-images.githubusercontent.com/20276764/97648227-970b9780-1a2a-11eb-81c4-65ec2c87efc6.png"
-	md"""# Standard MITgcm configurations
+md"""# Standard MITgcm configurations
 
-	### 
+This notebook scans configuration folders of [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) within `MITgcm/verification` using [MITgcmTools.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/). It then let's user inspect parameters interactively. 
 
-	This notebook scans configuration folders of [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) within `MITgcm/verification` using [MITgcmTools.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/). It then let's user inspect parameters interactively. 
-	
-	!!! tip
-	    For more on compiling and running a model configuration, please refer to the [examples deck](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/) for more on that topic.
-		
-	### 
-	
-	$(Resource(imgB, :width => 120))
-	"""
+!!! tip
+	For more on compiling and running a model configuration, please refer to the [examples deck](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/) for more on that topic.
+
+"""
 end
 
 # ╔═╡ 98b6621c-85ab-11eb-29d1-af0433598c6a
 md"""## Select Model Configuration
 
+$(TableOfContents())
 
 !!! note
 	If you use a live version of this notebook, selecting a different configuration from the list below will make the other notebook cells react (e.g. displayed contents). If you visualize an html version of this notebook, then cells wont react.
@@ -51,7 +44,7 @@ md"""## Select Model Configuration
 @bind myexp Select([exps[i].configuration for i in 1:length(exps)],default="advect_cs")
 
 # ╔═╡ f051e094-85ab-11eb-22d4-5bd61ac572a1
-md"""## Select Parameter Group (or _Namelist_)
+md"""## Select Parameter Group
 
 Each configuration has various groups of parameters, often called namelists, depending on compiled packages. The dropdown menus below let you navigate the various parameter groups -- the result is show in the next section.
 
@@ -63,6 +56,14 @@ md"""### Appendices
 
 The following cells select Julia packages and perform basic operations.
 """
+
+# ╔═╡ 168e178c-dd09-4e27-8cb6-fc0479a55f75
+begin
+	🏁 = "🏁"
+	imgA="https://user-images.githubusercontent.com/20276764/111042787-12377e00-840d-11eb-8ddb-64cc1cfd57fd.png"
+	imgB="https://user-images.githubusercontent.com/20276764/97648227-970b9780-1a2a-11eb-81c4-65ec2c87efc6.png"
+	md"""$(Resource(imgB, :width => 120))"""
+end
 
 # ╔═╡ 4965715d-93ca-496b-8ab1-238e9c6e34b4
 begin
@@ -105,7 +106,7 @@ catch e
 end
 
 # ╔═╡ e73fda3a-f05a-49b4-a83d-e7b535467106
-md"""## Inspect Parameters
+md"""## Browse Parameters
 
 #
 
@@ -721,5 +722,6 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╟─9bdb94da-8510-11eb-01a6-c9a1519baa68
 # ╟─348c692e-84fe-11eb-3288-dd0a1dedce90
 # ╟─4965715d-93ca-496b-8ab1-238e9c6e34b4
+# ╟─168e178c-dd09-4e27-8cb6-fc0479a55f75
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
