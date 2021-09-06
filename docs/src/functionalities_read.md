@@ -24,8 +24,9 @@ GridLoad_mnc
 ### Other Files
 
 ```@docs
+scan_rundir
 read_available_diagnostics
-read_bin
 read_flt
+read_bin
 read_nctiles
 ```

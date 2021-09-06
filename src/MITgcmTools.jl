@@ -25,8 +25,16 @@ export SeaWaterDensity, MixedLayerDepth
 p=dirname(pathof(MITgcmTools))
 artifact_toml = joinpath(p, "../Artifacts.toml")
 MITgcm_hash = artifact_hash("MITgcm", artifact_toml)
+
+"""
+    MITgcm_path
+
+Path to a MITgcm folder. `MITgcm_path[1]` should generally be used. `MITgcm_path[2]` is mostly 
+meant to facilitate comparisons between e.g. MITgcm releases when needed.
+"""
 MITgcm_path = [ joinpath(artifact_path(MITgcm_hash)*"/","MITgcm-checkpoint68a/"),
                 joinpath(artifact_path(MITgcm_hash)*"/","MITgcm-checkpoint68a/")]
+
 PICKUP_hs94_path = artifact_path(artifact_hash("PICKUP_hs94", artifact_toml))
 
 MITgcm_download() = artifact"MITgcm"

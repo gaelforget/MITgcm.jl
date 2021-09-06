@@ -15,6 +15,8 @@ Tools for using [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) 
 Pages = [
     "functionalities.md",
     "functionalities_read.md",
+    "functionalities_configurations.md",
+    "functionalities_interface.md",
     "functionalities_more.md",
     "examples.md",
 ]
