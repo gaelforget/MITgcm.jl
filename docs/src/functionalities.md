@@ -4,38 +4,33 @@
 
 ## Read MITgcm Files
 
-See [Parameter Files](@ref), [MDSIO Files](@ref), [MNC Files](@ref), [Other Files](@ref)
+- [Parameter Files](@ref) (text)
+- [MDSIO Files](@ref) (binary)
+- [MNC Files](@ref) (netcdf)
+- [Other Files](@ref)
 
 ## MITgcm Configurations
 
-The `verification_experiments()` function provides a list of the most-standard MITgcm configurations that can all be run either in batch mode or interactively using `MITgcmTools.jl`. 
+In `MITgcmTools.jl`, a model configuration is generally formulated as a `MITgcm_config` struct. It can thus easily later be run either in batch mode or interactively using the [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl) interface. 
 
-The `MITgcm_path` variable points to where MITgcm is compiled. Interactive / reactive notebooks are found in the `examples/` folder (e.g. `MITgcm_run.jl`  seen just below). 
+`verification_experiments` provides a list of standard MITgcm configurations -- those found in the `verification/` subfolder of `MITgcm_path[1]` which is also where MITgcm would compiled.
 
-```@docs
-MITgcm_path
-verification_experiments
-scan_rundir
-```
+Please refer to [Detail On Configurations](@ref) for more on this.
+
+The `setup` function can be used to prepare a temporary folder for running a `MITgcm_config` (see [ClimateModels Interface](@ref)). Interactive notebooks are found in the [Examples](@ref) section (and the `examples/` subfolder). 
+
 
 ## Compile & Run MITgcm
 
-The recommended, simple, method to run the model is via the climate model interface (see the [ClimateModels.jl interface](@ref) section and  [docs@ClimateModels.jl](https://gaelforget.github.io/ClimateModels.jl/dev/) for detail). The `MITgcm_launch` function can be used to run a `MITgcm` configuration after setting up the `MITgcm_config`. Using this interface facilitates operations like compiling and setting up a temporary folder to run the model. Key functions, incl. the climate model interface, are documented further down in the docs. 
+The recommended method for running the model is via the simple [ClimateModels Interface](@ref). Additional information about the `ClimateModels.jl` interface is also available at [docs@ClimateModels.jl](https://gaelforget.github.io/ClimateModels.jl/dev/)
 
-The `verification_experiments` function provides a list of the most-standard MITgcm configurations that can all be run either in batch mode or interactively. The `MITgcm_path` variable points to where MITgcm is compiled. Interactive / reactive notebooks are found in the `examples/` folder (e.g. `run_MITgcm.jl`  seen just below). 
+The `MITgcm_launch` function can be used to run a `MITgcm` configuration after setting up the `MITgcm_config`. Using this interface facilitates operations like compiling and setting up a temporary folder to run the model. Key functions, incl. the climate model interface, are documented further down in the docs. 
 
-## ClimateModels interface
-
-```@docs
-MITgcm_config
-build
-compile 
-setup
-MITgcm_launch
-clean
-```
-
+The `verification_experiments` function provides a list of the most-standard MITgcm configurations that can all be run either in batch mode or interactively. `MITgcm_path[1]` points to where MITgcm code is installed and would be compiled. Interactive / reactive notebooks are found in the [Examples](@ref) section (e.g. `examples/MITgcm_configurations.jl` and `examples/MITgcm_run.jl`). 
+ 
 ## More Functionalities
 
-See [Format conversions](@ref), [Formulae etc](@ref), [API Reference](@ref)
+- [Format conversions](@ref)
+- [Formulae etc](@ref)
+- [API Reference](@ref)
 
