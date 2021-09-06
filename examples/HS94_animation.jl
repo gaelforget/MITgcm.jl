@@ -138,7 +138,7 @@ end
 # ╔═╡ 0aa37844-b4b9-4f58-adf7-15ae9a490993
 begin
 	step1==🏁
-	MITgcm_launch(myexp)
+	MITgcm.launch(myexp)
 	step2=🏁
 end
 
