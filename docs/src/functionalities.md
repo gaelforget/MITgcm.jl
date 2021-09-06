@@ -4,26 +4,7 @@
 
 ## Read MITgcm Files
 
-```@docs
-read_mdsio
-read_meta
-read_mnc
-GridLoad_mdsio
-GridLoad_mnc
-```
-
-```@docs
-read_available_diagnostics
-read_bin
-read_flt
-read_nctiles
-```
-
-```@docs
-MITgcm_namelist
-read_namelist
-write_namelist
-```
+See [Parameter Files](@ref), [MDSIO Files](@ref), [MNC Files](@ref), [Other Files](@ref)
 
 ## MITgcm Configurations
 

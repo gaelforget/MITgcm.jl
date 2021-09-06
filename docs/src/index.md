@@ -14,6 +14,7 @@ Tools for using [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) 
 ```@contents
 Pages = [
     "functionalities.md",
+    "functionalities_read.md",
     "functionalities_more.md",
     "examples.md",
 ]
