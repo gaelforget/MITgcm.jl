@@ -14,9 +14,10 @@ Tools for using [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) 
 ```@contents
 Pages = [
     "functionalities.md",
+    "functionalities_more.md",
     "examples.md",
 ]
-Depth = 3
+Depth = 2
 ```
 
 ![Simulated particles from HS94 on cube sphere grid](https://user-images.githubusercontent.com/20276764/111042787-12377e00-840d-11eb-8ddb-64cc1cfd57fd.png)
