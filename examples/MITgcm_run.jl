@@ -67,7 +67,7 @@ The workflow below consists in four steps:
 clean(exps[iexp])
 setup(exps[iexp])
 build(exps[iexp])
-MITgcm.launch(exps[iexp])
+MITgcmTools.launch(exps[iexp])
 ```
 
 which can be triggered individually as shown below for the selected model configuration (**$myexp**).
@@ -112,7 +112,7 @@ end
 # ╔═╡ 550d996a-859d-11eb-34bf-717389fbf809
 let
 	do_run
-	MITgcm.launch(exps[iexp])
+	MITgcmTools.launch(exps[iexp])
 	🏁
 end
 
