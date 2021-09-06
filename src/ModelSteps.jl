@@ -225,13 +225,19 @@ function setup(config::MITgcm_config)
         params=OrderedDict()
         for fil in nmlfiles
             nml=read(joinpath(pth_run,fil),MITgcm_namelist())
-            write(joinpath(pth_log,fil),nml)
+            write(joinpath(pth_log,fil),nml)            
             #
             ni=length(nml.groups); tmp1=OrderedDict()
             [push!(tmp1,(nml.groups[i] => nml.params[i])) for i in 1:ni]
-            fil=="data" ? tmp2="main" : tmp2=fil[6:end]
-            push!(params,(Symbol(tmp2) => tmp1))
+            tmp2=""
+            fil=="data" ? tmp2="main" : nothing
+            fil=="eedata" ? tmp2="eedata" : nothing
+            occursin("data.",fil) ? tmp2=fil[6:end] : nothing
+            if !isempty(tmp2) 
+                push!(params,(Symbol(tmp2) => tmp1))
+            end
         end
+
         push!(config.inputs,params...)
 
         !isdir(pth_mv) ? mkdir(pth_mv) : nothing
