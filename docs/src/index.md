@@ -1,6 +1,6 @@
 # MITgcmTools.jl
 
-Tools for using [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) or analyzing its output. This includes compiling, running a model configuration, or inspecting inputs and outputs. The [ClimateModels.jl](https://gaelforget.github.io/ClimateModels.jl/stable/) interface provides a standard framework for such workflows. 
+Tools for using [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) or analyzing its output. This includes compiling and running a model configuration, or inspecting model inputs and outputs. The [ClimateModels.jl](https://gaelforget.github.io/ClimateModels.jl/stable/) interface provides a standard framework for such workflows. 
 
 ## Main Features
 
