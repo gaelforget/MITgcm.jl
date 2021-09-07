@@ -31,7 +31,8 @@ write(fil::AbstractString,nml::MITgcm_namelist) = write_namelist(fil,nml)
 """
     MITgcm_config()
 
-Concrete type of `AbstractModelConfig` for `MITgcm` which contains
+Concrete type of `AbstractModelConfig` for `MITgcm` (as part of the `ClimateModels.jl` interface for `MITgcm`)
+which contains
 
 ```
     model :: String = "MITgcm"
@@ -45,17 +46,11 @@ Concrete type of `AbstractModelConfig` for `MITgcm` which contains
     ID :: UUID = UUIDs.uuid4()
 ```
 
-and with defaults that can be constructed as follows for example
+and can be constructed using keywords as follows
 
 ```
-using MITgcmTools
-tmp=MITgcm_config()
-
-exps=verification_experiments()
-exps[end]
+unknown_config=MITgcm_config(configuration="unknown")
 ```
-
-(part of the climate model interface as specialized for `MITgcm`)
 """
 Base.@kwdef struct MITgcm_config <: AbstractModelConfig
     model :: String = "MITgcm"
