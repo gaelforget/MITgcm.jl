@@ -1,12 +1,13 @@
 # MITgcmTools.jl
 
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://gaelforget.github.io/MITgcmTools.jl/stable)
 [![Documentation](https://img.shields.io/badge/docs-dev-blue.svg)](https://gaelforget.github.io/MITgcmTools.jl/dev)
 [![CI](https://github.com/gaelforget/MITgcmTools.jl/actions/workflows/ci.yml/badge.svg)](https://github.com/gaelforget/MITgcmTools.jl/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/gaelforget/MITgcmTools.jl/branch/master/graph/badge.svg?token=zUK0vO5K3J)](https://codecov.io/gh/gaelforget/MITgcmTools.jl)
 
 [![DOI](https://zenodo.org/badge/236192181.svg)](https://zenodo.org/badge/latestdoi/236192181)
 
-Set of tools for running [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest), analyzing its output, and/or modifying its inputs. A set of [Pluto.jl](https://github.com/fonsp/Pluto.jl) notebooks, which e.g. run `MITgcm` interactively, can be found in the `examples/` folder.
+Set of tools for running [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest), analyzing its output, and/or modifying its inputs. A set of [Pluto.jl](https://github.com/fonsp/Pluto.jl) notebooks, which e.g. run `MITgcm` interactively, can be found below or via in [the docs](https://gaelforget.github.io/MITgcmTools.jl/dev).
 
 <details>
   <summary><b>Examples / How-To </b></summary>
