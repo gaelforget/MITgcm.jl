@@ -21,7 +21,7 @@ Please refer to the [Detail On Configurations](@ref) and [ClimateModels Interfac
 
 The [ClimateModels Interface](@ref) provides a convenient framework to build and run MITgcm. Additional information about the `ClimateModels.jl` interface is also available in the [ClimateModels.jl docs](https://gaelforget.github.io/ClimateModels.jl/dev/).
 
-The `MITgcmTools.build` and `MITgcmTools.launch` functions build and run a `MITgcm_config ` after it has been set up. `MITgcm_path[1]` points to where MITgcm code is installed and will be compiled. `MITgcm_config` provides the run directory.
+The `MITgcmTools.build` and `MITgcmTools.launch` functions build and run a `MITgcm_config ` after `setup` has run. `MITgcm_path[1]` points to where MITgcm code is installed and will be compiled. `MITgcm_config` + `setup` provides the run directory.
  
 Interactive notebooks are found in the [Examples](@ref) section (and the `examples/` subfolder). 
  
