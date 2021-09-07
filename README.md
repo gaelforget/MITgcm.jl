@@ -1,7 +1,6 @@
 # MITgcmTools.jl
 
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://gaelforget.github.io/MITgcmTools.jl/stable)
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://gaelforget.github.io/MITgcmTools.jl/dev)
+[![Documentation](https://img.shields.io/badge/docs-dev-blue.svg)](https://gaelforget.github.io/MITgcmTools.jl/dev)
 [![CI](https://github.com/gaelforget/MITgcmTools.jl/actions/workflows/ci.yml/badge.svg)](https://github.com/gaelforget/MITgcmTools.jl/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/gaelforget/MITgcmTools.jl/branch/master/graph/badge.svg?token=zUK0vO5K3J)](https://codecov.io/gh/gaelforget/MITgcmTools.jl)
 
