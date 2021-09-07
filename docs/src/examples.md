@@ -15,6 +15,10 @@ using Pluto
 Pluto.run()
 ```
 
+Alternatively, you can run an example at the command line as, e.g., `julia examples/MITgcm_run.jl` or `julia -e 'include("examples/MITgcm_run.jl"); println(rundir)'`. This approach, however, assumes that all requirements (e.g., packages + gfortran) for the chosen example are already installed.
+
+## Examples List
+
 !!! note
 	Compiling MITgcm requires [a fortran compiler](https://fortran-lang.org/learn/os_setup/install_gfortran). This is a requirement for all notebooks except `MITgcm_configurations.jl`.
 

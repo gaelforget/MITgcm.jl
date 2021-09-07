@@ -511,9 +511,9 @@ function read_meta(pth::String,fil::String)
 end
 
 """
-    read_mdsio(datafile)
+    read_mdsio(fil::String)
 
-Read a `MITgcm` mdsio file (".data" binary + ".meta" text pair), and return as an Array
+Read a single `MITgcm` MDSIO-type file (".data" binary + ".meta" text pair), and return as an Array
 
 ```
 p="./hs94.cs-32x32x5/run/"
@@ -522,7 +522,7 @@ y=read_mdsio(p*"pickup.ckptA.002.001.data")
 z=read_mdsio(p*"T.0000000000.002.001.data")
 ```
 """
-function read_mdsio(fil)
+function read_mdsio(fil::String)
     m=read_meta(fil)
     T=eval(:($(Symbol(m.dataprec))))
 
@@ -544,7 +544,9 @@ end
 """
     read_mdsio(pth::String,fil::String)
 
-Read a `MITgcm`'s MDSIO files (".data" binary + ".meta" text pair), combine, and return as an Array
+Read a set of `MITgcm` MDSIO-type files (".data" binary + ".meta" text pair), combine, and return as an Array.
+Unlike `read_mdsio(fil::String)` where `fil` is one complete file name, this method will search within `pth` 
+for files that start with `fil`.
 
 ```
 p="./hs94.cs-32x32x5/run/"
@@ -586,6 +588,9 @@ read_mdsio(xx::Array,x::MeshArray) = MeshArrays.read(xx::Array,x::MeshArray)
 
 """
     read_mnc(pth::String,fil::String,var::String)
+
+Read variable `var` from a set of `MITgcm` MNC-type files (netcdf files), combine, and 
+return as an Array. This method will search within `pth` for files that start with `fil`.
 """
 function read_mnc(pth::String,fil::String,var::String)
     lst=readdir(pth)
@@ -638,6 +643,8 @@ end
 
 """
     GridLoad_mnc(γ::gcmgrid)
+
+Load grid variabes (XC, YC, Depth) model run directory (`joinpath(rundir,"mnc_test_0001")`).   
 """
 function GridLoad_mnc(γ::gcmgrid)
     pth=joinpath(γ.path,"mnc_test_0001")
@@ -650,6 +657,8 @@ end
 
 """
     GridLoad_mnc(myexp::MITgcm_config)
+
+Load grid variables (XC, YC, Depth) from model run directory (`joinpath(rundir,"mnc_test_0001")`).
 """
 function GridLoad_mnc(myexp::MITgcm_config)
     if isdir(joinpath(myexp.folder,string(myexp.ID),"run"))
@@ -696,6 +705,8 @@ end
 
 """
     GridLoad_mdsio(myexp::MITgcm_config)
+
+Load grid variables (XC, YC, Depth, etc) from model run directory (`rundir`).
 """
 function GridLoad_mdsio(myexp::MITgcm_config)
     if isdir(joinpath(myexp.folder,string(myexp.ID),"run"))
