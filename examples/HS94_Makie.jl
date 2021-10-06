@@ -4,12 +4,6 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ b96456b4-8267-11eb-043a-07fc1ee69d34
-begin
-	using JLD2, FileIO, DataFrames, WGLMakie, MITgcmTools
-	🏁 = "🏁"
-end
-
 # ╔═╡ 6c682f64-d02b-4459-bfa5-9b76216dfc91
 begin
 	md"""# HS94_Makie.jl
@@ -19,6 +13,12 @@ begin
 
 	Here we read trajectory output generated as shown in `HS94_particles.jl` and plot them using the `Makie.jl` package to generate images and a movie.
 	"""
+end
+
+# ╔═╡ b96456b4-8267-11eb-043a-07fc1ee69d34
+begin
+	using JLD2, FileIO, DataFrames, CairoMakie, MITgcmTools
+	🏁 = "🏁"
 end
 
 # ╔═╡ ae030b46-826a-11eb-093e-810bd32a356d
@@ -57,7 +57,7 @@ fi1
 
 # ╔═╡ Cell order:
 # ╟─6c682f64-d02b-4459-bfa5-9b76216dfc91
-# ╟─b96456b4-8267-11eb-043a-07fc1ee69d34
+# ╠═b96456b4-8267-11eb-043a-07fc1ee69d34
 # ╟─ae030b46-826a-11eb-093e-810bd32a356d
 # ╟─3a2102ba-8269-11eb-14a7-af914ab4fb16
 # ╟─3a71aab6-826a-11eb-3858-51651dd387dc
