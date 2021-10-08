@@ -31,5 +31,5 @@ Alternatively, you can run an example at the command line as, e.g., `julia examp
 !!! warning
 	Links for `HS94_Makie.jl` and `MITgcm_scan_output.jl` point to notebook files rather than generated html files as `GLMakie.jl` could not be compiled as needed for that process.
 
-- [HS94_Makie.jl](https://raw.githubusercontent.com/gaelforget/MITgcmTools.jl/master/examples/HS94_Makie.jl) : using `Makie.jl` instead of `Plots.jl`
-- [MITgcm\_scan\_output.jl](https://raw.githubusercontent.com/gaelforget/MITgcmTools.jl/master/examples/MITgcm_scan_output.jl) : scan `output.txt`, read grid, vizualize with `Makie.jl` 
+- [HS94_Makie.jl](HS94_Makie.html) : using `Makie.jl` instead of `Plots.jl`
+- [MITgcm_scan_output.jl](MITgcm_scan_output.html) : scan `output.txt`, read grid, vizualize with `Makie.jl` 
