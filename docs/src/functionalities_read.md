@@ -25,6 +25,7 @@ GridLoad_mnc
 
 ```@docs
 scan_rundir
+scan_stdout
 read_available_diagnostics
 read_flt
 read_bin

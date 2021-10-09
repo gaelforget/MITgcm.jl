@@ -21,53 +21,16 @@ begin
 end
 
 # ╔═╡ f883622e-dada-4acf-9c90-2c3a3373da66
-md"""## 0. Packages And Lists
+md"""# MITgcm Output And Grids
+
+This notebook demonstrates some of the tools available to scan, read, and display model output.
 """
 
-# ╔═╡ 8ab359c9-7090-4671-8856-e775ee4e7556
+# ╔═╡ 8586f798-00a3-4ec5-a360-5e709f3c6a72
 begin
 	Γecco=GridLoad(GridSpec("LatLonCap",MeshArrays.GRID_LLC90))
-
-
-	rep=joinpath(MITgcm_path[1],"verification")
-	exps=verification_experiments()
-	
-	sc=Vector{Any}(nothing, length(exps))
-	for i in 1:length(exps)
-		myexp=exps[i].configuration; rundir=joinpath(rep,myexp,"run")
-		sc[i]=scan_rundir(rundir)
-	end
-	
-	list_exps=collect(1:length(exps))
-	[exps[i].configuration for i in 1:length(exps)]
+	"One grid has been read from file."
 end
-
-# ╔═╡ 5d739d43-e39b-45d5-8a68-87ee85ae0463
-list_mdsio=findall([sc[i].params_files.use_mdsio for i in 1:length(exps)])
-
-# ╔═╡ 40f09d63-a884-41e8-ad07-7a850014ccfa
-list_mnc=findall([sc[i].params_files.use_mnc for i in 1:length(exps)])
-
-# ╔═╡ 6c8260cc-35ae-4f6d-a3e8-df6f33ed3e81
-(length(list_mdsio),length(list_mnc),length(exps))
-
-# ╔═╡ adf96bf1-b405-4405-a747-e2835b670a25
-md"""## 1. Select Configuration
-
-_Note: this will update the plot and text display below_
-"""
-
-# ╔═╡ 7c37d2bd-2a10-4a42-9029-87d636c3a054
-#@bind ii NumberField(1:length(list_exps); default=14)
-
-# ╔═╡ 1a6eca66-819c-49a9-b245-1faf3290b65d
-@bind tst Radio(["ECCO","verification"], default="ECCO")
-
-# ╔═╡ 44263dfc-68b9-4ed8-8d7a-3548cfecdace
-@bind myaz NumberField(-1:0.1:1; default=-0.2)
-
-# ╔═╡ fbc145ce-50a7-4fb6-8e50-f78a1723947a
-@bind tick Clock(2)
 
 # ╔═╡ 4e669f82-8bbc-4df1-847d-bc61c24884c2
 function myviz(G; title="grid points")
@@ -84,6 +47,93 @@ function myviz(G; title="grid points")
     end
 
     fig
+end
+
+# ╔═╡ 98762420-6496-4760-8049-5a3fed396984
+md"""## 1. Scan `MITgcm/verification` folder
+
+The `MITgcm/verification` folder contains a series of model configurations. These are compiled and run daily as part of the model stndard testing suite, to help ensure reproducibility (consistency of the code & results through time).
+
+Here we scan subfolders within `MITgcm/verification`. We look for the model standard output file which is typically named something like `MITgcm/verification/advect_cs/run/output.txt`. This pattern is used by the `MITgcm` community for the model testing suite (see list reported below). 
+
+The model standard output file for each `run` subfolder is then scanned for information of the model configuration and its output. If we don't find `output.txt` (or `STDOUT.0000`) in a `run` then it is assumed that this model configuration has not been run yet and should therefore be ignored.
+""" 
+
+# ╔═╡ 8ab359c9-7090-4671-8856-e775ee4e7556
+begin
+	#list of verification experiments
+	rep=joinpath(MITgcm_path[1],"verification")
+	exps=verification_experiments()
+
+	#
+	sc=Vector{Any}(nothing, length(exps))
+	for i in 1:length(exps)
+		myexp=exps[i].configuration; rundir=joinpath(rep,myexp,"run")
+		try
+			sc[i]=scan_rundir(rundir)
+		catch
+			sc[i]=missing
+		end
+	end
+	
+	list_exps=collect(1:length(exps))
+	
+	with_terminal() do
+		println("List of all $(length(exps)) experiments found : \n\n")
+		for i in 1:length(exps)
+			println(exps[i].configuration)
+		end
+	end
+	
+end
+
+# ╔═╡ 5d739d43-e39b-45d5-8a68-87ee85ae0463
+begin
+	ii=findall((!ismissing).(sc))
+	list_mdsio=findall([sc[i].params_files.use_mdsio for i in ii])
+	list_mnc=findall([sc[i].params_files.use_mnc for i in ii])
+	list_missing=findall((ismissing).(sc))
+	a=(length(list_mdsio),length(list_mnc),length(list_missing),length(exps))
+	md""" Result of scanning `run` subfolders :
+	
+	| All `run` folders | $(a[4])   |
+	|-------------------|-----------|
+	| Empty run folders | $(a[3])   |
+	| With binary output| $(a[1])   |
+	| With netcdf output| $(a[2])   |
+	
+	"""
+end
+
+# ╔═╡ adf96bf1-b405-4405-a747-e2835b670a25
+md"""## 2. Select Configuration
+
+The grid initially selected (ECCO) is downloaded automatically. Click on _verification_ to instead look at the contents of `MITgcm/verification` discussed earlier on in this notebook.
+"""
+
+# ╔═╡ 1a6eca66-819c-49a9-b245-1faf3290b65d
+@bind tst Radio(["ECCO","verification"], default="ECCO")
+
+# ╔═╡ 4d7bf60f-e71c-4a90-b10a-312c4545c555
+md"""## 3. Visualize Grid
+
+"""
+
+# ╔═╡ 44263dfc-68b9-4ed8-8d7a-3548cfecdace
+begin
+	myaz_slider = @bind myaz NumberField(-1:0.1:1; default=-0.2)
+	tick_button = @bind tick Clock(2)
+	md"""
+	Azimuth for 3d view (if applicable) : 
+	
+	$(myaz_slider)
+	
+	####
+	
+	Click to loop through (if verification) : 
+	
+	$(tick_button)	
+	"""
 end
 
 # ╔═╡ 211ab33e-d482-49dd-9448-0f5c6e63a280
@@ -155,7 +205,7 @@ CairoMakie = "~0.6.5"
 MITgcmTools = "~0.1.28"
 MeshArrays = "~0.2.23"
 MeshViz = "~0.1.13"
-Meshes = "~0.17.10"
+Meshes = "~0.17.11"
 PlutoUI = "~0.7.15"
 """
 
@@ -935,9 +985,9 @@ version = "0.1.13"
 
 [[Meshes]]
 deps = ["CategoricalArrays", "CircularArrays", "Distances", "IterTools", "IteratorInterfaceExtensions", "LinearAlgebra", "NearestNeighbors", "Random", "RecipesBase", "ReferenceFrameRotations", "SimpleTraits", "SparseArrays", "SpecialFunctions", "StaticArrays", "StatsBase", "TableTraits", "Tables"]
-git-tree-sha1 = "b97faea1850997877252074449fe791695620d87"
+git-tree-sha1 = "35e6d9fd9c9541a11a9e1da0eb5b381817a6c05e"
 uuid = "eacbb407-ea5a-433e-ab97-5258b1ca43fa"
-version = "0.17.10"
+version = "0.17.11"
 
 [[Missings]]
 deps = ["DataAPI"]
@@ -1190,9 +1240,9 @@ version = "1.2.2"
 
 [[ReferenceFrameRotations]]
 deps = ["Crayons", "LinearAlgebra", "Printf", "StaticArrays"]
-git-tree-sha1 = "d526371cec370888f485756a4bf8284ab531860b"
+git-tree-sha1 = "b2fc23750e12df6c8bc72cbb328020ed9a572e90"
 uuid = "74f56ac7-18b3-5285-802d-d4bd4f104033"
-version = "1.0.1"
+version = "2.0.0"
 
 [[RelocatableFolders]]
 deps = ["SHA", "Scratch"]
@@ -1573,16 +1623,15 @@ version = "3.0.0+3"
 # ╔═╡ Cell order:
 # ╟─f883622e-dada-4acf-9c90-2c3a3373da66
 # ╟─bb47e9ec-05ce-11ec-265e-85e1b4e90854
-# ╟─8ab359c9-7090-4671-8856-e775ee4e7556
-# ╟─5d739d43-e39b-45d5-8a68-87ee85ae0463
-# ╟─40f09d63-a884-41e8-ad07-7a850014ccfa
-# ╟─6c8260cc-35ae-4f6d-a3e8-df6f33ed3e81
-# ╟─adf96bf1-b405-4405-a747-e2835b670a25
-# ╟─7c37d2bd-2a10-4a42-9029-87d636c3a054
-# ╟─1a6eca66-819c-49a9-b245-1faf3290b65d
-# ╟─44263dfc-68b9-4ed8-8d7a-3548cfecdace
-# ╟─fbc145ce-50a7-4fb6-8e50-f78a1723947a
+# ╟─8586f798-00a3-4ec5-a360-5e709f3c6a72
 # ╟─4e669f82-8bbc-4df1-847d-bc61c24884c2
+# ╟─98762420-6496-4760-8049-5a3fed396984
+# ╟─5d739d43-e39b-45d5-8a68-87ee85ae0463
+# ╟─8ab359c9-7090-4671-8856-e775ee4e7556
+# ╟─adf96bf1-b405-4405-a747-e2835b670a25
+# ╟─1a6eca66-819c-49a9-b245-1faf3290b65d
+# ╟─4d7bf60f-e71c-4a90-b10a-312c4545c555
+# ╟─44263dfc-68b9-4ed8-8d7a-3548cfecdace
 # ╟─211ab33e-d482-49dd-9448-0f5c6e63a280
 # ╟─a444cf7e-cbe1-4e13-981b-184f1a64d3d5
 # ╟─49e5553c-b316-4c2c-821a-0dd6148006dc

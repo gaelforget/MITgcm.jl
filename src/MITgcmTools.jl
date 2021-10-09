@@ -16,7 +16,8 @@ export MITgcm_config, MITgcm_namelist, MITgcm_launch
 export testreport, build, compile, setup, clean
 #export pause, stop, clock, monitor, train, help
 export verification_experiments, read_namelist, write_namelist
-export read_mdsio, read_meta, read_available_diagnostics, scan_rundir
+export read_mdsio, read_meta, read_available_diagnostics
+export scan_rundir, scan_stdout
 export read_bin, read_flt, read_mnc, read_nctiles, findtiles
 export GridLoad_mnc, GridLoad_mdsio
 export cube2compact, compact2cube, convert2array, convert2gcmfaces
