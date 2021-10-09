@@ -13,6 +13,28 @@ function scan_rundir(pth::String)
     #1 standard output
     filout=joinpath(pth,"output.txt")
     !isfile(filout) ? filout=joinpath(pth,"STDOUT.0000") : nothing
+    if isfile(filout)
+        stdout=scan_stdout(filout)
+    else
+        stdout=missing
+    end
+    return stdout
+end
+
+"""
+    scan_stdout(filout::String)
+
+Scan a MITgcm standard output text file ("output.txt" or "STDOUT.0000") and return a NamedTuple of collected information (various formats).
+
+- packages : report of packages being compiled and used
+- params_time : initial time, model duation, output frequency, etc
+- params_grid : type of grid (Curvilinear, Cartesian, ...) and array sizes
+- params_files : type of output (use_mdsio, use_mnc) and array size (ioSize)
+- completed : true / false depending on the end of standard output file (filout)
+"""
+function scan_stdout(filout::String)
+    pth=dirname(filout)
+
     tmp=readlines(filout)
     #1.0 run completed
     co = tmp[end]=="PROGRAM MAIN: Execution ended Normally"
@@ -84,8 +106,7 @@ function scan_rundir(pth::String)
     #2.4 tave
     #2.5 mnc
 
-    return (packages=pac,
-    params_time=par1,params_grid=par2,params_files=par3,completed=co)
+    return (packages=pac,params_time=par1,params_grid=par2,params_files=par3,completed=co)
 end
 
 """
