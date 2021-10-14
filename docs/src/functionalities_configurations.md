@@ -3,7 +3,7 @@ using MITgcmTools # hide
 MITgcm_path[1]
 ```
 
-### Detail On Configurations
+### More On Configurations
 
 ```@docs
 MITgcm_path

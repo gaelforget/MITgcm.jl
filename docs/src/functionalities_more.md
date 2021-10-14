@@ -1,4 +1,4 @@
-### Format conversions
+### Format Conversions
 
 ```@docs
 findtiles

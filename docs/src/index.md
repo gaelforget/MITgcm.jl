@@ -1,10 +1,12 @@
 # MITgcmTools.jl
 
-Tools for using [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) or analyzing its output. This includes compiling and running a model configuration, or inspecting model inputs and outputs. The [ClimateModels.jl](https://gaelforget.github.io/ClimateModels.jl/stable/) interface provides a standard framework for such workflows. 
+Tools for using [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) or analyzing its output. This includes not only manipulating model inputs and outputs, but also compiling and running the model. Much of the functionalities are documented via the [Examples](@ref) section, as highlighted hereafter.
+
+[ClimateModels.jl](https://gaelforget.github.io/ClimateModels.jl/stable/) provides a standard interface for such workflows. Related packages also include [MeshArrays.jl](https://juliaclimate.github.io/MeshArrays.jl/dev/) defining in-memory containters for gridded model output, and [IndividualDisplacements.jl](https://juliaclimate.github.io/IndividualDisplacements.jl/dev/) enabling particle tracking applications. 
 
 ## Main Features
 
-- Read Model Output And Files
+- Scan / Read / Write MITgcm Files
 - Standard MITgcm configurations
 - Climate Model Interface
 - [Examples](@ref) (notebooks in `examples/`)
