@@ -688,6 +688,15 @@ function GridLoad_mnc(myexp::MITgcm_config)
         pth=joinpath(MITgcm_path[1],"verification")
         rundir=joinpath(pth,myexp.configuration,"run")
     end
+    GridLoad_mnc(rundir)
+end
+
+"""
+    GridLoad_mnc(rundir::String)
+
+Load grid variables (XC, YC, Depth) from model run directory (`joinpath(rundir,"mnc_test_0001")`).
+"""
+function GridLoad_mnc(rundir::String)
 	pth=joinpath(rundir,"mnc_test_0001")
 	tmp=MITgcmTools.read_mnc(pth,"grid","XC")
     exps_ioSize=size(tmp)
@@ -736,6 +745,15 @@ function GridLoad_mdsio(myexp::MITgcm_config)
         pth=joinpath(MITgcm_path[1],"verification")
         rundir=joinpath(pth,myexp.configuration,"run")
     end
+    GridLoad_mdsio(rundir)
+end
+
+"""
+    GridLoad_mdsio(rundir::String)
+
+Load grid variables (XC, YC, Depth, etc) from model run directory (`rundir`).
+"""
+function GridLoad_mdsio(rundir::String)
     tmp=read_mdsio(rundir,"XC")
     exps_ioSize=size(tmp)
     elty=eltype(tmp)
@@ -752,7 +770,7 @@ function GridLoad_mdsio(myexp::MITgcm_config)
         s2=[s1[1] s1[2]]
         γ=gcmgrid(rundir,"PeriodicDomain",1,fill(s1,1),s2,elty, read_mdsio, write)
     end
-    Γ=GridLoad(γ)
+    Γ=GridLoad(γ;option="full")
 end
 
 """
