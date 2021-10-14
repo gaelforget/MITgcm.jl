@@ -22,14 +22,14 @@ With this information in hand, one should be ready to read further model output.
 
 For more on the various read / write functions, please refer to the following sections.
 
-- [Parameter Files](@ref) (text)
 - [MDSIO Files](@ref) (binary)
 - [MNC Files](@ref) (netcdf)
+- [Parameter Files](@ref) (text)
 - [Other Files](@ref)
 
 ## MITgcm Configurations
 
-`verification_experiments` provides a list of standard MITgcm configurations found in the `verification/` subfolder of `MITgcm_path[1]`, which is also where MITgcm typically gets compiled. 
+[verification_experiments](@ref) provides a list of standard MITgcm configurations found in the `verification/` subfolder of `MITgcm_path[1]`, which is also where MITgcm typically gets compiled. 
 
 In `MITgcmTools.jl`, a model configuration is generally formulated as a `MITgcm_config` struct, which let's the user take advantage of the [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl) interface.
 
