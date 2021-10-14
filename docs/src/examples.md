@@ -22,10 +22,14 @@ Alternatively, you can run an example at the command line as, e.g., `julia examp
 !!! note
 	Compiling MITgcm requires [a fortran compiler](https://fortran-lang.org/learn/os_setup/install_gfortran). This is a requirement for all notebooks except `MITgcm_configurations.jl`.
 
-- [MITgcm_configurations.jl](MITgcm_configurations.html) ; explore MITgcm configurations and their parameters.
-- [MITgcm_run.jl](MITgcm_run.html) : a detailed look into compiling and running the model.
-- [MITgcm_worklow.jl](MITgcm_worklow.html) : build, setup, run, and plot for a chosen standard MITgcm configuration.
-- [HS94_animation.jl](HS94_animation.html) : run `hs94.cs-32x32x5` configuration, read output, interpolate, and plot maps.
-- [HS94_particles.jl](HS94_particles.html) : compute particle trajectories from `hs94.cs-32x32x5` output generated earlier.
-- [HS94_Makie.jl](HS94_Makie.html) : using `Makie.jl` instead of `Plots.jl`
-- [MITgcm_scan_output.jl](MITgcm_scan_output.html) : scan `output.txt`, read grid, vizualize with `Makie.jl` 
+- [MITgcm_configurations.jl](MITgcm_configurations.html) ([code here](https://raw.githubusercontent.com/gaelforget/MITgcmTools.jl/master/examples/MITgcm_configurations.jl)); explore MITgcm configurations and their parameters.
+- [MITgcm\_scan\_output.jl](MITgcm_scan_output.html) ([code here](https://raw.githubusercontent.com/gaelforget/MITgcmTools.jl/master/examples/MITgcm_scan_output.jl)) : scan run directory, standard output, read grid files, and vizualize. 
+- [MITgcm_run.jl](MITgcm_run.html) ([code here](https://raw.githubusercontent.com/gaelforget/MITgcmTools.jl/master/examples/MITgcm_run.jl)) : a detailed look into compiling and running the model.
+- [MITgcm_worklow.jl](MITgcm_worklow.html) ([code here](https://raw.githubusercontent.com/gaelforget/MITgcmTools.jl/master/examples/MITgcm_worklow.jl)): build, setup, run, and plot for a chosen standard MITgcm configuration.
+
+!!! note
+	The `HS94*` series of examples need to be run in sequence, as they rely on output from one another. This tutorial runs the [Held and Suarez 94](https://mitgcm.readthedocs.io/en/latest/overview/global_atmos_hs.html) benchmark	 with MITgcm on a cube sphere grid, and illustrates particle tracking in the Atmosphere using	[MeshArrays.jl](https://juliaclimate.github.io/MeshArrays.jl/dev/) and [IndividualDisplacements.jl](https://juliaclimate.github.io/IndividualDisplacements.jl/dev/).
+
+- [HS94_animation.jl](HS94_animation.html) ([code here](https://raw.githubusercontent.com/gaelforget/MITgcmTools.jl/master/examples/HS94_animation.jl)) : run `hs94.cs-32x32x5` configuration, read output, interpolate, and plot maps.
+- [HS94_particles.jl](HS94_particles.html) ([code here](https://raw.githubusercontent.com/gaelforget/MITgcmTools.jl/master/examples/HS94_particles.jl)) : compute particle trajectories from `hs94.cs-32x32x5` output generated earlier.
+- [HS94_Makie.jl](HS94_Makie.html) ([code here](https://raw.githubusercontent.com/gaelforget/MITgcmTools.jl/master/examples/HS94_Makie.jl)) : using `Makie.jl` instead of `Plots.jl`
