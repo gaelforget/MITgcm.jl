@@ -697,7 +697,15 @@ end
 Load grid variables (XC, YC, Depth) from model run directory (`joinpath(rundir,"mnc_test_0001")`).
 """
 function GridLoad_mnc(rundir::String)
-	pth=joinpath(rundir,"mnc_test_0001")
+
+    data_mnc=joinpath(rundir,"data.mnc")
+    if isfile(data_mnc)
+        nml=read_namelist(data_mnc)
+        pth=joinpath(rundir,nml.params[1][:mnc_outdir_str]*"0001")
+    else
+        pth=joinpath(rundir,"mnc_test_0001")
+    end
+
 	tmp=MITgcmTools.read_mnc(pth,"grid","XC")
     exps_ioSize=size(tmp)
     elty=eltype(tmp)
