@@ -125,7 +125,7 @@ function read_nctiles(fileName::String,fldName::String,mygrid::gcmgrid;
     I::Union{Missing,Tuple{Colon,Colon,Vararg{Union{Colon,Integer}}}}=missing)
 
     if (mygrid.class!="LatLonCap")||(mygrid.ioSize!=[90 1170])
-        error("non-llc90 cases not implemented yet")
+        error("non-llc90 cases have not yet been tested with read_nctiles")
     end
 
     fileIn=@sprintf("%s.%04d.nc",fileName,1)
@@ -144,37 +144,26 @@ function read_nctiles(fileName::String,fldName::String,mygrid::gcmgrid;
         s[k].=1
     end
 
-    #initialize f
-    if n==2
-        f0=Array{Float64}(undef,90,0)
-        f00=Array{Float64}(undef,0,90)
-    elseif n==3
-        f0=Array{Float64}(undef,90,0,s[3])
-        f00=Array{Float64}(undef,0,90,s[3])
-    elseif n==4
-        f0=Array{Float64}(undef,90,0,s[3],s[4])
-        f00=Array{Float64}(undef,0,90,s[3],s[4])
-    end
-    f=[f0,f0,f0,f00,f00]
+    f=Array{Float64, n}[]
+    m0=[0]
+    for ff in 1:mygrid.nFaces
+        (ni,nj)=Int.(mygrid.fSize[ff]./s[1:2])
+        nn=ni*nj
+        i0=(mod1.(1:nn,ni).-1)*s[1]
+        j0=div.(0:nn-1,ni)*s[2]
 
-    #fill in f
-    for ff=1:13
-        #read one tile
-        fileIn=@sprintf("%s.%04d.nc",fileName,ff)
-        x = ncread(fileIn,fldName,start,count)
-        #combine tiles
-        if ff<=3
-            f[1]=cat(f[1],x;dims=2)
-        elseif ff<=6
-            f[2]=cat(f[2],x;dims=2)
-        elseif ff==7
-            f[3]=x
-        elseif ff<=10
-            f[4]=cat(f[4],x;dims=1)
-        elseif ff<=13
-            f[5]=cat(f[5],x;dims=1)
+        f0=Array{Float64}(undef,mygrid.fSize[ff]...,s[3:end]...)
+        n0=m0[1]
+        for n in 1:nn
+            fileIn=@sprintf("%s.%04d.nc",fileName,n+n0);
+            x = ncread(fileIn,fldName,start,count);
+            i=collect(1:s[1]) .+ i0[n]
+            j=collect(1:s[2]) .+ j0[n]
+            f0[i,j,:,:]=x[:,:,:,:]
+            m0[1]+=1
         end
-
+        f0[findall(isnan.(f0))].=0.0
+        push!(f,f0)
     end
 
     fld=MeshArray(mygrid,f)
