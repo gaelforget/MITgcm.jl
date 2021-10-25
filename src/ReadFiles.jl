@@ -128,8 +128,21 @@ function read_nctiles(fileName::String,fldName::String,mygrid::gcmgrid;
         error("non-llc90 cases have not yet been tested with read_nctiles")
     end
 
-    fileIn=@sprintf("%s.%04d.nc",fileName,1)
-    x = ncread(fileIn,fldName)
+    pth0=dirname(fileName)
+
+    nam=split(fileName,"/")[end]
+    isempty(nam) ? nam=split(fileName,"/")[end-1] : nothing
+    occursin(".nctiles",nam) ? nam=nam[1:end-8] : nothing
+
+    isdir(fileName) ? pth1=fileName : pth1=pth0
+    lst=readdir(pth1)
+    lst=lst[findall(occursin.(nam,lst).*occursin.(".nc",lst))]
+
+    fileIn=joinpath(pth1,lst[1])
+    fileRoot=fileIn[1:end-8]
+    ntile=MITgcmTools.ncgetatt(fileIn,"Global","ntile")
+
+    x = MITgcmTools.ncread(fileIn,fldName)
     s = [size(x,i) for i in 1:ndims(x)]
     n=length(size(x))
     start=ones(Int,n)
@@ -152,17 +165,20 @@ function read_nctiles(fileName::String,fldName::String,mygrid::gcmgrid;
         i0=(mod1.(1:nn,ni).-1)*s[1]
         j0=div.(0:nn-1,ni)*s[2]
 
-        f0=Array{Float64}(undef,mygrid.fSize[ff]...,s[3:end]...)
+        #f0=Array{Float64}(undef,mygrid.fSize[ff]...,s[3:end]...)
+        f0=fill(NaN,mygrid.fSize[ff]...,s[3:end]...)
         n0=m0[1]
         for n in 1:nn
-            fileIn=@sprintf("%s.%04d.nc",fileName,n+n0);
-            x = ncread(fileIn,fldName,start,count);
-            i=collect(1:s[1]) .+ i0[n]
-            j=collect(1:s[2]) .+ j0[n]
-            f0[i,j,:,:]=x[:,:,:,:]
+            fileIn=@sprintf("%s.%04d.nc",fileRoot,n+n0)
+            if isfile(fileIn) #skip if no file / blank tile
+                x = ncread(fileIn,fldName,start,count)
+                i=collect(1:s[1]) .+ i0[n]
+                j=collect(1:s[2]) .+ j0[n]
+                f0[i,j,:,:]=x[:,:,:,:]
+            end
             m0[1]+=1
         end
-        f0[findall(isnan.(f0))].=0.0
+        #f0[findall(isnan.(f0))].=0.0
         push!(f,f0)
     end
 
