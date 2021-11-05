@@ -9,6 +9,7 @@ exps=verification_experiments()
 ```
 """
 function verification_experiments()
+MITgcm_download()
 pth=joinpath(MITgcm_path[1],"verification")
 lst=readdir(pth)
 tmp=[isfile(joinpath(pth,i,"code","packages.conf")) for i in lst]
