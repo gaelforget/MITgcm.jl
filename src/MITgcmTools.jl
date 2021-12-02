@@ -1,6 +1,6 @@
 module MITgcmTools
 
-using Dates, Printf, SparseArrays, LazyArtifacts, UUIDs, Suppressor
+using Dates, Printf, SparseArrays, Artifacts, LazyArtifacts, UUIDs, Suppressor
 using OrderedCollections, DataFrames, NetCDF, MeshArrays, ClimateModels
 
 include("Types.jl")
