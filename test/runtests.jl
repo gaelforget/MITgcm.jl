@@ -6,7 +6,7 @@ MITgcm_download()
 @testset "MITgcmTools.jl" begin
 
     #format conversions
-    (γ,Γ)=GridOfOnes("CubeSphere",30,30)
+    (γ,Γ)=MeshArrays.GridOfOnes("CubeSphere",30,30)
     @test isa(convert2gcmfaces(Γ.XC),Array)
     @test isa(convert2array(Γ.XC),Array)
 
