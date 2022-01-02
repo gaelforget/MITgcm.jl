@@ -53,7 +53,6 @@ MITgcm_download()
     @test setup(MC)
 
     push!(MC.status,("setup" => "ended"))
-    monitor(MC)
     
     launch(MC)
     pth=joinpath(MC.folder,string(MC.ID),"run")
