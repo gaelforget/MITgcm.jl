@@ -246,7 +246,7 @@ function setup(config::MITgcm_config)
             symlink(joinpath(pth_log,fil),joinpath(pth_run,fil))
         end
 
-        git_log_prm(config)
+        ClimateModels.git_log_prm(config)
     end
 
     #add model run to scheduled tasks

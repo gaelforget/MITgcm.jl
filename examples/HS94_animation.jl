@@ -95,7 +95,7 @@ begin
 		nml.params[3][:monitorFreq]= 21600.0
 
 		write(fil,nml)
-		#git_log_fil(myexp,fil,"update parameter file : "*split(fil,"/")[end])
+		#ClimateModels.git_log_fil(myexp,fil,"update parameter file : "*split(fil,"/")[end])
 
 		fil=joinpath(par_path,"data.pkg")
 		nml=read(fil,MITgcm_namelist())
@@ -104,7 +104,7 @@ begin
 		nml.params[1][:useMNC]=false
 
 		write(fil,nml)
-		#git_log_fil(myexp,fil,"update parameter file : "*split(fil,"/")[end])
+		#ClimateModels.git_log_fil(myexp,fil,"update parameter file : "*split(fil,"/")[end])
 
 	end
 

@@ -77,7 +77,7 @@ begin
 	filout=joinpath(rundir,"output.txt")
 	filstat=joinpath(rundir,"onestat.txt")
 	setup(exps[iexp])
-	git_log_prm(exps[iexp])
+	ClimateModels.git_log_prm(exps[iexp])
 	filexe
 end
 
@@ -227,7 +227,7 @@ begin
 		write(tmpfil,nml)
 
 		tmpfil=joinpath("tracked_parameters",mydats)
-		git_log_fil(exps[iexp],tmpfil,"update parameter file")
+		ClimateModels.git_log_fil(exps[iexp],tmpfil,"update parameter file")
 	end
 	
 	#@bind do_run2 Button("Launch Model")
