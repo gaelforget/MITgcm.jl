@@ -72,13 +72,24 @@ function build(config::MITgcm_config)
         cd()
     end
     pth=pwd()
-    cd("$(MITgcm_path[1])/verification/$(nam)/build")
+    build_dir = joinpath(MITgcm_path[1], "verification", nam, "build")
+    #cd("$(MITgcm_path[1])/verification/$(nam)/build")
+    cd(build_dir)
+    println("BUILD Current Dir: ", build_dir)
     try
-        @suppress run(`../../../tools/genmake2 -mods=../code`) #$ext
+        # TODO: how to dynamically pass in 'of' instead of hard coding?
+        @suppress run(`../../../tools/genmake2 -mods=../code -of=../../../tools/build_options/darwin_amd64_gfortran`) #$ext
+        println("a")
         @suppress run(`make clean`)
+        println("b")
         @suppress run(`make depend`)
+        println("c")
         @suppress run(`make -j 4`)
+        # TODO: this make is failing for some reason????? 
+        # @suppress run(`make`)
+        println("d")
     catch e
+        println("this is where the model fails ")
         println("model compilation may have failed")
     end
     cd(pth)
@@ -162,6 +173,7 @@ function setup(config::MITgcm_config)
     [symlink(joinpath(p,f[i]),joinpath(pth_run,f[i])) for i in 1:length(f)]
 
     #replace relative paths with absolutes then exe prepare_run
+    println("does file ", joinpath(pth_run,"prepare_run"), " exist? ", isfile(joinpath(pth_run,"prepare_run")))
     if isfile(joinpath(pth_run,"prepare_run"))
 		try
 			pth=pwd()
@@ -170,7 +182,6 @@ function setup(config::MITgcm_config)
 		end
         pth=pwd()
         cd(pth_run)
-        #
         fil="prepare_run"
         meta = read(fil,String)
         meta = split(meta,"\n")
@@ -182,6 +193,7 @@ function setup(config::MITgcm_config)
         for i in ii
             meta[i]=replace(meta[i],"../" => "$(MITgcm_path[1])/verification/$(config.configuration)")
         end
+
         #rm old file from run dir
         rm(fil)
         #write new file in run dir
@@ -263,6 +275,7 @@ Go to `run/` folder and effectively call `mitgcmuv > output.txt`
 (part of the climate model interface as specialized for `MITgcm`)
 """
 function MITgcm_launch(config::MITgcm_config)
+    println("using MITgcm_launch in ModelSteps.jl")
     try
         pth=pwd()
     catch e
@@ -272,7 +285,9 @@ function MITgcm_launch(config::MITgcm_config)
     cd(joinpath(config.folder,string(config.ID),"run"))
     tmp=["STOP NORMAL END"]
     try
+        println("launching in ModelSteps!")
         @suppress run(pipeline(`./mitgcmuv`,"output.txt"))
+        println("run did not fail!!!!! ")
     catch e
         tmp[1]="model run may have failed"
     end
