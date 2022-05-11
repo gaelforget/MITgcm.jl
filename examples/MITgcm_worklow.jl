@@ -305,7 +305,8 @@ begin
 		tmp2=tmp2[findall(occursin.("T.0000",tmp2))]
 		tmp2=tmp2[findall(occursin.("001.001.data",tmp2))]
 		tmp2=[i[1:end-13] for i in tmp2]
-	
+		println("t_slow ", t_slow)
+		println("t_slow type ", typeof(t_slow))
 		!isnothing(t_slow) ? i=mod(t_slow,length(tmp2)) : i=length(tmp2)-1
 		
 		tmp3=read_mdsio(rundir,tmp2[i+1])
@@ -1535,7 +1536,7 @@ version = "0.9.1+5"
 # ╟─0f920f90-86e9-11eb-3f6d-2d530bd2e9db
 # ╠═d0bbb668-86e0-11eb-1a9b-8f2b0175f7c1
 # ╟─e6c10fb5-ee95-41a0-982e-3910a8ce1d00
-# ╟─8ad9d646-4eec-45b9-938b-21df34da2d6b
+# ╠═8ad9d646-4eec-45b9-938b-21df34da2d6b
 # ╟─c7670d00-868c-11eb-1889-4d3ffe621dd2
 # ╟─d7f2c656-8512-11eb-2fdf-47a3e57a55e6
 # ╟─ca7bb004-8510-11eb-379f-632c3b40723d
