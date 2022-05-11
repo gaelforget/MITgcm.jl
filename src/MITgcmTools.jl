@@ -33,8 +33,9 @@ MITgcm_hash = artifact_hash("MITgcm", artifact_toml)
 Path to a MITgcm folder. `MITgcm_path[1]` should generally be used. `MITgcm_path[2]` is mostly 
 meant to facilitate comparisons between e.g. MITgcm releases when needed.
 """
-MITgcm_path = [ joinpath(artifact_path(MITgcm_hash)*"/","MITgcm_test"),
-                joinpath(artifact_path(MITgcm_hash)*"/","MITgcm_test")]
+# MITgcm_path = [ joinpath(artifact_path(MITgcm_hash)*"/","MITgcm_test"),
+#                 joinpath(artifact_path(MITgcm_hash)*"/","MITgcm_test")]
+MITgcm_path = ["/Users/birdy/Documents/eaps_research/darwin3"]
 
 PICKUP_hs94_path = artifact_path(artifact_hash("PICKUP_hs94", artifact_toml))
 

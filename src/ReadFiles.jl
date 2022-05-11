@@ -387,7 +387,7 @@ function read_namelist(fil)
     meta = meta[findall((!isempty).(meta))]
     meta = meta[findall(first.(meta).!=='#')]
     groups = meta[findall(occursin.('&',meta))]
-	groups = [Symbol(groups[1+2*(i-1)][3:end]) for i in 1:Int(length(groups)/2)]
+	groups = [Symbol(groups[1+2*(i-1)][3:end]) for i in 1:Int(floor(length(groups)/2))]
 	params = fill(OrderedDict(),length(groups))
 		
 	for i in 1:length(groups)
