@@ -152,6 +152,7 @@ Call `ClimateModels.git_log_init(config)` to setup git tracker and
 (part of the climate model interface as specialized for `MITgcm`)
 """
 function setup(config::MITgcm_config)
+    # note: folder = "/Users/birdy/Documents/eaps_research/darwin3/verification/darwin-single-box/run"
     !isdir(joinpath(config.folder)) ? mkdir(joinpath(config.folder)) : nothing
     !isdir(joinpath(config.folder,string(config.ID))) ? mkdir(joinpath(config.folder,string(config.ID))) : nothing
 
@@ -167,6 +168,7 @@ function setup(config::MITgcm_config)
         [symlink(joinpath(p,f[i]),joinpath(pth_run,f[i])) for i in 1:length(f)]
     end
 
+    # links data* files in /run/UUID/run to /darwin-sinle-box/input .... but they end up linked to log/tracked_parameters ? 
     p="$(MITgcm_path[1])/verification/$(config.configuration)/input"
     tmpA=readdir(p)
     f=tmpA[findall([!isfile(joinpath(pth_run,tmpA[i])) for i in 1:length(tmpA)])]
@@ -228,15 +230,27 @@ function setup(config::MITgcm_config)
             tmpA=tmpA[findall([length(tmpA[i])>3 for i in 1:length(tmpA)])]
             tmpA=tmpA[findall([tmpA[i][1:4]=="data"||tmpA[i]=="eedata"||
                     tmpA[i]=="prepare_run" for i in 1:length(tmpA)])]
+            println("Namelist Files: ", tmpA)
+            return tmpA
     end
     nmlfiles=list_namelist_files(pth_run)
 
-    if !isdir(pth_log)    
+    if !isdir(pth_log)  
+        # create log dir   
         mkdir(pth_log)
 
         params=OrderedDict()
+        ## TODO: error in here???
+        println("Files in nmlfiles.... ")
         for fil in nmlfiles
-            nml=read(joinpath(pth_run,fil),MITgcm_namelist())
+            println(" ")
+            println("reading file: ", fil)
+            
+            io = open(joinpath(pth_run,fil), "r")
+            # TODO: error in read_namelist, seen with eedata and other parms being left out 
+            nml=read_namelist(joinpath(pth_run,fil))
+            println("name list object made from parsing: ", nml)
+
             write(joinpath(pth_log,fil),nml)            
             #
             ni=length(nml.groups); tmp1=OrderedDict()
@@ -283,6 +297,10 @@ function MITgcm_launch(config::MITgcm_config)
     end
     pth=pwd()
     cd(joinpath(config.folder,string(config.ID),"run"))
+    println("********************")
+    println(joinpath(config.folder,string(config.ID),"run"))
+    println("********************")
+
     tmp=["STOP NORMAL END"]
     try
         println("launching in ModelSteps!")

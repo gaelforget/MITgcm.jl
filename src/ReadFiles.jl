@@ -381,15 +381,43 @@ namelist=read_namelist(fil)
 ```
 """
 function read_namelist(fil)
-
+    # birdy
+    # TODO: error reading eedata namelist somewhere in here
+    println("READ NAMELIST SDFLKJSDFLJSDKLFJSLKDFJKLSJDF")
+    println(fil)
+    println(" ")
     meta = read(fil,String)
+    if occursin("eedata", fil)
+        println("meta: ", meta)
+        println("")
+    end
+
+    # extract parameters from meta. Assumes specific format 
+    # what is the format??
     meta = split(meta,"\n")
+    println("meta after split:", meta)
+    # get rid of empty lines?
     meta = meta[findall((!isempty).(meta))]
+    println("what is empty?", (!isempty).(meta))
+    println("meta after finall:", meta)
+
+    # get rid of comments?
     meta = meta[findall(first.(meta).!=='#')]
-    groups = meta[findall(occursin.('&',meta))]
+    println("meta after finall2:", meta)
+
+    # THIS BREAKS DOWN when / is used instead of & (sometimes?)
+    groups = meta[findall(occursin.('&',meta))] # groups of params start with a & 
+    println("meta after finall3:", meta)
+
+    # wtf 
+    # removes the first two characters.... but only for the first half???
 	groups = [Symbol(groups[1+2*(i-1)][3:end]) for i in 1:Int(floor(length(groups)/2))]
+    println("groups: ", groups)
+    # instantiate params dictionary 
 	params = fill(OrderedDict(),length(groups))
-		
+	println("params", params)
+
+    # then if groups isnt made right, params won't be created right 
 	for i in 1:length(groups)
 		ii=1+findall(occursin.(String(groups[i]),meta))[1]
 		i1=ii
@@ -481,6 +509,7 @@ write(fil*"_new",nml)
 ```
 """
 function write_namelist(fil,namelist)
+    # TODO: if this function fails, writes an empty file
 	fid = open(fil, "w")
 	for jj in 1:length(namelist.groups)
         ii=namelist.groups[jj]
