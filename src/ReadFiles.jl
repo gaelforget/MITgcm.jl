@@ -388,28 +388,15 @@ function read_namelist(fil)
     println(fil)
     println(" ")
     meta = read(fil,String)
-    if occursin("eedata", fil)
-        println("meta: ", meta)
-        println("")
-    end
 
     # extract parameters from meta. Assumes specific format 
     # what is the format??
     meta = split(meta,"\n")
-    println("meta after split:", meta)
-    # get rid of empty lines?
+    # get rid of empty lines
     meta = meta[findall((!isempty).(meta))]
-    println("what is empty?", (!isempty).(meta))
-    println("meta after finall:", meta)
-
-    # get rid of comments?
+    # get rid of comments
     meta = meta[findall(first.(meta).!=='#')]
-    println("meta after finall2:", meta)
-
-    # THIS BREAKS DOWN when / is used instead of & (sometimes?)
-    println("occursin.('&',meta): ", occursin.('&',meta))
     groups = meta[findall(occursin.('&',meta))] # groups of params start with a & 
-    println("groups: ", groups)
 
     # wtf 
     # removes the first two characters.... but only for the first half???
@@ -418,42 +405,27 @@ function read_namelist(fil)
     # remove whitespace and & 
     trimmed_groups = []
     for g in groups
-        println("originalg g: ", g)
         g = lstrip(g)
         g = rstrip(g)
         g = replace(g, "&" => "")
-        println("processed g: ", g)
         push!(trimmed_groups, g)
     end
     println("trimmed groups: ", trimmed_groups)
     # instantiate params dictionary 
     # then if groups isnt made right, params won't be created right 
 	params = fill(OrderedDict(),length(groups))
-	println("params", params, " len: ", length(params))
 
     # for each param under each group, do the key/val split
 	for i in 1:length(groups)
-        println("i: ", i)
 		ii=1+findall(occursin.(String(groups[i]),meta))[1]
-        println("ii: ", ii)
 		i1=ii
 		tmp0=OrderedDict()
         k0=[:unknown]
         # THIS LINE IS LOOKING FOR A CLOSEING & or a single backslash  \
-        println("length(strip(meta[ii]): ", length(strip(meta[ii])))
-        println("occursin('/', meta[ii]): ", occursin('/', meta[ii]))
-        println("length(strip(meta[ii]))==1): ", length(strip(meta[ii]))==1)
-        println("(occursin('/', meta[ii]) && length(strip(meta[ii]))==1): ", (occursin('/', meta[ii]) && length(strip(meta[ii]))==1))
-		println("!occursin('&',meta[ii]): ", !occursin('&',meta[ii]))
-        println(" !occursin('&',meta[ii]) || (occursin('/', meta[ii]) && length(strip(meta[ii]))==1): ",  !occursin('&',meta[ii]) && !(occursin('/', meta[ii]) && length(strip(meta[ii]))==1))
         while !occursin('&',meta[ii]) && !(occursin('/', meta[ii]) && length(strip(meta[ii]))==1)
-            println("----")
-            println("meta[ii]: ", meta[ii])
 			if occursin('=',meta[ii])
 				tmp1=split(meta[ii],'=')
-                println("tmp1: ", tmp1)
                 k0[1]=Symbol(strip(tmp1[1]))
-                println("k01: ", k0[1])
 				tmp2=split(tmp1[2],',')
                 if length(tmp2)==2
                     tmp0[k0[1]]=strip(tmp2[1])
@@ -468,14 +440,6 @@ function read_namelist(fil)
                 end
 			end
 			ii += 1
-            println("new ii: ", ii)
-            println("length(strip(meta[ii]): ", length(strip(meta[ii])))
-            println("occursin('/', meta[ii]): ", occursin('/', meta[ii]))
-            println("length(strip(meta[ii]))==1): ", length(strip(meta[ii]))==1)
-            println("(occursin('/', meta[ii]) && length(strip(meta[ii]))==1): ", (occursin('/', meta[ii]) && length(strip(meta[ii]))==1))
-            println(" !occursin('&',meta[ii]) && (occursin('/', meta[ii]) && length(strip(meta[ii]))==1): ",  !occursin('&',meta[ii]) && !(occursin('/', meta[ii]) && length(strip(meta[ii]))==1))
-
-            meta[ii]
 		end
         for ii in keys(tmp0)
             tmp0[ii]=parse_param(tmp0[ii])

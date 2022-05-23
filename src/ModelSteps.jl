@@ -249,7 +249,6 @@ function setup(config::MITgcm_config)
             io = open(joinpath(pth_run,fil), "r")
             # TODO: error in read_namelist, seen with eedata and other parms being left out 
             nml=read_namelist(joinpath(pth_run,fil))
-            println("name list object made from parsing: ", nml)
 
             write(joinpath(pth_log,fil),nml)            
             #
@@ -304,9 +303,11 @@ function MITgcm_launch(config::MITgcm_config)
     tmp=["STOP NORMAL END"]
     try
         println("launching in ModelSteps!")
-        @suppress run(pipeline(`./mitgcmuv`,"output.txt"))
+        #@suppress run(pipeline(`./mitgcmuv`,"output.txt"))
+        run(pipeline(`./mitgcmuv`,"output.txt"))
         println("run did not fail!!!!! ")
     catch e
+        println(e)
         tmp[1]="model run may have failed"
     end
     cd(pth)
