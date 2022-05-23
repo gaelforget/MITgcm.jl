@@ -11,7 +11,7 @@ folder  = "/Users/birdy/Documents/eaps_research/darwin3/verification/darwin-sing
 
 
 
-# test eedata
+# read_namelist test eedata
 file = "eedata"
 fil = joinpath(folder, file)
 nml = read_namelist(fil)
@@ -21,7 +21,7 @@ nml = read_namelist(fil)
 @test nml.params[1][Symbol.("nTx")] == 1
 @test nml.params[1][Symbol.("nTy")] == 1
 
-# test data.darwin
+# read_namelist test data.darwin
 file = "data.darwin"
 fil = joinpath(folder, file)
 nml = read_namelist(fil)
@@ -39,8 +39,17 @@ nml = read_namelist(fil)
 # @test nml.params[1][Symbol.("nTy")] == 1
 
 
+# test write_namelist 
+file = "data.gmredi"
+fil = joinpath(folder, file)
+nml = read_namelist(fil)
+out_file = joinpath(pwd(),"test_read_namelist_scratch")
+write_namelist(out_file, nml)
+res = read(out_file, String)
+println("write_namelist result: ")
+println(res)
 
-
+@test 'D' in res
 
 # mock nml
 # nml = MITgcm_namelist(groups=Symbol.(["EEPARMS"]), params=fill(OrderedDict(), length(1)))

@@ -396,6 +396,7 @@ function read_namelist(fil)
     meta = meta[findall((!isempty).(meta))]
     # get rid of comments
     meta = meta[findall(first.(meta).!=='#')]
+    # TODO: make sure it is not a lone &
     groups = meta[findall(occursin.('&',meta))] # groups of params start with a & 
 
     # wtf 
@@ -446,6 +447,11 @@ function read_namelist(fil)
         end
 		params[i]=tmp0			
 	end
+
+    if occursin("gmredi", fil)
+        println("gmredi data params: (look for D or d) -- ")
+        println(params)
+    end
 		
     return MITgcm_namelist(Symbol.(trimmed_groups),params)
 end
@@ -462,9 +468,10 @@ function parse_param(p1)
 	elseif p1==".FALSE."||p1==".false."
 		p2=false
 	else
+        # drop surrounding quotes IF its not a list 
         if first(p1)=='\''&&!occursin(',',p1)
 			p2=p1[2:end-1]
-        elseif occursin('.',p1)
+        elseif occursin('.',p1) || occursin('e', p1) || occursin('E', p1)
 			try
 				p2=parse(Float64,p1)
 			catch
@@ -521,7 +528,17 @@ function write_namelist(fil,namelist)
             y=missing
             isa(x,Bool)&&x==true ? y=".TRUE." : nothing
             isa(x,Bool)&&x==false ? y=".FALSE." : nothing
+            # if x is an array, and it is filled with all AbstractStrings AND non of the elements contain *
+            # this is so we don't put quotes around lists that contain *
+            write_quotes = true
             if isa(x,Array)&&(eltype(x)<:AbstractString)
+                for idx in 1:length(x)
+                    if occursin('*', x[idx])
+                        write_quotes = false
+                    end
+                end
+            end
+            if isa(x,Array)&&(eltype(x)<:AbstractString)&&write_quotes
                 tmpy=[""]
                 [tmpy[1]*="'"*x[ii]*"', \n " for ii in 1:length(x)]
                 y=tmpy[1][1:end-4]
