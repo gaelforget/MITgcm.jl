@@ -397,8 +397,9 @@ function read_namelist(fil)
     # get rid of comments
     meta = meta[findall(first.(meta).!=='#')]
     # TODO: make sure it is not a lone &
-    groups = meta[findall(occursin.('&',meta))] # groups of params start with a & 
-
+    groups = meta[findall(occursin.('&',meta) .& (length.(strip.(meta)) .> 1))] # groups of params start with a & 
+    
+    
     # wtf 
     # removes the first two characters.... but only for the first half???
 	#groups = [Symbol(groups[1+2*(i-1)][3:end]) for i in 1:Int(floor(length(groups)/2))]

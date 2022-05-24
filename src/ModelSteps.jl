@@ -210,6 +210,37 @@ function setup(config::MITgcm_config)
         cd(pth)
     end
 
+    # replace relative path with absolutes in data.radtrans 
+    if isfile(joinpath(pth_run,"data.radtrans"))
+        try
+			pth=pwd()
+		catch e
+			cd()
+		end
+        pth=pwd()
+        cd(pth_run)
+        fil="data.radtrans"
+        meta = read(fil,String)
+        meta = split(meta,"\n")
+        ii=findall(occursin.("../../",meta))
+        for i in ii
+            meta[i]=replace(meta[i],"../../" => "$(MITgcm_path[1])/verification/")
+        end
+        ii=findall(occursin.("../",meta))
+        println("testing123")
+        for i in ii
+            println("replacing .. with absolute path")
+            meta[i]=replace(meta[i],"../" => "$(MITgcm_path[1])/verification/$(config.configuration)/")
+        end
+        #rm old file from run dir
+        rm(fil)
+        #write new file in run dir
+        txt=["$(meta[i])\n" for i in 1:length(meta)]
+        fid = open(fil, "w")
+		[write(fid,txt[i]) for i in 1:length(txt)]
+    	close(fid)
+    end
+
     if !islink(joinpath(pth_run,"mitgcmuv"))
         f="$(MITgcm_path[1])/verification/$(config.configuration)/build/mitgcmuv"
         symlink(f,joinpath(pth_run,"mitgcmuv")) 
