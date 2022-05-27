@@ -8,7 +8,7 @@ using UUIDs
 # TODO: copy and paste in the correct config_id
 # (from the output of darwin-setup)
 ##################
-config_id = "8baf0c25-70de-44f2-b30c-25e9f53805ea" # CHANGE ME
+config_id = "1e867561-76e2-4d16-87e5-8d76f13eca15" # CHANGE ME
 
 # reload the config 
 config_name = "darwin-single-box"
@@ -17,7 +17,7 @@ config_obj = MITgcm_config(configuration=config_name, ID=UUID(config_id), folder
 rundir = joinpath(folder, config_id, "run")
 
 ##################
-# TODO: modify runtime parameters here
+# Modify runtime parameters here
 # file > group > parameter
 ##################
 
@@ -73,9 +73,25 @@ run(pipeline(`grep dynstat_theta_mean $(filout)`,filstat))
 tmp0 = read(filstat,String)
 tmp0 = split(tmp0,"\n")
 Tmean=[parse(Float64,split(tmp0[i],"=")[2]) for i in 1:length(tmp0)-1]
-display(plot(Tmean,label="mean temperature"))
+my_plot = plot(Tmean,label="mean temperature")
+display(my_plot)
+savefig(my_plot, "output-temp.png")
 
 # TODO: plot NC files! 
+
+# read in .nc files, xarray style? 
+
+# nutrients 
+
+# pro 
+
+# sunlight
+
+# temp
+
+
+
+
 
 # pro concentration
 # ds = Dataset(joinpath(rundir, "ecco_gud_20220524_0001", "3d.0000002880.t001.nc")) 

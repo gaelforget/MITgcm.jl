@@ -38,4 +38,6 @@ end
 md"""Where Is 'mitgcmuv' run? **$(rundir)**"""
 
 println(config_obj)
-println("Config ID: ", config_id, " ***** copy this into darwin-run.jl *****")
+println("********************************************************")
+println("* Config ID: ", config_id, " ***** copy this into darwin-run.jl *****")
+println("********************************************************")
