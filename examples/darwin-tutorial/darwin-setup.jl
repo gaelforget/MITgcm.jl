@@ -15,6 +15,7 @@ begin
 	# create config
 	config_name = "darwin-single-box"
 	config_id = UUIDs.uuid4()
+    # TODO: update folder path
 	folder = "/Users/birdy/Documents/eaps_research/darwin3/verification/darwin-single-box/run"
 	config_obj = MITgcm_config(configuration=config_name, ID=config_id, folder=folder)
 
@@ -26,16 +27,12 @@ begin
 	filout=joinpath(rundir,"output.txt")
 	filstat=joinpath(rundir,"onestat.txt")
 	println("MITgcm_path[1]: ", MITgcm_path[1])
+    println("running setup...")
 	setup(config_obj)
 	println("done with setup")
 	# ClimateModels.git_log_prm(config_name)
-	println("filexe=", filexe)
-	config_obj
-
 	# NOTE: creates a new folder each time it runs, so CLEAN OUT EVENTUALLY
 end
-
-md"""Where Is 'mitgcmuv' run? **$(rundir)**"""
 
 println(config_obj)
 println("********************************************************")

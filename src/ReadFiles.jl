@@ -382,28 +382,17 @@ namelist=read_namelist(fil)
 ```
 """
 function read_namelist(fil)
-    # birdy
-    # TODO: error reading eedata namelist somewhere in here
-    println("READ NAMELIST SDFLKJSDFLJSDKLFJSLKDFJKLSJDF")
-    println(fil)
-    println(" ")
+
     meta = read(fil,String)
 
     # extract parameters from meta. Assumes specific format 
-    # what is the format??
     meta = split(meta,"\n")
     # get rid of empty lines
     meta = meta[findall((!isempty).(meta))]
     # get rid of comments
     meta = meta[findall(first.(meta).!=='#')]
-    # TODO: make sure it is not a lone &
     groups = meta[findall(occursin.('&',meta) .& (length.(strip.(meta)) .> 1))] # groups of params start with a & 
     
-    
-    # wtf 
-    # removes the first two characters.... but only for the first half???
-	#groups = [Symbol(groups[1+2*(i-1)][3:end]) for i in 1:Int(floor(length(groups)/2))]
-
     # remove whitespace and & 
     trimmed_groups = []
     for g in groups
@@ -412,9 +401,8 @@ function read_namelist(fil)
         g = replace(g, "&" => "")
         push!(trimmed_groups, g)
     end
-    println("trimmed groups: ", trimmed_groups)
     # instantiate params dictionary 
-    # then if groups isnt made right, params won't be created right 
+    # if groups isnt made right, params won't be created right 
 	params = fill(OrderedDict(),length(groups))
 
     # for each param under each group, do the key/val split
@@ -448,11 +436,6 @@ function read_namelist(fil)
         end
 		params[i]=tmp0			
 	end
-
-    if occursin("gmredi", fil)
-        println("gmredi data params: (look for D or d) -- ")
-        println(params)
-    end
 		
     return MITgcm_namelist(Symbol.(trimmed_groups),params)
 end

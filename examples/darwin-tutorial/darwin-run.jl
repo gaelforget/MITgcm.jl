@@ -8,7 +8,7 @@ using UUIDs
 # TODO: copy and paste in the correct config_id
 # (from the output of darwin-setup)
 ##################
-config_id = "1e867561-76e2-4d16-87e5-8d76f13eca15" # CHANGE ME
+config_id = "70887403-8813-4702-b2d1-22bd6253d00d" # CHANGE ME
 
 # reload the config 
 config_name = "darwin-single-box"
@@ -38,11 +38,10 @@ println("parms: ", parms)
 
 # what parameter do you want to modify?
 p_name = "tRef" # CHANGE ME
-p_value = "22.2" # CHANGE ME
+p_value = "30.0" # CHANGE ME
 
 # write changed parameter
 tmptype=typeof(nml.params[group_idx][Symbol(p_name)])
-println(tmptype)
 nml.params[group_idx][Symbol(p_name)]=parse(tmptype,p_value)
 tmpfil=joinpath(rundir,data_file)
 rm(tmpfil)
@@ -61,38 +60,4 @@ end
 println("run completed")
 println("time elapse: ", t, " seconds")
 
-##################
-# plot results
-##################
-
-# plot the results
-# search output.txt for 'dynstat_theta_mean'
-filout = joinpath(rundir, "output.txt")
-filstat = joinpath(rundir, "onestat.txt")
-run(pipeline(`grep dynstat_theta_mean $(filout)`,filstat))
-tmp0 = read(filstat,String)
-tmp0 = split(tmp0,"\n")
-Tmean=[parse(Float64,split(tmp0[i],"=")[2]) for i in 1:length(tmp0)-1]
-my_plot = plot(Tmean,label="mean temperature")
-display(my_plot)
-savefig(my_plot, "output-temp.png")
-
-# TODO: plot NC files! 
-
-# read in .nc files, xarray style? 
-
-# nutrients 
-
-# pro 
-
-# sunlight
-
-# temp
-
-
-
-
-
-# pro concentration
-# ds = Dataset(joinpath(rundir, "ecco_gud_20220524_0001", "3d.0000002880.t001.nc")) 
-# plot()
+# TODO: print out the subfolder (i.e. "ecco_gud_DATE_0001")

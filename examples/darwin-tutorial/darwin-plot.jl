@@ -9,12 +9,12 @@ using DimensionalData
 # copy and paste in the correct config_id
 # (from the output of darwin-setup)
 ##################
-config_id = "1e867561-76e2-4d16-87e5-8d76f13eca15" # CHANGE ME
+config_id = "70887403-8813-4702-b2d1-22bd6253d00d" # CHANGE ME
+data_folder = "ecco_gud_20220527_0001" # CHANGE ME
 
 # load nc file into ds 
 folder = "/Users/birdy/Documents/eaps_research/darwin3/verification/darwin-single-box/run"
 rundir = joinpath(folder, config_id, "run")
-data_folder = "ecco_gud_20220525_0003"
 glob_dir = joinpath(rundir, data_folder)
 alldata = glob("3d*.nc", glob_dir)
 ds = Dataset(alldata)

@@ -175,7 +175,6 @@ function setup(config::MITgcm_config)
     [symlink(joinpath(p,f[i]),joinpath(pth_run,f[i])) for i in 1:length(f)]
 
     #replace relative paths with absolutes then exe prepare_run
-    println("does file ", joinpath(pth_run,"prepare_run"), " exist? ", isfile(joinpath(pth_run,"prepare_run")))
     if isfile(joinpath(pth_run,"prepare_run"))
 		try
 			pth=pwd()
@@ -227,9 +226,7 @@ function setup(config::MITgcm_config)
             meta[i]=replace(meta[i],"../../" => "$(MITgcm_path[1])/verification/")
         end
         ii=findall(occursin.("../",meta))
-        println("testing123")
         for i in ii
-            println("replacing .. with absolute path")
             meta[i]=replace(meta[i],"../" => "$(MITgcm_path[1])/verification/$(config.configuration)/")
         end
         #rm old file from run dir
@@ -261,7 +258,6 @@ function setup(config::MITgcm_config)
             tmpA=tmpA[findall([length(tmpA[i])>3 for i in 1:length(tmpA)])]
             tmpA=tmpA[findall([tmpA[i][1:4]=="data"||tmpA[i]=="eedata"||
                     tmpA[i]=="prepare_run" for i in 1:length(tmpA)])]
-            println("Namelist Files: ", tmpA)
             return tmpA
     end
     nmlfiles=list_namelist_files(pth_run)
@@ -271,18 +267,12 @@ function setup(config::MITgcm_config)
         mkdir(pth_log)
 
         params=OrderedDict()
-        ## TODO: error in here???
-        println("Files in nmlfiles.... ")
         for fil in nmlfiles
-            println(" ")
-            println("reading file: ", fil)
-            
             io = open(joinpath(pth_run,fil), "r")
-            # TODO: error in read_namelist, seen with eedata and other parms being left out 
             nml=read_namelist(joinpath(pth_run,fil))
 
             write(joinpath(pth_log,fil),nml)            
-            #
+
             ni=length(nml.groups); tmp1=OrderedDict()
             [push!(tmp1,(nml.groups[i] => nml.params[i])) for i in 1:ni]
             tmp2=""
@@ -327,9 +317,6 @@ function MITgcm_launch(config::MITgcm_config)
     end
     pth=pwd()
     cd(joinpath(config.folder,string(config.ID),"run"))
-    println("********************")
-    println(joinpath(config.folder,string(config.ID),"run"))
-    println("********************")
 
     tmp=["STOP NORMAL END"]
     try
