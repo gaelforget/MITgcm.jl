@@ -76,22 +76,37 @@ function build(config::MITgcm_config)
     #cd("$(MITgcm_path[1])/verification/$(nam)/build")
     cd(build_dir)
     println("BUILD Current Dir: ", build_dir)
-    try
-        # TODO: how to dynamically pass in 'of' instead of hard coding?
-        @suppress run(`../../../tools/genmake2 -mods=../code -of=../../../tools/build_options/darwin_amd64_gfortran`) #$ext
-        println("a")
-        @suppress run(`make clean`)
-        println("b")
-        @suppress run(`make depend`)
-        println("c")
-        @suppress run(`make -j 4`)
-        # TODO: this make is failing for some reason????? 
-        # @suppress run(`make`)
-        println("d")
-    catch e
-        println("this is where the model fails ")
-        println("model compilation may have failed")
-    end
+    println("Building with genmake2...")
+    @suppress run(`../../../tools/genmake2 -mods=../code`) #$ext
+    println("Genmake2 build done.")
+    @suppress run(`make clean`)
+    println("b")
+    println("Running make depend...")
+    @suppress run(`make depend`)
+    println("Make depend done.")
+    println("c")
+    println("Running make -j 4")
+    run(`make -j 4`)
+    println("Make done! SUCCESSFUL BUILD!")
+
+    # DO NOT want to wrap this in a try. FAIL FAST MTHFKR
+    # try
+    #     # TODO: how to dynamically pass in 'of' instead of hard coding?
+    #     #@suppress run(`../../../tools/genmake2 -mods=../code -of=../../../tools/build_options/darwin_amd64_gfortran`) #$ext
+    #     run(`../../../tools/genmake2 -mods=../code`) #$ext
+    #     println("a")
+    #     run(`make clean`)
+    #     println("b")
+    #     run(`make depend`)
+    #     println("c")
+    #     run(`make -j 4`)
+    #     # TODO: this make is failing for some reason????? 
+    #     # @suppress run(`make`)
+    #     println("d")
+    # catch e
+    #     println("this is where the model fails ")
+    #     println("model compilation may have failed")
+    # end
     cd(pth)
     return true
 end

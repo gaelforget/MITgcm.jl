@@ -11,21 +11,36 @@ begin
 	using UUIDs
 end
 
+MITgcm_path[1] = "/Users/birdy/Documents/eaps_research/darwin3" # CHANGE ME 
+
 begin
 	# create config
 	config_name = "darwin-single-box"
 	config_id = UUIDs.uuid4()
-    # TODO: update folder path
-	folder = "/Users/birdy/Documents/eaps_research/darwin3/verification/darwin-single-box/run"
+	#folder = "/Users/birdy/Documents/eaps_research/darwin3/verification/darwin-single-box/run"
+    folder = joinpath(MITgcm_path[1], "verification", config_name, "run")
 	config_obj = MITgcm_config(configuration=config_name, ID=config_id, folder=folder)
 
 	# setup 
 	filexe=joinpath(MITgcm_path[1],"verification",config_name,"build","mitgcmuv")
+
 	# TODO: build model here instead of using a pre-built exec
-	#build(config_obj)
-    rundir=joinpath("/Users/birdy/Documents/eaps_research/darwin3","verification",config_name,"run", string(config_id), "run")
-	filout=joinpath(rundir,"output.txt")
-	filstat=joinpath(rundir,"onestat.txt")
+    # check for mitgcmuv executable, if not there, build it
+    # ... the `make -j 4` command in ModelSteps>build fails :'(  
+    # even though it works fine when i run the commands from the CL
+    # WORKAROUND: run the folling from the build dir
+    # ../../../tools/genmake2 -mods=../code
+    # make depend
+    # make -j 4
+    if !exists(filexe)
+        println("building...")
+        build(config_obj)
+        println("done with build")
+    end
+
+    # rundir=joinpath("/Users/birdy/Documents/eaps_research/darwin3","verification",config_name,"run", string(config_id), "run")
+	# filout=joinpath(rundir,"output.txt")
+	# filstat=joinpath(rundir,"onestat.txt")
 	println("MITgcm_path[1]: ", MITgcm_path[1])
     println("running setup...")
 	setup(config_obj)

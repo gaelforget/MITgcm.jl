@@ -8,7 +8,7 @@ using UUIDs
 # TODO: copy and paste in the correct config_id
 # (from the output of darwin-setup)
 ##################
-config_id = "70887403-8813-4702-b2d1-22bd6253d00d" # CHANGE ME
+config_id = "873f1019-bdc3-4aba-8c78-2b25a035498a" # CHANGE ME
 
 # reload the config 
 config_name = "darwin-single-box"
