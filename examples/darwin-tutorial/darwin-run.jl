@@ -8,11 +8,12 @@ using UUIDs
 # TODO: copy and paste in the correct config_id
 # (from the output of darwin-setup)
 ##################
-config_id = "873f1019-bdc3-4aba-8c78-2b25a035498a" # CHANGE ME
+MITgcm_path[1] = "/Users/birdy/Documents/eaps_research/darwin3" # CHANGE ME 
+config_id = "746ff9c0-cf2d-45c0-91f0-8ecfc33e8a14" # CHANGE ME
 
 # reload the config 
 config_name = "darwin-single-box"
-folder = "/Users/birdy/Documents/eaps_research/darwin3/verification/darwin-single-box/run"
+folder = joinpath(MITgcm_path[1], "verification/darwin-single-box/run")
 config_obj = MITgcm_config(configuration=config_name, ID=UUID(config_id), folder=folder)
 rundir = joinpath(folder, config_id, "run")
 

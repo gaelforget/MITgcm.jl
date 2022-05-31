@@ -35,6 +35,7 @@ meant to facilitate comparisons between e.g. MITgcm releases when needed.
 """
 # MITgcm_path = [ joinpath(artifact_path(MITgcm_hash)*"/","MITgcm_test"),
 #                 joinpath(artifact_path(MITgcm_hash)*"/","MITgcm_test")]
+# TODO: change back
 MITgcm_path = ["/Users/birdy/Documents/eaps_research/darwin3"]
 
 PICKUP_hs94_path = artifact_path(artifact_hash("PICKUP_hs94", artifact_toml))

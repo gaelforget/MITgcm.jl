@@ -10,6 +10,7 @@ using DimensionalData
 # (from the output of darwin-setup)
 ##################
 config_id = "70887403-8813-4702-b2d1-22bd6253d00d" # CHANGE ME
+data_folders = glob("ecco_gud*")
 data_folder = "ecco_gud_20220527_0001" # CHANGE ME
 
 # load nc file into ds 

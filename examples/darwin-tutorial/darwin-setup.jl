@@ -32,7 +32,7 @@ begin
     # ../../../tools/genmake2 -mods=../code
     # make depend
     # make -j 4
-    if !exists(filexe)
+    if !isfile(filexe)
         println("building...")
         build(config_obj)
         println("done with build")
