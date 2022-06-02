@@ -9,9 +9,9 @@ using DimensionalData
 # copy and paste in the correct config_id
 # (from the output of darwin-setup)
 ##################
-config_id = "70887403-8813-4702-b2d1-22bd6253d00d" # CHANGE ME
+config_id = "b622268f-ecfb-4626-a456-505e86fb1e5a" # CHANGE ME
 data_folders = glob("ecco_gud*")
-data_folder = "ecco_gud_20220527_0001" # CHANGE ME
+data_folder = "ecco_gud_20220531_0001" # CHANGE ME
 
 # load nc file into ds 
 folder = "/Users/birdy/Documents/eaps_research/darwin3/verification/darwin-single-box/run"
