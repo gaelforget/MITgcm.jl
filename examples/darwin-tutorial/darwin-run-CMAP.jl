@@ -60,19 +60,40 @@ rundir = joinpath(folder, config_id, "run")
 # timing 
 update_param("data", "PARM03", "nenditer", 2880) # end after 1 year
 
-# temperature
-update_param("data", "PARM01", "tRef", 30.0)
+# NOTE: values taken from Seaflow Cruise data (approx May 30, 2017 lat 29.3253 lon -158.0013)
 
-# nutrients 
+# temperature
+update_param("data", "PARM01", "tRef", 22.65576)
+# salinity
+update_param("data", "PARM01", "sRef", 33.23)
+
+# TODO: convert to proper units (mmol/m^3)
+no3_no2 = 0.010127 # seaflow gives us NO3+NO2, units umol/L
+po4 = 0.031981 # umol/L
+biomass_pro = 2.877689 # ugC/L 
+
+function convert_umol_L_to_mmol_m3(val)
+    res = val * 1000 # 1000 L / m^3
+    res = res / 1000 # 1 mmol / 1000 umol
+    return res
+end
+
+function convert_ug_L_C_to_mmol_m3(val)
+    res = val * 1000 # 1000 L / m^3
+    res = res / (12*1e6) # 1 umol C/ 12*1e6 ug C
+    res = res / 1000 # 1 mmol / 1000 umol
+    return res
+end
+
 # NO3
-update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :, 2)", 2)
+update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :, 2)", convert_umol_L_to_mmol_m3(no3_no2))
 #PO4
-update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :, 5)", 0.1)
-# FeT
-update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :, 6)", 1e-3)
+update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :, 5)", convert_umol_L_to_mmol_m3(po4))
+# FeT - NO VAL IN CMAP
+update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :, 6)", 1e-3) 
 
 # Prochlorococcus
-update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,21)", 1e-3)
+update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,21)", convert_ug_L_C_to_mmol_m3(biomass_pro))
 
 
 # TODO: save file to output dir with info about runtime params

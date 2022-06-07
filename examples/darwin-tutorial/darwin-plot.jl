@@ -11,7 +11,7 @@ using DimensionalData
 ##################
 config_id = "b622268f-ecfb-4626-a456-505e86fb1e5a" # CHANGE ME
 data_folders = glob("ecco_gud*")
-data_folder = "ecco_gud_20220531_0001" # CHANGE ME
+data_folder = "ecco_gud_20220602_0001" # CHANGE ME
 
 # load nc file into ds 
 folder = "/Users/birdy/Documents/eaps_research/darwin3/verification/darwin-single-box/run"

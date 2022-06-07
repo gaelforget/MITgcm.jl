@@ -1,6 +1,7 @@
 # let
 #     import Pkg
 #     Pkg.activate(".")
+# 	# CHANGE ME - put correct path in 
 #     Pkg.add(path="/Users/birdy/Documents/eaps_research/julia stuff/MITgcmTools.jl")
 # end
 
