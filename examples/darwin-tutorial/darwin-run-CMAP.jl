@@ -44,7 +44,7 @@ end
 # (from the output of darwin-setup)
 ##################
 MITgcm_path[1] = "/Users/birdy/Documents/eaps_research/darwin3" # CHANGE ME 
-config_id = "b622268f-ecfb-4626-a456-505e86fb1e5a" # CHANGE ME
+config_id = "1e299c65-e9be-4ee9-b07c-6fba08bc8476" # CHANGE ME
 
 # reload the config 
 config_name = "darwin-single-box"
