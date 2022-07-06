@@ -5,14 +5,22 @@ using Plots
 using DimensionalData
 using Dates
 
+##################
+# CBIOMES 2022 Config ids
+##################
+just_nutrients = "0c5b1795-f056-4588-8f83-37e13f476634"
+with_pro = "1209b496-a5c5-465f-93e7-f68205fa011d"
+pro_and_syn = "ad870f4d-600f-4e64-a77d-93c50214db78"
+pred_1 = "95cddc5c-16c1-4e3c-84bb-367819dbec6b"
+pred_2 = "f9135074-dd36-46e8-a46c-d047b127b9b1"
 
 ##################
 # copy and paste in the correct config_id
 # (from the output of darwin-setup)
 ##################
-config_id = "d4c6b1df-5f0e-4493-bbbc-c0926b4d2924" # CHANGE ME
+config_id = "73a60db1-ffcf-42bb-9a50-e041938f6ea2" # CHANGE ME
 data_folders = glob("ecco_gud*")
-data_folder = "ecco_gud_20220617_0005" # CHANGE ME
+data_folder = "ecco_gud_20220621_0001" # CHANGE ME
 savefigs = false
 # place to save plots to 
 outdir = dirname(Base.source_path())*"/poster_graphs/"
@@ -64,11 +72,12 @@ poFe = ds["TRAC15"]
 poFe_plot = plot(poFe[1, 1, 1, :], title=poFe.attrib["description"], legend=false, titlefontsize=12, xlabel="weeks", ylabel=poFe.attrib["units"])
 nutrients_plot = plot(nh4_plot, doc_plot, no3_plot, feT_plot, no2_plot, doFe_plot, po4_plot, poFe_plot, plot_title="Nutrients",
                     layout=(4,2), legend=false, size=(500, 1000))
-display(nutrients_plot)
+# display(nutrients_plot)
 
 # pro 
 pro = ds["TRAC21"]
 pro_plot = plot(pro[1,1,1,:], title="Prochlorococcus", legend=false, xlabel="weeks", ylabel=pro.attrib["units"])
+plot!(pro_plot, size=(500,500))
 display(pro_plot)
 
 # pro pred
@@ -81,14 +90,24 @@ syn = ds["TRAC22"]
 syn_plot = plot(syn[1,1,1,:], title="Syn", legend=false, xlabel="weeks", ylabel=syn.attrib["units"])
 display(syn_plot)
 
+# syn pred
+syn_pred = ds["TRAC54"]
+syn_pred_plot = plot(syn_pred[1,1,1,:], title="Syn Predator", legend=false, xlabel="weeks", ylabel=syn_pred.attrib["units"])
+display(syn_pred_plot)
+
+# syn pred
+het = ds["TRAC69"]
+het_plot = plot(het[1,1,1,:], title="het", legend=false, xlabel="weeks", ylabel=syn_pred.attrib["units"])
+display(het_plot)
+
 # plot all biomass counts (by functional group)
 
 # sum of all nitrogren 
 # NO3, NO2, NH4, DON, PON, and biomass
 # TODO: add new biomass nitrogren (redfield ratio)
-#bio_n = pro * (16/106) + syn * (16/106)
-bio_n = pro * (16/106)
-for i = 22:70 # all biomass creatures 
+bio_n = ds["TRAC20"] * (16/106)
+#bio_n = pro * (16/106)
+for i = 21:70 # all biomass creatures
     tracer_id = length(string(i)) < 2 ? "0"*string(i) : string(i)
     tracer_name = "TRAC"*tracer_id 
     global bio_n = bio_n + ds[tracer_name]*(16/106)
@@ -101,24 +120,44 @@ n_plot = plot(total_nitrogen[1, 1, 1, :], title="Total Nitrogen", legend=false, 
 
 # sum of all iron 
 # FeT, DOFe, POFe
+# TODO: add biomass iron
 doFe = ds["TRAC11"]
 poFe = ds["TRAC15"]
 total_iron = feT + doFe + poFe
 fe_plot = plot(total_iron[1, 1, 1, :], title="Total Iron", legend=false, xlabel="weeks", ylabel=feT.attrib["units"])
-conservation_plot = plot(n_plot, fe_plot, layout=(2,1))
-display(conservation_plot)
+
 
 # phosphorus 
-# 
+# PO4 + POP + DOP + biomass*r_pc
+r_pc = 0.008333333333333333 # phosphorus carbon ratio 
+#bio_p = pro * r_pc
+bio_p = ds["TRAC20"] * r_pc
+for i = 21:70 # all biomass creatures 
+    tracer_id = length(string(i)) < 2 ? "0"*string(i) : string(i)
+    tracer_name = "TRAC"*tracer_id 
+    global bio_n = bio_n + ds[tracer_name]*r_pc
+end
+dop = ds["TRAC10"]
+pop = ds["TRAC14"]
+total_phosphorous = po4 + pop + dop + bio_p
+p_plot = plot(total_phosphorous[1, 1, 1, :], title="Total Phosphorus", legend=false, xlabel="weeks", ylabel=po4.attrib["units"])
+
+conservation_plot = plot(n_plot, p_plot, fe_plot, layout=(3,1))
+#display(conservation_plot)
+
+
 
 if savefigs
     savefig(sanity_plot, outdir*"dic-and-alk-"*string(Dates.format(Dates.now(),"YYYYMMddHHMMSS"))*".png")
     savefig(nutrients_plot, outdir*"nutrients-"*string(Dates.format(Dates.now(),"YYYYMMddHHMMSS"))*".png")
-    savefig(n_plot, outdir*"/total-nitrogen-"*string(Dates.format(Dates.now(),"YYYYMMddHHMMSS"))*".png")
+    # savefig(n_plot, outdir*"/total-nitrogen-"*string(Dates.format(Dates.now(),"YYYYMMddHHMMSS"))*".png")
     savefig(pro_plot, outdir*"pro-"*string(Dates.format(Dates.now(),"YYYYMMddHHMMSS"))*".png")
     savefig(syn_plot, outdir*"syn-"*string(Dates.format(Dates.now(),"YYYYMMddHHMMSS"))*".png")
     savefig(pro_pred_plot, outdir*"pred-pro-"*string(Dates.format(Dates.now(),"YYYYMMddHHMMSS"))*".png")
+    savefig(syn_pred_plot, outdir*"pred-syn-"*string(Dates.format(Dates.now(),"YYYYMMddHHMMSS"))*".png")
     savefig(conservation_plot, outdir*"conservation-"*string(Dates.format(Dates.now(),"YYYYMMddHHMMSS"))*".png")
+    savefig(het_plot, outdir*"het-"*string(Dates.format(Dates.now(),"YYYYMMddHHMMSS"))*".png")
+
 end
 
 # sunlight

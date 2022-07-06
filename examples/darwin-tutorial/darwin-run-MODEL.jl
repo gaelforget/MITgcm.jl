@@ -51,7 +51,7 @@ end
 # (from the output of darwin-setup)
 ##################
 MITgcm_path[1] = "/Users/birdy/Documents/eaps_research/darwin3" # CHANGE ME 
-config_id = "d4c6b1df-5f0e-4493-bbbc-c0926b4d2924" # CHANGE ME
+config_id = "f9135074-dd36-46e8-a46c-d047b127b9b1" # CHANGE ME
 
 # reload the config 
 config_name = "darwin-single-box"
@@ -118,6 +118,9 @@ update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,53)", pro_pred
 pro_pred = ds["TRAC54"][x, y, z, t]
 update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,54)", pro_pred/10)
 
+# with hetero bact
+het = ds["TRAC69"][x, y, z, t]
+update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,69)", het)
 
 # # WITH EVERYTHING except diazotrophs 
 # for i = 1:29
