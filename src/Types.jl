@@ -61,5 +61,6 @@ Base.@kwdef struct MITgcm_config <: AbstractModelConfig
     status :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
     channel :: Channel{Any} = Channel{Any}(10) 
     folder :: String = tempdir()
-    ID :: UUID = UUIDs.uuid4()
+    #ID :: UUID = UUIDs.uuid4()
+    ID :: String = ""
 end

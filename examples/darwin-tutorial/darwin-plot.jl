@@ -195,3 +195,6 @@ pc_plot = plot(pc_ds["PC0001"][1, 1, 1, :], title=pc_ds["PC0001"].attrib["descri
 # temperature_data = glob("tave*.nc", glob_dir)
 # temp_ds = Dataset(temperature_data)
 # display(plot(temp_ds["Ttave"][1,1,1,:], title = "Temperature"))
+
+
+# plotting conservation 
