@@ -17,7 +17,8 @@ MITgcm_path[1] = "/Users/birdy/Documents/eaps_research/darwin3" # CHANGE ME
 begin
 	# create config
 	config_name = "darwin-single-box"
-	config_id = "conservation-test-" * string(UUIDs.uuid4())
+	# config_id = "conservation-test-" * string(UUIDs.uuid4())
+	config_id = "conservation-test-pro-syn-preds-no-scav"
 	#folder = "/Users/birdy/Documents/eaps_research/darwin3/verification/darwin-single-box/run"
     folder = joinpath(MITgcm_path[1], "verification", config_name, "run")
 	config_obj = MITgcm_config(configuration=config_name, ID=config_id, folder=folder)

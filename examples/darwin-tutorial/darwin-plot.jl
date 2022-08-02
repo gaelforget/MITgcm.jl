@@ -18,9 +18,9 @@ pred_2 = "f9135074-dd36-46e8-a46c-d047b127b9b1"
 # copy and paste in the correct config_id
 # (from the output of darwin-setup)
 ##################
-config_id = "73a60db1-ffcf-42bb-9a50-e041938f6ea2" # CHANGE ME
+config_id = "conservation-test-pro-syn-preds-no-scav" # CHANGE ME
 data_folders = glob("ecco_gud*")
-data_folder = "ecco_gud_20220621_0001" # CHANGE ME
+data_folder = "ecco_gud_20220802_0001" # CHANGE ME
 savefigs = false
 # place to save plots to 
 outdir = dirname(Base.source_path())*"/poster_graphs/"
@@ -72,7 +72,7 @@ poFe = ds["TRAC15"]
 poFe_plot = plot(poFe[1, 1, 1, :], title=poFe.attrib["description"], legend=false, titlefontsize=12, xlabel="weeks", ylabel=poFe.attrib["units"])
 nutrients_plot = plot(nh4_plot, doc_plot, no3_plot, feT_plot, no2_plot, doFe_plot, po4_plot, poFe_plot, plot_title="Nutrients",
                     layout=(4,2), legend=false, size=(500, 1000))
-# display(nutrients_plot)
+display(nutrients_plot)
 
 # pro 
 pro = ds["TRAC21"]
@@ -143,7 +143,7 @@ total_phosphorous = po4 + pop + dop + bio_p
 p_plot = plot(total_phosphorous[1, 1, 1, :], title="Total Phosphorus", legend=false, xlabel="weeks", ylabel=po4.attrib["units"])
 
 conservation_plot = plot(n_plot, p_plot, fe_plot, layout=(3,1))
-#display(conservation_plot)
+display(conservation_plot)
 
 
 

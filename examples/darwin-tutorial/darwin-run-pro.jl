@@ -12,13 +12,6 @@ using Pkg
 # using PyCall
 # @pyimport xarray
 
-# let
-#     import Pkg
-#     Pkg.activate(".")
-# 	# CHANGE ME - put correct path in 
-#     Pkg.add(path="/Users/birdy/Documents/eaps_research/julia stuff/MITgcmTools.jl")
-# end
-
 ##################
 # helpers
 ##################
@@ -58,12 +51,12 @@ end
 # (from the output of darwin-setup)
 ##################
 MITgcm_path[1] = "/Users/birdy/Documents/eaps_research/darwin3" # CHANGE ME 
-config_id = "conservation-test-3" # CHANGE ME
+config_id = "1209b496-a5c5-465f-93e7-f68205fa011d" # CHANGE ME
 
 # reload the config 
 config_name = "darwin-single-box"
 folder = joinpath(MITgcm_path[1], "verification/darwin-single-box/run")
-config_obj = MITgcm_config(configuration=config_name, ID=config_id, folder=folder)
+config_obj = MITgcm_config(configuration=config_name, ID=UUID(config_id), folder=folder)
 rundir = joinpath(folder, config_id, "run")
 
 ##################
@@ -86,80 +79,22 @@ z = 1
 #t = 21 # APRIL 
 t = 50 # OCTOBER
 
-# # NO BIOLOGY
-# # we want the first 19 tracers
+# NUTRIENTS
+# we want the first 21 tracers
+for i = 1:20
+    tracer_id = length(string(i)) < 2 ? "0"*string(i) : string(i)
+    tracer_name = "TRAC"*tracer_id 
+    new_value = ds[tracer_name][x, y, z, t]*10
+    update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,$i)", new_value)
+end
 
-# # DIC
-# tracer_name = "TRAC01"
-# new_value = ds[tracer_name][x, y, z, t]
-# update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,1)", new_value)
-
-# # NO3
-# tracer_name = "TRAC02"
-# new_value = ds[tracer_name][x, y, z, t]
-# update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,2)", new_value)
-
-for i = 1:3
+# PRO 
+for i = 21:21
     tracer_id = length(string(i)) < 2 ? "0"*string(i) : string(i)
     tracer_name = "TRAC"*tracer_id 
     new_value = ds[tracer_name][x, y, z, t]
     update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,$i)", new_value)
 end
-# # set biology to 0
-# for i = 21:70
-#     tracer_id = length(string(i)) < 2 ? "0"*string(i) : string(i)
-#     tracer_name = "TRAC"*tracer_id 
-#     new_value = 0
-#     update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,$i)", new_value)
-# end
-# WITH PRO and SYN
-# we want the first 21 tracers
-# for i = 1:20
-#     tracer_id = length(string(i)) < 2 ? "0"*string(i) : string(i)
-#     tracer_name = "TRAC"*tracer_id 
-#     new_value = ds[tracer_name][x, y, z, t]*10
-#     update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,$i)", new_value)
-# end
-
-# for i = 21:22
-#     tracer_id = length(string(i)) < 2 ? "0"*string(i) : string(i)
-#     tracer_name = "TRAC"*tracer_id 
-#     new_value = ds[tracer_name][x, y, z, t]
-#     update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,$i)", new_value)
-# end
-
-# # with pro's predator 
-# pro_pred = ds["TRAC53"][x, y, z, t]
-# update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,53)", pro_pred/10)
-
-# # with syns's predator 
-# pro_pred = ds["TRAC54"][x, y, z, t]
-# update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,54)", pro_pred/10)
-
-# # with hetero bact
-# het = ds["TRAC69"][x, y, z, t]
-# update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,69)", het)
-
-# # WITH EVERYTHING except diazotrophs 
-# for i = 1:29
-#     tracer_id = length(string(i)) < 2 ? "0"*string(i) : string(i)
-#     tracer_name = "TRAC"*tracer_id 
-#     new_value = ds[tracer_name][x, y, z, t]
-#     update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,$i)", new_value)
-# end
-# for i = 35:70
-#     tracer_id = length(string(i)) < 2 ? "0"*string(i) : string(i)
-#     tracer_name = "TRAC"*tracer_id 
-#     new_value = ds[tracer_name][x, y, z, t]
-#     update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,$i)", new_value)
-# end
-
-# temperature = 22.65576 # TODO: not actually taken from darwin data
-# salinity = 33.23 # TODO: not actually taken from darwin data
-# update_param("data", "PARM01", "tRef", temperature)
-# update_param("data", "PARM01", "sRef", salinity)
-
-# TODO: save file to output dir with info about runtime params
 
 
 ##################
