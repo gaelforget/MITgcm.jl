@@ -72,15 +72,41 @@ function build(config::MITgcm_config)
         cd()
     end
     pth=pwd()
-    cd("$(MITgcm_path[1])/verification/$(nam)/build")
-    try
-        @suppress run(`../../../tools/genmake2 -mods=../code`) #$ext
-        @suppress run(`make clean`)
-        @suppress run(`make depend`)
-        @suppress run(`make -j 4`)
-    catch e
-        println("model compilation may have failed")
-    end
+    build_dir = joinpath(MITgcm_path[1], "verification", nam, "build")
+    #cd("$(MITgcm_path[1])/verification/$(nam)/build")
+    cd(build_dir)
+    println("BUILD Current Dir: ", build_dir)
+    println("Building with genmake2...")
+    @suppress run(`../../../tools/genmake2 -mods=../code`) #$ext
+    println("Genmake2 build done.")
+    @suppress run(`make clean`)
+    println("b")
+    println("Running make depend...")
+    @suppress run(`make depend`)
+    println("Make depend done.")
+    println("c")
+    println("Running make -j 4")
+    run(`make -j 4`)
+    println("Make done! SUCCESSFUL BUILD!")
+
+    # DO NOT want to wrap this in a try. FAIL FAST MTHFKR
+    # try
+    #     # TODO: how to dynamically pass in 'of' instead of hard coding?
+    #     #@suppress run(`../../../tools/genmake2 -mods=../code -of=../../../tools/build_options/darwin_amd64_gfortran`) #$ext
+    #     run(`../../../tools/genmake2 -mods=../code`) #$ext
+    #     println("a")
+    #     run(`make clean`)
+    #     println("b")
+    #     run(`make depend`)
+    #     println("c")
+    #     run(`make -j 4`)
+    #     # TODO: this make is failing for some reason????? 
+    #     # @suppress run(`make`)
+    #     println("d")
+    # catch e
+    #     println("this is where the model fails ")
+    #     println("model compilation may have failed")
+    # end
     cd(pth)
     return true
 end
@@ -141,6 +167,7 @@ Call `ClimateModels.git_log_init(config)` to setup git tracker and
 (part of the climate model interface as specialized for `MITgcm`)
 """
 function setup(config::MITgcm_config)
+    # note: folder = "/Users/birdy/Documents/eaps_research/darwin3/verification/darwin-single-box/run"
     !isdir(joinpath(config.folder)) ? mkdir(joinpath(config.folder)) : nothing
     !isdir(joinpath(config.folder,string(config.ID))) ? mkdir(joinpath(config.folder,string(config.ID))) : nothing
 
@@ -156,6 +183,7 @@ function setup(config::MITgcm_config)
         [symlink(joinpath(p,f[i]),joinpath(pth_run,f[i])) for i in 1:length(f)]
     end
 
+    # links data* files in /run/UUID/run to /darwin-sinle-box/input .... but they end up linked to log/tracked_parameters ? 
     p="$(MITgcm_path[1])/verification/$(config.configuration)/input"
     tmpA=readdir(p)
     f=tmpA[findall([!isfile(joinpath(pth_run,tmpA[i])) for i in 1:length(tmpA)])]
@@ -170,7 +198,6 @@ function setup(config::MITgcm_config)
 		end
         pth=pwd()
         cd(pth_run)
-        #
         fil="prepare_run"
         meta = read(fil,String)
         meta = split(meta,"\n")
@@ -182,6 +209,7 @@ function setup(config::MITgcm_config)
         for i in ii
             meta[i]=replace(meta[i],"../" => "$(MITgcm_path[1])/verification/$(config.configuration)")
         end
+
         #rm old file from run dir
         rm(fil)
         #write new file in run dir
@@ -194,6 +222,35 @@ function setup(config::MITgcm_config)
         @suppress run(`./$(fil)`)
         #
         cd(pth)
+    end
+
+    # replace relative path with absolutes in data.radtrans 
+    if isfile(joinpath(pth_run,"data.radtrans"))
+        try
+			pth=pwd()
+		catch e
+			cd()
+		end
+        pth=pwd()
+        cd(pth_run)
+        fil="data.radtrans"
+        meta = read(fil,String)
+        meta = split(meta,"\n")
+        ii=findall(occursin.("../../",meta))
+        for i in ii
+            meta[i]=replace(meta[i],"../../" => "$(MITgcm_path[1])/verification/")
+        end
+        ii=findall(occursin.("../",meta))
+        for i in ii
+            meta[i]=replace(meta[i],"../" => "$(MITgcm_path[1])/verification/$(config.configuration)/")
+        end
+        #rm old file from run dir
+        rm(fil)
+        #write new file in run dir
+        txt=["$(meta[i])\n" for i in 1:length(meta)]
+        fid = open(fil, "w")
+		[write(fid,txt[i]) for i in 1:length(txt)]
+    	close(fid)
     end
 
     if !islink(joinpath(pth_run,"mitgcmuv"))
@@ -216,17 +273,21 @@ function setup(config::MITgcm_config)
             tmpA=tmpA[findall([length(tmpA[i])>3 for i in 1:length(tmpA)])]
             tmpA=tmpA[findall([tmpA[i][1:4]=="data"||tmpA[i]=="eedata"||
                     tmpA[i]=="prepare_run" for i in 1:length(tmpA)])]
+            return tmpA
     end
     nmlfiles=list_namelist_files(pth_run)
 
-    if !isdir(pth_log)    
+    if !isdir(pth_log)  
+        # create log dir   
         mkdir(pth_log)
 
         params=OrderedDict()
         for fil in nmlfiles
-            nml=read(joinpath(pth_run,fil),MITgcm_namelist())
+            io = open(joinpath(pth_run,fil), "r")
+            nml=read_namelist(joinpath(pth_run,fil))
+
             write(joinpath(pth_log,fil),nml)            
-            #
+
             ni=length(nml.groups); tmp1=OrderedDict()
             [push!(tmp1,(nml.groups[i] => nml.params[i])) for i in 1:ni]
             tmp2=""
@@ -263,6 +324,7 @@ Go to `run/` folder and effectively call `mitgcmuv > output.txt`
 (part of the climate model interface as specialized for `MITgcm`)
 """
 function MITgcm_launch(config::MITgcm_config)
+    println("using MITgcm_launch in ModelSteps.jl")
     try
         pth=pwd()
     catch e
@@ -270,10 +332,15 @@ function MITgcm_launch(config::MITgcm_config)
     end
     pth=pwd()
     cd(joinpath(config.folder,string(config.ID),"run"))
+
     tmp=["STOP NORMAL END"]
     try
-        @suppress run(pipeline(`./mitgcmuv`,"output.txt"))
+        println("launching in ModelSteps!")
+        #@suppress run(pipeline(`./mitgcmuv`,"output.txt"))
+        run(pipeline(`./mitgcmuv`,"output.txt"))
+        println("run did not fail!!!!! ")
     catch e
+        println(e)
         tmp[1]="model run may have failed"
     end
     cd(pth)

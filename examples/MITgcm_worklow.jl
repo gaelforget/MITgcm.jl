@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.3
+# v0.17.2
 
 using Markdown
 using InteractiveUtils
@@ -103,6 +103,9 @@ You can also click on the `Launch Model` button to trigger a model run manually.
 
 # ╔═╡ 6f618b2c-86bd-11eb-1607-a179a349378e
 @bind do_run1 Button("Launch Model")
+
+# ╔═╡ 17dbde8d-ba14-4df6-8c34-8746037e0d75
+exps[iexp].channel.data
 
 # ╔═╡ 6404fddf-3c46-4015-9580-b9159c76b30a
 md"""### Explore Model Output
@@ -240,9 +243,29 @@ end
 begin
 	do_run1
 	do_run2
-	isempty(exps[iexp].channel) ? put!(exps[iexp].channel,MITgcm_launch) : nothing
+
+	# remove all items from channel
+	println(length(exps[iexp].channel.data))
+	# for x in collect(1:length(exps[iexp].channel.data)) print(x) end
+	
+	println("channel: ", exps[iexp].channel)
+	println("is channel empty: ", isempty(exps[iexp].channel))
+
+	# if channel has space, add task
+	#isempty(exps[iexp].channel) ? put!(exps[iexp].channel,MITgcm_launch) : nothing
+	put!(exps[iexp].channel,MITgcm_launch)
+	println("Channel ", exps[iexp].channel, " has data ", exps[iexp].channel.data)
+	println("should have MITgcm_launch queued up")
+
+	println("launching ", exps[iexp])
+	println("---")
 	launch(exps[iexp])
+
+
 	refresh_plot=true
+
+	println("After launch, Channel ", exps[iexp].channel, " has data ", exps[iexp].channel.data)
+
 	md"""Model run for the **$(exps[iexp].configuration)** configuration has completed!
 	
 	🏇 🏁 🏁 🏁 🎉 🎊 """
@@ -258,12 +281,14 @@ end
 # ╔═╡ d0bbb668-86e0-11eb-1a9b-8f2b0175f7c1
 begin
 	refresh_plot
-
+	filout
+	filstat
+	@show filstat
 	run(pipeline(`grep dynstat_theta_mean $(filout)`,filstat))
-
 	tmp0 = read(filstat,String)
 	tmp0 = split(tmp0,"\n")
 	Tmean=[parse(Float64,split(tmp0[i],"=")[2]) for i in 1:length(tmp0)-1]
+	
 end
 
 # ╔═╡ 8ad9d646-4eec-45b9-938b-21df34da2d6b
@@ -280,7 +305,8 @@ begin
 		tmp2=tmp2[findall(occursin.("T.0000",tmp2))]
 		tmp2=tmp2[findall(occursin.("001.001.data",tmp2))]
 		tmp2=[i[1:end-13] for i in tmp2]
-	
+		println("t_slow ", t_slow)
+		println("t_slow type ", typeof(t_slow))
 		!isnothing(t_slow) ? i=mod(t_slow,length(tmp2)) : i=length(tmp2)-1
 		
 		tmp3=read_mdsio(rundir,tmp2[i+1])
@@ -351,7 +377,7 @@ PlutoUI = "~0.7.25"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.7.0"
+julia_version = "1.6.4"
 manifest_format = "2.0"
 
 [[deps.AWS]]
@@ -776,6 +802,12 @@ git-tree-sha1 = "f6250b16881adf048549549fba48b1161acdac8c"
 uuid = "c1c5ebd0-6772-5130-a774-d5fcae4a789d"
 version = "3.100.1+0"
 
+[[deps.LERC_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
+git-tree-sha1 = "bf36f528eec6634efc60d7ec062008f171071434"
+uuid = "88015f11-f218-50d7-93a8-a6af411a945d"
+version = "3.0.0+1"
+
 [[deps.LRUCache]]
 git-tree-sha1 = "d64a0aff6691612ab9fb0117b0995270871c5dfc"
 uuid = "8ac3fa9e-de4c-5943-b1dc-09c6b5f20637"
@@ -864,10 +896,10 @@ uuid = "4b2f31a3-9ecc-558c-b454-b3730dcb73e9"
 version = "2.35.0+0"
 
 [[deps.Libtiff_jll]]
-deps = ["Artifacts", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Pkg", "Zlib_jll", "Zstd_jll"]
-git-tree-sha1 = "340e257aada13f95f98ee352d316c3bed37c8ab9"
+deps = ["Artifacts", "JLLWrappers", "JpegTurbo_jll", "LERC_jll", "Libdl", "Pkg", "Zlib_jll", "Zstd_jll"]
+git-tree-sha1 = "c9551dd26e31ab17b86cbd00c2ede019c08758eb"
 uuid = "89763e89-9b03-5906-acba-b20f662cd828"
-version = "4.3.0+0"
+version = "4.3.0+1"
 
 [[deps.Libuuid_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -876,7 +908,7 @@ uuid = "38a345b3-de98-5d2b-a5d3-14cd9215e700"
 version = "2.36.0+0"
 
 [[deps.LinearAlgebra]]
-deps = ["Libdl", "libblastrampoline_jll"]
+deps = ["Libdl"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [[deps.LogExpFunctions]]
@@ -983,13 +1015,9 @@ version = "1.10.8"
 
 [[deps.Ogg_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "7937eda4681660b4d6aeeecc2f7e1c81c8ee4e2f"
+git-tree-sha1 = "887579a3eb005446d514ab7aeac5d1d027658b8f"
 uuid = "e7412a2a-1a6e-54c0-be00-318e2571c051"
-version = "1.3.5+0"
-
-[[deps.OpenBLAS_jll]]
-deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
-uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
+version = "1.3.5+1"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1091,7 +1119,7 @@ deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
 uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 
 [[deps.Random]]
-deps = ["SHA", "Serialization"]
+deps = ["Serialization"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [[deps.RecipesBase]]
@@ -1438,10 +1466,6 @@ git-tree-sha1 = "acc685bcf777b2202a904cdcb49ad34c2fa1880c"
 uuid = "0ac62f75-1d6f-5e53-bd7c-93b484bb37c0"
 version = "0.14.0+4"
 
-[[deps.libblastrampoline_jll]]
-deps = ["Artifacts", "Libdl", "OpenBLAS_jll"]
-uuid = "8e850b90-86db-534c-a0d3-1478176c7d93"
-
 [[deps.libfdk_aac_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "7a5780a0d9c6864184b3a2eeeb833a0c871f00ab"
@@ -1462,9 +1486,9 @@ version = "1.0.20+0"
 
 [[deps.libvorbis_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Ogg_jll", "Pkg"]
-git-tree-sha1 = "c45f4e40e7aafe9d086379e5578947ec8b95a8fb"
+git-tree-sha1 = "b910cb81ef3fe6e78bf6acee440bda86fd6ae00c"
 uuid = "f27f6e37-5d2b-51aa-960f-b287f2bc3b7a"
-version = "1.3.7+0"
+version = "1.3.7+1"
 
 [[deps.nghttp2_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -1499,19 +1523,20 @@ version = "0.9.1+5"
 # ╟─a28f7354-84eb-11eb-1830-1f401bf2db97
 # ╟─766f87b8-f3d4-4e39-8cae-d91679d9af6f
 # ╟─ee0ed0a0-8817-11eb-124d-a197f1d4545a
-# ╟─eca925ba-8816-11eb-1d6d-39bf08bfe979
+# ╠═eca925ba-8816-11eb-1d6d-39bf08bfe979
 # ╟─f051e094-85ab-11eb-22d4-5bd61ac572a1
 # ╟─f7e66980-9ec5-43cf-98b1-37aa6823d64a
 # ╟─5d775d7b-98d6-4d96-aee2-bae961379fd4
 # ╟─4b62b282-86bd-11eb-2fed-bbbe8ef2d4af
-# ╟─6f618b2c-86bd-11eb-1607-a179a349378e
-# ╟─96492c18-86bd-11eb-35ca-dff79e6e7818
+# ╠═6f618b2c-86bd-11eb-1607-a179a349378e
+# ╠═96492c18-86bd-11eb-35ca-dff79e6e7818
+# ╠═17dbde8d-ba14-4df6-8c34-8746037e0d75
 # ╟─6404fddf-3c46-4015-9580-b9159c76b30a
-# ╟─6edcbba3-8485-44d2-940a-e4f2df019373
+# ╠═6edcbba3-8485-44d2-940a-e4f2df019373
 # ╟─0f920f90-86e9-11eb-3f6d-2d530bd2e9db
-# ╟─d0bbb668-86e0-11eb-1a9b-8f2b0175f7c1
+# ╠═d0bbb668-86e0-11eb-1a9b-8f2b0175f7c1
 # ╟─e6c10fb5-ee95-41a0-982e-3910a8ce1d00
-# ╟─8ad9d646-4eec-45b9-938b-21df34da2d6b
+# ╠═8ad9d646-4eec-45b9-938b-21df34da2d6b
 # ╟─c7670d00-868c-11eb-1889-4d3ffe621dd2
 # ╟─d7f2c656-8512-11eb-2fdf-47a3e57a55e6
 # ╟─ca7bb004-8510-11eb-379f-632c3b40723d

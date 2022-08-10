@@ -16,7 +16,7 @@ export MITgcm_config, MITgcm_namelist, MITgcm_launch
 export testreport, build, compile, setup, clean
 #export pause, stop, clock, monitor, train, help
 export verification_experiments, read_namelist, write_namelist
-export read_mdsio, read_meta, read_available_diagnostics
+export read_mdsio, read_meta, read_available_diagnostics, read_namelist
 export scan_rundir, scan_stdout
 export read_bin, read_flt, read_mnc, read_nctiles, findtiles
 export GridLoad_mnc, GridLoad_mdsio
@@ -33,8 +33,10 @@ MITgcm_hash = artifact_hash("MITgcm", artifact_toml)
 Path to a MITgcm folder. `MITgcm_path[1]` should generally be used. `MITgcm_path[2]` is mostly 
 meant to facilitate comparisons between e.g. MITgcm releases when needed.
 """
-MITgcm_path = [ joinpath(artifact_path(MITgcm_hash)*"/","MITgcm_test/"),
-                joinpath(artifact_path(MITgcm_hash)*"/","MITgcm_test/")]
+# MITgcm_path = [ joinpath(artifact_path(MITgcm_hash)*"/","MITgcm_test"),
+#                 joinpath(artifact_path(MITgcm_hash)*"/","MITgcm_test")]
+# TODO: change back
+MITgcm_path = ["/Users/birdy/Documents/eaps_research/darwin3"]
 
 PICKUP_hs94_path = artifact_path(artifact_hash("PICKUP_hs94", artifact_toml))
 

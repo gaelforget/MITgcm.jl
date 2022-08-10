@@ -372,6 +372,7 @@ end
     read_namelist(fil)
 
 Read a `MITgcm` namelist file, parse it, and return as a NamedTuple
+- assumes a single variable definition per line
 
 ```
 using MITgcmTools
@@ -383,19 +384,35 @@ namelist=read_namelist(fil)
 function read_namelist(fil)
 
     meta = read(fil,String)
+
+    # extract parameters from meta. Assumes specific format 
     meta = split(meta,"\n")
+    # get rid of empty lines
     meta = meta[findall((!isempty).(meta))]
+    # get rid of comments
     meta = meta[findall(first.(meta).!=='#')]
-    groups = meta[findall(occursin.('&',meta))]
-	groups = [Symbol(groups[1+2*(i-1)][3:end]) for i in 1:Int(length(groups)/2)]
+    groups = meta[findall(occursin.('&',meta) .& (length.(strip.(meta)) .> 1))] # groups of params start with a & 
+    
+    # remove whitespace and & 
+    trimmed_groups = []
+    for g in groups
+        g = lstrip(g)
+        g = rstrip(g)
+        g = replace(g, "&" => "")
+        push!(trimmed_groups, g)
+    end
+    # instantiate params dictionary 
+    # if groups isnt made right, params won't be created right 
 	params = fill(OrderedDict(),length(groups))
-		
+
+    # for each param under each group, do the key/val split
 	for i in 1:length(groups)
 		ii=1+findall(occursin.(String(groups[i]),meta))[1]
 		i1=ii
 		tmp0=OrderedDict()
         k0=[:unknown]
-		while !occursin('&',meta[ii])
+        # THIS LINE IS LOOKING FOR A CLOSEING & or a single backslash  \
+        while !occursin('&',meta[ii]) && !(occursin('/', meta[ii]) && length(strip(meta[ii]))==1)
 			if occursin('=',meta[ii])
 				tmp1=split(meta[ii],'=')
                 k0[1]=Symbol(strip(tmp1[1]))
@@ -409,7 +426,7 @@ function read_namelist(fil)
                 try
                     tmp0[k0[1]]=tmp0[k0[1]]*","*strip(meta[ii])
                 catch
-                    println("ignoring line -- unclear why ...")
+                    println("ignoring line -- unclear why ...", meta[ii])
                 end
 			end
 			ii += 1
@@ -420,7 +437,7 @@ function read_namelist(fil)
 		params[i]=tmp0			
 	end
 		
-    return MITgcm_namelist(Symbol.(groups),params)
+    return MITgcm_namelist(Symbol.(trimmed_groups),params)
 end
 
 """
@@ -435,9 +452,10 @@ function parse_param(p1)
 	elseif p1==".FALSE."||p1==".false."
 		p2=false
 	else
+        # drop surrounding quotes IF its not a list 
         if first(p1)=='\''&&!occursin(',',p1)
 			p2=p1[2:end-1]
-        elseif occursin('.',p1)
+        elseif occursin('.',p1) || occursin('e', p1) || occursin('E', p1)
 			try
 				p2=parse(Float64,p1)
 			catch
@@ -481,6 +499,7 @@ write(fil*"_new",nml)
 ```
 """
 function write_namelist(fil,namelist)
+    # TODO: if this function fails, writes an empty file
 	fid = open(fil, "w")
 	for jj in 1:length(namelist.groups)
         ii=namelist.groups[jj]
@@ -493,7 +512,17 @@ function write_namelist(fil,namelist)
             y=missing
             isa(x,Bool)&&x==true ? y=".TRUE." : nothing
             isa(x,Bool)&&x==false ? y=".FALSE." : nothing
+            # if x is an array, and it is filled with all AbstractStrings AND non of the elements contain *
+            # this is so we don't put quotes around lists that contain *
+            write_quotes = true
             if isa(x,Array)&&(eltype(x)<:AbstractString)
+                for idx in 1:length(x)
+                    if occursin('*', x[idx])
+                        write_quotes = false
+                    end
+                end
+            end
+            if isa(x,Array)&&(eltype(x)<:AbstractString)&&write_quotes
                 tmpy=[""]
                 [tmpy[1]*="'"*x[ii]*"', \n " for ii in 1:length(x)]
                 y=tmpy[1][1:end-4]
