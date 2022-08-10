@@ -27,7 +27,7 @@ using Pkg
 
 num_nutrients = 20
 #config_id = "conservation-test-nutrients.$num_nutrients"
-config_id = "conservation-test-pro-syn-preds-no-scav"
+config_id = "no_scav_20yrs_less_nutrients"
 needs_setup = false 
 needs_run = false
 
@@ -445,6 +445,7 @@ fe_layout = @layout [
      ]
 ]
 fe_all = plot(fe_p0, fe_p1, fe_p2, fe_p3, fe_p4, fe_p5, fe_p6, layout=fe_layout, size=(600,900))
+display(fe_all)
 
 fe_max = maximum(fe_stage0_df.tot)
 fe_min = minimum(fe_stage0_df.tot)

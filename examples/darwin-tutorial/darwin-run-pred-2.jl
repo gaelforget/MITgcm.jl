@@ -51,7 +51,7 @@ end
 # (from the output of darwin-setup)
 ##################
 MITgcm_path[1] = "/Users/birdy/Documents/eaps_research/darwin3" # CHANGE ME 
-config_id = "conservation-test-pro-syn-preds-no-scav" # CHANGE ME
+config_id = "nitrogen_fixers" # CHANGE ME
 
 # reload the config 
 config_name = "darwin-single-box"
@@ -83,17 +83,25 @@ t = 50 # OCTOBER
 for i = 1:20
     tracer_id = length(string(i)) < 2 ? "0"*string(i) : string(i)
     tracer_name = "TRAC"*tracer_id 
-    new_value = ds[tracer_name][x, y, z, t]*10
-    update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,$i)", new_value)
-end
-
-# PRO and SYN
-for i = 21:22
-    tracer_id = length(string(i)) < 2 ? "0"*string(i) : string(i)
-    tracer_name = "TRAC"*tracer_id 
     new_value = ds[tracer_name][x, y, z, t]
     update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,$i)", new_value)
 end
+
+# # PRO and SYN
+# for i = 21:22
+#     tracer_id = length(string(i)) < 2 ? "0"*string(i) : string(i)
+#     tracer_name = "TRAC"*tracer_id 
+#     new_value = ds[tracer_name][x, y, z, t]
+#     update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,$i)", new_value)
+# end
+# pro 
+pro = ds["TRAC21"][x, y, z, t]
+update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,21)", pro)
+
+# syn
+syn = ds["TRAC22"][x, y, z, t]
+update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,22)", syn)
+
 
 # with pro's predator 
 pro_pred = ds["TRAC53"][x, y, z, t]
@@ -102,6 +110,13 @@ update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,53)", pro_pred
 # with syns's predator 
 pro_pred = ds["TRAC54"][x, y, z, t]
 update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,54)", pro_pred/10)
+
+# heterotripoh 
+het_68 = ds["TRAC68"][x, y, z, t]
+update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,68)", het_68)
+het_69 = ds["TRAC69"][x, y, z, t]
+update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,69)", het_69)
+
 
 
 ##################

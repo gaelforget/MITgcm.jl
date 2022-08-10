@@ -18,9 +18,9 @@ pred_2 = "f9135074-dd36-46e8-a46c-d047b127b9b1"
 # copy and paste in the correct config_id
 # (from the output of darwin-setup)
 ##################
-config_id = "conservation-test-pro-syn-preds-no-scav" # CHANGE ME
+config_id = "nitrogen_fixers" # CHANGE ME
 data_folders = glob("ecco_gud*")
-data_folder = "ecco_gud_20220802_0001" # CHANGE ME
+data_folder = "ecco_gud_20220809_0001" # CHANGE ME
 savefigs = false
 # place to save plots to 
 outdir = dirname(Base.source_path())*"/poster_graphs/"
@@ -135,7 +135,7 @@ bio_p = ds["TRAC20"] * r_pc
 for i = 21:70 # all biomass creatures 
     tracer_id = length(string(i)) < 2 ? "0"*string(i) : string(i)
     tracer_name = "TRAC"*tracer_id 
-    global bio_n = bio_n + ds[tracer_name]*r_pc
+    global bio_p = bio_p + ds[tracer_name]*r_pc
 end
 dop = ds["TRAC10"]
 pop = ds["TRAC14"]
