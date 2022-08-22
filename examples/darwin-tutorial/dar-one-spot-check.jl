@@ -50,8 +50,8 @@ end
 # TODO: copy and paste in the correct config_id
 # (from the output of darwin-setup)
 ##################
-MITgcm_path[1] = "/Users/birdy/Documents/eaps_research/darwin3" # CHANGE ME 
-config_id = "nitrogen_fixers" # CHANGE ME
+MITgcm_path[1] = "/home/msengen/darwin3" # CHANGE ME 
+config_id = "test_runs_northpacific" # CHANGE ME
 
 # reload the config 
 config_name = "darwin-single-box"
@@ -73,21 +73,43 @@ seed_file = "/Users/birdy/Documents/eaps_research/gcm_analysis/gcm_data/jan_7_20
 ds = Dataset(seed_file)
 
 # selection using indices
-x = 203
-y = 121
+x = 200
+y = 130
 z = 1
 #t = 21 # APRIL 
 t = 50 # OCTOBER
 
 # NUTRIENTS * 10 
-for i = 1:20
-    tracer_id = length(string(i)) < 2 ? "0"*string(i) : string(i)
-    tracer_name = "TRAC"*tracer_id 
-    new_value = ds[tracer_name][x, y, z, t]
-    update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,$i)", new_value)
+# for i = 1:20
+#     tracer_id = length(string(i)) < 2 ? "0"*string(i) : string(i)
+#     tracer_name = "TRAC"*tracer_id 
+#     new_value = ds[tracer_name][x, y, z, t]
+#     update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,$i)", new_value)
+# end
+
+function inputs_helper(start, stop, dataset)
+    for i = start:stop
+        tracer_id = length(string(i)) < 2 ? "0"*string(i) : string(i)
+        tracer_name = "TRAC"*tracer_id 
+        new_value = dataset[tracer_name][x, y, z, t]
+        update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,$i)", new_value)
+    end
 end
 
-# # PRO and SYN
+#nutrients
+inputs_helper(1, 20, ds)
+
+#bacteria
+inputs_helper(68, 70, ds)
+
+#pico-phyto
+inputs_helper(21, 24, ds)
+
+#zooplankton
+inputs_helper(52, 67, ds)
+
+
+# PRO and SYN
 # for i = 21:22
 #     tracer_id = length(string(i)) < 2 ? "0"*string(i) : string(i)
 #     tracer_name = "TRAC"*tracer_id 
@@ -95,27 +117,27 @@ end
 #     update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,$i)", new_value)
 # end
 # pro 
-pro = ds["TRAC21"][x, y, z, t]
-update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,21)", pro)
+# pro = ds["TRAC21"][x, y, z, t]
+# update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,21)", pro)
 
-# syn
-syn = ds["TRAC22"][x, y, z, t]
-update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,22)", syn)
+# # syn
+# syn = ds["TRAC22"][x, y, z, t]
+# update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,22)", syn)
 
 
-# with pro's predator 
-pro_pred = ds["TRAC53"][x, y, z, t]
-update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,53)", pro_pred/10)
+# # with pro's predator 
+# pro_pred = ds["TRAC53"][x, y, z, t]
+# update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,53)", pro_pred/10)
 
-# with syns's predator 
-pro_pred = ds["TRAC54"][x, y, z, t]
-update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,54)", pro_pred/10)
+# # with syns's predator 
+# pro_pred = ds["TRAC54"][x, y, z, t]
+# update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,54)", pro_pred/10)
 
-# heterotripoh 
-het_68 = ds["TRAC68"][x, y, z, t]
-update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,68)", het_68)
-het_69 = ds["TRAC69"][x, y, z, t]
-update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,69)", het_69)
+# # heterotripoh 
+# het_68 = ds["TRAC68"][x, y, z, t]
+# update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,68)", het_68)
+# het_69 = ds["TRAC69"][x, y, z, t]
+# update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,69)", het_69)
 
 
 
