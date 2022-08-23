@@ -69,12 +69,15 @@ update_param("data", "PARM03", "nenditer", 2880*2) # end after 1 years
 
 # NOTE: values taken from large Darwin model run (lat=20.5, lon=202.5)
 # load up seed nc file 
-seed_file = "/Users/birdy/Documents/eaps_research/gcm_analysis/gcm_data/jan_7_2022/3d.0000000000.nc"
+seed_file = "/home/msengen/3d.0000000000.nc"
 ds = Dataset(seed_file)
 
 # selection using indices
+
+#north pacific
 x = 200
 y = 130
+
 z = 1
 #t = 21 # APRIL 
 t = 50 # OCTOBER
