@@ -123,7 +123,7 @@ md"""## 3. Visualize Grid
 # ╔═╡ 44263dfc-68b9-4ed8-8d7a-3548cfecdace
 begin
 	myaz_slider = @bind myaz NumberField(-1:0.1:1; default=-0.2)
-	tick_button = @bind tick Clock(2)
+	tick_button = @bind tick PlutoUI.Clock(2)
 	md"""
 	Azimuth for 3d view (if applicable) : 
 	

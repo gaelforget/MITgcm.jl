@@ -78,7 +78,7 @@ which can be triggered individually as shown below for the selected model config
 """
 
 # ╔═╡ 8569269c-859c-11eb-1ab1-2d874dfa741b
-@bind do_cleanup Button("Clean up subfolders")
+@bind do_cleanup PlutoUI.Button("Clean up subfolders")
 
 # ╔═╡ f008ccaa-859c-11eb-1188-114843d333e6
 let
@@ -88,7 +88,7 @@ let
 end
 
 # ╔═╡ 11b024ac-86d1-11eb-1db9-47a5e41398e3
-@bind do_link Button("Setup (e.g. link input files to run/ folder)")
+@bind do_link PlutoUI.Button("Setup (e.g. link input files to run/ folder)")
 
 # ╔═╡ 31829f08-86d1-11eb-3e26-dfae038b4c01
 let
@@ -98,7 +98,7 @@ let
 end
 
 # ╔═╡ 76291182-86d1-11eb-1524-73dc02ca7b64
-@bind do_build Button("Build mitgcmuv")
+@bind do_build PlutoUI.Button("Build mitgcmuv")
 
 # ╔═╡ 848241fe-86d1-11eb-3b30-b94aa0b4431d
 let
@@ -108,7 +108,7 @@ let
 end
 
 # ╔═╡ 5d826e4c-859d-11eb-133d-859c3abe3ebe
-@bind do_run Button("Run mitgcmuv in run/ folder")
+@bind do_run PlutoUI.Button("Run mitgcmuv in run/ folder")
 
 # ╔═╡ 550d996a-859d-11eb-34bf-717389fbf809
 let
