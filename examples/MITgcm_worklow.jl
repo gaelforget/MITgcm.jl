@@ -197,7 +197,7 @@ begin
 	- rerun the model
 	- update the plots 
 
-	$(@bind update_param Button("Update & Relaunch"))
+	$(@bind update_param PlutoUI.Button("Update & Relaunch"))
 	
 	"""
 end
@@ -230,7 +230,7 @@ begin
 		ClimateModels.git_log_fil(exps[iexp],tmpfil,"update parameter file")
 	end
 	
-	#@bind do_run2 Button("Launch Model")
+	#@bind do_run2 PlutoUI.Button("Launch Model")
 	do_run2="🐎"
 	
 	md"""🐎"""
