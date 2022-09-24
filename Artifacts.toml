@@ -1,8 +1,0 @@
-[PICKUP_hs94]
-git-tree-sha1 = "caecbeae9e9011d7609d22c9a382549beb4326d6"
-lazy = true
-
-    [[PICKUP_hs94.download]]
-    sha256 = "766fda741f896e1fcf42fd75c8ab1a1c4090485225fe04a303c715f33953db5e"
-    url = "https://zenodo.org/record/5422009/files/pickup_hs94.cs-32x32x5.tar.gz?download=1"
-
