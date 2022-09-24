@@ -1,3 +1,27 @@
+
+module MITgcmScratchSpaces
+
+using Downloads, Scratch
+
+# This will be filled in inside `__init__()`
+path = ""
+
+# Downloads a resource, stores it within path
+function download_dataset(url,path)
+    fname = joinpath(path, basename(url))
+    if !isfile(fname)
+        Downloads.download(url, fname)
+    end
+    return fname
+end
+
+function __init__()
+    global path = @get_scratch!("src")
+end
+
+end
+
+
 """
     testreport(nam::String,ext="")
 

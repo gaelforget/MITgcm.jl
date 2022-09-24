@@ -119,12 +119,11 @@ MITgcm_download()
     function get_ecco_variable_if_needed(v::String)
         p=dirname(pathof(OceanStateEstimation))
         lst=joinpath(p,"../examples/nctiles_climatology.csv")
-        pth=ECCOclim_path
-        !isdir(pth*v) ? get_from_dataverse(lst,v,pth) : nothing
+        !isdir(joinpath(ScratchSpaces.ECCO,v)) ? get_from_dataverse(lst,v,ScratchSpaces.ECCO) : nothing
     end
     
     get_ecco_variable_if_needed("ETAN")
-    tmp=read_nctiles(joinpath(ECCOclim_path,"ETAN/ETAN"),"ETAN",γ,I=(:,:,1))
+    tmp=read_nctiles(joinpath(ScratchSpaces.ECCO,"ETAN/ETAN"),"ETAN",γ,I=(:,:,1))
 
     @test isa(tmp,MeshArray)
 
