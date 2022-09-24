@@ -1,20 +1,22 @@
 name = "MITgcmTools"
 uuid = "62725fbc-3a66-4df3-9000-e33e85b3a198"
 authors = ["gaelforget <gforget@mit.edu>"]
-version = "0.2.2"
+version = "0.2.3"
 
 [deps]
-Artifacts = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
 ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
+CodecZlib = "944b1d66-785c-5afd-91f1-9de20f533193"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
-LazyArtifacts = "4af54fe1-eca0-43a8-85a7-787d91b784e3"
+Downloads = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
 MeshArrays = "cb8c808f-1acf-59a3-9d2b-6e38d009f683"
 NetCDF = "30363a11-5582-574a-97bb-aa9a979735b9"
 OrderedCollections = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+Scratch = "6c6a2e73-6563-6170-7368-637461726353"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
+Tar = "a4e569a6-e804-4fa4-b0f3-eef7a1d5b13e"
 UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 
 [compat]
@@ -24,4 +26,4 @@ MeshArrays = "0.2"
 NetCDF = "0.8, 0.9, 0.10, 0.11"
 OrderedCollections = "1"
 Suppressor = "0.2"
-julia = "^1.6"
+julia = "^1.7"
