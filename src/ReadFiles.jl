@@ -140,9 +140,9 @@ function read_nctiles(fileName::String,fldName::String,mygrid::gcmgrid;
 
     fileIn=joinpath(pth1,lst[1])
     fileRoot=fileIn[1:end-8]
-    ntile=MITgcmTools.ncgetatt(fileIn,"Global","ntile")
+    ntile=ClimateModels.ncgetatt(fileIn,"Global","ntile")
 
-    x = MITgcmTools.ncread(fileIn,fldName)
+    x = ClimateModels.ncread(fileIn,fldName)
     s = [size(x,i) for i in 1:ndims(x)]
     n=length(size(x))
     start=ones(Int,n)
@@ -171,7 +171,7 @@ function read_nctiles(fileName::String,fldName::String,mygrid::gcmgrid;
         for n in 1:nn
             fileIn=@sprintf("%s.%04d.nc",fileRoot,n+n0)
             if isfile(fileIn) #skip if no file / blank tile
-                x = ncread(fileIn,fldName,start,count)
+                x = ClimateModels.ncread(fileIn,fldName,start,count)
                 i=collect(1:s[1]) .+ i0[n]
                 j=collect(1:s[2]) .+ j0[n]
                 f0[i,j,:,:]=x[:,:,:,:]
