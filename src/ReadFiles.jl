@@ -623,10 +623,10 @@ function read_mnc(pth::String,fil::String,var::String)
     lst=lst[findall(occursin.(fil,lst).*occursin.(".nc",lst))]
 
     fil=joinpath(pth,lst[1])
-    ncfile=MITgcmTools.NetCDF.open(fil)
+    ncfile=ClimateModels.NetCDF.open(fil)
     ncatts=ncfile.gatts
 
-    v = MITgcmTools.NetCDF.open(fil, var)
+    v = ClimateModels.NetCDF.open(fil, var)
     if haskey(v.atts,"coordinates")
         has_RC=occursin("RC",v.atts["coordinates"])
         has_iter=occursin("iter",v.atts["coordinates"])
@@ -648,13 +648,13 @@ function read_mnc(pth::String,fil::String,var::String)
 
     for f in lst
         fil=joinpath(pth,f)
-        ncfile=MITgcmTools.NetCDF.open(fil)
+        ncfile=ClimateModels.NetCDF.open(fil)
         ncatts=ncfile.gatts
         b=(ncatts["bi"],ncatts["bj"])
         s=(ncatts["sNx"],ncatts["sNy"])
         ii=(b[1]-1)*s[1] .+ collect(1:s[1])
         jj=(b[2]-1)*s[2] .+ collect(1:s[2])
-        v = MITgcmTools.NetCDF.open(fil, var)
+        v = ClimateModels.NetCDF.open(fil, var)
         if has_RC*has_iter
             x[ii,jj,:,:]=v[:,:,:,:]
         elseif has_RC|has_iter
