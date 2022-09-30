@@ -1,5 +1,5 @@
 using MITgcmTools, ClimateModels, OceanStateEstimation
-import MITgcmTools: MeshArrays, MeshArray
+import MITgcmTools: MeshArrays, MeshArray, gcmgrid
 using Test
 
 MITgcm_download()
