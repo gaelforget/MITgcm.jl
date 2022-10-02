@@ -73,6 +73,7 @@ MITgcm_download()
     launch(MC)
     if isdir(joinpath(MC.folder,string(MC.ID),"run","mnc_test_0001"))
         Γ=GridLoad_mnc(MC)
+        GridLoad_mnc(Γ.XC.grid)
     else
         Γ=GridLoad_mdsio(MC)
     end
@@ -129,5 +130,11 @@ MITgcm_download()
     tmp=read_flt(pth,Float32)
     
     @test isa(tmp[1,1],Number)
+
+    ##
+
+    HS94_pickup_download()
+    dir_out=joinpath(MITgcmScratchSpaces.path,"pickup_hs94.cs-32x32x5")
+    @test isdir(dir_out)
 
 end
