@@ -23,31 +23,6 @@ function compact2cube(x::Array)
   reshape(permutedims(reshape(x,(n,n,6,s[3:end]...)),(1,3,2,k[3:end]...)),(n*6,n,s[3:end]...))
 end
 
-"""
-MatrixInterp(in::Array{T,N},MTRX,siz) where {T,N}
-
-Interpolate `in` using `MTRX` to grid of size `siz`.
-"""
-function MatrixInterp(in::Array{T,N},MTRX::SparseMatrixCSC,siz) where {T,N}
-#input
-l=size(in,1)*size(in,2);
-m=size(in,3);
-tmp1=reshape(in,l,m)
-tmp0=Float64.(.!(isnan.(tmp1)))
-tmp1[isnan.(tmp1)].=0.
-siz=siz[1],siz[2],m
-#matrix product
-tmp0=MTRX*tmp0
-tmp1=MTRX*tmp1
-tmp1=tmp1./tmp0
-#this may be redundant:
-tmp1[tmp0 .== 0.] .= NaN
-#output
-out=reshape(tmp1,siz)
-m==1 ? out=dropdims(out,dims=3) : nothing
-return out
-end
-
 ## convert2array method:
 
 """
