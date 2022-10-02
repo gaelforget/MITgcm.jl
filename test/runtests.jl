@@ -115,12 +115,6 @@ MITgcm_download()
     read_bin(fil,γ.ioPrec,γ)
     read_bin(tmp2,tmp1)
     read_bin(tmp2,γ)
-
-    function get_ecco_variable_if_needed(v::String)
-        p=dirname(pathof(OceanStateEstimation))
-        lst=joinpath(p,"../examples/nctiles_climatology.csv")
-        !isdir(joinpath(ScratchSpaces.ECCO,v)) ? get_from_dataverse(lst,v,ScratchSpaces.ECCO) : nothing
-    end
     
     get_ecco_variable_if_needed("ETAN")
     tmp=read_nctiles(joinpath(ScratchSpaces.ECCO,"ETAN/ETAN"),"ETAN",γ,I=(:,:,1))
