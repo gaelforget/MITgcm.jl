@@ -60,7 +60,7 @@ module downloads
             tmp_path=open(joinpath(MITgcmScratchSpaces.path,fil)) do io
                 Tar.extract(CodecZlib.GzipDecompressorStream(io))
             end
-            mv(joinpath(tmp_path,fil[1:end-7]),dir_out)
+            mv(tmp_path,dir_out)
             rm(joinpath(MITgcmScratchSpaces.path,fil))
         end
     end    
