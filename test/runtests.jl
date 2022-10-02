@@ -73,6 +73,7 @@ MITgcm_download()
     launch(MC)
     if isdir(joinpath(MC.folder,string(MC.ID),"run","mnc_test_0001"))
         Γ=GridLoad_mnc(MC)
+        GridLoad_mnc(Γ.XC.grid)
     else
         Γ=GridLoad_mdsio(MC)
     end
@@ -115,12 +116,6 @@ MITgcm_download()
     read_bin(fil,γ.ioPrec,γ)
     read_bin(tmp2,tmp1)
     read_bin(tmp2,γ)
-
-    function get_ecco_variable_if_needed(v::String)
-        p=dirname(pathof(OceanStateEstimation))
-        lst=joinpath(p,"../examples/nctiles_climatology.csv")
-        !isdir(joinpath(ScratchSpaces.ECCO,v)) ? get_from_dataverse(lst,v,ScratchSpaces.ECCO) : nothing
-    end
     
     get_ecco_variable_if_needed("ETAN")
     tmp=read_nctiles(joinpath(ScratchSpaces.ECCO,"ETAN/ETAN"),"ETAN",γ,I=(:,:,1))
@@ -135,5 +130,11 @@ MITgcm_download()
     tmp=read_flt(pth,Float32)
     
     @test isa(tmp[1,1],Number)
+
+    ##
+
+    HS94_pickup_download()
+    dir_out=joinpath(MITgcmScratchSpaces.path,"pickup_hs94.cs-32x32x5")
+    @test isdir(dir_out)
 
 end

@@ -10,7 +10,8 @@ include("FormatConversions.jl")
 include("PhysicalOceanography.jl")
 include("verification_experiments.jl")
 
-export MITgcm_path, MITgcm_download, HS94_pickup_download
+export MITgcm_path, MITgcmScratchSpaces
+export MITgcm_download, HS94_pickup_download
 export MITgcm_config, MITgcm_namelist, MITgcm_launch
 export testreport, build, compile, setup, clean
 #export pause, stop, clock, monitor, train, help
@@ -59,7 +60,7 @@ module downloads
             tmp_path=open(joinpath(MITgcmScratchSpaces.path,fil)) do io
                 Tar.extract(CodecZlib.GzipDecompressorStream(io))
             end
-            mv(joinpath(tmp_path,fil[1:end-7]),dir_out)
+            mv(tmp_path,dir_out)
             rm(joinpath(MITgcmScratchSpaces.path,fil))
         end
     end    
