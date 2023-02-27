@@ -108,6 +108,10 @@ MITgcm_download()
     findtiles(30,30,"LatLonCap",MeshArrays.GRID_LLC90)
     read_meta(MeshArrays.GRID_LLC90,"XC.meta")
 
+    files=["tile00$i.mitgrid" for i in 1:5]
+    Γ=GridLoad_native(MeshArrays.GRID_LLC90,files,γ)
+    @test isa(Γ.AngleCS,MeshArray)
+
     fil=joinpath(MeshArrays.GRID_LLC90,"XC.data")
     tmp1=read_bin(fil,γ)
     tmp2=convert2gcmfaces(tmp1)
