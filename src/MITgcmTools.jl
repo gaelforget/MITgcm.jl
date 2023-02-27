@@ -5,6 +5,8 @@ using OrderedCollections, DataFrames, MeshArrays, ClimateModels
 
 include("Types.jl")
 include("ReadFiles.jl")
+include("ReadNativeGridFiles.jl")
+import MITgcmTools.ReadNativeGridFiles.GridLoad_native
 include("ModelSteps.jl")
 include("FormatConversions.jl")
 include("PhysicalOceanography.jl")
@@ -19,7 +21,7 @@ export verification_experiments, read_namelist, write_namelist
 export read_mdsio, read_meta, read_available_diagnostics
 export scan_rundir, scan_stdout
 export read_bin, read_flt, read_mnc, read_nctiles, findtiles
-export GridLoad_mnc, GridLoad_mdsio
+export GridLoad_mnc, GridLoad_mdsio, GridLoad_native
 export cube2compact, compact2cube, convert2array, convert2gcmfaces
 export SeaWaterDensity, MixedLayerDepth
 
