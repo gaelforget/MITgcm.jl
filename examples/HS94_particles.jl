@@ -142,14 +142,6 @@ md"""### Save Results
 A simple yet general method is demonstrated in the next cell:
 """
 
-# ╔═╡ d6ce6158-bdf0-48cd-8c6e-d6c1191e6a07
-begin
-	M=(timestamp=now(),author="me",run="HS94")
-	I=(metadata=M, ID=𝐼.🆔, record=𝐼.🔴, position=𝐼.📌)
-	jldsave(joinpath(PICKUP_hs94_path,"HS94.jld2");I=I)
-	joinpath(PICKUP_hs94_path,"HS94.jld2")
-end
-
 # ╔═╡ 5129ac14-0861-40b5-b97e-0d0edd37849f
 md""" ### Plots
 
@@ -199,6 +191,17 @@ begin
 	
 	#Add longitude and latitude
 	add_lonlat!(𝐼.🔴,𝐷.XC,𝐷.YC)
+
+	🔴 = 𝐼.🔴
+end
+
+# ╔═╡ d6ce6158-bdf0-48cd-8c6e-d6c1191e6a07
+begin
+	🔴 #using this variable for sync
+	M=(timestamp=now(),author="me",run="HS94")
+	I=(metadata=M, ID=𝐼.🆔, record=🔴, position=𝐼.📌)
+	jldsave(joinpath(PICKUP_hs94_path,"HS94.jld2");I=I)
+	joinpath(PICKUP_hs94_path,"HS94.jld2")
 end
 
 # ╔═╡ a34adf36-81de-42c2-8407-d408041193b6
@@ -241,7 +244,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.3"
 manifest_format = "2.0"
-project_hash = "a7e2bba7fd58e9e2b301bab4b6ba1d10c05e0504"
+project_hash = "987a7252dbf7f9381cd3a7b28832cb1aa8b2a402"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
