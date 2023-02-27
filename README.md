@@ -7,24 +7,24 @@
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/gaelforget/MITgcmTools.jl/master)
 [![DOI](https://zenodo.org/badge/236192181.svg)](https://zenodo.org/badge/latestdoi/236192181)
 
-Set of tools for running [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest), analyzing its output, and/or modifying its inputs. 
+Set of tools for running [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest), analyzing model output, modifying inputs, etc. 
 
-Notebooks that demonstrate the package functionalities can be found below and in [the docs](https://gaelforget.github.io/MITgcmTools.jl/dev).
+Notebooks and tutorials are found in [the docs](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/).
 
 <details>
   <summary><b>Examples / How-To </b></summary>
 
-To load one of the notebooks using `Pluto.jl`: 
+To open a notebook using [Pluto.jl](https://featured.plutojl.org): 
 
 1. open `julia` in terminal window
-2. type the following commands at the `Julia` prompt
-3. in browser, open one of the notebooks listed hereafter
+2. type command below at the `Julia` prompt
+3. _new web browser tab should show `Pluto` prompt_
+4. copy/paste a notebook URL from [the docs](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/)
 
 ```
-cd("examples/")
-using Pluto
-Pluto.run()
+cd("examples/"); using Pluto; Pluto.run()
 ```
+
 </details>
 
 <details>

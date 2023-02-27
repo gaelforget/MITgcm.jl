@@ -11,7 +11,7 @@ The [tutorial\_global\_oce_biogeo](https://mitgcm.readthedocs.io/en/latest/examp
 !!! note 
     Alternatively, the [MITgcm documentation](https://mitgcm.readthedocs.io/en/latest/getting_started/getting_started.html) explains how to complile and run tutorials at the linux command line. 
 
-Once the model has run, it's output is found in the _run/_ subfolder (see notebook). The [`scan_rundir`](@ref) can be used to take a quick look inside.
+Once the model has run, it's output is found in the _run/_ folder (see notebook). The [`scan_rundir`](@ref) function can provide a summary information about files in the _run/_ folder.
 
 ```
 rundir=joinpath(pth,"run")
@@ -19,13 +19,13 @@ sc=scan_rundir(rundir)
 sc.completed
 ```
 
-The result will indicate whether the model run has complete normally based upon the standard output file (_output.txt_ or _STDOUT.000_). 
+The result will indicate whether the model run has complete normally based upon the [Standard Output](@ref) file (_output.txt_ or _STDOUT.000_). 
 
-[`scan_rundir`](@ref) gathers additional information by scanning files in the _run/_ folder. For example, it checks whether the output is binary (`sc.params_files.use_mdsio`) or netcdf (`sc.params_files.use_mnc`), and what type of grid was used (`sc.params_grid`).
+The [`scan_rundir`](@ref) function checks whether the model output is format binary (`sc.params_files.use_mdsio`) or NetCDF (`sc.params_files.use_mnc`). It also identifies the type of grid that was used (`sc.params_grid`).
 
-With this information in hand, we are ready to read model output. The various files that MITgcm can generate are covered below.
+With this information, we are ready to read model output. The various files that MITgcm can generate are covered below.
 
-- [Run Folder](@ref)
+- Scan [Run Folder](@ref)
 - [MDS Files](@ref) (binary)
 - [MNC Files](@ref) (netcdf)
 - [Grid Files](@ref) (binary or netcdf)
