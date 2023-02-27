@@ -9,6 +9,7 @@ makedocs(;
         "Home" => "index.md",
         "Manual" => "functionalities.md",
         "Examples" => "examples.md",
+        "API Reference" => "functionalities_more.md",
 #        "Examples" => Any[
 #            "Guide " => "examples.md",
 #            "Listing" => [map(s -> "generated/$(s[1:end-2])md",lst)...],

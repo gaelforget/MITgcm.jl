@@ -1,3 +1,9 @@
+
+### API Reference
+
+```@index
+```
+
 ### Format Conversions
 
 ```@docs
@@ -13,9 +19,4 @@ convert2gcmfaces
 ```@docs
 SeaWaterDensity
 MixedLayerDepth
-```
-
-### API Reference
-
-```@index
 ```
