@@ -55,9 +55,8 @@ function GridLoad_native(path,files,γ)
     [Γ[ii]=MeshArray(γ) for ii in list_n]
 
     #fill in each Γ[ii][ff]
-    for ff in 1:5
+    for ff in 1:length(files)
         fil=joinpath(path,files[ff])
-        println(fil)
 
         siz=γ.fSize[ff].+1
         recl=prod(siz)*8
@@ -85,7 +84,7 @@ function GridLoadNative_Angle(path,files,γ)
     AngleSN=MeshArray(γ)
     jj(x)=findall(list_n.==x)[1]
 
-    for ff in 1:5
+    for ff in 1:length(files)
         fil=joinpath(path,files[ff])
 
         siz=γ.fSize[ff].+1
@@ -112,6 +111,7 @@ function GridLoadNative_Angle(path,files,γ)
     return AngleCS,AngleSN
 end
 
+#using MAT
 function get_bathy(path,γ)
     fil=joinpath(path,"bathy.mat")
     fid=matopen(fil)
