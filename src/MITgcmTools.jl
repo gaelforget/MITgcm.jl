@@ -2,6 +2,7 @@ module MITgcmTools
 
 using Dates, Printf, SparseArrays, UUIDs, Suppressor
 using OrderedCollections, DataFrames, MeshArrays, ClimateModels
+using Glob, FortranFiles
 
 include("Types.jl")
 include("ReadFiles.jl")
