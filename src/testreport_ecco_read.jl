@@ -1,9 +1,8 @@
 
-using Glob, GR
-using MITgcmTools, MeshArrays
+using Glob, MITgcmTools, MeshArrays
 
 """
-    testreport_ecco(pth0; doPlot=true)
+    testreport_ecco(pth0)
 
 Parse cost function file etc
 
@@ -11,11 +10,13 @@ Parse cost function file etc
 pth0="run_checkpoint67z_fixed"
 testreport_ecco(pth0)
 mH,T,z,tV,tT,tS=ans
+
+using GR
+inline("iterm")
+plot(mH,color=:red)
 ```
 """
-function testreport_ecco(pth0; doPlot=true)
-
-#g,G=grid_load_ECCO(pth0)
+function testreport_ecco(pth0)
 
 fil0=glob("costfun*",pth0)[1]
 fc=parse_fc(fil0)
@@ -33,17 +34,9 @@ T=calc_mT(fil,nam,vol)
 
 z=read_mdsio(joinpath(pth0,"RC.data"))
 
-G,LC=grid_load_llc90()
+G,LC=load_llc90_grid()
 tV=calc_tV(lst.trsp_3d_set1[1],G,LC)
 tT,tS=calc_tT(lst.trsp_3d_set2[1],G,LC)
-
-if doPlot
-inline("iterm")
-plot(mH,color=:red)
-plot(tV,color=:blue)
-plot(tT,color=:blue)
-plot(tS,color=:blue)
-end
 
 return mH,T,z,tV,tT,tS
 
@@ -76,14 +69,6 @@ function list_diags_files(pth0)
   trsp_3d_set2=glob("trsp_3d_set2*data",joinpath(pth0,"diags"))
   (state_2d_set1=state_2d_set1,state_3d_set1=state_3d_set1,
     trsp_3d_set1=trsp_3d_set1,trsp_3d_set2=trsp_3d_set2)
-end
-
-function grid_load_ECCO(path)
-  files=["tile001.mitgrid","tile002.mitgrid","tile003.mitgrid","tile004.mitgrid","tile005.mitgrid"]
-ioSize=[90 1170]
-  facesSize=[(90, 270), (90, 270), (90, 90), (270, 90), (270, 90)]
-  γ=gcmgrid(path,"LatLonCap",5,facesSize, ioSize, Float64, read, write)
-  γ,GridLoad_native(path,files,γ)
 end
 
 function calc_mH(fil,RAC)
@@ -125,11 +110,8 @@ function RAC_masked(pth0)
 end
 
 #function calc_mT(fil,nam,vol)
-function calc_mT(fil,nam,vol)
-    meta=read_meta(fil)
-    i1=findall(meta.fldList[:].==nam)[1]
-    state_3d_set1=read_mdsio(fil)
-    tmp=vol.*state_3d_set1[:,:,:,i1]
+function calc_mT(fil,nam::String,vol)
+    tmp=vol.*read_mdsio(fil,Symbol(nam))
     #[sum(tmp[:,:,k])/sum(vol[:,:,k]) for k in 1:size(tmp,3)]
     sum(tmp)/sum(vol)
 end
@@ -144,9 +126,7 @@ function vol_masked(pth0)
     return Float64.(hFacC)
 end
 
-##
-
-function grid_load_llc90()
+function load_llc90_grid()
     pth=MeshArrays.GRID_LLC90
     γ=GridSpec("LatLonCap",pth)
     G=GridLoad(γ;option="full")
@@ -154,13 +134,9 @@ function grid_load_llc90()
     G,LC
 end
 
-##
-
 function calc_tV(fil,Γ,LC)
-    meta=read_meta(fil)
-    trsp_3d_set1=read_mdsio(fil)
-    u=get_data_3d(trsp_3d_set1,meta,"UVELMASS",Γ)
-    v=get_data_3d(trsp_3d_set1,meta,"VVELMASS",Γ)
+    u=read(read_mdsio(fil,"UVELMASS"),Γ.hFacW)  
+    v=read(read_mdsio(fil,"VVELMASS"),Γ.hFacS)
     (Utr,Vtr)=UVtoTransport(u,v,Γ)
 
     #integrate across latitude circles and depth
@@ -174,22 +150,11 @@ function calc_tV(fil,Γ,LC)
     1e-6*MT
 end
 
-##
-
-get_trsp(tmp,meta,Γ)=(ADVx_TH=get_data_3d(tmp,meta,"ADVx_TH",Γ),DFxE_TH=get_data_3d(tmp,meta,"DFxE_TH",Γ),
-ADVy_TH=get_data_3d(tmp,meta,"ADVy_TH",Γ),DFyE_TH=get_data_3d(tmp,meta,"DFyE_TH",Γ),
-ADVx_SLT=get_data_3d(tmp,meta,"ADVx_SLT",Γ),DFxE_SLT=get_data_3d(tmp,meta,"DFxE_SLT",Γ),
-ADVy_SLT=get_data_3d(tmp,meta,"ADVy_SLT",Γ),DFyE_SLT=get_data_3d(tmp,meta,"DFyE_SLT",Γ))
-
 function calc_tT(fil,Γ,LC)
-    meta=read_meta(fil)
-    trsp_3d_set2=read_mdsio(fil)
-    tmp=get_trsp(trsp_3d_set2,meta,Γ)
-
-    TRx_T=tmp.ADVx_TH+tmp.DFxE_TH
-    TRy_T=tmp.ADVy_TH+tmp.DFyE_TH
-    TRx_S=tmp.ADVx_SLT+tmp.DFxE_SLT
-    TRy_S=tmp.ADVy_SLT+tmp.DFyE_SLT
+    TRx_T=read(read_mdsio(fil,"ADVx_TH")+read_mdsio(fil,"DFxE_TH"),Γ.hFacW)  
+    TRy_T=read(read_mdsio(fil,"ADVy_TH")+read_mdsio(fil,"DFyE_TH"),Γ.hFacS)  
+    TRx_S=read(read_mdsio(fil,"ADVx_SLT")+read_mdsio(fil,"DFxE_SLT"),Γ.hFacW)  
+    TRy_S=read(read_mdsio(fil,"ADVy_SLT")+read_mdsio(fil,"DFyE_SLT"),Γ.hFacS)  
 
     #integrate across latitude circles and depth
     nz=size(Γ.hFacC,2); nt=12; nl=length(LC)
@@ -204,12 +169,4 @@ function calc_tT(fil,Γ,LC)
 
     return 1e-15*4e6*MT,1e-6*MS
 end
-
-##
-
-function get_data_3d(tmp,meta,vv,Γ)
-    i1=findall(meta.fldList[:].==vv)[1]
-    read(tmp[:,:,:,i1],Γ.hFacC)
-end
-
 
