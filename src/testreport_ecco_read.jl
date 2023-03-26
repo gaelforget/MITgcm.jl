@@ -135,8 +135,8 @@ function load_llc90_grid()
 end
 
 function calc_tV(fil,Γ,LC)
-    u=read(read_mdsio(fil,"UVELMASS"),Γ.hFacW)  
-    v=read(read_mdsio(fil,"VVELMASS"),Γ.hFacS)
+    u=read(read_mdsio(fil,:UVELMASS),Γ.hFacW)  
+    v=read(read_mdsio(fil,:VVELMASS),Γ.hFacS)
     (Utr,Vtr)=UVtoTransport(u,v,Γ)
 
     #integrate across latitude circles and depth
@@ -151,10 +151,10 @@ function calc_tV(fil,Γ,LC)
 end
 
 function calc_tT(fil,Γ,LC)
-    TRx_T=read(read_mdsio(fil,"ADVx_TH")+read_mdsio(fil,"DFxE_TH"),Γ.hFacW)  
-    TRy_T=read(read_mdsio(fil,"ADVy_TH")+read_mdsio(fil,"DFyE_TH"),Γ.hFacS)  
-    TRx_S=read(read_mdsio(fil,"ADVx_SLT")+read_mdsio(fil,"DFxE_SLT"),Γ.hFacW)  
-    TRy_S=read(read_mdsio(fil,"ADVy_SLT")+read_mdsio(fil,"DFyE_SLT"),Γ.hFacS)  
+    TRx_T=read(read_mdsio(fil,:ADVx_TH)+read_mdsio(fil,:DFxE_TH),Γ.hFacW)  
+    TRy_T=read(read_mdsio(fil,:ADVy_TH)+read_mdsio(fil,:DFyE_TH),Γ.hFacS)  
+    TRx_S=read(read_mdsio(fil,:ADVx_SLT)+read_mdsio(fil,:DFxE_SLT),Γ.hFacW)  
+    TRy_S=read(read_mdsio(fil,:ADVy_SLT)+read_mdsio(fil,:DFyE_SLT),Γ.hFacS)  
 
     #integrate across latitude circles and depth
     nz=size(Γ.hFacC,2); nt=12; nl=length(LC)
