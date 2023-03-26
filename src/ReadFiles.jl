@@ -568,6 +568,48 @@ function read_mdsio(fil::String)
 end
 
 """
+    read_mdsio(fil::String,rec::Integer)
+
+Read a single variable / record from a single `MITgcm` MDSIO-type file, and return as an Array.
+
+```
+read_mdsio(fil,1)
+```
+"""
+function read_mdsio(fil::String,rec::Integer)
+    m=read_meta(fil)
+    T=eval(:($(Symbol(m.dataprec))))
+    s=m.dimList[:,3]-m.dimList[:,2].+1
+
+    isempty(findall(keys(m).==:nrecords)) ? n=1 : n=m.nrecords
+    rec>n ? error("rec too large") : nothing
+
+    m.dataprec=="Float32" ? (L,T)=(4,Float32) : (L,T)=(8,Float64)
+
+    recl=prod(s)*L
+    buff=Array{T}(undef, s...)
+        
+    f=FortranFiles.FortranFile(fil,"r",access="direct",recl=recl,convert="big-endian")
+    FortranFiles.read(f,rec=rec,buff)
+    buff
+end
+
+"""
+    read_mdsio(fil::String,nam::Symbol)
+
+Read a single variable / record from a single `MITgcm` MDSIO-type file, and return as an Array.
+
+```
+read_mdsio(fil,:THETA)
+```
+"""
+function read_mdsio(fil::String,nam::Symbol)
+    m=read_meta(fil)
+    jj=findall(Symbol.(m.fldList[:]).==nam)[1]
+    read_mdsio(fil,jj)
+end
+
+"""
     read_mdsio(pth::String,fil::String)
 
 Read a set of `MITgcm` MDSIO-type files (".data" binary + ".meta" text pair), combine, and return as an Array.
@@ -582,9 +624,9 @@ z=read_mdsio(p,"T.0000000000")
 ```
 """
 function read_mdsio(pth::String,fil::String)
-    f=readdir(pth)
-    kk=findall(occursin.(fil,f).*occursin.(".data",f))
-    f=f[kk]
+    ff=glob(fil*"*",pth)
+    ff=ff[findall(occursin.(".data",ff))]
+    f=basename.(ff)
     kk=findall([ (f[i][1:length(fil)]==fil)*(f[i][1+length(fil)]=='.') for i in 1:length(f)])
 
     m=[read_meta(joinpath(pth,f[k])) for k in kk]
