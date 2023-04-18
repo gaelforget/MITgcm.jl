@@ -3,7 +3,7 @@
 """
     scan_rundir(pth::String)
 
-Scan a MITgcm run directory and standard output text file 
+Scan a MITgcm run directory and standard output text file
 ("output.txt" or "STDOUT.0000") and return a NamedTuple of
 collected information (various formats)
 
@@ -84,7 +84,7 @@ function scan_stdout(filout::String)
 
     #2 output files
 
-    #2.1 type (mdsio or mnc?) and overall size (ioSize) of output 
+    #2.1 type (mdsio or mnc?) and overall size (ioSize) of output
     tst_mdsio = !isempty(filter(x -> occursin("XC",x), readdir(pth)))
     pth_mnc=joinpath(pth,"mnc_test_0001")
     tst_mnc = isdir(pth_mnc)
@@ -169,7 +169,7 @@ function read_nctiles(fileName::String,fldName::String,mygrid::gcmgrid;
         f0=fill(NaN,mygrid.fSize[ff]...,s[3:end]...)
         n0=m0[1]
         for n in 1:nn
-            fileIn=@sprintf("%s.%04d.nc",fileRoot,n+n0)
+            @sprintf("%s.%04d.nc",fileRoot,n+n0)
             if isfile(fileIn) #skip if no file / blank tile
                 x = ClimateModels.ncread(fileIn,fldName,start,count)
                 i=collect(1:s[1]) .+ i0[n]
@@ -389,7 +389,7 @@ function read_namelist(fil)
     groups = meta[findall(occursin.('&',meta))]
 	groups = [Symbol(groups[1+2*(i-1)][3:end]) for i in 1:Int(length(groups)/2)]
 	params = fill(OrderedDict(),length(groups))
-		
+
 	for i in 1:length(groups)
 		ii=1+findall(occursin.(String(groups[i]),meta))[1]
 		i1=ii
@@ -417,9 +417,9 @@ function read_namelist(fil)
         for ii in keys(tmp0)
             tmp0[ii]=parse_param(tmp0[ii])
         end
-		params[i]=tmp0			
+		params[i]=tmp0
 	end
-		
+
     return MITgcm_namelist(Symbol.(groups),params)
 end
 
@@ -473,7 +473,7 @@ nml=read_namelist(fil)
 write_namelist(fil*"_new",namelist)
 ```
 
-or 
+or
 
 ```
 nml=read(fil,MITgcm_namelist())
@@ -484,9 +484,9 @@ function write_namelist(fil,namelist)
 	fid = open(fil, "w")
 	for jj in 1:length(namelist.groups)
         ii=namelist.groups[jj]
-		tmpA=namelist.params[jj] 
+		tmpA=namelist.params[jj]
 		params=(; zip(keys(tmpA),values(tmpA))...)
-			
+
         txt=fill("",length(params))
         for i in 1:length(params)
             x=params[i]
@@ -507,7 +507,7 @@ function write_namelist(fil,namelist)
             y[end]==',' ? y=y[1:end-1] : nothing
             txt[i]=y
         end
-			
+
 		txtparams=[" $(keys(params)[i]) = $(txt[i]),\n" for i in 1:length(params)]
 
 		write(fid," &$(ii)\n")
@@ -588,7 +588,7 @@ function read_mdsio(fil::String,rec::Integer)
 
     recl=prod(s)*L
     buff=Array{T}(undef, s...)
-        
+
     f=FortranFiles.FortranFile(fil,"r",access="direct",recl=recl,convert="big-endian")
     FortranFiles.read(f,rec=rec,buff)
     buff
@@ -613,7 +613,7 @@ end
     read_mdsio(pth::String,fil::String)
 
 Read a set of `MITgcm` MDSIO-type files (".data" binary + ".meta" text pair), combine, and return as an Array.
-Unlike `read_mdsio(fil::String)` where `fil` is one complete file name, this method will search within `pth` 
+Unlike `read_mdsio(fil::String)` where `fil` is one complete file name, this method will search within `pth`
 for files that start with `fil`.
 
 ```
@@ -634,7 +634,7 @@ function read_mdsio(pth::String,fil::String)
 
     m[1].nrecords>1 ? s=Tuple([m[1].dimList[:,1];m[1].nrecords]) : s=Tuple(m[1].dimList[:,1])
     x = Array{T,length(s)}(undef,s)
-    
+
     for k=1:length(m)
         ii=m[k].dimList[1,2]:m[k].dimList[1,3]
         jj=m[k].dimList[2,2]:m[k].dimList[2,3]
@@ -657,7 +657,7 @@ read_mdsio(xx::Array,x::MeshArray) = MeshArrays.read(xx::Array,x::MeshArray)
 """
     read_mnc(pth::String,fil::String,var::String)
 
-Read variable `var` from a set of `MITgcm` MNC-type files (netcdf files), combine, and 
+Read variable `var` from a set of `MITgcm` MNC-type files (netcdf files), combine, and
 return as an Array. This method will search within `pth` for files that start with `fil`.
 """
 function read_mnc(pth::String,fil::String,var::String)
@@ -712,7 +712,7 @@ end
 """
     GridLoad_mnc(γ::gcmgrid)
 
-Load grid variabes (XC, YC, Depth) model run directory (`joinpath(rundir,"mnc_test_0001")`).   
+Load grid variabes (XC, YC, Depth) model run directory (`joinpath(rundir,"mnc_test_0001")`).
 """
 function GridLoad_mnc(γ::gcmgrid)
     pth=joinpath(γ.path,"mnc_test_0001")
@@ -818,7 +818,7 @@ function GridLoad_mdsio(rundir::String)
         readcube(xx::Array,x::MeshArray) = read_mdsio(cube2compact(xx),x)
         readcube(fil::String,x::MeshArray) = read_mdsio(fil::String,x::MeshArray)
         writecube(x::MeshArray) = compact2cube(write(x))
-        writecube(fil::String,x::MeshArray) = write(fil::String,x::MeshArray)    
+        writecube(fil::String,x::MeshArray) = write(fil::String,x::MeshArray)
         γ=gcmgrid(rundir,"CubeSphere",6,fill((32,32),6),[32 32*6],elty, readcube, writecube)
     else
         s1=exps_ioSize
@@ -831,7 +831,7 @@ end
 """
     read_available_diagnostics(fldname::String; filename="available_diagnostics.log")
 
-Get the information for a particular variable `fldname` from the 
+Get the information for a particular variable `fldname` from the
 `available_diagnostics.log` text file generated by `MITgcm`.
 """
 function read_available_diagnostics(fldname::String; filename="available_diagnostics.log")

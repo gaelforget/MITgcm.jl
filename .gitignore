@@ -1,6 +1,7 @@
 *.jl.*.cov
 *.jl.cov
 *.jl.mem
+.vscode
 .DS_Store
 /Manifest.toml
 docs/Manifest.toml
