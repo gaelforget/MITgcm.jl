@@ -110,7 +110,7 @@ function scan_stdout(filout::String)
 end
 
 """
-    read_nctiles(fileName,fldName,mygrid)
+    read_nctiles(eccoVersion4Release,fileName,fldName,mygrid)
 
 Read model output from NCTiles file and convert to MeshArray instance.
 ```
@@ -121,7 +121,7 @@ hFacC=read_nctiles(fileName,"hFacC",mygrid)
 hFacC=read_nctiles(fileName,"hFacC",mygrid,I=(:,:,1))
 ```
 """
-function read_nctiles(fileName::String,fldName::String,mygrid::gcmgrid;
+function read_nctiles(eccoVersion4Release::Int64,fileName::String,fldName::String,mygrid::gcmgrid;
     I::Union{Missing,Tuple{Colon,Colon,Vararg{Union{Colon,Integer}}}}=missing)
 
     if (mygrid.class!="LatLonCap")||(mygrid.ioSize!=[90 1170])
@@ -129,7 +129,6 @@ function read_nctiles(fileName::String,fldName::String,mygrid::gcmgrid;
     end
 
     pth0=dirname(fileName)
-
     nam=split(fileName,"/")[end]
     isempty(nam) ? nam=split(fileName,"/")[end-1] : nothing
     occursin(".nctiles",nam) ? nam=nam[1:end-8] : nothing
@@ -139,7 +138,7 @@ function read_nctiles(fileName::String,fldName::String,mygrid::gcmgrid;
     lst=lst[findall(occursin.(nam,lst).*occursin.(".nc",lst))]
 
     fileIn=joinpath(pth1,lst[1])
-    fileRoot=fileIn[1:end-8]
+    fileRoot= eccoVersion4Release == 4 ? fileIn[1:end-11] : fileIn[1:end-8]
     ntile=ClimateModels.ncgetatt(fileIn,"Global","ntile")
 
     x = ClimateModels.ncread(fileIn,fldName)
@@ -157,32 +156,60 @@ function read_nctiles(fileName::String,fldName::String,mygrid::gcmgrid;
         s[k].=1
     end
 
-    f=Array{Float64, n}[]
-    m0=[0]
-    for ff in 1:mygrid.nFaces
-        (ni,nj)=Int.(mygrid.fSize[ff]./s[1:2])
-        nn=ni*nj
-        i0=(mod1.(1:nn,ni).-1)*s[1]
-        j0=div.(0:nn-1,ni)*s[2]
+    nr=50 # number of depth levels, this should be accessed from data in case nr = 1
+    numFiles = length(glob("*.nc", pth0))
+    f=eccoVersion4Release ≤ 3 ? Array{Float64, n}[] : numFiles > 1 ?
+                                                      MeshArray(mygrid,mygrid.ioPrec,nr,numFiles) :
+                                                      MeshArray(mygrid,mygrid.ioPrec,nr)
+    if eccoVersion4Release ≤ 3
+        m0=[0]
+        for ff in 1:mygrid.nFaces
+            (ni,nj)=Int.(mygrid.fSize[ff]./s[1:2])
+            nn=ni*nj
+            i0=(mod1.(1:nn,ni).-1)*s[1]
+            j0=div.(0:nn-1,ni)*s[2]
 
-        #f0=Array{Float64}(undef,mygrid.fSize[ff]...,s[3:end]...)
-        f0=fill(NaN,mygrid.fSize[ff]...,s[3:end]...)
-        n0=m0[1]
-        for n in 1:nn
-            @sprintf("%s.%04d.nc",fileRoot,n+n0)
-            if isfile(fileIn) #skip if no file / blank tile
-                x = ClimateModels.ncread(fileIn,fldName,start,count)
-                i=collect(1:s[1]) .+ i0[n]
-                j=collect(1:s[2]) .+ j0[n]
-                f0[i,j,:,:]=x[:,:,:,:]
+            #f0=Array{Float64}(undef,mygrid.fSize[ff]...,s[3:end]...)
+            f0=fill(NaN,mygrid.fSize[ff]...,s[3:end]...)
+            println(size(f0[:, :, :, :]))
+            n0=m0[1]
+            for n in 1:nn
+                fileIn=@sprintf("%s.%04d.nc",fileRoot,n+n0)
+                if isfile(fileIn) #skip if no file / blank tile
+                    @info "Reading file $(fileIn)"
+                    x = ClimateModels.ncread(fileIn,fldName,start,count)
+                    i=collect(1:s[1]) .+ i0[n]
+                    j=collect(1:s[2]) .+ j0[n]
+                    f0[i,j,:,:]=x[:,:,:,:]
+                end
+                m0[1]+=1
             end
-            m0[1]+=1
+            #f0[findall(isnan.(f0))].=0.0
+            push!(f,f0)
         end
-        #f0[findall(isnan.(f0))].=0.0
-        push!(f,f0)
+    elseif eccoVersion4Release == 4
+        fill!(f, NaN)
+        tiles=Tiles(mygrid,90,90)
+        year=pth0[end-3:end]
+        months=vcat("0" .* string.(1:9), string.(10:12))
+        fileCounter = 0 # for indexing the time in the MeshArray
+        for month in months
+            fileIn = @sprintf("%s_%s_%s.nc", fileRoot, year, month)
+            if isfile(fileIn) #skip if no file
+                fileCounter += 1
+                @info "Reading file $(fileIn)"
+                for l in 1:13, k in 1:50
+                    x = ClimateModels.ncread(fileIn,fldName,start,count)
+                    face = tiles[l].face
+                    i=collect(tiles[l].i)
+                    j=collect(tiles[l].j)
+                    f[face, k, fileCounter][i, j] = x[:,:,l,k,1]
+                end
+            end
+        end
     end
 
-    fld=MeshArray(mygrid,f)
+    fld=eccoVersion4Release ≤ 3 ? MeshArray(mygrid,f) : f
     return fld
 end
 

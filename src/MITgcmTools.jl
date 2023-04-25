@@ -29,7 +29,7 @@ export SeaWaterDensity, MixedLayerDepth
 """
     MITgcm_path
 
-Path to a MITgcm folder. `MITgcm_path[1]` should generally be used. `MITgcm_path[2]` is mostly 
+Path to a MITgcm folder. `MITgcm_path[1]` should generally be used. `MITgcm_path[2]` is mostly
 meant to facilitate comparisons between e.g. MITgcm releases when needed.
 """
 MITgcm_path = [ "" , ""]
@@ -66,8 +66,8 @@ module downloads
             mv(tmp_path,dir_out)
             rm(joinpath(MITgcmScratchSpaces.path,fil))
         end
-    end    
-    
+    end
+
 end
 
 MITgcm_download=downloads.MITgcm_download
