@@ -190,7 +190,7 @@ function read_nctiles(eccoVersion4Release::Int64,fileName::String,fldName::Strin
     elseif eccoVersion4Release == 4
         fill!(f, NaN)
         tiles=Tiles(mygrid,90,90)
-        year=pth0[end-3:end]
+        year=pth0[findlast('/', pth0)+1:end]
         months=vcat("0" .* string.(1:9), string.(10:12))
         fileCounter = 0 # for indexing the time in the MeshArray
         for month in months
