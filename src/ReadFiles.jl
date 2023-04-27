@@ -116,9 +116,9 @@ Read model output from NCTiles file and convert to MeshArray instance.
 ```
 mygrid=GridSpec("LatLonCap")
 fileName="nctiles_grid/GRID"
-Depth=read_nctiles(fileName,"Depth",mygrid)
-hFacC=read_nctiles(fileName,"hFacC",mygrid)
-hFacC=read_nctiles(fileName,"hFacC",mygrid,I=(:,:,1))
+Depth=read_nctiles(2,fileName,"Depth",mygrid)
+hFacC=read_nctiles(2,fileName,"hFacC",mygrid)
+hFacC=read_nctiles(2,fileName,"hFacC",mygrid,I=(:,:,1))
 ```
 """
 function read_nctiles(eccoVersion4Release::Int64,fileName::String,fldName::String,mygrid::gcmgrid;
