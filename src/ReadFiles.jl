@@ -3,7 +3,7 @@
 """
     scan_rundir(pth::String)
 
-Scan a MITgcm run directory and standard output text file 
+Scan a MITgcm run directory and standard output text file
 ("output.txt" or "STDOUT.0000") and return a NamedTuple of
 collected information (various formats)
 
@@ -84,7 +84,7 @@ function scan_stdout(filout::String)
 
     #2 output files
 
-    #2.1 type (mdsio or mnc?) and overall size (ioSize) of output 
+    #2.1 type (mdsio or mnc?) and overall size (ioSize) of output
     tst_mdsio = !isempty(filter(x -> occursin("XC",x), readdir(pth)))
     pth_mnc=joinpath(pth,"mnc_test_0001")
     tst_mnc = isdir(pth_mnc)
@@ -110,9 +110,11 @@ function scan_stdout(filout::String)
 end
 
 """
-    read_nctiles(fileName,fldName,mygrid)
+    read_nctiles(fileName,fldName,mygrid; eccoVersion4Release4=false)
 
-Read model output from NCTiles file and convert to MeshArray instance.
+Read model output from NCTiles file and convert to MeshArray instance. Setting the keyword
+argument `eccoVersion4Release4=true` allows `read_nctiles` to read in ECCOv4r4 data which
+has a different file naming convention to previous versions.
 ```
 mygrid=GridSpec("LatLonCap")
 fileName="nctiles_grid/GRID"
@@ -122,14 +124,14 @@ hFacC=read_nctiles(fileName,"hFacC",mygrid,I=(:,:,1))
 ```
 """
 function read_nctiles(fileName::String,fldName::String,mygrid::gcmgrid;
-    I::Union{Missing,Tuple{Colon,Colon,Vararg{Union{Colon,Integer}}}}=missing)
+    I::Union{Missing,Tuple{Colon,Colon,Vararg{Union{Colon,Integer}}}}=missing,
+    eccoVersion4Release4=false)
 
     if (mygrid.class!="LatLonCap")||(mygrid.ioSize!=[90 1170])
         error("non-llc90 cases have not yet been tested with read_nctiles")
     end
 
     pth0=dirname(fileName)
-
     nam=split(fileName,"/")[end]
     isempty(nam) ? nam=split(fileName,"/")[end-1] : nothing
     occursin(".nctiles",nam) ? nam=nam[1:end-8] : nothing
@@ -139,7 +141,7 @@ function read_nctiles(fileName::String,fldName::String,mygrid::gcmgrid;
     lst=lst[findall(occursin.(nam,lst).*occursin.(".nc",lst))]
 
     fileIn=joinpath(pth1,lst[1])
-    fileRoot=fileIn[1:end-8]
+    fileRoot= eccoVersion4Release4 ? fileIn[1:end-11] : fileIn[1:end-8]
     ntile=ClimateModels.ncgetatt(fileIn,"Global","ntile")
 
     x = ClimateModels.ncread(fileIn,fldName)
@@ -157,32 +159,60 @@ function read_nctiles(fileName::String,fldName::String,mygrid::gcmgrid;
         s[k].=1
     end
 
-    f=Array{Float64, n}[]
-    m0=[0]
-    for ff in 1:mygrid.nFaces
-        (ni,nj)=Int.(mygrid.fSize[ff]./s[1:2])
-        nn=ni*nj
-        i0=(mod1.(1:nn,ni).-1)*s[1]
-        j0=div.(0:nn-1,ni)*s[2]
-
-        #f0=Array{Float64}(undef,mygrid.fSize[ff]...,s[3:end]...)
-        f0=fill(NaN,mygrid.fSize[ff]...,s[3:end]...)
-        n0=m0[1]
-        for n in 1:nn
-            fileIn=@sprintf("%s.%04d.nc",fileRoot,n+n0)
-            if isfile(fileIn) #skip if no file / blank tile
-                x = ClimateModels.ncread(fileIn,fldName,start,count)
-                i=collect(1:s[1]) .+ i0[n]
-                j=collect(1:s[2]) .+ j0[n]
-                f0[i,j,:,:]=x[:,:,:,:]
+    nr=50 # number of depth levels, this should be accessed from data in case nr = 1
+    numFiles = length(glob("*.nc", pth0))
+    f=eccoVersion4Release4==false ? Array{Float64, n}[] : numFiles > 1 ?
+                                                          MeshArray(mygrid,mygrid.ioPrec,nr,numFiles) :
+                                                          MeshArray(mygrid,mygrid.ioPrec,nr)
+    if eccoVersion4Release4
+        fill!(f, NaN)
+        tiles=Tiles(mygrid,90,90)
+        year=pth0[findlast('/', pth0)+1:end]
+        months=vcat("0" .* string.(1:9), string.(10:12))
+        fileCounter = 0 # for indexing the time in the MeshArray
+        for month in months
+            fileIn = @sprintf("%s_%s_%s.nc", fileRoot, year, month)
+            if isfile(fileIn) #skip if no file
+                fileCounter += 1
+                @info "Reading file $(fileIn)"
+                for l in 1:13, k in 1:50
+                    x = ClimateModels.ncread(fileIn,fldName,start,count)
+                    face = tiles[l].face
+                    i=collect(tiles[l].i)
+                    j=collect(tiles[l].j)
+                    f[face, k, fileCounter][i, j] = x[:,:,l,k,1]
+                end
             end
-            m0[1]+=1
         end
-        #f0[findall(isnan.(f0))].=0.0
-        push!(f,f0)
+    else
+        m0=[0]
+        for ff in 1:mygrid.nFaces
+            (ni,nj)=Int.(mygrid.fSize[ff]./s[1:2])
+            nn=ni*nj
+            i0=(mod1.(1:nn,ni).-1)*s[1]
+            j0=div.(0:nn-1,ni)*s[2]
+
+            #f0=Array{Float64}(undef,mygrid.fSize[ff]...,s[3:end]...)
+            f0=fill(NaN,mygrid.fSize[ff]...,s[3:end]...)
+
+            n0=m0[1]
+            for n in 1:nn
+                fileIn=@sprintf("%s.%04d.nc",fileRoot,n+n0)
+                if isfile(fileIn) #skip if no file / blank tile
+                    @info "Reading file $(fileIn)"
+                    x = ClimateModels.ncread(fileIn,fldName,start,count)
+                    i=collect(1:s[1]) .+ i0[n]
+                    j=collect(1:s[2]) .+ j0[n]
+                    f0[i,j,:,:]=x[:,:,:,:]
+                end
+                m0[1]+=1
+            end
+            #f0[findall(isnan.(f0))].=0.0
+            push!(f,f0)
+        end
     end
 
-    fld=MeshArray(mygrid,f)
+    fld=eccoVersion4Release4==false ? MeshArray(mygrid,f) : f
     return fld
 end
 
@@ -389,7 +419,7 @@ function read_namelist(fil)
     groups = meta[findall(occursin.('&',meta))]
 	groups = [Symbol(groups[1+2*(i-1)][3:end]) for i in 1:Int(length(groups)/2)]
 	params = fill(OrderedDict(),length(groups))
-		
+
 	for i in 1:length(groups)
 		ii=1+findall(occursin.(String(groups[i]),meta))[1]
 		i1=ii
@@ -417,9 +447,9 @@ function read_namelist(fil)
         for ii in keys(tmp0)
             tmp0[ii]=parse_param(tmp0[ii])
         end
-		params[i]=tmp0			
+		params[i]=tmp0
 	end
-		
+
     return MITgcm_namelist(Symbol.(groups),params)
 end
 
@@ -473,7 +503,7 @@ nml=read_namelist(fil)
 write_namelist(fil*"_new",namelist)
 ```
 
-or 
+or
 
 ```
 nml=read(fil,MITgcm_namelist())
@@ -484,9 +514,9 @@ function write_namelist(fil,namelist)
 	fid = open(fil, "w")
 	for jj in 1:length(namelist.groups)
         ii=namelist.groups[jj]
-		tmpA=namelist.params[jj] 
+		tmpA=namelist.params[jj]
 		params=(; zip(keys(tmpA),values(tmpA))...)
-			
+
         txt=fill("",length(params))
         for i in 1:length(params)
             x=params[i]
@@ -507,7 +537,7 @@ function write_namelist(fil,namelist)
             y[end]==',' ? y=y[1:end-1] : nothing
             txt[i]=y
         end
-			
+
 		txtparams=[" $(keys(params)[i]) = $(txt[i]),\n" for i in 1:length(params)]
 
 		write(fid," &$(ii)\n")
@@ -588,7 +618,7 @@ function read_mdsio(fil::String,rec::Integer)
 
     recl=prod(s)*L
     buff=Array{T}(undef, s...)
-        
+
     f=FortranFiles.FortranFile(fil,"r",access="direct",recl=recl,convert="big-endian")
     FortranFiles.read(f,rec=rec,buff)
     buff
@@ -613,7 +643,7 @@ end
     read_mdsio(pth::String,fil::String)
 
 Read a set of `MITgcm` MDSIO-type files (".data" binary + ".meta" text pair), combine, and return as an Array.
-Unlike `read_mdsio(fil::String)` where `fil` is one complete file name, this method will search within `pth` 
+Unlike `read_mdsio(fil::String)` where `fil` is one complete file name, this method will search within `pth`
 for files that start with `fil`.
 
 ```
@@ -634,7 +664,7 @@ function read_mdsio(pth::String,fil::String)
 
     m[1].nrecords>1 ? s=Tuple([m[1].dimList[:,1];m[1].nrecords]) : s=Tuple(m[1].dimList[:,1])
     x = Array{T,length(s)}(undef,s)
-    
+
     for k=1:length(m)
         ii=m[k].dimList[1,2]:m[k].dimList[1,3]
         jj=m[k].dimList[2,2]:m[k].dimList[2,3]
@@ -657,7 +687,7 @@ read_mdsio(xx::Array,x::MeshArray) = MeshArrays.read(xx::Array,x::MeshArray)
 """
     read_mnc(pth::String,fil::String,var::String)
 
-Read variable `var` from a set of `MITgcm` MNC-type files (netcdf files), combine, and 
+Read variable `var` from a set of `MITgcm` MNC-type files (netcdf files), combine, and
 return as an Array. This method will search within `pth` for files that start with `fil`.
 """
 function read_mnc(pth::String,fil::String,var::String)
@@ -712,7 +742,7 @@ end
 """
     GridLoad_mnc(γ::gcmgrid)
 
-Load grid variabes (XC, YC, Depth) model run directory (`joinpath(rundir,"mnc_test_0001")`).   
+Load grid variabes (XC, YC, Depth) model run directory (`joinpath(rundir,"mnc_test_0001")`).
 """
 function GridLoad_mnc(γ::gcmgrid)
     pth=joinpath(γ.path,"mnc_test_0001")
@@ -818,7 +848,7 @@ function GridLoad_mdsio(rundir::String)
         readcube(xx::Array,x::MeshArray) = read_mdsio(cube2compact(xx),x)
         readcube(fil::String,x::MeshArray) = read_mdsio(fil::String,x::MeshArray)
         writecube(x::MeshArray) = compact2cube(write(x))
-        writecube(fil::String,x::MeshArray) = write(fil::String,x::MeshArray)    
+        writecube(fil::String,x::MeshArray) = write(fil::String,x::MeshArray)
         γ=gcmgrid(rundir,"CubeSphere",6,fill((32,32),6),[32 32*6],elty, readcube, writecube)
     else
         s1=exps_ioSize
@@ -831,7 +861,7 @@ end
 """
     read_available_diagnostics(fldname::String; filename="available_diagnostics.log")
 
-Get the information for a particular variable `fldname` from the 
+Get the information for a particular variable `fldname` from the
 `available_diagnostics.log` text file generated by `MITgcm`.
 """
 function read_available_diagnostics(fldname::String; filename="available_diagnostics.log")
