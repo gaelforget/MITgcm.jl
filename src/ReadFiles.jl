@@ -110,7 +110,7 @@ function scan_stdout(filout::String)
 end
 
 """
-    read_nctiles(fileName,fldName,mygrid; eccoVersion4Release4=false)
+    read_nctiles(fileName,fldName,mygrid; I, eccoVersion4Release4=false, verbose=false)
 
 Read model output from NCTiles file and convert to MeshArray instance. Setting the keyword
 argument `eccoVersion4Release4=true` allows `read_nctiles` to read in ECCOv4r4 data which
@@ -125,7 +125,7 @@ hFacC=read_nctiles(fileName,"hFacC",mygrid,I=(:,:,1))
 """
 function read_nctiles(fileName::String,fldName::String,mygrid::gcmgrid;
     I::Union{Missing,Tuple{Colon,Colon,Vararg{Union{Colon,Integer}}}}=missing,
-    eccoVersion4Release4=false)
+    eccoVersion4Release4=false,verbose=false)
 
     if (mygrid.class!="LatLonCap")||(mygrid.ioSize!=[90 1170])
         error("non-llc90 cases have not yet been tested with read_nctiles")
@@ -174,7 +174,7 @@ function read_nctiles(fileName::String,fldName::String,mygrid::gcmgrid;
             fileIn = @sprintf("%s_%s_%s.nc", fileRoot, year, month)
             if isfile(fileIn) #skip if no file
                 fileCounter += 1
-                @info "Reading file $(fileIn)"
+                verbose ? @info("Reading file $(fileIn)") : nothing
                 for l in 1:13, k in 1:50
                     x = ClimateModels.ncread(fileIn,fldName,start,count)
                     face = tiles[l].face
@@ -199,7 +199,7 @@ function read_nctiles(fileName::String,fldName::String,mygrid::gcmgrid;
             for n in 1:nn
                 fileIn=@sprintf("%s.%04d.nc",fileRoot,n+n0)
                 if isfile(fileIn) #skip if no file / blank tile
-                    @info "Reading file $(fileIn)"
+                    verbose ? @info("Reading file $(fileIn)") : nothing
                     x = ClimateModels.ncread(fileIn,fldName,start,count)
                     i=collect(1:s[1]) .+ i0[n]
                     j=collect(1:s[2]) .+ j0[n]
