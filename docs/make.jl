@@ -15,6 +15,7 @@ makedocs(;
 #            "Listing" => [map(s -> "generated/$(s[1:end-2])md",lst)...],
 #            ],
     ],
+    warnonly = [:cross_references,:missing_docs],
     repo="https://github.com/gaelforget/MITgcmTools.jl/blob/{commit}{path}#L{line}",
     sitename="MITgcmTools.jl",
     authors="gaelforget <gforget@mit.edu>",
