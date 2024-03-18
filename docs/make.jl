@@ -1,9 +1,9 @@
-using Documenter, MITgcmTools
+using Documenter, MITgcm
 import PlutoSliderServer
 using Plots, CairoMakie
 
 makedocs(;
-    modules=[MITgcmTools],
+    modules=[MITgcm],
     format=Documenter.HTML(),
     pages=[
         "Home" => "index.md",
@@ -16,8 +16,8 @@ makedocs(;
 #            ],
     ],
     warnonly = [:cross_references,:missing_docs],
-    repo="https://github.com/gaelforget/MITgcmTools.jl/blob/{commit}{path}#L{line}",
-    sitename="MITgcmTools.jl",
+    repo="https://github.com/gaelforget/MITgcm.jl/blob/{commit}{path}#L{line}",
+    sitename="MITgcm.jl",
     authors="gaelforget <gforget@mit.edu>",
 )
 
@@ -32,5 +32,5 @@ for i in lst
 end
 
 deploydocs(;
-    repo="github.com/gaelforget/MITgcmTools.jl",
+    repo="github.com/gaelforget/MITgcm.jl",
 )

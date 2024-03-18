@@ -1,4 +1,4 @@
-module MITgcmTools
+module MITgcm
 
 using Dates, Printf, SparseArrays, UUIDs, Suppressor
 using OrderedCollections, DataFrames, MeshArrays, ClimateModels
@@ -7,7 +7,7 @@ using Glob, FortranFiles
 include("Types.jl")
 include("ReadFiles.jl")
 include("ReadNativeGridFiles.jl")
-import MITgcmTools.ReadNativeGridFiles.GridLoad_native
+import MITgcm.ReadNativeGridFiles.GridLoad_native
 include("ModelSteps.jl")
 include("FormatConversions.jl")
 include("PhysicalOceanography.jl")
@@ -35,8 +35,8 @@ meant to facilitate comparisons between e.g. MITgcm releases when needed.
 MITgcm_path = [ "" , ""]
 
 module downloads
-    import MITgcmTools.MITgcmScratchSpaces
-    import MITgcmTools.MITgcm_path
+    import MITgcm.MITgcmScratchSpaces
+    import MITgcm.MITgcm_path
     using Tar, CodecZlib
 
     """
@@ -80,7 +80,7 @@ end
 MITgcm_download=downloads.MITgcm_download
 HS94_pickup_download=downloads.HS94_pickup_download
 
-import MITgcmTools.downloads: untargz
+import MITgcm.downloads: untargz
 export untargz
 
 #more:
