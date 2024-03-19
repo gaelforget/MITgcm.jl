@@ -1,8 +1,13 @@
 # MITgcm.jl
 
-Tools for using [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) or analyzing its output. This includes not only manipulating model inputs and outputs, but also compiling and running the model. Much of the functionalities are documented via the [Examples](@ref) section, as highlighted hereafter.
+Julia interface to [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) which allows user to not only read and analyze model output, but also download the source code, build the model executable, set run-time parameters, run simulations, verify model results, and perform other tasks related to MITgcm. These functionalities are documented via the [Examples](@ref) section.
 
-[ClimateModels.jl](https://gaelforget.github.io/ClimateModels.jl/stable/) provides a standard interface for such workflows. Related packages also include [MeshArrays.jl](https://juliaclimate.github.io/MeshArrays.jl/dev/) defining in-memory containters for gridded model output, and [IndividualDisplacements.jl](https://juliaclimate.github.io/IndividualDisplacements.jl/dev/) enabling particle tracking applications. 
+Related packages include: 
+
+- [ClimateModels.jl](https://gaelforget.github.io/ClimateModels.jl/stable/) provides a standard interface for such workflows. 
+- [OceanStateEstimation.jl](https://JuliaOcean.github.io/OceanStateEstimation.jl/dev/) for accessing and using ECCO solutions. 
+- [MeshArrays.jl](https://juliaclimate.github.io/MeshArrays.jl/dev/) defining in-memory containters for gridded model output.
+- [IndividualDisplacements.jl](https://juliaclimate.github.io/IndividualDisplacements.jl/dev/) enabling particle tracking applications. 
 
 ## Main Features
 
