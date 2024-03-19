@@ -1,5 +1,5 @@
 ```@example
-using MITgcmTools # hide
+using MITgcm # hide
 MITgcm_path[1]
 ```
 

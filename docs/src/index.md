@@ -1,4 +1,4 @@
-# MITgcmTools.jl
+# MITgcm.jl
 
 Tools for using [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) or analyzing its output. This includes not only manipulating model inputs and outputs, but also compiling and running the model. Much of the functionalities are documented via the [Examples](@ref) section, as highlighted hereafter.
 

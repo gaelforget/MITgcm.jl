@@ -1,10 +1,10 @@
 # Manual
 
-`MITgcmTools.jl` provides a suite of tools for analyzing [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) results, compiling the model, modifying its inputs, running simulations, etc all from within `julia`. Much of the functionalities are documented via the [Examples](@ref) section, as highlighted hereafter.
+`MITgcm.jl` provides a suite of tools for analyzing [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) results, compiling the model, modifying its inputs, running simulations, etc all from within `julia`. Much of the functionalities are documented via the [Examples](@ref) section, as highlighted hereafter.
 
 ## Read / Write MITgcm Files
 
-Let's assume that user has run an `MITgcm` configuration in standard fashion, and wants to examine the output in `Julia`. This is one of the common use case for `MITgcmTools.jl`.
+Let's assume that user has run an `MITgcm` configuration in standard fashion, and wants to examine the output in `Julia`. This is one of the common use case for `MITgcm.jl`.
 
 The [tutorial\_global\_oce_biogeo](https://mitgcm.readthedocs.io/en/latest/examples/global_oce_biogeo/global_oce_biogeo.html), which comes with MITgcm, provides a representative example. With `MITgcmTool.jl` you can just run it in [a notebook](https://juliaocean.github.io/MarineEcosystemsJuliaCon2021.jl/dev/MITgcm_tutorial_global_oce_biogeo.html) ([MITgcm\_tutorial\_global\_oce\_biogeo.jl](https://juliaocean.github.io/MarineEcosystemsJuliaCon2021.jl/dev/MITgcm_tutorial_global_oce_biogeo.jl)).
 
@@ -36,7 +36,7 @@ With this information, we are ready to read model output. The various files that
 Grid variables are often needed for analysis. The grid output can be read from file using either [`GridLoad_mdsio`](@ref) or [`GridLoad_mnc`](@ref). This will return `Γ.XC`, `Γ.YC`, etc formated using [MeshArrays.jl](https://github.com/JuliaClimate/MeshArrays.jl). See also [`GridLoad_native`](@ref).
 
 !!! note 
-    [MITgcm\_scan\_output.jl](https://github.com/gaelforget/MITgcmTools.jl/blob/master/examples/MITgcm_scan_output.jl) does this in bulk for all configurations in `MITgcm/verification` and further displays each grid ([this page](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/MITgcm_scan_output.html)).
+    [MITgcm\_scan\_output.jl](https://github.com/gaelforget/MITgcm.jl/blob/master/examples/MITgcm_scan_output.jl) does this in bulk for all configurations in `MITgcm/verification` and further displays each grid ([this page](https://gaelforget.github.io/MITgcm.jl/dev/examples/MITgcm_scan_output.html)).
 
 ## MITgcm Configurations
 
@@ -44,7 +44,7 @@ The [`verification_experiments`](@ref) function lists standard model configurati
 
 Each model configuration has a subfolder where MITgcm can be compiled and run. 
 
-In `MITgcmTools.jl`, a model configuration is represented as a [`MITgcm_config`](@ref). This data structure allows you take advantage of the [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl) interface for example.
+In `MITgcm.jl`, a model configuration is represented as a [`MITgcm_config`](@ref). This data structure allows you take advantage of the [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl) interface for example.
 
 The [`setup`](@ref) function can thus be used to prepare a temporary run directory for the `MITgcm_config`; then [`build`](@ref) to compile the model, and [`MITgcm_launch`](@ref) to run it.
 
