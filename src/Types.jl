@@ -11,7 +11,7 @@ Data structure representing a MITgcm _namelist_ file, such as `data.pkg`, which 
 with model parameters (`params`) being organized in `groups` as done in the files.
 
 ```
-using MITgcmTools
+using MITgcm
 fil=joinpath(MITgcm_path[1],"verification","advect_xy","run","data")
 nml=read_namelist(fil)
 MITgcm_namelist(nml.groups,nml.params)

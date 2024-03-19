@@ -94,7 +94,7 @@ function scan_stdout(filout::String)
         ioSize[1]=size(tmp)
     end
     if tst_mnc
-        tmp=MITgcmTools.read_mnc(pth_mnc,"grid","XC")
+        tmp=MITgcm.read_mnc(pth_mnc,"grid","XC")
         ioSize[1]=size(tmp)
     end
 
@@ -404,7 +404,7 @@ end
 Read a `MITgcm` namelist file, parse it, and return as a NamedTuple
 
 ```
-using MITgcmTools
+using MITgcm
 testreport("advect_xy")
 fil=joinpath(MITgcm_path[1],"verification","advect_xy","run","data")
 namelist=read_namelist(fil)
@@ -497,7 +497,7 @@ end
 Save a `MITgcm` namelist file. In the example below, one is read from file, modified, and then saved to a new file using write_namelist.
 
 ```
-using MITgcmTools
+using MITgcm
 fil=joinpath(MITgcm_path[1],"verification","advect_xy","run","data")
 nml=read_namelist(fil)
 write_namelist(fil*"_new",namelist)
@@ -783,10 +783,10 @@ function GridLoad_mnc(rundir::String)
         pth=joinpath(rundir,"mnc_test_0001")
     end
 
-	tmp=MITgcmTools.read_mnc(pth,"grid","XC")
+	tmp=MITgcm.read_mnc(pth,"grid","XC")
     exps_ioSize=size(tmp)
     elty=eltype(tmp)
-    sc=MITgcmTools.scan_rundir(rundir)
+    sc=MITgcm.scan_rundir(rundir)
     #
     if sc.params_grid.usingCurvilinearGrid&&(exps_ioSize==(192,32))
         γ=gcmgrid(rundir,"CubeSphere",6,fill((32,32),6),[32 32*6],elty, read, write)
@@ -842,7 +842,7 @@ function GridLoad_mdsio(rundir::String)
     tmp=read_mdsio(rundir,"XC")
     exps_ioSize=size(tmp)
     elty=eltype(tmp)
-    sc=MITgcmTools.scan_rundir(rundir)
+    sc=MITgcm.scan_rundir(rundir)
     #
     if sc.params_grid.usingCurvilinearGrid
         readcube(xx::Array,x::MeshArray) = read_mdsio(cube2compact(xx),x)

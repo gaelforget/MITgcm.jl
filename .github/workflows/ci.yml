@@ -62,8 +62,8 @@ jobs:
       - run: |
           julia --project=docs -e '
             using Documenter: doctest
-            using MITgcmTools
-            doctest(MITgcmTools)' # change MITgcmTools to the name of your package
+            using MITgcm
+            doctest(MITgcm)'
       - run: julia --project=docs docs/make.jl
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

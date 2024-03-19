@@ -1,9 +1,9 @@
-using MITgcmTools, ClimateModels, MeshArrays, OceanStateEstimation
+using MITgcm, ClimateModels, MeshArrays, OceanStateEstimation
 using Test
 
 MITgcm_download()
 
-@testset "MITgcmTools.jl" begin
+@testset "MITgcm.jl" begin
 
     #format conversions
     (γ,Γ)=MeshArrays.GridOfOnes("CubeSphere",30,30)
@@ -31,10 +31,10 @@ MITgcm_download()
     nml=read(fil,MITgcm_namelist())
     write(fil*"_new",nml)
 	
-    MITgcmTools.parse_param("1.0")
-    MITgcmTools.parse_param(".TRUE.")
-    MITgcmTools.parse_param(".false.")
-    MITgcmTools.parse_param("10")
+    MITgcm.parse_param("1.0")
+    MITgcm.parse_param(".TRUE.")
+    MITgcm.parse_param(".false.")
+    MITgcm.parse_param("10")
 
     @test isa(nml,MITgcm_namelist)
     @test nml.groups[1]==:PARM01

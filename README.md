@@ -1,15 +1,15 @@
-# MITgcmTools.jl
+# MITgcm.jl
 
-[![Documentation](https://img.shields.io/badge/docs-dev-blue.svg)](https://gaelforget.github.io/MITgcmTools.jl/dev)
-[![codecov](https://codecov.io/gh/gaelforget/MITgcmTools.jl/branch/master/graph/badge.svg?token=zUK0vO5K3J)](https://codecov.io/gh/gaelforget/MITgcmTools.jl)
-[![CI](https://github.com/gaelforget/MITgcmTools.jl/actions/workflows/ci.yml/badge.svg)](https://github.com/gaelforget/MITgcmTools.jl/actions/workflows/ci.yml)
+[![Documentation](https://img.shields.io/badge/docs-dev-blue.svg)](https://gaelforget.github.io/MITgcm.jl/dev)
+[![codecov](https://codecov.io/gh/gaelforget/MITgcm.jl/branch/master/graph/badge.svg?token=zUK0vO5K3J)](https://codecov.io/gh/gaelforget/MITgcm.jl)
+[![CI](https://github.com/gaelforget/MITgcm.jl/actions/workflows/ci.yml/badge.svg)](https://github.com/gaelforget/MITgcm.jl/actions/workflows/ci.yml)
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/gaelforget/MITgcmTools.jl/master)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/gaelforget/MITgcm.jl/master)
 [![DOI](https://zenodo.org/badge/236192181.svg)](https://zenodo.org/badge/latestdoi/236192181)
 
-Set of tools for running [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest), analyzing model output, modifying inputs, etc. 
+Julia interface to [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) which allows user to download the source code, build the model executable, set run-time parameters, run simulations, verify model results, analyze model output, and perform other tasks related to MITgcm.
 
-Notebooks and tutorials are found in [the docs](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/).
+Notebooks and tutorials are found in [the docs](https://gaelforget.github.io/MITgcm.jl/dev/examples/).
 
 <details>
   <summary><b>Examples / How-To </b></summary>
@@ -19,7 +19,7 @@ To open a notebook using [Pluto.jl](https://featured.plutojl.org):
 1. open `julia` in terminal window
 2. type command below at the `Julia` prompt
 3. _new web browser tab should show `Pluto` prompt_
-4. copy/paste a notebook URL from [the docs](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/)
+4. copy/paste a notebook URL from [the docs](https://gaelforget.github.io/MITgcm.jl/dev/examples/)
 
 ```
 cd("examples/"); using Pluto; Pluto.run()
@@ -30,18 +30,18 @@ cd("examples/"); using Pluto; Pluto.run()
 <details>
   <summary><b>Examples / Running Models </b></summary>
   
-- [MITgcm_configurations.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/MITgcm_configurations.html) : explore MITgcm configurations and their parameters.
-- [MITgcm_worklow.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/MITgcm_worklow.html) : build, setup, run, and plot for any standard configuration.
-- [MITgcm_run.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/MITgcm_run.html) : a more detailed look into compiling and running the model.
-- [MITgcm\_scan\_output.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/MITgcm_scan_output.html) : scan `output.txt`, read grid, viz with `Makie.jl`
+- [MITgcm_configurations.jl](https://gaelforget.github.io/MITgcm.jl/dev/examples/MITgcm_configurations.html) : explore MITgcm configurations and their parameters.
+- [MITgcm_worklow.jl](https://gaelforget.github.io/MITgcm.jl/dev/examples/MITgcm_worklow.html) : build, setup, run, and plot for any standard configuration.
+- [MITgcm_run.jl](https://gaelforget.github.io/MITgcm.jl/dev/examples/MITgcm_run.html) : a more detailed look into compiling and running the model.
+- [MITgcm\_scan\_output.jl](https://gaelforget.github.io/MITgcm.jl/dev/examples/MITgcm_scan_output.html) : scan `output.txt`, read grid, viz with `Makie.jl`
 </details>
 
 <details>
   <summary><b>Examples / Analyzing Results </b></summary>
   
-- [HS94_animation.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/HS94_animation.html) : run `hs94.cs-32x32x5`, read output, interpolate, and animate map
-- [HS94_particles.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/HS94_particles.html) : compute particle trajectories from `hs94.cs-32x32x5` output
-- [HS94_Makie.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/HS94_Makie.html) : example using `Makie.jl` instead of `Plots.jl`
+- [HS94_animation.jl](https://gaelforget.github.io/MITgcm.jl/dev/examples/HS94_animation.html) : run `hs94.cs-32x32x5`, read output, interpolate, and animate map
+- [HS94_particles.jl](https://gaelforget.github.io/MITgcm.jl/dev/examples/HS94_particles.html) : compute particle trajectories from `hs94.cs-32x32x5` output
+- [HS94_Makie.jl](https://gaelforget.github.io/MITgcm.jl/dev/examples/HS94_Makie.html) : example using `Makie.jl` instead of `Plots.jl`
 </details>
 
 <img src="https://user-images.githubusercontent.com/20276764/111042787-12377e00-840d-11eb-8ddb-64cc1cfd57fd.png" width="90%"> 

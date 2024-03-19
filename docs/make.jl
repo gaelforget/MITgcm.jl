@@ -1,9 +1,9 @@
-using Documenter, MITgcmTools
+using Documenter, MITgcm
 import PlutoSliderServer
 using Plots, CairoMakie
 
 makedocs(;
-    modules=[MITgcmTools],
+    modules=[MITgcm],
     format=Documenter.HTML(),
     pages=[
         "Home" => "index.md",
@@ -16,13 +16,14 @@ makedocs(;
 #            ],
     ],
     warnonly = [:cross_references,:missing_docs],
-    repo="https://github.com/gaelforget/MITgcmTools.jl/blob/{commit}{path}#L{line}",
-    sitename="MITgcmTools.jl",
+    repo="https://github.com/gaelforget/MITgcm.jl/blob/{commit}{path}#L{line}",
+    sitename="MITgcm.jl",
     authors="gaelforget <gforget@mit.edu>",
 )
 
 pth = joinpath(@__DIR__, "build","examples")
 lst=("HS94_animation.jl","HS94_particles.jl","MITgcm_configurations.jl","MITgcm_run.jl","MITgcm_worklow.jl","HS94_Makie.jl","MITgcm_scan_output.jl")
+lst=[]
 for i in lst
     fil_in=joinpath(@__DIR__,"..","examples",i)
     fil_out=joinpath(pth,i[1:end-2]*"html")
@@ -32,5 +33,5 @@ for i in lst
 end
 
 deploydocs(;
-    repo="github.com/gaelforget/MITgcmTools.jl",
+    repo="github.com/gaelforget/MITgcm.jl",
 )
