@@ -1,5 +1,5 @@
 name = "MITgcm"
-uuid = "62725fbc-3a66-4df3-9000-e33e85b3a198"
+uuid = "dce5fa8e-68ce-4431-a242-9469c69627a0"
 authors = ["gaelforget <gforget@mit.edu>"]
 version = "0.3"
 
