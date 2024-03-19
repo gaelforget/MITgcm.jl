@@ -7,7 +7,7 @@
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/gaelforget/MITgcmTools.jl/master)
 [![DOI](https://zenodo.org/badge/236192181.svg)](https://zenodo.org/badge/latestdoi/236192181)
 
-Set of tools for running [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest), analyzing model output, modifying inputs, etc. 
+Julia interface to [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) which allows user to download the source code, build the model executable, set run-time parameters, run simulations, verify model results, analyze model output, and perform other tasks related to MITgcm.
 
 Notebooks and tutorials are found in [the docs](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/).
 
