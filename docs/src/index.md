@@ -26,6 +26,7 @@ Pages = [
     "functionalities_interface.md",
     "functionalities_more.md",
     "examples.md",
+    "contributing.md",
 ]
 Depth = 2
 ```
