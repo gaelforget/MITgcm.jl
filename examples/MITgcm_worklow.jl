@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.19
+# v0.19.40
 
 using Markdown
 using InteractiveUtils
@@ -16,34 +16,46 @@ end
 
 # ╔═╡ 8cf4d8ca-84eb-11eb-22d2-255ce7237090
 begin
-	using MITgcmTools, ClimateModels, PlutoUI, Printf, Plots
+	using MITgcm, ClimateModels, PlutoUI, Printf, Plots
 	exps=verification_experiments()		
 	md"""😸"""
 end
 
 # ╔═╡ f588eaba-84ef-11eb-0755-bf1b85b2b561
 begin
-	md"""# Climate Model Interface
+	md"""# Typical Modeling Workflow
 
-	### 
-
-	In this notebook we setup, compile, and run the [MIT general circulation model](https://mitgcm.readthedocs.io/en/latest/?badge=latest) interactively via [MITgcmTools.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/). We then read model output files and plot some of the numerical model result.
+	In this notebook we setup, build, and run the [MIT general circulation model](https://mitgcm.readthedocs.io/en/latest/?badge=latest) interactively via [MITgcm.jl](https://gaelforget.github.io/MITgcm.jl/dev/). 
+	We then read model output files and plot some of the numerical model result.
+	To do this, we use the _ClimateModels' interface_ (`setup`, `build`, `launch`, etc) as implemented by [MITgcm.jl](https://gaelforget.github.io/MITgcm.jl/dev/) for [MITgcm](https://github.com/MITgcm/MITgcm/#readme). 
 	
-	The notebook demonstrates the use of the **climate model interface** (`build`, `setup`, `launch`, etc) defined in [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl) and implemented for MITgcm.
-	The `log/` subfolder is a byproduct of the climate model interface, which uses `git` to document wokflows as they happen and allow us to reproduce them later. The _Modify Parameters_ section demonstrates the interactive use of this functionality. Adding analysis / processing steps can be done similarly.
+	!!! note
+		The _ClimateModels' interface_ is defined in [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl)
+	
+	!!! note
+		With a live version of this notebook, each selection of a different configuration from the list below will make the other notebook cells react (e.g. displayed contents). With a static html version of this notebook, then cells wont react.
 	"""
 end
 
+# ╔═╡ 901d2844-83be-4767-b169-dfb7701ce15e
+begin
+	🏁 = "🏁"
+	imgA="https://user-images.githubusercontent.com/20276764/111042787-12377e00-840d-11eb-8ddb-64cc1cfd57fd.png"
+	imgB="https://user-images.githubusercontent.com/20276764/97648227-970b9780-1a2a-11eb-81c4-65ec2c87efc6.png"
+	md"""$(Resource(imgB, :width => 120))"""
+end
+
+
+
 # ╔═╡ 98b6621c-85ab-11eb-29d1-af0433598c6a
-md"""## Select Model Configuration
+md"""# Setup & Build Model
 
 $(TableOfContents())
 
-!!! note
-	If you use a live version of this notebook, selecting a different configuration from the list below will make the other notebook cells react (e.g. displayed contents). If you visualize an html version of this notebook, then cells wont react.
-
 !!! tip
-	Be aware, however, that selecting a new model configuration typically means recompiling the model._ This can take a lot longer than a normal model run due to the one-time cost of compiling the model (see below for more on this).
+	Selecting a new model configuration typically means recompiling the model. This can take longer than a normal model run due to the one-time cost of compiling the model (see below for more on this).
+
+## Select Model Configuration
 """
 
 # ╔═╡ a28f7354-84eb-11eb-1830-1f401bf2db97
@@ -55,14 +67,16 @@ begin
 	exps[iexp]
 end
 
-# ╔═╡ ee0ed0a0-8817-11eb-124d-a197f1d4545a
-md"""### Where Is `mitgcmuv` compiled?
+# ╔═╡ 27227e2d-350a-446b-9d70-b9a83b588ff4
+md"""
+!!! note 
+	The folders listed are created by `ClimateModels.jl`, which uses `git` to document wokflows as they happen via the `log/` subfolder. Below, the _Modify Parameters_ section uses functionality. 
+"""
 
-###
+# ╔═╡ ee0ed0a0-8817-11eb-124d-a197f1d4545a
+md"""## Where Is `mitgcmuv` compiled?
 
 The model executable `mitcmuv` is generally found in the `$(MITgcm_path)/verification/$(configuration)/build/` subfolder of the selected model configuration.
-
-
 
 If `mitcmuv` is not found at this stage then it is assumed that the chosen model configuration has never been compiled -- such that we need to do that before we can run the model. It should also be noted that compiling the model can take a lot longer than running it for a few time steps (as done in this notebook's sample model runs).
 
@@ -82,7 +96,7 @@ begin
 end
 
 # ╔═╡ f051e094-85ab-11eb-22d4-5bd61ac572a1
-md"""### Where Is `mitgcmuv` run?
+md"""## Where Is `mitgcmuv` run?
 
 Once the model has been compliled and setup for the selected configuration, the model run directory path should appear just below this comment bloc. At this point, we are ready to call `launch` to run the model. 
 """
@@ -91,23 +105,21 @@ Once the model has been compliled and setup for the selected configuration, the 
 rundir
 
 # ╔═╡ 5d775d7b-98d6-4d96-aee2-bae961379fd4
-md"""## Run Model"""
+md"""# Run Model
 
-# ╔═╡ 4b62b282-86bd-11eb-2fed-bbbe8ef2d4af
-md"""
-
-This should also happen automatically once at first, and once after modifying parameters.
-
-You can also click on the `Launch Model` button to trigger a model run manually.
+You can click on the `Launch Model` button to manually trigger a model run.
+This will happen automatically the first time, and then once gain after modifying parameters (see below).
 """
 
 # ╔═╡ 6f618b2c-86bd-11eb-1607-a179a349378e
 @bind do_run1 PlutoUI.Button("Launch Model")
 
 # ╔═╡ 6404fddf-3c46-4015-9580-b9159c76b30a
-md"""### Explore Model Output
+md"""# Analyze Results
 
-###
+Let's look at the model run folder and visualize results.
+
+## Browse Folder
 
 Below is a list of all files (by default) contained in the `run/` directory. Clicking on a list like this should expand its display.
 
@@ -115,9 +127,7 @@ To narrow the selection, try typing something in the text field 👉 $(@bind sea
 """
 
 # ╔═╡ 0f920f90-86e9-11eb-3f6d-2d530bd2e9db
-md"""### Plot Model Result
-
-###
+md"""## Plot Results
 
 Here we show mean temperature in **$(exps[iexp].configuration)** as a function of time. 
 
@@ -133,11 +143,11 @@ $(@bind t_slow PlutoUI.Clock(1.0, true))
 """
 
 # ╔═╡ c7670d00-868c-11eb-1889-4d3ffe621dd2
-md"""## Modify Parameters
-
-###
+md"""# Modify & Rerun Model
 
 Often we want to experiment with parameters e.g. to tune models, generate more output, or generate a model ensemble. The climate model interface provides a simple way to do this interactively and document changes via `git` along the way.
+
+## Modify Parameters
 
 **First, select a model parameter group** (or the default): 
 """
@@ -158,7 +168,7 @@ begin
 end
 
 # ╔═╡ af176e6c-8695-11eb-3e34-91fbdb9c52fa
-md"""### Appendices
+md"""# Appendices
 
 ###
 
@@ -190,6 +200,8 @@ begin
 	parameter name 👉 $(@bind p_name TextField(; default=""))	👈
 	
 	new value 👉 $(@bind p_value TextField(; default=""))	👈
+
+	## Rerun Model
 	
 	**Once ready, click** `Update & Relaunch` **to:**
 
@@ -323,21 +335,11 @@ begin
 	md"""😸"""
 end
 
-# ╔═╡ 901d2844-83be-4767-b169-dfb7701ce15e
-begin
-	🏁 = "🏁"
-	imgA="https://user-images.githubusercontent.com/20276764/111042787-12377e00-840d-11eb-8ddb-64cc1cfd57fd.png"
-	imgB="https://user-images.githubusercontent.com/20276764/97648227-970b9780-1a2a-11eb-81c4-65ec2c87efc6.png"
-	md"""$(Resource(imgB, :width => 120))"""
-end
-
-
-
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
-MITgcmTools = "62725fbc-3a66-4df3-9000-e33e85b3a198"
+MITgcm = "dce5fa8e-68ce-4431-a242-9469c69627a0"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
@@ -349,7 +351,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.2"
 manifest_format = "2.0"
-project_hash = "04848cb31ef567a5b2cc4b75cef6ef53e6343689"
+project_hash = "bc5fe7b39eb736311e8f747651f0d4ffec20ce41"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -404,9 +406,9 @@ version = "1.0.0"
 
 [[deps.ClimateModels]]
 deps = ["CSV", "DataFrames", "Dates", "Downloads", "Git", "NetCDF", "OrderedCollections", "Pkg", "Statistics", "Suppressor", "TOML", "Test", "UUIDs"]
-git-tree-sha1 = "30993aa9c579fe4a61c8857d4e1d00115c2ea158"
+git-tree-sha1 = "3b9f92f18ad145441752c80d0af59e254c3d2954"
 uuid = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
-version = "0.3.1"
+version = "0.3.2"
 
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
@@ -590,9 +592,9 @@ uuid = "a3f928ae-7b40-5064-980b-68af3947d34b"
 version = "2.13.93+0"
 
 [[deps.Format]]
-git-tree-sha1 = "f3cf88025f6d03c194d73f5d13fee9004a108329"
+git-tree-sha1 = "9c68794ef81b08086aeb32eeaf33531668d5f5fc"
 uuid = "1fa38f19-a742-5d3f-a2b9-30dd87b9d5f8"
-version = "1.3.6"
+version = "1.3.7"
 
 [[deps.FortranFiles]]
 git-tree-sha1 = "f8cec967f151a65f03afd826650c6e91d8b1da16"
@@ -669,9 +671,9 @@ version = "1.3.1"
 
 [[deps.GnuTLS_jll]]
 deps = ["Artifacts", "GMP_jll", "JLLWrappers", "Libdl", "Nettle_jll", "P11Kit_jll", "Zlib_jll"]
-git-tree-sha1 = "f3c0936dd685d57fa0b1eee7dbebf382b969ea63"
+git-tree-sha1 = "383db7d3f900f4c1f47a8a04115b053c095e48d3"
 uuid = "0951126a-58fd-58f1-b5b3-b08c7c4a876d"
-version = "3.8.3+0"
+version = "3.8.4+0"
 
 [[deps.Graphite2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -692,9 +694,9 @@ version = "1.14.2+1"
 
 [[deps.HTTP]]
 deps = ["Base64", "CodecZlib", "ConcurrentUtilities", "Dates", "ExceptionUnwrapping", "Logging", "LoggingExtras", "MbedTLS", "NetworkOptions", "OpenSSL", "Random", "SimpleBufferStream", "Sockets", "URIs", "UUIDs"]
-git-tree-sha1 = "995f762e0182ebc50548c434c171a5bb6635f8e4"
+git-tree-sha1 = "8e59b47b9dc525b70550ca082ce85bcd7f5477cd"
 uuid = "cd3eb016-35fb-5094-929b-558a96fad6f3"
-version = "1.10.4"
+version = "1.10.5"
 
 [[deps.HarfBuzz_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "Graphite2_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Pkg"]
@@ -946,11 +948,11 @@ git-tree-sha1 = "65f28ad4b594aebe22157d6fac869786a255b7eb"
 uuid = "6c6e2e6c-3030-632d-7369-2d6c69616d65"
 version = "0.1.4"
 
-[[deps.MITgcmTools]]
+[[deps.MITgcm]]
 deps = ["ClimateModels", "CodecZlib", "DataFrames", "Dates", "Downloads", "FortranFiles", "Glob", "MeshArrays", "OrderedCollections", "Printf", "Scratch", "SparseArrays", "Suppressor", "Tar", "UUIDs"]
-git-tree-sha1 = "1f88b1dc3944c136c342ab97828bebabd9ae1dff"
-uuid = "62725fbc-3a66-4df3-9000-e33e85b3a198"
-version = "0.2.8"
+git-tree-sha1 = "7302424226b9c3535551fe26660a4806b02c5d5d"
+uuid = "dce5fa8e-68ce-4431-a242-9469c69627a0"
+version = "0.3.1"
 
 [[deps.MPICH_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Hwloc_jll", "JLLWrappers", "LazyArtifacts", "Libdl", "MPIPreferences", "TOML"]
@@ -998,9 +1000,9 @@ version = "0.3.2"
 
 [[deps.MeshArrays]]
 deps = ["CatViews", "Dates", "LazyArtifacts", "NearestNeighbors", "Pkg", "Printf", "SparseArrays", "Statistics", "Unitful"]
-git-tree-sha1 = "24914ba2fe54f0f4d3fd3f12544fb4b68eabfab6"
+git-tree-sha1 = "efe5af5a2eae46e697bb4afc21ffb13c6699d0ff"
 uuid = "cb8c808f-1acf-59a3-9d2b-6e38d009f683"
-version = "0.3.1"
+version = "0.3.2"
 
     [deps.MeshArrays.extensions]
     MeshArraysDownloadsExt = ["Downloads"]
@@ -1114,9 +1116,9 @@ version = "1.4.2"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "60e3045590bd104a16fefb12836c00c0ef8c7f8c"
+git-tree-sha1 = "3da7367955dcc5c54c1ba4d402ccdc09a1a3e046"
 uuid = "458c3c95-2e84-50aa-8efc-19380b2a3a95"
-version = "3.0.13+0"
+version = "3.0.13+1"
 
 [[deps.Opus_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1182,9 +1184,9 @@ version = "1.4.1"
 
 [[deps.Plots]]
 deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "JLFzf", "JSON", "LaTeXStrings", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "PrecompileTools", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "RelocatableFolders", "Requires", "Scratch", "Showoff", "SparseArrays", "Statistics", "StatsBase", "UUIDs", "UnicodeFun", "UnitfulLatexify", "Unzip"]
-git-tree-sha1 = "3c403c6590dd93b36752634115e20137e79ab4df"
+git-tree-sha1 = "3bdfa4fa528ef21287ef659a89d686e8a1bcb1a9"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.40.2"
+version = "1.40.3"
 
     [deps.Plots.extensions]
     FileIOExt = "FileIO"
@@ -1370,9 +1372,9 @@ version = "7.2.1+1"
 
 [[deps.Suppressor]]
 deps = ["Logging"]
-git-tree-sha1 = "6cd9e4a207964c07bf6395beff7a1e8f21d0f3b2"
+git-tree-sha1 = "9143c41bd539a8885c79728b9dedb0ce47dc9819"
 uuid = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
-version = "0.2.6"
+version = "0.2.7"
 
 [[deps.TOML]]
 deps = ["Dates"]
@@ -1407,9 +1409,9 @@ deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [[deps.TranscodingStreams]]
-git-tree-sha1 = "a09c933bebed12501890d8e92946bbab6a1690f1"
+git-tree-sha1 = "71509f04d045ec714c4748c785a59045c3736349"
 uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
-version = "0.10.5"
+version = "0.10.7"
 weakdeps = ["Random", "Test"]
 
     [deps.TranscodingStreams.extensions]
@@ -1494,9 +1496,9 @@ version = "1.6.1"
 
 [[deps.XML2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Libiconv_jll", "Zlib_jll"]
-git-tree-sha1 = "07e470dabc5a6a4254ffebc29a1b3fc01464e105"
+git-tree-sha1 = "532e22cf7be8462035d092ff21fada7527e2c488"
 uuid = "02c8fc9c-b97f-50b9-bbe4-9be30ff0a78a"
-version = "2.12.5+0"
+version = "2.12.6+0"
 
 [[deps.XSLT_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Libgcrypt_jll", "Libgpg_error_jll", "Libiconv_jll", "Pkg", "XML2_jll", "Zlib_jll"]
@@ -1506,9 +1508,9 @@ version = "1.1.34+0"
 
 [[deps.XZ_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "31c421e5516a6248dfb22c194519e37effbf1f30"
+git-tree-sha1 = "ac88fb95ae6447c8dda6a5503f3bafd496ae8632"
 uuid = "ffd25f8a-64ca-5728-b0f7-c24cf3aae800"
-version = "5.6.1+0"
+version = "5.4.6+0"
 
 [[deps.Xorg_libICE_jll]]
 deps = ["Libdl", "Pkg"]
@@ -1661,9 +1663,9 @@ version = "1.2.13+1"
 
 [[deps.Zstd_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "49ce682769cd5de6c72dcf1b94ed7790cd08974c"
+git-tree-sha1 = "e678132f07ddb5bfa46857f0d7620fb9be675d3b"
 uuid = "3161d3a3-bdf6-5164-811a-617609db77b4"
-version = "1.5.5+0"
+version = "1.5.6+0"
 
 [[deps.eudev_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "gperf_jll"]
@@ -1791,15 +1793,16 @@ version = "1.4.1+1"
 
 # ╔═╡ Cell order:
 # ╟─f588eaba-84ef-11eb-0755-bf1b85b2b561
+# ╟─901d2844-83be-4767-b169-dfb7701ce15e
 # ╟─98b6621c-85ab-11eb-29d1-af0433598c6a
 # ╟─a28f7354-84eb-11eb-1830-1f401bf2db97
 # ╟─766f87b8-f3d4-4e39-8cae-d91679d9af6f
+# ╟─27227e2d-350a-446b-9d70-b9a83b588ff4
 # ╟─ee0ed0a0-8817-11eb-124d-a197f1d4545a
 # ╟─eca925ba-8816-11eb-1d6d-39bf08bfe979
 # ╟─f051e094-85ab-11eb-22d4-5bd61ac572a1
 # ╟─f7e66980-9ec5-43cf-98b1-37aa6823d64a
 # ╟─5d775d7b-98d6-4d96-aee2-bae961379fd4
-# ╟─4b62b282-86bd-11eb-2fed-bbbe8ef2d4af
 # ╟─6f618b2c-86bd-11eb-1607-a179a349378e
 # ╟─96492c18-86bd-11eb-35ca-dff79e6e7818
 # ╟─6404fddf-3c46-4015-9580-b9159c76b30a
@@ -1819,6 +1822,5 @@ version = "1.4.1+1"
 # ╟─348c692e-84fe-11eb-3288-dd0a1dedce90
 # ╟─52d7c7a2-8693-11eb-016f-4fc3eb516d44
 # ╟─734e2b5a-8866-11eb-0025-bd9544f4c30d
-# ╟─901d2844-83be-4767-b169-dfb7701ce15e
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
