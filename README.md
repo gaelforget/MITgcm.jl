@@ -7,7 +7,7 @@
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/gaelforget/MITgcm.jl/master)
 [![DOI](https://zenodo.org/badge/236192181.svg)](https://zenodo.org/badge/latestdoi/236192181)
 
-Julia interface to [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) which allows user to download the source code, build the model executable, set run-time parameters, run simulations, verify model results, analyze model output, and perform other tasks related to MITgcm.
+Julia interface to [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) that allows user not only to analyze model output, but also to download the source code, build the model executable, modify run-time parameters, run model simulations, or verify model results against a benchmark.
 
 Notebooks and tutorials are found in [the docs](https://gaelforget.github.io/MITgcm.jl/dev/examples/).
 
