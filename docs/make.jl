@@ -14,7 +14,7 @@ makedocs(;
         "Install" => "install.md",
     ],
     warnonly = [:cross_references,:missing_docs],
-    repo="https://github.com/gaelforget/MITgcm.jl/blob/{commit}{path}#L{line}",
+    repo=Remotes.GitHub("gaelforget", "MITgcm.jl"),
     sitename="MITgcm.jl",
     authors="gaelforget <gforget@mit.edu>",
 )
