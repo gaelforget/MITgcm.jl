@@ -2,7 +2,7 @@
 
 Thank you for considering contributing to MITgcm.jl! If you're interested in contributing we want your help no matter how big or small a contribution you make! 
 
-## Table of Contents
+### Table of Contents
 - [How to Contribute](#how-to-contribute)
   - [Reporting Bugs](#reporting-bugs)
   - [Suggesting Enhancements](#suggesting-enhancements)

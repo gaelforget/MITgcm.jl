@@ -1,10 +1,26 @@
-# Manual
+# Overview
 
-`MITgcm.jl` provides a suite of tools for analyzing [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) results, compiling the model, modifying its inputs, running simulations, etc all from within `julia`. Much of the functionalities are documented via the [Examples](@ref) section, as highlighted hereafter.
+## Installation Instructions
 
-## Read / Write MITgcm Files
+You can install the latest version of `MITgcm.jl` using the built-in [package manager](https://pkgdocs.julialang.org/). 
 
-Let's assume that user has run an `MITgcm` configuration in standard fashion, and wants to examine the output in `Julia`. This is one of the common use case for `MITgcm.jl`.
+```
+using Pkg
+Pkg.add("MITgcm")
+```
+
+## Main Functionalities
+
+`MITgcm.jl` provides a suite of tools for analyzing [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) results, compiling the model, modifying its inputs, running simulations, and more -- from within `julia`. Functionalities are also documented via the [Examples](@ref) section.
+
+## API Reference
+
+```@index
+```
+
+## MITgcm File Formats
+
+A common use case for `MITgcm.jl` is : we have output from a previous `MITgcm` run available, and want to analyze it in `Julia`. 
 
 The [tutorial\_global\_oce_biogeo](https://mitgcm.readthedocs.io/en/latest/examples/global_oce_biogeo/global_oce_biogeo.html), which comes with MITgcm, provides a representative example. With `MITgcmTool.jl` you can just run it in [a notebook](https://juliaocean.github.io/MarineEcosystemsJuliaCon2021.jl/dev/MITgcm_tutorial_global_oce_biogeo.html) ([MITgcm\_tutorial\_global\_oce\_biogeo.jl](https://juliaocean.github.io/MarineEcosystemsJuliaCon2021.jl/dev/MITgcm_tutorial_global_oce_biogeo.jl)).
 
@@ -38,7 +54,7 @@ Grid variables are often needed for analysis. The grid output can be read from f
 !!! note 
     [MITgcm\_scan\_output.jl](https://github.com/gaelforget/MITgcm.jl/blob/master/examples/MITgcm_scan_output.jl) does this in bulk for all configurations in `MITgcm/verification` and further displays each grid ([this page](https://gaelforget.github.io/MITgcm.jl/dev/examples/MITgcm_scan_output.html)).
 
-## MITgcm Configurations
+## Model Configurations
 
 The [`verification_experiments`](@ref) function lists standard model configurations found in the `joinpath(MITgcm_path[1],"verification")` folder. 
 

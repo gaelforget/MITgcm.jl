@@ -7,20 +7,21 @@ makedocs(;
     format=Documenter.HTML(),
     pages=[
         "Home" => "index.md",
-        "Manual" => "functionalities.md",
+        "Manual" => ["functionalities.md","functionalities_interface.md",
+        "functionalities_configurations.md","functionalities_read.md",
+        "functionalities_more.md"],
         "Examples" => "examples.md",
-        "Reference" => "functionalities_more.md",
         "Contribute" => "contributing.md",
-        "Install" => "install.md",
     ],
     warnonly = [:cross_references,:missing_docs],
-    repo="https://github.com/gaelforget/MITgcm.jl/blob/{commit}{path}#L{line}",
+    repo=Remotes.GitHub("gaelforget", "MITgcm.jl"),
     sitename="MITgcm.jl",
     authors="gaelforget <gforget@mit.edu>",
 )
 
 pth = joinpath(@__DIR__, "build","examples")
 lst=("HS94_animation.jl","HS94_particles.jl","MITgcm_configurations.jl","MITgcm_run.jl","MITgcm_worklow.jl","HS94_Makie.jl","MITgcm_scan_output.jl")
+#lst=[]
 for i in lst
     fil_in=joinpath(@__DIR__,"..","examples",i)
     fil_out=joinpath(pth,i[1:end-2]*"html")
