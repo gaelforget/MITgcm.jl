@@ -1,5 +1,30 @@
+```@setup 1
+using MITgcm
+```
 
-# Examples
+!!! note
+	Compiling MITgcm requires [a fortran compiler](https://fortran-lang.org/learn/os_setup/install_gfortran). This is a requirement for all notebooks except `MITgcm_configurations.jl`.
+
+# Standard Workflow
+
+```@example 1
+using MITgcm
+MITgcm_download()
+MC=MITgcm_config(configuration="advect_xy")
+```
+
+```@example 1
+setup(MC)
+build(MC,"--allow-skip")
+log(MC)
+```
+
+```@example 1
+MITgcm_launch(MC)
+readdir(MC,"run")
+```
+
+# Notebook Examples
 
 Below are links to static html versions of the examples which one can open with a web browser.
 
@@ -10,17 +35,22 @@ If instead you wanted to run the notebooks using [Pluto.jl](https://plutojl.org)
 3. in web-browser, open one of the notebooks' _code link_ using the [Pluto interface](https://github.com/fonsp/Pluto.jl/wiki/🔎-Basic-Commands-in-Pluto).
 
 ```
-cd("examples/")
 using Pluto
-Pluto.run()
+Pluto.run(notebook="examples/MITgcm_configurations.jl")
 ```
 
-Alternatively, you can run an example at the command line as, e.g., `julia examples/MITgcm_run.jl` or `julia -e 'include("examples/MITgcm_run.jl"); println(rundir)'`. This approach, however, assumes that all requirements (e.g., packages + gfortran) for the chosen example are already installed.
+Alternatively, you can run an example at the command line as, e.g., 
 
-## Examples List
+```
+julia -e 'using Pluto
+notebook="examples/MITgcm_configurations.jl"
+Pluto.activate_notebook_environment(notebook)
+using Pkg; Pkg.instantiate()
+include(notebook)
+'
+```
 
-!!! note
-	Compiling MITgcm requires [a fortran compiler](https://fortran-lang.org/learn/os_setup/install_gfortran). This is a requirement for all notebooks except `MITgcm_configurations.jl`.
+# Notebooks Listing
 
 - [MITgcm_configurations.jl](MITgcm_configurations.html) ([code link](https://raw.githubusercontent.com/gaelforget/MITgcm.jl/master/examples/MITgcm_configurations.jl)); explore MITgcm configurations and their parameters.
 - [MITgcm\_scan\_output.jl](MITgcm_scan_output.html) ([code link](https://raw.githubusercontent.com/gaelforget/MITgcm.jl/master/examples/MITgcm_scan_output.jl)) : scan run directory, standard output, read grid files, and vizualize. 

@@ -1,10 +1,6 @@
+# More Functionalities
 
-### API Reference
-
-```@index
-```
-
-### Format Conversions
+## Format Conversions
 
 ```@docs
 findtiles
@@ -14,7 +10,7 @@ convert2array
 convert2gcmfaces
 ```
 
-### Formulae etc
+## Formulae etc
 
 ```@docs
 SeaWaterDensity
