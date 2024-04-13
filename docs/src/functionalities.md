@@ -11,42 +11,22 @@ Pkg.add("MITgcm")
 
 ## Main Functionalities
 
-`MITgcm.jl` provides a suite of tools for analyzing [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) results, compiling the model, modifying its inputs, running simulations, and more -- from within `julia`. Functionalities are also documented via the [Examples](@ref) section.
-
-## API Reference
-
-```@index
-```
+`MITgcm.jl` provides a suite of tools for analyzing [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) results, compiling the model, modifying its inputs, running simulations, and more -- all from within `julia`. Functionalities are also documented via the [Examples](@ref) section.
 
 ## MITgcm File Formats
 
-A common use case for `MITgcm.jl` is : we have output from a previous `MITgcm` run available, and want to analyze it in `Julia`. 
-
-The [tutorial\_global\_oce_biogeo](https://mitgcm.readthedocs.io/en/latest/examples/global_oce_biogeo/global_oce_biogeo.html), which comes with MITgcm, provides a representative example. With `MITgcmTool.jl` you can just run it in [a notebook](https://juliaocean.github.io/MarineEcosystemsJuliaCon2021.jl/dev/MITgcm_tutorial_global_oce_biogeo.html) ([MITgcm\_tutorial\_global\_oce\_biogeo.jl](https://juliaocean.github.io/MarineEcosystemsJuliaCon2021.jl/dev/MITgcm_tutorial_global_oce_biogeo.jl)).
+A common use case for `MITgcm.jl` is to use and analyze model output from a previous `MITgcm` run. As an example, the [notebook from JuliaCon2021](https://juliaocean.github.io/MarineEcosystemsJuliaCon2021.jl/dev/MITgcm_tutorial_global_oce_biogeo.html) ([MITgcm\_tutorial\_global\_oce\_biogeo.jl](https://juliaocean.github.io/MarineEcosystemsJuliaCon2021.jl/dev/MITgcm_tutorial_global_oce_biogeo.jl)) reads and visualize results from the standard `MITgcm` configuration called [tutorial\_global\_oce_biogeo](https://mitgcm.readthedocs.io/en/latest/examples/global_oce_biogeo/global_oce_biogeo.html).
 
 !!! note 
-    Alternatively, the [MITgcm documentation](https://mitgcm.readthedocs.io/en/latest/getting_started/getting_started.html) explains how to complile and run tutorials at the linux command line. 
+    This notebook builds and runs `tutorial_global_oce_biogeo` from within `Julia`. Alternatively, the [MITgcm documentation](https://mitgcm.readthedocs.io/en/latest/getting_started/getting_started.html) explains how to build and run tutorials at the command line in `linux`. 
 
-Once the model has run, it's output is found in the _run/_ folder (see notebook). The [`scan_rundir`](@ref) function can provide a summary information about files in the _run/_ folder.
+[`scan_rundir`](@ref) / [`scan_stdout`](@ref) provides a summary information about what's in the model _run/_ folder. With this information, we are ready to read model output. The various files that MITgcm can generate are covered below.
 
-```
-rundir=joinpath(pth,"run")
-sc=scan_rundir(rundir)
-sc.completed
-```
-
-The result will indicate whether the model run has complete normally based upon the [Standard Output](@ref) file (_output.txt_ or _STDOUT.000_). 
-
-The [`scan_rundir`](@ref) function checks whether the model output is format binary (`sc.params_files.use_mdsio`) or NetCDF (`sc.params_files.use_mnc`). It also identifies the type of grid that was used (`sc.params_grid`).
-
-With this information, we are ready to read model output. The various files that MITgcm can generate are covered below.
-
-- Scan [Run Folder](@ref)
-- [MDS Files](@ref) (binary)
-- [MNC Files](@ref) (netcdf)
-- [Grid Files](@ref) (binary or netcdf)
 - [Standard Output](@ref) (text)
 - [Input Files](@ref) (text)
+- [MDS Files](@ref) (binary output)
+- [MNC Files](@ref) (netcdf output)
+- [Grid Files](@ref) (binary or netcdf)
 - [Other Files](@ref)
 
 Grid variables are often needed for analysis. The grid output can be read from file using either [`GridLoad_mdsio`](@ref) or [`GridLoad_mnc`](@ref). This will return `Γ.XC`, `Γ.YC`, etc formated using [MeshArrays.jl](https://github.com/JuliaClimate/MeshArrays.jl). See also [`GridLoad_native`](@ref).
@@ -76,4 +56,10 @@ And more documentation is also found here:
 - [API Reference](@ref)
 - [Format Conversions](@ref)
 - [Formulae etc](@ref)
+
+
+## API Reference
+
+```@index
+```
 

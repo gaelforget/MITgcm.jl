@@ -50,6 +50,11 @@ module downloads
         end
     end
 
+    """
+        MITgcm_download()
+    
+    Download default, compact version of MITgcm from zenodo.
+    """
     function MITgcm_download()
         url = "https://zenodo.org/record/5750290/files/MITgcm_test.tar.gz"
         fil="MITgcm_test.tar.gz"
