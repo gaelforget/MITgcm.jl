@@ -5,7 +5,7 @@ using MITgcm
 !!! note
 	Compiling MITgcm requires [a fortran compiler](https://fortran-lang.org/learn/os_setup/install_gfortran). This is a requirement for all notebooks except `MITgcm_configurations.jl`.
 
-# Standard Workflow
+# Standard Modeling Workflow
 
 Here is the standard way to run a model configuration using `MITgcm.jl`.
 
@@ -22,11 +22,21 @@ log(MC)
 ```
 
 ```@example 1
+MC.inputs
+```
+
+```@example 1
 MITgcm_launch(MC)
 readdir(MC,"run")
 ```
 
-# Notebook Examples
+```@example 1
+rundir=joinpath(MC,"run")
+sc=scan_rundir(rundir)
+sc.params_grid
+```
+
+# Pluto Notebooks
 
 Below are links to static html versions of the examples which one can open with a web browser.
 
