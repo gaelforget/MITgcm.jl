@@ -7,6 +7,8 @@ using MITgcm
 
 # Standard Workflow
 
+Here is the standard way to run a model configuration using `MITgcm.jl`.
+
 ```@example 1
 using MITgcm
 MITgcm_download()
