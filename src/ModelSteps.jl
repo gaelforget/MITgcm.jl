@@ -96,6 +96,9 @@ function build(config::MITgcm_config)
         cd()
     end
     pth=pwd()
+
+    #here is where to generalize 
+
     cd("$(MITgcm_path[1])/verification/$(nam)/build")
     try
         @suppress run(`../../../tools/genmake2 -mods=../code`) #$ext
@@ -180,6 +183,8 @@ function setup(config::MITgcm_config)
         [symlink(joinpath(p,f[i]),joinpath(pth_run,f[i])) for i in 1:length(f)]
     end
 
+    #here is where to generalize 
+    
     p="$(MITgcm_path[1])/verification/$(config.configuration)/input"
     tmpA=readdir(p)
     f=tmpA[findall([!isfile(joinpath(pth_run,tmpA[i])) for i in 1:length(tmpA)])]

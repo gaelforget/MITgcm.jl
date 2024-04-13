@@ -1,19 +1,21 @@
+# MITgcm File Formats
+
 The two main output formats of MITgcm are called `MDS` and `MNC`.
 
-### MDS Files
+## MDS Files
 
 ```@docs
 read_mdsio
 read_meta
 ```
 
-### MNC Files
+## MNC Files
 
 ```@docs
 read_mnc
 ```
 
-### Grid Files
+## Grid Files
 
 ```@docs
 GridLoad_mdsio
@@ -21,20 +23,20 @@ GridLoad_mnc
 GridLoad_native
 ```
 
-### Run Folder
+## Run Folder
 
 ```@docs
 scan_rundir
 ```
 
-### Standard Output
+## Standard Output
 
 ```@docs
 scan_stdout
 read_available_diagnostics
 ```
 
-### Input Files
+## Input Files
 
 ```@docs
 MITgcm_namelist
@@ -42,7 +44,7 @@ read_namelist
 write_namelist
 ```
 
-### Other Files
+## Other Files
 
 ```@docs
 read_flt
