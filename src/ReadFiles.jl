@@ -3,11 +3,7 @@
 """
     scan_rundir(pth::String)
 
-Scan a MITgcm run directory and standard output text file
-("output.txt" or "STDOUT.0000") and return a NamedTuple of
-collected information (various formats)
-
-Initially, the output looked like `(grid=gr,packages=pac,params_time=par1,params_grid=par2,completed=co)`
+Scan a MITgcm run directory and then, if found, the standard output text file ("output.txt" or "STDOUT.0000") via `scan_stdout`.
 """
 function scan_rundir(pth::String)
     #1 standard output
@@ -24,7 +20,7 @@ end
 """
     scan_stdout(filout::String)
 
-Scan a MITgcm standard output text file ("output.txt" or "STDOUT.0000") and return a NamedTuple of collected information (various formats).
+Scan a MITgcm standard output text file ("output.txt" or "STDOUT.0000") and return a NamedTuple of information collected.
 
 - packages : report of packages being compiled and used
 - params_time : initial time, model duation, output frequency, etc

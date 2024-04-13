@@ -1,6 +1,14 @@
 # MITgcm File Formats
 
-The two main output formats of MITgcm are called `MDS` and `MNC`.
+The two main output formats of MITgcm gridded fields are called `MDS` and `MNC`. In addition, the standard output is a text file that records events during the model run, including its successful completion.
+
+## Standard Output
+
+```@docs
+scan_rundir
+scan_stdout
+read_available_diagnostics
+```
 
 ## MDS Files
 
@@ -21,19 +29,6 @@ read_mnc
 GridLoad_mdsio
 GridLoad_mnc
 GridLoad_native
-```
-
-## Run Folder
-
-```@docs
-scan_rundir
-```
-
-## Standard Output
-
-```@docs
-scan_stdout
-read_available_diagnostics
 ```
 
 ## Input Files
