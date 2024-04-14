@@ -97,9 +97,12 @@ function build(config::MITgcm_config)
     end
     pth=pwd()
 
-    #here is where to generalize 
+    if config.inputs[:setup][:main][:category]=="verification" 
+        cd("$(MITgcm_path[1])/verification/$(nam)/build")
+    else
+        error("unknown configuration category")
+    end
 
-    cd("$(MITgcm_path[1])/verification/$(nam)/build")
     try
         @suppress run(`../../../tools/genmake2 -mods=../code`) #$ext
         @suppress run(`make clean`)
@@ -157,6 +160,13 @@ function compile(config::MITgcm_config)
     return true
 end
 
+function list_namelist_files(pth_run)
+    tmpA=readdir(pth_run)
+    tmpA=tmpA[findall([length(tmpA[i])>3 for i in 1:length(tmpA)])]
+    tmpA=tmpA[findall([tmpA[i][1:4]=="data"||tmpA[i]=="eedata"||
+            tmpA[i]=="prepare_run" for i in 1:length(tmpA)])]
+end
+
 """
     setup(config::MITgcm_config)
 
@@ -184,50 +194,56 @@ function setup(config::MITgcm_config)
     end
 
     #here is where to generalize 
-    
-    p="$(MITgcm_path[1])/verification/$(config.configuration)/input"
-    tmpA=readdir(p)
-    f=tmpA[findall([!isfile(joinpath(pth_run,tmpA[i])) for i in 1:length(tmpA)])]
-    [symlink(joinpath(p,f[i]),joinpath(pth_run,f[i])) for i in 1:length(f)]
 
-    #replace relative paths with absolutes then exe prepare_run
-    if isfile(joinpath(pth_run,"prepare_run"))
-		try
-			pth=pwd()
-		catch e
-			cd()
-		end
-        pth=pwd()
-        cd(pth_run)
-        #
-        fil="prepare_run"
-        meta = read(fil,String)
-        meta = split(meta,"\n")
-        ii=findall(occursin.("../../",meta))
-        for i in ii
-            meta[i]=replace(meta[i],"../../" => "$(MITgcm_path[1])/verification/")
-        end
-        ii=findall(occursin.("../",meta))
-        for i in ii
-            meta[i]=replace(meta[i],"../" => "$(MITgcm_path[1])/verification/$(config.configuration)")
-        end
-        #rm old file from run dir
-        rm(fil)
-        #write new file in run dir
-        txt=["$(meta[i])\n" for i in 1:length(meta)]
-        fid = open(fil, "w")
-		[write(fid,txt[i]) for i in 1:length(txt)]
-    	close(fid)
-        #execute prepare_run
-        chmod(fil,0o777)
-        @suppress run(`./$(fil)`)
-        #
-        cd(pth)
-    end
+    if !haskey(config.inputs,:setup)||(config.inputs[:setup][:main][:category]=="verification")
+        MITgcm_download()
+        p="$(MITgcm_path[1])/verification/$(config.configuration)/input"
+        tmpA=readdir(p)
+        f=tmpA[findall([!isfile(joinpath(pth_run,tmpA[i])) for i in 1:length(tmpA)])]
+        [symlink(joinpath(p,f[i]),joinpath(pth_run,f[i])) for i in 1:length(f)]
 
-    if !islink(joinpath(pth_run,"mitgcmuv"))
-        f="$(MITgcm_path[1])/verification/$(config.configuration)/build/mitgcmuv"
-        symlink(f,joinpath(pth_run,"mitgcmuv")) 
+        #replace relative paths with absolutes then exe prepare_run
+        if isfile(joinpath(pth_run,"prepare_run"))
+            try
+                pth=pwd()
+            catch e
+                cd()
+            end
+            pth=pwd()
+            cd(pth_run)
+            #
+            fil="prepare_run"
+            meta = read(fil,String)
+            meta = split(meta,"\n")
+            ii=findall(occursin.("../../",meta))
+            for i in ii
+                meta[i]=replace(meta[i],"../../" => "$(MITgcm_path[1])/verification/")
+            end
+            ii=findall(occursin.("../",meta))
+            for i in ii
+                meta[i]=replace(meta[i],"../" => "$(MITgcm_path[1])/verification/$(config.configuration)")
+            end
+            #rm old file from run dir
+            rm(fil)
+            #write new file in run dir
+            txt=["$(meta[i])\n" for i in 1:length(meta)]
+            fid = open(fil, "w")
+            [write(fid,txt[i]) for i in 1:length(txt)]
+            close(fid)
+            #execute prepare_run
+            chmod(fil,0o777)
+            @suppress run(`./$(fil)`)
+            #
+            cd(pth)
+        end
+
+        if !islink(joinpath(pth_run,"mitgcmuv"))
+            f="$(MITgcm_path[1])/verification/$(config.configuration)/build/mitgcmuv"
+            symlink(f,joinpath(pth_run,"mitgcmuv")) 
+        end
+
+    else
+        error("unknown configuration category")
     end
 
     logdir=joinpath(config.folder,string(config.ID),"log")
@@ -240,12 +256,6 @@ function setup(config::MITgcm_config)
     #- link from log/parameter_files to here (run/)
     #(- add to git with message = original params)
 
-    function list_namelist_files(pth_run)
-            tmpA=readdir(pth_run)
-            tmpA=tmpA[findall([length(tmpA[i])>3 for i in 1:length(tmpA)])]
-            tmpA=tmpA[findall([tmpA[i][1:4]=="data"||tmpA[i]=="eedata"||
-                    tmpA[i]=="prepare_run" for i in 1:length(tmpA)])]
-    end
     nmlfiles=list_namelist_files(pth_run)
 
     if !isdir(pth_log)    
@@ -266,6 +276,13 @@ function setup(config::MITgcm_config)
                 push!(params,(Symbol(tmp2) => tmp1))
             end
         end
+
+        P=OrderedDict()
+        P[:main]=OrderedDict(
+            :category=>"verification",
+            :name=>config.configuration,
+            :version=>"main")
+        push!(params,(:setup => P))
 
         push!(config.inputs,params...)
 
