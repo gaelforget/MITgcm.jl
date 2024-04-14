@@ -97,7 +97,7 @@ function build(config::MITgcm_config)
     end
     pth=pwd()
 
-    if config.inputs[:setup][:main][:category]=="verification" 
+    if !haskey(config.inputs,:setup)||(config.inputs[:setup][:main][:category]=="verification")
         cd("$(MITgcm_path[1])/verification/$(nam)/build")
     else
         error("unknown configuration category")
