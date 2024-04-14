@@ -1,0 +1,83 @@
+
+[main.PARM01]
+tRef = [295.2, 295.5, 295.9, 296.3, 296.7, 297.1, 297.6, 298.1, 298.7, 299.3, 300.0, 300.7, 301.9, 304.1, 308.0, 315.1, 329.5, 362.3, 419.2, 573.8]
+sRef = "20*0.0"
+no_slip_sides = false
+no_slip_bottom = false
+buoyancyRelation = "ATMOSPHERIC"
+eosType = "IDEALG"
+rotationPeriod = 86400.0
+implicitFreeSurface = true
+exactConserv = true
+nonlinFreeSurf = 4
+select_rStar = 2
+hFacInf = 0.2
+hFacSup = 2.0
+uniformLin_PhiSurf = false
+saltStepping = false
+momViscosity = false
+vectorInvariantMomentum = true
+staggerTimeStep = true
+readBinaryPrec = 64
+writeBinaryPrec = 64
+
+[main.PARM02]
+cg2dMaxIters = 200
+cg2dTargetResWunit = 1.0e-17
+
+[main.PARM03]
+deltaT = 450.0
+startTime = 1.24416e8
+tracForcingOutAB = 1
+abEps = 0.1
+pChkptFreq = 3.1104e7
+chkptFreq = 2.592e6
+dumpFreq = 2.592e6
+taveFreq = 0.0
+nTimeSteps = 16
+monitorFreq = 1.0
+
+[main.PARM04]
+usingCurvilinearGrid = true
+horizGridFile = "grid_cs32"
+radius_fromHorizGrid = 6.37e6
+delR = "20*50.E2"
+
+[main.PARM05]
+
+[diagnostics.DIAGNOSTICS_LIST]
+"fields(1:3,1)" = ["ETAN    ", "ETANSQ  ", "DETADT2 "]
+"levels(1,1)" = 1.0
+"fileName(1)" = "surfDiag"
+"frequency(1)" = 86400.0
+"fields(1:5,2)" = ["UVEL    ", "VVEL    ", "WVEL    ", "THETA   ", "SHAP_dU "]
+"fileName(2)" = "dynDiag"
+"frequency(2)" = 86400.0
+"fields(1:8,3)" = ["UVELSQ  ", "VVELSQ  ", "WVELSQ  ", "THETASQ ", "UTHMASS ", "VTHMASS ", "WVELTH  ", "UV_VEL_C"]
+"fileName(3)" = "secmomDiag"
+"frequency(3)" = 86400.0
+
+[diagnostics.DIAG_STATIS_PARMS]
+"stat_fields(1:5,1)" = ["ETAN    ", "UVEL    ", "VVEL    ", "WVEL    ", "THETA   "]
+"stat_fName(1)" = "dynStDiag"
+"stat_freq(1)" = -3600.0
+
+[pkg.PACKAGES]
+useSHAP_FILT = true
+useDiagnostics = true
+
+[shap.SHAP_PARM01]
+shap_filt_uvStar = false
+shap_filt_TrStagg = true
+Shap_funct = 2
+nShapT = 0
+nShapUV = 4
+nShapUVPhys = 4
+
+[eedata.EEPARMS]
+useCubedSphereExchange = true
+
+[setup.main]
+category = "verification"
+name = "tutorial_held_suarez_cs"
+version = "main"

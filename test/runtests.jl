@@ -71,6 +71,10 @@ MITgcm_download()
     setup(MC)
     build(MC,"--allow-skip")
     launch(MC)
+
+    PA=read_toml(joinpath(MC,"log","tracked_parameters.toml"))
+    @test PA[:main][:PARM03][:nTimeSteps]==12
+
     if isdir(joinpath(MC.folder,string(MC.ID),"run","mnc_test_0001"))
         Γ=GridLoad_mnc(MC)
         GridLoad_mnc(Γ.XC.grid)

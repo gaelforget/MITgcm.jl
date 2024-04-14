@@ -545,6 +545,69 @@ function write_namelist(fil,namelist)
 end
 
 """
+    read_toml(toml_file)
+
+Read toml parameter file into an OrderedDict with Symbol keys, consistent with `tracked_parameters.toml`
+
+```
+using MITgcm, TOML
+
+MC=MITgcm_config(configuration="tutorial_held_suarez_cs")
+MITgcm_download(); setup(MC)
+
+toml_file=joinpath(MC,"log","tracked_parameters.toml")
+P=MITgcm.read_toml(toml_file)
+    
+completed_tom_file=joinpath(tempdir(),"tutorial_held_suarez_cs.toml")
+P[:setup]=MITgcm.OrderedDict()
+P[:setup][:main]=MITgcm.OrderedDict(
+    :category=>"verification",
+    :name=>"tutorial_held_suarez_cs",
+    :version=>"main")
+
+open(completed_tom_file, "w") do io
+    TOML.print(io, P)
+end
+```    
+"""
+function read_toml(toml_file)
+    PA=ClimateModels.TOML.parsefile(toml_file)
+
+    meta = read(toml_file,String)
+    meta = split(meta,"\n")
+    meta = meta[findall((!isempty).(meta))]
+    meta = meta[findall(first.(meta).!=='#')]
+    meta=meta
+
+    jj=findall([!isempty(l)&&(l[1]=='[') for l in meta])
+
+	params = OrderedDict()
+	groups = unique([split(l,".")[1][2:end] for l in meta[jj]])
+    [params[Symbol(g)]=OrderedDict() for g in groups]
+
+    gr=[:unknown]
+    sg=[:unknown]
+    for j in 1:length(meta)
+        if in(j,jj) 
+            #new bloc : start ordereddict(ordereddict)
+            gr[1]=Symbol(split(meta[j],".")[1][2:end])
+            sg[1]=Symbol(split(meta[j],'.')[2][1:end-1])
+            params[gr[1]][sg[1]]=OrderedDict()
+            #println(string(gr[1])*" -- "*string(sg[1]))
+        elseif !isempty(meta[j])
+            #add new line to ordereddict(ordereddict(ordereddict))
+            if occursin('=',meta[j])
+                tmp1=strip(split(meta[j],'=')[1])
+                tmp1[1]=='"' ? key=tmp1[2:end-1] : key=tmp1
+                params[gr[1]][sg[1]][Symbol(key)]=PA[string(gr[1])][string(sg[1])][key]
+            end
+        end
+    end
+
+    params
+end
+
+"""
     read_meta(pth::String,fil::String)
 
 Read a `MITgcm` metadata files, parse them, and return as an array of NamedTuple
