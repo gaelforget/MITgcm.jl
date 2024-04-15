@@ -4,6 +4,8 @@
 
 ```@docs
 MITgcm_config
+setup_verification!
+setup_ECCO4!
 ```
 
 ## Verification Experiments
@@ -34,5 +36,4 @@ MITgcm_config(configuration="MLAdjust")
 MITgcm_download
 MITgcm_path
 verification_experiments
-verification_setup
 ```

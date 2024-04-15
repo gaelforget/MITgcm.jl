@@ -96,8 +96,9 @@ function build(config::MITgcm_config)
     end
     pth=pwd()
     cd(config.inputs[:setup][:build][:path])
+    opt=config.inputs[:setup][:build][:options]
     try
-        @suppress run(`../../../tools/genmake2 -mods=../code`) #$ext
+        @suppress run(`../../../tools/genmake2 $(opt)`) #$ext
         @suppress run(`make clean`)
         @suppress run(`make depend`)
         @suppress run(`make -j 4`)
@@ -118,8 +119,9 @@ code files, headers, etc  in the `build/` folder before `make` compiles the mode
 (part of the climate model interface as specialized for `MITgcm`)
 """
 function build(config::MITgcm_config,options::String)
+    exe=config.inputs[:setup][:build][:exe]
     if options=="--allow-skip"
-        tst=!isfile(joinpath(config.inputs[:setup][:build][:path],"mitgcmuv"))
+        tst=!isfile(joinpath(config.inputs[:setup][:build][:path],exe))
         tst ? build(config) : nothing
     else
         build(config)
@@ -178,8 +180,7 @@ function setup(config::MITgcm_config)
     end
 
     if !haskey(config.inputs,:setup)||(config.inputs[:setup][:main][:category]=="verification")
-        params=verification_setup(config)
-        push!(config.inputs,params...)
+        setup_verification!(config)
     elseif !isempty(config.inputs)
         nam=config.inputs[:setup][:main][:name]
         if nam=="ECCO4"||nam=="OCCA2"
@@ -187,12 +188,13 @@ function setup(config::MITgcm_config)
         else
             error("unknown model configuration")
         end
-        params=config.inputs
+    else
+        error("unknown model configuration")
     end
 
     pth_tra=joinpath(pth_log,"tracked_parameters")
     !isdir(pth_tra) ? mkdir(pth_tra) : nothing
-    write_all_namelists(params,pth_tra)
+    write_all_namelists(config.inputs,pth_tra)
 
     #replace namelists with editeable versions in pth_tra
     pth_mv=joinpath(config.folder,string(config.ID),"original_parameters")
@@ -210,9 +212,10 @@ function setup(config::MITgcm_config)
 
     ClimateModels.git_log_prm(config)
 
-    if !islink(joinpath(pth_run,"mitgcmuv"))
-        f=joinpath(config.inputs[:setup][:build][:path],"mitgcmuv")
-        symlink(f,joinpath(pth_run,"mitgcmuv")) 
+    exe=config.inputs[:setup][:build][:exe]
+    if !islink(joinpath(pth_run,exe))
+        f=joinpath(config.inputs[:setup][:build][:path],exe)
+        symlink(f,joinpath(pth_run,exe)) 
     end
 
     #add model run to scheduled tasks
@@ -221,7 +224,12 @@ function setup(config::MITgcm_config)
     return true
 end
 
-function setup_ECCO4!(config)
+"""
+    setup_ECCO4!(config::MITgcm_config)
+
+Setup method for ECCO4 and OCCA2 solutions.
+"""
+function setup_ECCO4!(config::MITgcm_config)
     if !haskey(config.inputs[:setup],:build)
         println("get MITgcm checkoint, link code folder, ... ")
         u0="https://github.com/MITgcm/MITgcm"; p0=joinpath(config,"MITgcm")
@@ -232,10 +240,10 @@ function setup_ECCO4!(config)
         p2=joinpath(p1,"ECCOv4")
         mkdir(p1); mv(p0,p2)
         p3=joinpath(p2,"build")
-        P=OrderedDict(:path=>p3)
+        P=OrderedDict(:path=>p3,:options=>"-mods=../code -mpi",:exe=>"mitgcmuv")
         push!(config.inputs[:setup],(:build => P))
     end
-    println(config.inputs[:setup][:build][:path])
+    return true
 end
 
 """
@@ -254,8 +262,9 @@ function MITgcm_launch(config::MITgcm_config)
     pth=pwd()
     cd(joinpath(config.folder,string(config.ID),"run"))
     tmp=["STOP NORMAL END"]
+    exe=config.inputs[:setup][:build][:exe]
     try
-        @suppress run(pipeline(`./mitgcmuv`,"output.txt"))
+        @suppress run(pipeline(`./$(exe)`,"output.txt"))
     catch e
         tmp[1]="model run may have failed"
     end

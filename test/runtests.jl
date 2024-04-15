@@ -46,6 +46,7 @@ MITgcm_download()
     iexp=findall([exps[i].configuration==myexp for i in 1:length(exps)])[1]
     MC=exps[iexp]
 
+    @test setup(MC)
     @test clean(MC)=="no task left in pipeline"
     @test build(MC)
     @test build(MC,"--allow-skip")

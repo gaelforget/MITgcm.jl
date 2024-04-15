@@ -60,11 +60,11 @@ function verification_experiments(nam::String)
 end
 
 """
-    verification_setup(config::MITgcm_config)
+    setup_verification!(config::MITgcm_config)
 
 Setup method for verification experiments.
 """
-function verification_setup(config::MITgcm_config)
+function setup_verification!(config::MITgcm_config)
     pth_run=joinpath(config.folder,string(config.ID),"run")
 
     MITgcm_download()
@@ -116,8 +116,13 @@ function verification_setup(config::MITgcm_config)
         :name=>config.configuration,
         :version=>"main")
     P[:build]=OrderedDict(
-        :path=>"$(MITgcm_path[1])/verification/$(nam)/build")
+        :path=>"$(MITgcm_path[1])/verification/$(config.configuration)/build",
+        :options=>"-mods=../code",
+        :exe=>"mitgcmuv",
+        )
     push!(params,(:setup => P))
 
-    return params
+    push!(config.inputs,params...)
+
+    return true
 end
