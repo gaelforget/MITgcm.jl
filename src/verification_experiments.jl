@@ -108,11 +108,6 @@ function verification_setup(config::MITgcm_config)
         cd(pth)
     end
 
-    if !islink(joinpath(pth_run,"mitgcmuv"))
-        f="$(MITgcm_path[1])/verification/$(config.configuration)/build/mitgcmuv"
-        symlink(f,joinpath(pth_run,"mitgcmuv")) 
-    end
-
     params=read_all_namelists(pth_run)
 
     P=OrderedDict()

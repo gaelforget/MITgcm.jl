@@ -210,6 +210,11 @@ function setup(config::MITgcm_config)
 
     ClimateModels.git_log_prm(config)
 
+    if !islink(joinpath(pth_run,"mitgcmuv"))
+        f=joinpath(config.inputs[:setup][:build][:path],"mitgcmuv")
+        symlink(f,joinpath(pth_run,"mitgcmuv")) 
+    end
+
     #add model run to scheduled tasks
     put!(config.channel,MITgcm_launch)
 
