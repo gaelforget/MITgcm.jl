@@ -44,8 +44,83 @@ end
 return exps
 end
 
+"""
+    verification_experiments(nam::String)
+
+Get one configurations of `MITgcm` and return as a `MITgcm_config`
+
+```
+advect_xy=verification_experiments("advect_xy")
+```
+"""
 function verification_experiments(nam::String)
     exps=verification_experiments()
     iexp=findall([exps[i].configuration==nam for i in 1:length(exps)])[1]
     exps[iexp]
+end
+
+"""
+    verification_setup(config::MITgcm_config)
+
+Setup method for verification experiments.
+"""
+function verification_setup(config::MITgcm_config)
+    pth_run=joinpath(config.folder,string(config.ID),"run")
+
+    MITgcm_download()
+    p="$(MITgcm_path[1])/verification/$(config.configuration)/input"
+    tmpA=readdir(p)
+    f=tmpA[findall([!isfile(joinpath(pth_run,tmpA[i])) for i in 1:length(tmpA)])]
+    [symlink(joinpath(p,f[i]),joinpath(pth_run,f[i])) for i in 1:length(f)]
+
+    #replace relative paths with absolutes then exe prepare_run
+    if isfile(joinpath(pth_run,"prepare_run"))
+        try
+            pth=pwd()
+        catch e
+            cd()
+        end
+        pth=pwd()
+        cd(pth_run)
+        #
+        fil="prepare_run"
+        meta = read(fil,String)
+        meta = split(meta,"\n")
+        ii=findall(occursin.("../../",meta))
+        for i in ii
+            meta[i]=replace(meta[i],"../../" => "$(MITgcm_path[1])/verification/")
+        end
+        ii=findall(occursin.("../",meta))
+        for i in ii
+            meta[i]=replace(meta[i],"../" => "$(MITgcm_path[1])/verification/$(config.configuration)")
+        end
+        #rm old file from run dir
+        rm(fil)
+        #write new file in run dir
+        txt=["$(meta[i])\n" for i in 1:length(meta)]
+        fid = open(fil, "w")
+        [write(fid,txt[i]) for i in 1:length(txt)]
+        close(fid)
+        #execute prepare_run
+        chmod(fil,0o777)
+        @suppress run(`./$(fil)`)
+        #
+        cd(pth)
+    end
+
+    if !islink(joinpath(pth_run,"mitgcmuv"))
+        f="$(MITgcm_path[1])/verification/$(config.configuration)/build/mitgcmuv"
+        symlink(f,joinpath(pth_run,"mitgcmuv")) 
+    end
+
+    params=read_all_namelists(pth_run)
+
+    P=OrderedDict()
+    P[:main]=OrderedDict(
+        :category=>"verification",
+        :name=>config.configuration,
+        :version=>"main")
+    push!(params,(:setup => P))
+
+    return params
 end

@@ -180,99 +180,39 @@ function setup(config::MITgcm_config)
     pth_log=joinpath(config.folder,string(config.ID),"log","tracked_parameters")
     pth_mv=joinpath(config.folder,string(config.ID),"original_parameters")
 
+    !isdir(pth_log) ? ClimateModels.git_log_init(config) : nothing
+
     if !isfile(joinpath(pth_run,"data"))&&isfile(joinpath(pth_log,"data"))
         p=pth_log
         f=readdir(p)
         [symlink(joinpath(p,f[i]),joinpath(pth_run,f[i])) for i in 1:length(f)]
     end
 
-    #here is where to generalize 
-
     if !haskey(config.inputs,:setup)||(config.inputs[:setup][:main][:category]=="verification")
-        MITgcm_download()
-        p="$(MITgcm_path[1])/verification/$(config.configuration)/input"
-        tmpA=readdir(p)
-        f=tmpA[findall([!isfile(joinpath(pth_run,tmpA[i])) for i in 1:length(tmpA)])]
-        [symlink(joinpath(p,f[i]),joinpath(pth_run,f[i])) for i in 1:length(f)]
-
-        #replace relative paths with absolutes then exe prepare_run
-        if isfile(joinpath(pth_run,"prepare_run"))
-            try
-                pth=pwd()
-            catch e
-                cd()
-            end
-            pth=pwd()
-            cd(pth_run)
-            #
-            fil="prepare_run"
-            meta = read(fil,String)
-            meta = split(meta,"\n")
-            ii=findall(occursin.("../../",meta))
-            for i in ii
-                meta[i]=replace(meta[i],"../../" => "$(MITgcm_path[1])/verification/")
-            end
-            ii=findall(occursin.("../",meta))
-            for i in ii
-                meta[i]=replace(meta[i],"../" => "$(MITgcm_path[1])/verification/$(config.configuration)")
-            end
-            #rm old file from run dir
-            rm(fil)
-            #write new file in run dir
-            txt=["$(meta[i])\n" for i in 1:length(meta)]
-            fid = open(fil, "w")
-            [write(fid,txt[i]) for i in 1:length(txt)]
-            close(fid)
-            #execute prepare_run
-            chmod(fil,0o777)
-            @suppress run(`./$(fil)`)
-            #
-            cd(pth)
-        end
-
-        if !islink(joinpath(pth_run,"mitgcmuv"))
-            f="$(MITgcm_path[1])/verification/$(config.configuration)/build/mitgcmuv"
-            symlink(f,joinpath(pth_run,"mitgcmuv")) 
-        end
-
-    else
-        error("unknown configuration category")
-    end
-
-    logdir=joinpath(config.folder,string(config.ID),"log")
-    !isdir(logdir) ? ClimateModels.git_log_init(config) : nothing
-
-    #Replace namelists with editeable versions in log/
-    #
-    #- read from run folder, rewrite to log/parameter_files
-    #- mv all namelists to ../original_parameter_files
-    #- link from log/parameter_files to here (run/)
-    #(- add to git with message = original params)
-
-    if !isdir(pth_log)    
-        mkdir(pth_log)
-        params=read_all_namelists(pth_run)
-
-        P=OrderedDict()
-        P[:main]=OrderedDict(
-            :category=>"verification",
-            :name=>config.configuration,
-            :version=>"main")
-        push!(params,(:setup => P))
-
-        write_all_namelists(params,pth_log)
-
+        params=verification_setup(config)
         push!(config.inputs,params...)
-
-        !isdir(pth_mv) ? mkdir(pth_mv) : nothing
-        nmlfiles=list_namelist_files(pth_run)
-        for fil in nmlfiles
-            mv(joinpath(pth_run,fil),joinpath(pth_mv,fil))
-            symlink(joinpath(pth_log,fil),joinpath(pth_run,fil))
-        end
-
-        ClimateModels.git_log_prm(config)
+    elseif !isempty(config.inputs)
+        params=config.inputs
     end
+
+    !isdir(pth_log) ? mkdir(pth_log) : nothing
+
+    write_all_namelists(params,pth_log)
+
+    #replace namelists with editeable versions in pth_log
+    if !isdir(pth_mv)
+        mkdir(pth_mv)
+        nmlfiles=list_namelist_files(pth_log)
+        for fil in nmlfiles
+            fr=joinpath(pth_run,fil)
+            fm=joinpath(pth_mv,fil)
+            fl=joinpath(pth_log,fil)
+            isfile(fr) ? mv(fr,fm) : nothing
+            symlink(fl,fr)
+        end
+    end
+
+    ClimateModels.git_log_prm(config)
 
     #add model run to scheduled tasks
     put!(config.channel,MITgcm_launch)
