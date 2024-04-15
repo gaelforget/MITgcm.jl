@@ -84,6 +84,12 @@ MITgcm_download()
     end
     @test isa(Γ,NamedTuple)
 
+    #
+    fil=joinpath(@__DIR__,"..","examples","configurations","OCCA2.toml")
+    MC=MITgcm_config(inputs=read_toml(fil))
+    setup(MC)
+    @test MC.inputs[:setup][:build][:exe]=="mitgcmuv"
+
     #read / write functions
 
     fil=joinpath(pth,"available_diagnostics.log")
