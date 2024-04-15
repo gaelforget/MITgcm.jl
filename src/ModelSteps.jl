@@ -251,7 +251,7 @@ function setup(config::MITgcm_config)
 
     if !isdir(pth_log)    
         mkdir(pth_log)
-        params=read_namelist_files(pth_run,pth_log)
+        params=read_all_namelists(pth_run)
 
         P=OrderedDict()
         P[:main]=OrderedDict(
@@ -260,9 +260,12 @@ function setup(config::MITgcm_config)
             :version=>"main")
         push!(params,(:setup => P))
 
+        write_all_namelists(params,pth_log)
+
         push!(config.inputs,params...)
 
         !isdir(pth_mv) ? mkdir(pth_mv) : nothing
+        nmlfiles=list_namelist_files(pth_run)
         for fil in nmlfiles
             mv(joinpath(pth_run,fil),joinpath(pth_mv,fil))
             symlink(joinpath(pth_log,fil),joinpath(pth_run,fil))

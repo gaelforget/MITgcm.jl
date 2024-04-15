@@ -449,35 +449,30 @@ function read_namelist(fil)
     return MITgcm_namelist(Symbol.(groups),params)
 end
 
-function list_namelist_files(pth_run)
-    tmpA=readdir(pth_run)
+function list_namelist_files(input_path)
+    tmpA=readdir(input_path)
     tmpA=tmpA[findall([length(tmpA[i])>3 for i in 1:length(tmpA)])]
     tmpA=tmpA[findall([tmpA[i][1:4]=="data"||tmpA[i]=="eedata"||
             tmpA[i]=="prepare_run" for i in 1:length(tmpA)])]
 end
 
 """
-    read_namelist_files(pth_run,pth_log=missing)
+    read_all_namelists(input_path)
 
-Read all `MITgcm` namelist files in `pth_run`, parse them, and return as a NamedTuple of NamedTuples.
-
-If `pth_log` is not missing then rewrite namelist files to this folder.
+Read all `MITgcm` namelist files in `input_path`, parse them, and return as a NamedTuple of NamedTuples.
 
 ```
 using MITgcm; MITgcm_download()
-testreport(MITgcm_config(configuration="advect_xy"))
-pth_run=joinpath(MITgcm_path[1],"verification","advect_xy","run")
-params=read_namelist_files(pth_run)
+input_path=joinpath(MITgcm_path[1],"verification","advect_xy","input")
+params=read_all_namelists(input_path)
 ```
 """
-function read_namelist_files(pth_run,pth_log=missing)
-    nmlfiles=list_namelist_files(pth_run)
+function read_all_namelists(input_path)
+    nmlfiles=list_namelist_files(input_path)
 
     params=OrderedDict()
     for fil in nmlfiles
-        nml=read(joinpath(pth_run,fil),MITgcm_namelist())
-        !ismissing(pth_log) ? write(joinpath(pth_log,fil),nml) : nothing
-        #
+        nml=read(joinpath(input_path,fil),MITgcm_namelist())
         ni=length(nml.groups); tmp1=OrderedDict()
         [push!(tmp1,(nml.groups[i] => nml.params[i])) for i in 1:ni]
         tmp2=""
@@ -584,6 +579,29 @@ function write_namelist(fil,namelist)
 		write(fid," \n")
 	end
 	close(fid)
+end
+
+"""
+    write_all_namelists(params,output_path=tempname())
+
+Write all `MITgcm` namelist to files in `output_path`, from corresponding `toml file`
+
+```
+using MITgcm
+params=read_toml("OCCA2.toml")
+write_all_namelists(params)
+```
+"""
+function write_all_namelists(params,output_path=tempname())
+    !isdir(output_path) ? mkdir(output_path) : nothing
+    for k in keys(params)
+        nml=params[k]
+        nml=MITgcm_namelist(collect(keys(nml)),collect(values(nml)))
+        fil="data"*(k!==:main ? "."*string(k) : "")
+        k==:eedata ? fil="eedata" : nothing
+        write_namelist(joinpath(output_path,fil),nml)
+    end
+    output_path
 end
 
 """
