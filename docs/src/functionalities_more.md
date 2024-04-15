@@ -1,6 +1,6 @@
-# More Functionalities
+# Additional Functionalities
 
-## Format Conversions
+### Format Conversions
 
 ```@docs
 findtiles
@@ -10,7 +10,7 @@ convert2array
 convert2gcmfaces
 ```
 
-## Formulae etc
+### Formulas, Parameters
 
 ```@docs
 SeaWaterDensity

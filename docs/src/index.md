@@ -7,10 +7,9 @@ Julia interface to [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=lates
 ```@contents
 Pages = [
     "functionalities.md",
-    "functionalities_read.md",
-    "functionalities_configurations.md",
     "functionalities_interface.md",
-    "functionalities_more.md",
+    "functionalities_configurations.md",
+    "functionalities_read.md",
     "examples.md",
     "contributing.md",
 ]
