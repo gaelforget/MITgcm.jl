@@ -46,6 +46,7 @@ MITgcm_download()
     iexp=findall([exps[i].configuration==myexp for i in 1:length(exps)])[1]
     MC=exps[iexp]
 
+    @test setup(MC)
     @test clean(MC)=="no task left in pipeline"
     @test build(MC)
     @test build(MC,"--allow-skip")
@@ -82,6 +83,12 @@ MITgcm_download()
         Γ=GridLoad_mdsio(MC)
     end
     @test isa(Γ,NamedTuple)
+
+    #
+    fil=joinpath(@__DIR__,"..","examples","configurations","OCCA2.toml")
+    MC=MITgcm_config(inputs=read_toml(fil))
+    setup(MC)
+    @test MC.inputs[:setup][:build][:exe]=="mitgcmuv"
 
     #read / write functions
 
