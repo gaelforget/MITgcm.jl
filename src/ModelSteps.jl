@@ -23,9 +23,9 @@ end
 
 
 """
-    testreport(nam::String,ext="")
+    testreport(config::MITgcm_config,ext="")
 
-Run the testreport script for one model config `nam` (or "all"),
+Run the testreport script for one model `config`,
 with additional options (optional) speficied in `ext`
 
 ```
@@ -59,7 +59,7 @@ function testreport(config::MITgcm_config,ext="")
     return true
 end
 
-import ClimateModels: compile, build, setup, clean
+import ClimateModels: compile, build, setup, clean, git
 
 """
     clean(config::MITgcm_config)
@@ -89,22 +89,16 @@ code files, headers, etc  in the `build/` folder before compiling the model
 (part of the climate model interface as specialized for `MITgcm`)
 """
 function build(config::MITgcm_config)
-    nam=config.configuration
     try
         pth=pwd()
     catch e
         cd()
     end
     pth=pwd()
-
-    if !haskey(config.inputs,:setup)||(config.inputs[:setup][:main][:category]=="verification")
-        cd("$(MITgcm_path[1])/verification/$(nam)/build")
-    else
-        error("unknown configuration category")
-    end
-
+    cd(config.inputs[:setup][:build][:path])
+    opt=config.inputs[:setup][:build][:options]
     try
-        @suppress run(`../../../tools/genmake2 -mods=../code`) #$ext
+        @suppress run(`../../../tools/genmake2 $(opt)`) #$ext
         @suppress run(`make clean`)
         @suppress run(`make depend`)
         @suppress run(`make -j 4`)
@@ -125,9 +119,9 @@ code files, headers, etc  in the `build/` folder before `make` compiles the mode
 (part of the climate model interface as specialized for `MITgcm`)
 """
 function build(config::MITgcm_config,options::String)
-    nam=config.configuration
+    exe=config.inputs[:setup][:build][:exe]
     if options=="--allow-skip"
-        tst=!isfile(joinpath(MITgcm_path[1],"verification",nam,"build","mitgcmuv"))
+        tst=!isfile(joinpath(config.inputs[:setup][:build][:path],exe))
         tst ? build(config) : nothing
     else
         build(config)
@@ -143,14 +137,13 @@ Compile the model using `make` in `build/` that has already been setup.
 (part of the climate model interface as specialized for `MITgcm`)
 """
 function compile(config::MITgcm_config)
-    nam=config.configuration
     try
         pth=pwd()
     catch e
         cd()
     end
     pth=pwd()
-    cd("$(MITgcm_path[1])/verification/$(nam)/build")
+    cd(config.inputs[:setup][:build][:path])
     try
         @suppress run(`make -j 4`)
     catch e
@@ -158,13 +151,6 @@ function compile(config::MITgcm_config)
     end
     cd(pth)
     return true
-end
-
-function list_namelist_files(pth_run)
-    tmpA=readdir(pth_run)
-    tmpA=tmpA[findall([length(tmpA[i])>3 for i in 1:length(tmpA)])]
-    tmpA=tmpA[findall([tmpA[i][1:4]=="data"||tmpA[i]=="eedata"||
-            tmpA[i]=="prepare_run" for i in 1:length(tmpA)])]
 end
 
 """
@@ -184,120 +170,79 @@ function setup(config::MITgcm_config)
     pth_run=joinpath(config.folder,string(config.ID),"run")
     !isdir(pth_run) ? mkdir(pth_run) : nothing
 
-    pth_log=joinpath(config.folder,string(config.ID),"log","tracked_parameters")
-    pth_mv=joinpath(config.folder,string(config.ID),"original_parameters")
+    pth_log=joinpath(config.folder,string(config.ID),"log")
+    !isdir(pth_log) ? ClimateModels.git_log_init(config) : nothing
 
-    if !isfile(joinpath(pth_run,"data"))&&isfile(joinpath(pth_log,"data"))
-        p=pth_log
+    if !isfile(joinpath(pth_run,"data"))&&isfile(joinpath(pth_log,"tracked_parameters","data"))
+        p=joinpath(pth_log,"tracked_parameters")
         f=readdir(p)
         [symlink(joinpath(p,f[i]),joinpath(pth_run,f[i])) for i in 1:length(f)]
     end
 
-    #here is where to generalize 
-
     if !haskey(config.inputs,:setup)||(config.inputs[:setup][:main][:category]=="verification")
-        MITgcm_download()
-        p="$(MITgcm_path[1])/verification/$(config.configuration)/input"
-        tmpA=readdir(p)
-        f=tmpA[findall([!isfile(joinpath(pth_run,tmpA[i])) for i in 1:length(tmpA)])]
-        [symlink(joinpath(p,f[i]),joinpath(pth_run,f[i])) for i in 1:length(f)]
-
-        #replace relative paths with absolutes then exe prepare_run
-        if isfile(joinpath(pth_run,"prepare_run"))
-            try
-                pth=pwd()
-            catch e
-                cd()
-            end
-            pth=pwd()
-            cd(pth_run)
-            #
-            fil="prepare_run"
-            meta = read(fil,String)
-            meta = split(meta,"\n")
-            ii=findall(occursin.("../../",meta))
-            for i in ii
-                meta[i]=replace(meta[i],"../../" => "$(MITgcm_path[1])/verification/")
-            end
-            ii=findall(occursin.("../",meta))
-            for i in ii
-                meta[i]=replace(meta[i],"../" => "$(MITgcm_path[1])/verification/$(config.configuration)")
-            end
-            #rm old file from run dir
-            rm(fil)
-            #write new file in run dir
-            txt=["$(meta[i])\n" for i in 1:length(meta)]
-            fid = open(fil, "w")
-            [write(fid,txt[i]) for i in 1:length(txt)]
-            close(fid)
-            #execute prepare_run
-            chmod(fil,0o777)
-            @suppress run(`./$(fil)`)
-            #
-            cd(pth)
+        setup_verification!(config)
+    elseif !isempty(config.inputs)
+        nam=config.inputs[:setup][:main][:name]
+        if nam=="ECCO4"||nam=="OCCA2"
+            setup_ECCO4!(config)
+        else
+            error("unknown model configuration")
         end
-
-        if !islink(joinpath(pth_run,"mitgcmuv"))
-            f="$(MITgcm_path[1])/verification/$(config.configuration)/build/mitgcmuv"
-            symlink(f,joinpath(pth_run,"mitgcmuv")) 
-        end
-
     else
-        error("unknown configuration category")
+        error("unknown model configuration")
     end
 
-    logdir=joinpath(config.folder,string(config.ID),"log")
-    !isdir(logdir) ? ClimateModels.git_log_init(config) : nothing
+    pth_tra=joinpath(pth_log,"tracked_parameters")
+    !isdir(pth_tra) ? mkdir(pth_tra) : nothing
+    write_all_namelists(config.inputs,pth_tra)
 
-    #Replace namelists with editeable versions in log/
-    #
-    #- read from run folder, rewrite to log/parameter_files
-    #- mv all namelists to ../original_parameter_files
-    #- link from log/parameter_files to here (run/)
-    #(- add to git with message = original params)
-
-    nmlfiles=list_namelist_files(pth_run)
-
-    if !isdir(pth_log)    
-        mkdir(pth_log)
-
-        params=OrderedDict()
+    #replace namelists with editeable versions in pth_tra
+    pth_mv=joinpath(config.folder,string(config.ID),"original_parameters")
+    if !isdir(pth_mv)
+        mkdir(pth_mv)
+        nmlfiles=list_namelist_files(pth_tra)
         for fil in nmlfiles
-            nml=read(joinpath(pth_run,fil),MITgcm_namelist())
-            write(joinpath(pth_log,fil),nml)            
-            #
-            ni=length(nml.groups); tmp1=OrderedDict()
-            [push!(tmp1,(nml.groups[i] => nml.params[i])) for i in 1:ni]
-            tmp2=""
-            fil=="data" ? tmp2="main" : nothing
-            fil=="eedata" ? tmp2="eedata" : nothing
-            occursin("data.",fil) ? tmp2=fil[6:end] : nothing
-            if !isempty(tmp2) 
-                push!(params,(Symbol(tmp2) => tmp1))
-            end
+            fr=joinpath(pth_run,fil)
+            fm=joinpath(pth_mv,fil)
+            fl=joinpath(pth_tra,fil)
+            isfile(fr) ? mv(fr,fm) : nothing
+            symlink(fl,fr)
         end
+    end
 
-        P=OrderedDict()
-        P[:main]=OrderedDict(
-            :category=>"verification",
-            :name=>config.configuration,
-            :version=>"main")
-        push!(params,(:setup => P))
+    ClimateModels.git_log_prm(config)
 
-        push!(config.inputs,params...)
-
-        !isdir(pth_mv) ? mkdir(pth_mv) : nothing
-        for fil in nmlfiles
-            mv(joinpath(pth_run,fil),joinpath(pth_mv,fil))
-            symlink(joinpath(pth_log,fil),joinpath(pth_run,fil))
-        end
-
-        ClimateModels.git_log_prm(config)
+    exe=config.inputs[:setup][:build][:exe]
+    if !islink(joinpath(pth_run,exe))
+        f=joinpath(config.inputs[:setup][:build][:path],exe)
+        symlink(f,joinpath(pth_run,exe)) 
     end
 
     #add model run to scheduled tasks
     put!(config.channel,MITgcm_launch)
 
+    return true
+end
+
+"""
+    setup_ECCO4!(config::MITgcm_config)
+
+Setup method for ECCO4 and OCCA2 solutions.
+"""
+function setup_ECCO4!(config::MITgcm_config)
+    if !haskey(config.inputs[:setup],:build)
+        println("get MITgcm checkoint, link code folder, ... ")
+        u0="https://github.com/MITgcm/MITgcm"; p0=joinpath(config,"MITgcm")
+        run(`$(git()) clone --depth 1 --branch checkpoint68o $(u0) $(p0)`)
+        u0="https://github.com/gaelforget/ECCOv4"; p0=joinpath(config,"ECCOv4")
+        run(`$(git()) clone $(u0) $(p0)`)
+        p1=joinpath(config,"MITgcm","mysetups")
+        p2=joinpath(p1,"ECCOv4")
+        mkdir(p1); mv(p0,p2)
+        p3=joinpath(p2,"build")
+        P=OrderedDict(:path=>p3,:options=>"-mods=../code -mpi",:exe=>"mitgcmuv")
+        push!(config.inputs[:setup],(:build => P))
+    end
     return true
 end
 
@@ -317,8 +262,9 @@ function MITgcm_launch(config::MITgcm_config)
     pth=pwd()
     cd(joinpath(config.folder,string(config.ID),"run"))
     tmp=["STOP NORMAL END"]
+    exe=config.inputs[:setup][:build][:exe]
     try
-        @suppress run(pipeline(`./mitgcmuv`,"output.txt"))
+        @suppress run(pipeline(`./$(exe)`,"output.txt"))
     catch e
         tmp[1]="model run may have failed"
     end

@@ -1,0 +1,583 @@
+
+[main.PARM01]
+tRef = ["3*23.", "3*22.", 21.0, "2*20.", 19.0, "2*18.", 17.0, "2*16.", 15.0, 14.0, 13.0, 12.0, 11.0, "2*9.", 8.0, 7.0, "2*6.", "2*5.", "3*4.", "3*3.", "4*2.", "12*1."]
+sRef = "50*34.5"
+no_slip_sides = true
+no_slip_bottom = true
+viscAr = 5.0e-5
+viscAh = 1.0
+viscAhGrid = 0.02
+diffKhT = 10.0
+diffKrT = 1.0e-5
+diffKhS = 10.0
+diffKrS = 1.0e-5
+bottomDragQuadratic = 0.001
+ivdc_kappa = 10.0
+implicitDiffusion = true
+implicitViscosity = true
+useRealFreshWaterFlux = true
+balanceSaltClimRelax = true
+allowFreezing = false
+hFacMin = 0.2
+hFacMinDr = 5.0
+select_rStar = 2
+nonlinFreeSurf = 4
+gravity = 9.81
+rhonil = 1029.0
+rhoConst = 1029.0
+rhoConstFresh = 1000.0
+convertFW2Salt = -1.0
+eosType = "JMD95Z"
+implicitFreeSurface = true
+exactConserv = true
+useSingleCpuIO = true
+tempAdvScheme = 30
+saltAdvScheme = 30
+tempVertAdvScheme = 3
+saltVertAdvScheme = 3
+tempImplVertAdv = true
+saltImplVertAdv = true
+staggerTimeStep = true
+vectorInvariantMomentum = true
+useJamartWetPoints = true
+readBinaryPrec = 32
+writeBinaryPrec = 32
+debugLevel = 1
+
+[main.PARM02]
+cg2dMaxIters = 300
+cg2dTargetResWunit = 1.0e-12
+
+[main.PARM03]
+nIter0 = 1
+nTimeSteps = 175295
+forcing_In_AB = false
+momDissip_In_AB = false
+deltaTmom = 3600.0
+deltaTtracer = 3600.0
+deltaTfreesurf = 3600.0
+deltaTClock = 3600.0
+doAB_onGtGs = false
+alph_AB = 0.5
+beta_AB = 0.281105
+pChkptFreq = 3.1536e7
+chkptFreq = 3.1536e7
+monitorFreq = 6.3072e6
+dumpInitAndLast = true
+adjMonitorFreq = 864000.0
+pickupStrictlyMatch = false
+
+[main.PARM04]
+usingCurvilinearGrid = true
+delR = [10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.01, 10.03, 10.11, 10.32, 10.8, 11.76, 13.42, 16.04, 19.82, 24.85, 31.1, 38.42, 46.5, 55.0, 63.5, 71.58, 78.9, 85.15, 90.18, 93.96, 96.58, 98.25, 99.25, 100.01, 101.33, 104.56, 111.33, 122.83, 139.09, 158.94, 180.83, 203.55, 226.5, 249.5, 272.5, 295.5, 318.5, 341.5, 364.5, 387.5, 410.5, 433.5, 456.5]
+
+[main.PARM05]
+bathyFile = "bathy.bin"
+hydrogThetaFile = "T_OWPv1_M_eccollc_90x50.bin"
+hydrogSaltFile = "S_OWPv1_M_eccollc_90x50.bin"
+viscA4Dfile = "viscA4Dfld.bin"
+viscA4Zfile = "viscA4Zfld.bin"
+geothermalFile = "geothermalFlux.bin"
+
+[autodiff.AUTODIFF_PARM01]
+useSEAICEinAdMode = false
+useGGL90inAdMode = false
+useSALT_PLUMEinAdMode = false
+viscFacInAd = 2.0
+
+[cal.CAL_NML]
+TheCalendar = "gregorian"
+calendarDumps = true
+startDate_1 = 19920101
+startDate_2 = 120000
+
+[cost.COST_NML]
+
+[ctrl.ctrl_nml]
+doSinglePrecTapelev = true
+doinitxx = false
+doMainUnpack = false
+
+[ctrl.ctrl_packnames]
+
+[ctrl.CTRL_NML_GENARR]
+"xx_genarr3d_weight(1)" = "wt_ones.data"
+"xx_genarr3d_file(1)" = "xx_kapgm"
+"mult_genarr3d(1)" = 0.0
+"xx_genarr3d_weight(2)" = "wt_ones.data"
+"xx_genarr3d_file(2)" = "xx_kapredi"
+"mult_genarr3d(2)" = 0.0
+"xx_genarr3d_weight(3)" = "wt_ones.data"
+"xx_genarr3d_file(3)" = "xx_diffkr"
+"mult_genarr3d(3)" = 0.0
+
+[diagnostics.diagnostics_list]
+dumpatlast = true
+diagMdsDir = "diags"
+"frequency(1)" = 2.6352e6
+"fields(1:25,1)" = ["ETAN    ", "SIarea  ", "SIheff ", "SIhsnow ", "DETADT2 ", "PHIBOT  ", "sIceLoad", "MXLDEPTH", "oceSPDep", "SIatmQnt", "SIatmFW ", "oceQnet ", "oceFWflx", "oceTAUX ", "oceTAUY ", "ADVxHEFF", "ADVyHEFF", "DFxEHEFF", "DFyEHEFF", "ADVxSNOW", "ADVySNOW", "DFxESNOW", "DFyESNOW", "SIuice  ", "SIvice  "]
+"filename(1)" = "state_2d_set1"
+"frequency(2)" = 2.6352e6
+"fields(1:3,2)" = ["THETA   ", "SALT    ", "DRHODR  "]
+"filename(2)" = "state_3d_set1"
+"frequency(3)" = 2.6352e6
+"fields(1:5,3)" = ["UVELMASS", "VVELMASS", "WVELMASS", "GM_PsiX ", "GM_PsiY "]
+"filename(3)" = "trsp_3d_set1"
+"frequency(4)" = 2.6352e6
+"fields(1:8,4)" = ["DFxE_TH ", "DFyE_TH ", "ADVx_TH ", "ADVy_TH ", "DFxE_SLT", "DFyE_SLT", "ADVx_SLT", "ADVy_SLT"]
+"filename(4)" = "trsp_3d_set2"
+"frequency(5)" = -2.6352e6
+"fields(1:6,5)" = ["ETAN    ", "SIheff  ", "SIhsnow ", "SIarea  ", "sIceLoad", "PHIBOT  "]
+"timePhase(5)" = 0.0
+"fileFlags(5)" = "D       "
+"frequency(6)" = -2.6352e6
+"fields(1:2,6)" = ["THETA   ", "SALT    "]
+"timePhase(6)" = 0.0
+"fileFlags(6)" = "DI      "
+"frequency(7)" = 2.6352e6
+"fields(1:7,7)" = ["oceFWflx", "SIatmFW ", "TFLUX   ", "SItflux ", "SFLUX   ", "oceQsw  ", "oceSPflx"]
+"fileFlags(7)" = "D       "
+"frequency(8)" = 2.6352e6
+"fields(1:13,8)" = ["UVELMASS", "VVELMASS", "ADVx_TH ", "ADVy_TH ", "DFxE_TH ", "DFyE_TH ", "ADVx_SLT", "ADVy_SLT", "DFxE_SLT", "DFyE_SLT", "oceSPtnd", "AB_gT   ", "AB_gS   "]
+"fileFlags(8)" = "DI      "
+"frequency(9)" = 2.6352e6
+"fields(1:8,9)" = ["ADVxHEFF", "ADVyHEFF", "DFxEHEFF", "DFyEHEFF", "ADVxSNOW", "ADVySNOW", "DFxESNOW", "DFyESNOW"]
+"fileFlags(9)" = "D       "
+"frequency(10)" = 2.6352e6
+"fields(1:7,10)" = ["ADVr_TH ", "DFrE_TH ", "DFrI_TH ", "ADVr_SLT", "DFrE_SLT", "DFrI_SLT", "WVELMASS"]
+"levels(1, 10)" = 11.0
+"fileFlags(10)" = "D       "
+"frequency(11)" = 2.6352e6
+"fields(1:10,11)" = ["SRELAX  ", "TRELAX  ", "WTHMASS ", "WSLTMASS", "oceSflux", "oceQnet ", "SIatmQnt", "SIaaflux", "SIsnPrcp", "SIacSubl"]
+"fileFlags(11)" = "D       "
+"frequency(12)" = 2.6352e6
+"fields(1:13,12)" = ["UVELMASS", "VVELMASS", "ADVx_TH ", "ADVy_TH ", "DFxE_TH ", "DFyE_TH ", "ADVx_SLT", "ADVy_SLT", "DFxE_SLT", "DFyE_SLT", "oceSPtnd", "AB_gT   ", "AB_gS   "]
+"levels(1:40,12)" = [11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 26.0, 27.0, 28.0, 29.0, 30.0, 31.0, 32.0, 33.0, 34.0, 35.0, 36.0, 37.0, 38.0, 39.0, 40.0, 41.0, 42.0, 43.0, 44.0, 45.0, 46.0, 47.0, 48.0, 49.0, 50.0]
+"fileFlags(12)" = "DI      "
+"frequency(13)" = -2.6352e6
+"fields(1:2,13)" = ["THETA   ", "SALT    "]
+"timePhase(13)" = 0.0
+"levels(1:40,13)" = [11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 26.0, 27.0, 28.0, 29.0, 30.0, 31.0, 32.0, 33.0, 34.0, 35.0, 36.0, 37.0, 38.0, 39.0, 40.0, 41.0, 42.0, 43.0, 44.0, 45.0, 46.0, 47.0, 48.0, 49.0, 50.0]
+"fileFlags(13)" = "DI      "
+"frequency(14)" = 2.6352e6
+"fields(1:8,14)" = ["DFxE_TH ", "DFyE_TH ", "ADVx_TH ", "ADVy_TH ", "DFxE_SLT", "DFyE_SLT", "ADVx_SLT", "ADVy_SLT"]
+"fileFlags(14)" = " I      "
+"frequency(15)" = 2.6352e6
+"fields(1:3,15)" = ["RHOAnoma", "PHIHYD  ", "oceSPtnd"]
+"frequency(16)" = 2.6352e6
+"fields(1:7,16)" = ["ADVr_TH ", "DFrE_TH ", "DFrI_TH ", "ADVr_SLT", "DFrE_SLT", "DFrI_SLT", "WVELMASS"]
+"frequency(17)" = 2.6352e6
+"fields(1:7,17)" = ["TFLUX   ", "SItflux ", "SFLUX   ", "oceQsw  ", "oceSPflx", "SIsnPrcp", "SIacSubl"]
+"frequency(20)" = 2.6352e6
+"fields(1:5,20)" = ["EXFswdn", "EXFlwdn", "EXFatemp", "EXFaqh", "EXFpreci"]
+"filename(20)" = "exf_zflux_set1"
+
+[diagnostics.DIAG_STATIS_PARMS]
+
+[ecco.ECCO_COST_NML]
+
+[ecco.ECCO_GENCOST_NML]
+"gencost_avgperiod(1)" = "month"
+"gencost_barfile(1)" = "m_siv4_area"
+"gencost_datafile(1)" = "nsidc79_monthly"
+"gencost_errfile(1)" = "sigma_iceconc_eccollc.bin"
+"gencost_name(1)" = "siv4-conc"
+"gencost_spmin(1)" = -999.0
+"gencost_spmax(1)" = 999.0
+"gencost_spzero(1)" = -9999.0
+"gencost_outputlevel(1)" = 0
+"mult_gencost(1)" = 0.0
+"gencost_avgperiod(2)" = "month"
+"gencost_barfile(2)" = "m_siv4_deconc"
+"gencost_name(2)" = "siv4-deconc"
+"gencost_datafile(2)" = "nsidc79_monthly"
+"gencost_spmin(2)" = -999.0
+"gencost_spmax(2)" = 999.0
+"gencost_spzero(2)" = -9999.0
+"gencost_outputlevel(2)" = 1
+"mult_gencost(2)" = 1.0
+"gencost_avgperiod(3)" = "month"
+"gencost_barfile(3)" = "m_siv4_exconc"
+"gencost_name(3)" = "siv4-exconc"
+"gencost_datafile(3)" = "nsidc79_monthly"
+"gencost_spmin(3)" = -999.0
+"gencost_spmax(3)" = 999.0
+"gencost_spzero(3)" = -9999.0
+"gencost_outputlevel(3)" = 0
+"mult_gencost(3)" = 0.0
+"gencost_avgperiod(4)" = "month"
+"gencost_barfile(4)" = "m_sst_mon"
+"gencost_datafile(4)" = "reynolds_oiv2_r1"
+"gencost_errfile(4)" = "sigma_surf_0p5.bin"
+"gencost_name(4)" = "sst-reynolds"
+"gencost_spmin(4)" = -1.8
+"gencost_spmax(4)" = 40.0
+"gencost_spzero(4)" = 0.0
+"gencost_outputlevel(4)" = 1
+"mult_gencost(4)" = 1.0
+"gencost_avgperiod(5)" = "month"
+"gencost_barfile(5)" = "m_sst_mon"
+"gencost_datafile(5)" = "tmi_amsre_oisst_r1"
+"gencost_errfile(5)" = "sigma_surf_0p5.bin"
+"gencost_name(5)" = "sst-tmi-amsre"
+"gencost_startdate1(5)" = 19980101
+"gencost_startdate2(5)" = 0
+"gencost_spmin(5)" = -1.8
+"gencost_spmax(5)" = 40.0
+"gencost_spzero(5)" = 0.0
+"gencost_outputlevel(5)" = 0
+"mult_gencost(5)" = 0.0
+"gencost_avgperiod(6)" = "month"
+"gencost_barfile(6)" = "m_bp_mon"
+"gencost_datafile(6)" = "GRACE_jpl_rl05m"
+"gencost_errfile(6)" = "GRACE_jpl_rl05m_err"
+"gencost_name(6)" = "grace-mascons"
+"gencost_startdate1(6)" = 20020101
+"gencost_startdate2(6)" = 0
+"gencost_spmin(6)" = -40
+"gencost_spmax(6)" = 40.0
+"gencost_spzero(6)" = -999.0
+"gencost_preproc(1,6)" = "anom"
+"gencost_preproc(2,6)" = "factor"
+"gencost_preproc_r(2,6)" = 10.1937
+"gencost_posproc(1,6)" = "smooth"
+"gencost_posproc_c(1,6)" = "sshv4_scale_3points.bin"
+"gencost_posproc_i(1,6)" = 300
+"gencost_outputlevel(6)" = 0
+"mult_gencost(6)" = 0.0
+"gencost_avgperiod(7)" = "month"
+"gencost_barfile(7)" = "m_theta_mon"
+"gencost_datafile(7)" = "some_T_atlas.bin"
+"gencost_errfile(7)" = "sigma_T_atlas2_eccollc.bin"
+"gencost_preproc(1,7)" = "clim"
+"gencost_name(7)" = "thetaclim"
+"gencost_preproc_i(1,7)" = 12
+"gencost_spmin(7)" = -1.8
+"gencost_spmax(7)" = 40.0
+"gencost_spzero(7)" = 0.0
+"gencost_outputlevel(7)" = 1
+"mult_gencost(7)" = 1.0
+"gencost_avgperiod(8)" = "month"
+"gencost_barfile(8)" = "m_salt_mon"
+"gencost_datafile(8)" = "some_S_atlas.bin"
+"gencost_errfile(8)" = "sigma_S_atlas2_eccollc.bin"
+"gencost_preproc(1,8)" = "clim"
+"gencost_name(8)" = "saltclim"
+"gencost_preproc_i(1,8)" = 12
+"gencost_spmin(8)" = 25.0
+"gencost_spmax(8)" = 40.0
+"gencost_spzero(8)" = 0.0
+"gencost_outputlevel(8)" = 1
+"mult_gencost(8)" = 1.0
+"gencost_avgperiod(9)" = "day"
+"gencost_barfile(9)" = "m_ustress_day"
+"gencost_datafile(9)" = "QSCAT_Large_u_r2"
+"gencost_startdate1(9)" = 19990101
+"gencost_startdate2(9)" = 0
+"gencost_errfile(9)" = "QSCAT_Large_u_r2.rms"
+"gencost_name(9)" = "tauZon-scat"
+"gencost_spmin(9)" = -999.0
+"gencost_spmax(9)" = 999.0
+"gencost_spzero(9)" = 0.0
+"gencost_preproc(1,9)" = "factor"
+"gencost_preproc_r(1,9)" = 0.7
+"gencost_outputlevel(9)" = 0
+"mult_gencost(9)" = 0.0
+"gencost_avgperiod(10)" = "day"
+"gencost_barfile(10)" = "m_vstress_day"
+"gencost_datafile(10)" = "QSCAT_Large_v_r2"
+"gencost_startdate1(10)" = 19990101
+"gencost_startdate2(10)" = 0
+"gencost_errfile(10)" = "QSCAT_Large_v_r2.rms"
+"gencost_name(10)" = "tauMer-scat"
+"gencost_spmin(10)" = -999.0
+"gencost_spmax(10)" = 999.0
+"gencost_spzero(10)" = 0.0
+"gencost_preproc(1,10)" = "factor"
+"gencost_preproc_r(1,10)" = 0.7
+"gencost_outputlevel(10)" = 0
+"mult_gencost(10)" = 0.0
+"gencost_datafile(11)" = "mdt_pak09.bin"
+"gencost_startdate1(11)" = 19930101
+"gencost_startdate2(11)" = 0
+"gencost_enddate1(11)" = 20041231
+"gencost_enddate2(11)" = 0
+"gencost_errfile(11)" = "sigma_MDT_glob_eccollc.bin"
+"gencost_name(11)" = "sshv4-mdt"
+"gencost_posproc(1,11)" = "smooth"
+"gencost_posproc_c(1,11)" = "sshv4_scale_1p5points.bin"
+"gencost_posproc_i(1,11)" = 300
+"gencost_outputlevel(11)" = 1
+"mult_gencost(11)" = 1.0
+"gencost_barfile(12)" = "m_eta_day"
+"gencost_datafile(12)" = "RADS_TJ_mar2016"
+"gencost_startdate1(12)" = 19920101
+"gencost_startdate2(12)" = 0
+"gencost_avgperiod(12)" = "day"
+"gencost_errfile(12)" = "slaerr_gridscale_r5.err"
+"gencost_name(12)" = "sshv4-tp"
+"gencost_outputlevel(12)" = 1
+"mult_gencost(12)" = 1.0
+"gencost_datafile(13)" = "RADS_ERS_ENV_SA_mar2016"
+"gencost_startdate1(13)" = 19920101
+"gencost_startdate2(13)" = 0
+"gencost_avgperiod(13)" = "day"
+"gencost_errfile(13)" = "slaerr_gridscale_r5.err"
+"gencost_name(13)" = "sshv4-ers"
+"gencost_outputlevel(13)" = 1
+"mult_gencost(13)" = 1.0
+"gencost_datafile(14)" = "RADS_GFO_C2_mar2016"
+"gencost_startdate1(14)" = 19920101
+"gencost_startdate2(14)" = 0
+"gencost_avgperiod(14)" = "day"
+"gencost_errfile(14)" = "slaerr_gridscale_r5.err"
+"gencost_name(14)" = "sshv4-gfo"
+"gencost_outputlevel(14)" = 1
+"mult_gencost(14)" = 1.0
+"gencost_errfile(15)" = "slaerr_largescale_r5.err"
+"gencost_name(15)" = "sshv4-lsc"
+"gencost_posproc(1,15)" = "smooth"
+"gencost_posproc_c(1,15)" = "sshv4_scale_3points.bin"
+"gencost_posproc_i(1,15)" = 300
+"gencost_outputlevel(15)" = 1
+"mult_gencost(15)" = 1.0
+"gencost_name(16)" = "sshv4-gmsl"
+"gencost_outputlevel(16)" = 1
+"mult_gencost(16)" = 0.001
+"gencost_avgperiod(17)" = "month"
+"gencost_barfile(17)" = "m_salt_mon"
+"gencost_datafile(17)" = "some_S_atlas.bin"
+"gencost_errfile(17)" = "sigma_surf_0p5.bin"
+"gencost_name(17)" = "sss_repeat"
+"gencost_spmin(17)" = 25.0
+"gencost_spmax(17)" = 40.0
+"gencost_spzero(17)" = 0.0
+"gencost_outputlevel(17)" = 0
+"mult_gencost(17)" = 0.0
+
+[exch2.W2_EXCH2_PARM01]
+W2_mapIO = 1
+preDefTopol = 0
+"dimsFacets(1:10)" = [90, 270, 90, 270, 90, 90, 270, 90, 270, 90]
+"facetEdgeLink(1:4,1)" = [3.4, 0.0, 2.4, 5.1]
+"facetEdgeLink(1:4,2)" = [3.2, 0.0, 4.2, 1.3]
+"facetEdgeLink(1:4,3)" = [5.4, 2.1, 4.4, 1.1]
+"facetEdgeLink(1:4,4)" = [5.2, 2.3, 0.0, 3.3]
+"facetEdgeLink(1:4,5)" = [1.4, 4.1, 0.0, 3.1]
+"blankList(1:21)" = [1, 2, 3, 5, 6, 28, 29, 30, 31, 32, 33, 49, 50, 52, 53, 72, 81, 90, 99, 108, 117]
+
+[exch2_192cores.W2_EXCH2_PARM01]
+W2_mapIO = 1
+preDefTopol = 0
+"dimsFacets(1:10)" = [90, 270, 90, 270, 90, 90, 270, 90, 270, 90]
+"facetEdgeLink(1:4,1)" = [3.4, 0.0, 2.4, 5.1]
+"facetEdgeLink(1:4,2)" = [3.2, 0.0, 4.2, 1.3]
+"facetEdgeLink(1:4,3)" = [5.4, 2.1, 4.4, 1.1]
+"facetEdgeLink(1:4,4)" = [5.2, 2.3, 0.0, 3.3]
+"facetEdgeLink(1:4,5)" = [1.4, 4.1, 0.0, 3.1]
+"blankList(1:42)" = [1, 2, 3, 4, 5, 6, 9, 10, 11, 12, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 97, 98, 99, 100, 103, 104, 105, 106, 143, 144, 161, 162, 179, 180, 197, 198, 215, 216, 233, 234]
+
+[exf.EXF_NML_01]
+useAtmWind = false
+readStressOnAgrid = true
+rotateStressOnAgrid = true
+exf_albedo = 0.1
+useExfZenIncoming = true
+select_ZenAlbedo = 1
+ocean_emissivity = 0.97
+ice_emissivity = 0.95
+snow_emissivity = 0.95
+exf_iprec = 32
+useExfYearlyFields = true
+useExfCheckRange = false
+
+[exf.EXF_NML_02]
+ustressfile = "forcing_baseline2/eccov4r2_ustr"
+vstressfile = "forcing_baseline2/eccov4r2_vstr"
+atempfile = "forcing_baseline2/eccov4r2_tmp2m_degC"
+aqhfile = "forcing_baseline2/eccov4r2_spfh2m"
+precipfile = "forcing_baseline2/eccov4r2_rain"
+wspeedfile = "forcing_baseline2/eccov4r2_wspeed"
+swdownfile = "forcing_baseline2/eccov4r2_dsw"
+lwdownfile = "forcing_baseline2/eccov4r2_dlw"
+ustressstartdate1 = 19920101
+ustressstartdate2 = 30000
+ustressperiod = 21600.0
+vstressstartdate1 = 19920101
+vstressstartdate2 = 30000
+vstressperiod = 21600.0
+atempstartdate1 = 19920101
+atempstartdate2 = 30000
+atempperiod = 21600.0
+aqhstartdate1 = 19920101
+aqhstartdate2 = 30000
+aqhperiod = 21600.0
+precipstartdate1 = 19920101
+precipstartdate2 = 30000
+precipperiod = 21600.0
+runofffile = "runoff.bin"
+runoffperiod = -12
+uwindstartdate1 = 19920101
+uwindstartdate2 = 30000
+uwindperiod = 21600.0
+vwindstartdate1 = 19920101
+vwindstartdate2 = 30000
+vwindperiod = 21600.0
+wspeedstartdate1 = 19920101
+wspeedstartdate2 = 30000
+wspeedperiod = 21600.0
+swdownstartdate1 = 19920101
+swdownstartdate2 = 30000
+swdownperiod = 21600.0
+lwdownstartdate1 = 19920101
+lwdownstartdate2 = 30000
+lwdownperiod = 21600.0
+apressurestartdate1 = 19920101
+apressurestartdate2 = 30000
+apressureperiod = 21600.0
+climsstperiod = -12.0
+climsssperiod = -12.0
+
+[exf.EXF_NML_03]
+exf_offset_atemp = 273.15
+exf_inscal_swdown = -1.0
+exf_inscal_lwdown = -1.0
+exf_inscal_ustress = -1.0
+exf_inscal_vstress = -1.0
+
+[exf.EXF_NML_04]
+ustress_interpMethod = 0
+vstress_interpMethod = 0
+atemp_interpMethod = 0
+aqh_interpMethod = 0
+precip_interpMethod = 0
+wspeed_interpMethod = 0
+swdown_interpMethod = 0
+lwdown_interpMethod = 0
+runoff_interpMethod = 0
+climsss_interpMethod = 0
+
+[ggl90.GGL90_PARM01]
+GGL90alpha = 30.0
+GGL90TKEmin = 1.0e-7
+GGL90TKEbottom = 1.0e-6
+mxlMaxFlag = 2
+mxlSurfFlag = true
+
+[gmredi.GM_PARM01]
+GM_Small_Number = 1.0e-20
+GM_slopeSqCutoff = 1.0e8
+GM_AdvForm = true
+GM_isopycK = 1000.0
+GM_background_K = 1000.0
+GM_maxSlope = 0.004
+GM_taper_scheme = "stableGmAdjTap"
+GM_Kmin_horiz = 100.0
+GM_Scrit = 0.004
+GM_Sd = 0.001
+
+[optim.OPTIM]
+optimcycle = 12
+
+[pkg.PACKAGES]
+useEXF = true
+useCAL = true
+useGMRedi = true
+useSeaice = true
+useGGL90 = true
+useSALT_PlUME = true
+useDiagnostics = true
+useAUTODIFF = false
+useECCO = true
+useCTRL = true
+useProfiles = true
+useSMOOTH = true
+
+[profiles.PROFILES_NML]
+profilesDir = "profiles"
+profilesDoGenGrid = true
+"profilesfiles(1)" = "argo_feb2016_set1"
+"profilesfiles(2)" = "argo_feb2016_set2"
+"profilesfiles(3)" = "argo_feb2016_set3"
+"profilesfiles(4)" = "argo_feb2016_set4"
+"profilesfiles(5)" = "argo_feb2016_set5"
+"profilesfiles(6)" = "argo_feb2016_set6"
+"profilesfiles(8)" = "climode_jan2016"
+"profilesfiles(9)" = "ctd_jan2016"
+"profilesfiles(10)" = "itp_jan2016"
+"profilesfiles(11)" = "seals_jan2016"
+"profilesfiles(12)" = "xbt_jan2016"
+
+[salt_plume.SALT_PLUME_PARM01]
+SPsalFRAC = "0.5D0"
+
+[seaice.SEAICE_PARM01]
+SEAICE_drag = 0.002
+SEAICE_drag_south = 0.002
+SEAICE_waterDrag = 0.005344995140913508
+SEAICEetaZmethod = 0
+SEAICEscaleSurfStress = false
+SEAICEaddSnowMass = false
+SEAICE_OLx = 0
+SEAICE_OLy = 0
+SEAICEuseTILT = false
+SEAICEpresH0 = 2.0
+SEAICEpresPow0 = 1
+SEAICEpresPow1 = 3
+SEAICE_multDim = 1
+SEAICErestoreUnderIce = true
+SEAICE_area_max = 0.95
+SEAICE_salt0 = 4.0
+LSR_ERROR = 0.0002
+SEAICEuseDYNAMICS = true
+MIN_ATEMP = -40.0
+MIN_TICE = -40.0
+SEAICEadvScheme = 30
+SEAICEuseFluxForm = true
+SEAICEadvSnow = true
+SEAICEdiffKhHeff = 400.0
+SEAICEdiffKhArea = 400.0
+SEAICEdiffKhSnow = 400.0
+SEAICEuseFlooding = true
+SEAICE_mcPheePiston = 3.858024691358025e-5
+SEAICE_frazilFrac = 1.0
+SEAICE_mcPheeTaper = 0.0
+SEAICE_areaLossFormula = 2
+SEAICEheatConsFix = true
+SEAICE_tempFrz0 = -1.96
+SEAICE_dTempFrz_dS = 0.0
+SEAICEuseMetricTerms = true
+SEAICE_no_slip = false
+SEAICE_clipVelocities = true
+SEAICE_dryIceAlb = 0.84
+SEAICE_wetIceAlb = 0.78
+SEAICE_drySnowAlb = 0.9
+SEAICE_wetSnowAlb = 0.8
+SEAICE_dryIceAlb_south = 0.75
+SEAICE_wetIceAlb_south = 0.66
+SEAICE_drySnowAlb_south = 0.84
+SEAICE_wetSnowAlb_south = 0.7
+
+[seaice.SEAICE_PARM02]
+
+[smooth.SMOOTH_NML]
+"smooth2Dnbt(1)" = 300
+"smooth2Dtype(1)" = 1
+"smooth2Dsize(1)" = 2
+"smooth2Dfilter(1)" = 0
+"smooth3Dnbt(1)" = 300
+"smooth3DtypeH(1)" = 1
+"smooth3DsizeH(1)" = 3
+"smooth3DtypeZ(1)" = 1
+"smooth3DsizeZ(1)" = 3
+"smooth3Dfilter(1)" = 0
+
+[eedata.EEPARMS]
+useCubedSphereExchange = true
+nTx = 1
+nTy = 1
+
+[setup.main]
+category = "custom"
+name = "ECCO4"
+version = "main"

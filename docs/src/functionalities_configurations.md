@@ -1,5 +1,15 @@
 # Model Configurations
 
+## MITgcm_config
+
+```@docs
+MITgcm_config
+setup_verification!
+setup_ECCO4!
+```
+
+## Verification Experiments
+
 Get the default version of `MITgcm` source code, and locate the local copy:
 
 ```@example 1
@@ -26,5 +36,4 @@ MITgcm_config(configuration="MLAdjust")
 MITgcm_download
 MITgcm_path
 verification_experiments
-MITgcm_config
 ```

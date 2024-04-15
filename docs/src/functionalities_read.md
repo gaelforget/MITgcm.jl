@@ -37,6 +37,8 @@ GridLoad_native
 MITgcm_namelist
 read_namelist
 write_namelist
+read_all_namelists
+write_all_namelists
 read_toml
 ```
 
