@@ -1,11 +1,16 @@
+
 ```@setup 1
 using MITgcm
 ```
 
+# Examples
+
+There are several ways to use `MITgcm.jl`.
+
 !!! note
 	Compiling MITgcm requires [a fortran compiler](https://fortran-lang.org/learn/os_setup/install_gfortran). This is a requirement for all notebooks except `MITgcm_configurations.jl`.
 
-# Standard Modeling Workflow
+## Standard Modeling Workflow
 
 Here is the standard way to run a model configuration using `MITgcm.jl`.
 
@@ -36,7 +41,7 @@ sc=scan_rundir(rundir)
 sc.params_grid
 ```
 
-# Pluto Notebooks
+## Pluto Notebooks
 
 Below are links to static html versions of the examples which one can open with a web browser.
 
@@ -62,7 +67,7 @@ include(notebook)
 '
 ```
 
-# Notebooks Listing
+## Notebooks Listing
 
 - [MITgcm_configurations.jl](MITgcm_configurations.html) ([code link](https://raw.githubusercontent.com/gaelforget/MITgcm.jl/master/examples/MITgcm_configurations.jl)); explore MITgcm configurations and their parameters.
 - [MITgcm\_scan\_output.jl](MITgcm_scan_output.html) ([code link](https://raw.githubusercontent.com/gaelforget/MITgcm.jl/master/examples/MITgcm_scan_output.jl)) : scan run directory, standard output, read grid files, and vizualize. 
