@@ -23,9 +23,9 @@ end
 
 
 """
-    testreport(nam::String,ext="")
+    testreport(config::MITgcm_config,ext="")
 
-Run the testreport script for one model config `nam` (or "all"),
+Run the testreport script for one model `config`,
 with additional options (optional) speficied in `ext`
 
 ```
@@ -160,13 +160,6 @@ function compile(config::MITgcm_config)
     return true
 end
 
-function list_namelist_files(pth_run)
-    tmpA=readdir(pth_run)
-    tmpA=tmpA[findall([length(tmpA[i])>3 for i in 1:length(tmpA)])]
-    tmpA=tmpA[findall([tmpA[i][1:4]=="data"||tmpA[i]=="eedata"||
-            tmpA[i]=="prepare_run" for i in 1:length(tmpA)])]
-end
-
 """
     setup(config::MITgcm_config)
 
@@ -256,26 +249,9 @@ function setup(config::MITgcm_config)
     #- link from log/parameter_files to here (run/)
     #(- add to git with message = original params)
 
-    nmlfiles=list_namelist_files(pth_run)
-
     if !isdir(pth_log)    
         mkdir(pth_log)
-
-        params=OrderedDict()
-        for fil in nmlfiles
-            nml=read(joinpath(pth_run,fil),MITgcm_namelist())
-            write(joinpath(pth_log,fil),nml)            
-            #
-            ni=length(nml.groups); tmp1=OrderedDict()
-            [push!(tmp1,(nml.groups[i] => nml.params[i])) for i in 1:ni]
-            tmp2=""
-            fil=="data" ? tmp2="main" : nothing
-            fil=="eedata" ? tmp2="eedata" : nothing
-            occursin("data.",fil) ? tmp2=fil[6:end] : nothing
-            if !isempty(tmp2) 
-                push!(params,(Symbol(tmp2) => tmp1))
-            end
-        end
+        params=read_all_namelists(pth_run)
 
         P=OrderedDict()
         P[:main]=OrderedDict(
@@ -284,9 +260,12 @@ function setup(config::MITgcm_config)
             :version=>"main")
         push!(params,(:setup => P))
 
+        write_all_namelists(params,pth_log)
+
         push!(config.inputs,params...)
 
         !isdir(pth_mv) ? mkdir(pth_mv) : nothing
+        nmlfiles=list_namelist_files(pth_run)
         for fil in nmlfiles
             mv(joinpath(pth_run,fil),joinpath(pth_mv,fil))
             symlink(joinpath(pth_log,fil),joinpath(pth_run,fil))
