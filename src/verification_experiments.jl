@@ -120,6 +120,8 @@ function verification_setup(config::MITgcm_config)
         :category=>"verification",
         :name=>config.configuration,
         :version=>"main")
+    P[:build]=OrderedDict(
+        :path=>"$(MITgcm_path[1])/verification/$(nam)/build")
     push!(params,(:setup => P))
 
     return params
