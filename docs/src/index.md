@@ -18,8 +18,8 @@ Depth = 2
 
 ## Main Features
 
-- Read / Write / Scan the various MITgcm File types
-- Standard Modeling Worflow (Climate Model Interface)
+- Read / Write / Scan the various MITgcm file types
+- Standard Modeling Worflow (`ClimateModels`' interface)
 - Standard MITgcm configurations (`ECCO`, `verification`)
 - [Examples](@ref) (docs, and notebooks in `examples/`)
 
