@@ -401,7 +401,7 @@ Read a `MITgcm` namelist file, parse it, and return as a NamedTuple
 
 ```
 using MITgcm
-testreport("advect_xy")
+testreport(MITgcm_config(configuration="advect_xy"))
 fil=joinpath(MITgcm_path[1],"verification","advect_xy","run","data")
 namelist=read_namelist(fil)
 ```
@@ -447,6 +447,48 @@ function read_namelist(fil)
 	end
 
     return MITgcm_namelist(Symbol.(groups),params)
+end
+
+function list_namelist_files(pth_run)
+    tmpA=readdir(pth_run)
+    tmpA=tmpA[findall([length(tmpA[i])>3 for i in 1:length(tmpA)])]
+    tmpA=tmpA[findall([tmpA[i][1:4]=="data"||tmpA[i]=="eedata"||
+            tmpA[i]=="prepare_run" for i in 1:length(tmpA)])]
+end
+
+"""
+    read_namelist_files(pth_run,pth_log=missing)
+
+Read all `MITgcm` namelist files in `pth_run`, parse them, and return as a NamedTuple of NamedTuples.
+
+If `pth_log` is not missing then rewrite namelist files to this folder.
+
+```
+using MITgcm; MITgcm_download()
+testreport(MITgcm_config(configuration="advect_xy"))
+pth_run=joinpath(MITgcm_path[1],"verification","advect_xy","run")
+params=read_namelist_files(pth_run)
+```
+"""
+function read_namelist_files(pth_run,pth_log=missing)
+    nmlfiles=list_namelist_files(pth_run)
+
+    params=OrderedDict()
+    for fil in nmlfiles
+        nml=read(joinpath(pth_run,fil),MITgcm_namelist())
+        !ismissing(pth_log) ? write(joinpath(pth_log,fil),nml) : nothing
+        #
+        ni=length(nml.groups); tmp1=OrderedDict()
+        [push!(tmp1,(nml.groups[i] => nml.params[i])) for i in 1:ni]
+        tmp2=""
+        fil=="data" ? tmp2="main" : nothing
+        fil=="eedata" ? tmp2="eedata" : nothing
+        occursin("data.",fil) ? tmp2=fil[6:end] : nothing
+        if !isempty(tmp2) 
+            push!(params,(Symbol(tmp2) => tmp1))
+        end
+    end
+    params
 end
 
 """
