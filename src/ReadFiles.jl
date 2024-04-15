@@ -612,23 +612,20 @@ Read toml parameter file into an OrderedDict with Symbol keys, consistent with `
 ```
 using MITgcm, TOML
 
-MC=MITgcm_config(configuration="tutorial_held_suarez_cs")
-MITgcm_download(); setup(MC)
+toml_file=joinpath("examples","configurations","tutorial_held_suarez_cs.toml")
+params=read_toml(toml_file)
+```
 
-toml_file=joinpath(MC,"log","tracked_parameters.toml")
-P=MITgcm.read_toml(toml_file)
-    
-completed_tom_file=joinpath(tempdir(),"tutorial_held_suarez_cs.toml")
-P[:setup]=MITgcm.OrderedDict()
-P[:setup][:main]=MITgcm.OrderedDict(
-    :category=>"verification",
-    :name=>"tutorial_held_suarez_cs",
-    :version=>"main")
+which can be uses to start a new model run:
 
-open(completed_tom_file, "w") do io
-    TOML.print(io, P)
+```
+MC=MITgcm_config(configuration="tutorial_held_suarez_cs",inputs=params)
+setup(MC)
+open(tempname()*".toml", "w") do io
+    TOML.print(io, MC.inputs)
 end
-```    
+```
+
 """
 function read_toml(toml_file)
     PA=ClimateModels.TOML.parsefile(toml_file)
