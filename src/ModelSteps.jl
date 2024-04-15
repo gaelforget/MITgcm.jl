@@ -228,6 +228,14 @@ end
     setup_ECCO4!(config::MITgcm_config)
 
 Setup method for ECCO4 and OCCA2 solutions.
+
+```
+fil=joinpath("examples","configurations","OCCA2.toml")
+MC=MITgcm_config(inputs=read_toml(fil))
+setup(MC)
+build(MC)
+MITgcm_launch(MC)
+```
 """
 function setup_ECCO4!(config::MITgcm_config)
     if !haskey(config.inputs[:setup],:build)

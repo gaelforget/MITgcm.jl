@@ -20,15 +20,15 @@ Depth = 2
 
 - Read / Write / Scan the various MITgcm File types
 - Standard Modeling Worflow (Climate Model Interface)
-- Standard MITgcm configurations (`verification`)
-- [Examples](@ref) (notebooks in `examples/`)
+- Standard MITgcm configurations (`ECCO`, `verification`)
+- [Examples](@ref) (docs, and notebooks in `examples/`)
 
 ## Related packages 
 
-- [ClimateModels.jl](https://gaelforget.github.io/ClimateModels.jl/stable/) provides a standard interface for such workflows. 
-- [OceanStateEstimation.jl](https://JuliaOcean.github.io/OceanStateEstimation.jl/dev/) for accessing and using ECCO solutions. 
-- [MeshArrays.jl](https://juliaclimate.github.io/MeshArrays.jl/dev/) defining in-memory containters for gridded model output.
-- [IndividualDisplacements.jl](https://juliaclimate.github.io/IndividualDisplacements.jl/dev/) enabling particle tracking applications. 
+- [ClimateModels.jl](https://gaelforget.github.io/ClimateModels.jl/stable/) : standard interface for modeling workflows. 
+- [OceanStateEstimation.jl](https://JuliaOcean.github.io/OceanStateEstimation.jl/dev/) : accessing and using ECCO solutions. 
+- [MeshArrays.jl](https://juliaclimate.github.io/MeshArrays.jl/dev/) : data structures for gridded model output.
+- [IndividualDisplacements.jl](https://juliaclimate.github.io/IndividualDisplacements.jl/dev/) : particle tracking applications and pathway simulationss. 
 
 ## Visuals 
 
