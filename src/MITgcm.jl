@@ -11,7 +11,7 @@ import MITgcm.ReadNativeGridFiles.GridLoad_native
 include("ModelSteps.jl")
 include("FormatConversions.jl")
 include("PhysicalOceanography.jl")
-include("verification_experiments.jl")
+include("ModelConfigurations.jl")
 
 export MITgcm_path, MITgcmScratchSpaces
 export MITgcm_download, HS94_pickup_download

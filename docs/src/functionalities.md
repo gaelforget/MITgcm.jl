@@ -9,9 +9,12 @@ using Pkg
 Pkg.add("MITgcm")
 ```
 
+!!! tip
+	The [ECCO-Docker](https://github.com/gaelforget/ECCO-Docker#readme) has `MITgcm.jl` pre-installed, as well as `gfortran` and `mpi` that are required to run `MITgcm`. The [ECCO-Binder](https://mybinder.org/v2/gh/gaelforget/ECCO-Docker/HEAD) is available to try functionalities in the cloud, freely.
+
 ## Main Functionalities
 
-`MITgcm.jl` provides a suite of tools for analyzing [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) results, compiling the model, modifying its inputs, running simulations, and more -- all from within `julia`. Functionalities are also documented via the [Examples](@ref) section.
+`MITgcm.jl` provides a suite of tools for analyzing [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) results, compiling a model configuration, modifying its parameters as needed, running model simulations, and more -- all from within `julia`. Functionalities are also documented via the [Examples](@ref) section.
 
 ## MITgcm File Formats
 
@@ -20,7 +23,7 @@ A common use case for `MITgcm.jl` is to use and analyze model output from a prev
 !!! note 
     This notebook builds and runs `tutorial_global_oce_biogeo` from within `Julia`. Alternatively, the [MITgcm documentation](https://mitgcm.readthedocs.io/en/latest/getting_started/getting_started.html) explains how to build and run tutorials at the command line in `linux`. 
 
-[`scan_rundir`](@ref) / [`scan_stdout`](@ref) provides a summary information about what's in the model _run/_ folder. With this information, we are ready to read model output. The various files that MITgcm can generate are covered below.
+A typical `MITgcm` run stores model output within the _run/_ folder, including the standard _STDOUT_ text files. [`scan_rundir`](@ref) / [`scan_stdout`](@ref) provides a summary information about what's in the _run/_ folder. With this metadata, we are ready to read model output. The various file formats that `MITgcm` can generate are covered below.
 
 - [Standard Output](@ref) (text)
 - [Input Files](@ref) (text)
