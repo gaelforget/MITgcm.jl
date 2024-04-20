@@ -1,4 +1,35 @@
 
+
+"""
+    setup_ECCO4!(config::MITgcm_config)
+
+Setup method for ECCO4 and OCCA2 solutions.
+
+```
+fil=joinpath("examples","configurations","OCCA2.toml")
+MC=MITgcm_config(inputs=read_toml(fil))
+setup(MC)
+build(MC)
+MITgcm_launch(MC)
+```
+"""
+function setup_ECCO4!(config::MITgcm_config)
+    if !haskey(config.inputs[:setup],:build)
+        println("get MITgcm checkoint, link code folder, ... ")
+        u0="https://github.com/MITgcm/MITgcm"; p0=joinpath(config,"MITgcm")
+        run(`$(git()) clone --depth 1 --branch checkpoint68o $(u0) $(p0)`)
+        u0="https://github.com/gaelforget/ECCOv4"; p0=joinpath(config,"ECCOv4")
+        run(`$(git()) clone $(u0) $(p0)`)
+        p1=joinpath(config,"MITgcm","mysetups")
+        p2=joinpath(p1,"ECCOv4")
+        mkdir(p1); mv(p0,p2)
+        p3=joinpath(p2,"build")
+        P=OrderedDict(:path=>p3,:options=>"-mods=../code -mpi",:exe=>"mitgcmuv")
+        push!(config.inputs[:setup],(:build => P))
+    end
+    return true
+end
+
 """
 verification_experiments()
 
