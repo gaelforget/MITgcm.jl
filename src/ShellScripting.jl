@@ -1,4 +1,15 @@
 
+"""
+    create_script(rundir=pwd())
+
+Create submission script -- for NASA pleiades in this example.
+
+```
+submission_script=MITgcm.create_script()
+fil=tempname()*".csh"
+MITgcm.to_csh(submission_script,fil)
+```    
+"""
 function create_script(rundir=pwd())
 
 ## submission script
