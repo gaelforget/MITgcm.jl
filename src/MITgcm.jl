@@ -1,8 +1,12 @@
 module MITgcm
 
-using Dates, Printf, SparseArrays, UUIDs, Suppressor
-using OrderedCollections, DataFrames, MeshArrays, ClimateModels
-using Glob, FortranFiles
+using Dates, Printf, SparseArrays, UUIDs
+using MeshArrays, ClimateModels
+using Downloads, Glob, FortranFiles
+
+using ClimateModels.DataFrames
+using ClimateModels.Suppressor
+using ClimateModels.OrderedCollections
 
 include("Types.jl")
 include("ReadFiles.jl")
@@ -17,9 +21,10 @@ include("ShellScripting.jl")
 export MITgcm_path, MITgcmScratchSpaces
 export MITgcm_download, HS94_pickup_download
 export MITgcm_config, MITgcm_namelist, MITgcm_launch
-export testreport, build, compile, setup, clean
+export testreport, build, compile, setup, clean, launch
 #export pause, stop, clock, monitor, train, help
-export verification_experiments, setup_verification!, setup_ECCO4!
+export verification_experiments, setup_verification!, testreport
+export setup_ECCO4!, ECCO4_inputs, ECCO4_testreport
 export read_namelist, write_namelist, read_toml
 export read_all_namelists, write_all_namelists
 export read_mdsio, read_meta, read_available_diagnostics
