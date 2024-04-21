@@ -7,11 +7,12 @@
 Setup method for ECCO4 and OCCA2 solutions.
 
 ```
+using MITgcm
 fil=joinpath("examples","configurations","OCCA2.toml")
 MC=MITgcm_config(inputs=read_toml(fil))
 setup(MC)
 build(MC)
-MITgcm_launch(MC)
+launch(MC)
 ```
 """
 function setup_ECCO4!(config::MITgcm_config)
@@ -79,9 +80,9 @@ end
 Create a list of Dataverse files from folder with specified `name`.
 
 ```
-list1=MITgcm.ECCO4_testreport.get_list()
+list1=ECCO4_inputs..get_list()
 nam1="surface forcing fields"
-list2=MITgcm.ECCO4_testreport.get_list(list1,nam1)
+list2=ECCO4_inputs..get_list(list1,nam1)
 ```
 """
 function get_list(list1::DataFrame,name::String)
@@ -99,9 +100,9 @@ end
 Create a list of Dataverse files from folder with specified `name`.
 
 ```
-list1=MITgcm.ECCO4_testreport.get_list()
+list1=ECCO4_inputs..get_list()
 nam1="model initialization"
-MITgcm.ECCO4_testreport.get_files(list1,nam1,tempname())
+ECCO4_inputs..get_files(list1,nam1,tempname())
 ```
 """
 function get_files(list1::DataFrame,nam1::String,path1::String)
@@ -132,11 +133,11 @@ alt_names=false
 
 ```
 @everywhere begin
- include("test/testreport_ecco.jl")
- using SharedArrays
+ using MITgcm
+ using ECCO4_testreport.SharedArrays
 end
 
-report=MITgcm.ECCO4_testreport.compute("run")
+report=ECCO4_testreport.compute("run")
 ```
 """
 function compute(pth0)
@@ -255,11 +256,12 @@ end
     compare(A::DataFrame,B::DataFrame)
 
 ```
-include("test/mat_to_table.jl")
-ref_file="test/testreport_baseline2.mat"
-ref=mat_to_table(ref_file)
+using ClimateModels.DataFrames, ClimateModels.CSV
+ref_file="test/testreport_baseline2.csv"
+ref=CSV.read(ref_file,DataFrame)
 
-MITgcm.ECCO4_testreport.compare(report,ref)
+using MITgcm
+ECCO4_testreport.compare(report,ref)
 ```
 """
 function compare(A::DataFrame,B::DataFrame)

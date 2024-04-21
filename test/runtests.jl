@@ -94,6 +94,19 @@ MITgcm_download()
     MC=MITgcm_config(inputs=read_toml(fil))
     setup(MC)
     @test MC.inputs[:setup][:build][:exe]=="mitgcmuv"
+ 
+    list1=ECCO4_inputs.get_list()
+    nam1="documentation"
+    ECCO4_inputs.get_files(list1,nam1,pathof(MC))
+    fil=joinpath(MC,"inputs_baseline2","README.pdf")
+    @test isfile(fil)
+
+    using ClimateModels.DataFrames, ClimateModels.CSV
+    ref_file=joinpath(MC,"MITgcm","mysetups","ECCOv4","test","testreport_baseline2.csv")
+    ref=CSV.read(ref_file,DataFrame)
+    report=deepcopy(ref); report.value.+=rand(length(ref.value))
+    ECCO4_testreport.compare(report,ref)
+    @test isa(report,DataFrame)
 
     #read / write functions
 
