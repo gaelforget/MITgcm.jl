@@ -8,6 +8,15 @@ The data structure that enables `MITgcm.jl` is called `MITgcm_config`.
 MITgcm_config
 ```
 
+Model parameters can be stored as a `TOML` file.
+
+```@example 2
+using MITgcm # hide
+p0=dirname(pathof(MITgcm)) # hide
+fil=joinpath(p0,"..","examples","configurations","OCCA2.toml") # hide
+read_toml(fil)
+```
+
 ## ECCO solutions
 
 Global ocean model configurations used in [NASA's ECCO](https://ecco-group.org) ocean state estimation program.
@@ -37,7 +46,8 @@ MITgcm_path[1]
 To get the list of standard model configurations in `MITgcm/verification/` : 
 
 ```@example 1
-verification_experiments()
+ves=verification_experiments()
+[ve.configuration for ve in ves]
 ```
 
 To choose one : 
