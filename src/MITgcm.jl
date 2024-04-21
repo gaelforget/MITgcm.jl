@@ -1,8 +1,12 @@
 module MITgcm
 
-using Dates, Printf, SparseArrays, UUIDs, Suppressor
-using OrderedCollections, DataFrames, MeshArrays, ClimateModels
-using Glob, FortranFiles
+using Dates, Printf, SparseArrays, UUIDs
+using MeshArrays, ClimateModels
+using Downloads, Glob, FortranFiles
+
+using ClimateModels.DataFrames
+using ClimateModels.Suppressor
+using ClimateModels.OrderedCollections
 
 include("Types.jl")
 include("ReadFiles.jl")
