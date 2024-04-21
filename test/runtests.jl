@@ -1,4 +1,5 @@
 using MITgcm, ClimateModels, MeshArrays, OceanStateEstimation
+using ClimateModels.Suppressor
 using Test
 
 MITgcm_download()
@@ -97,7 +98,7 @@ MITgcm_download()
  
     list1=ECCO4_inputs.get_list()
     nam1="documentation"
-    ECCO4_inputs.get_files(list1,nam1,pathof(MC))
+    @suppress ECCO4_inputs.get_files(list1,nam1,pathof(MC))
     fil=joinpath(MC,"inputs_baseline2","README.pdf")
     @test isfile(fil)
 
@@ -105,7 +106,7 @@ MITgcm_download()
     ref_file=joinpath(MC,"MITgcm","mysetups","ECCOv4","test","testreport_baseline2.csv")
     ref=CSV.read(ref_file,DataFrame)
     report=deepcopy(ref); report.value.+=rand(length(ref.value))
-    ECCO4_testreport.compare(report,ref)
+    @suppress ECCO4_testreport.compare(report,ref)
     @test isa(report,DataFrame)
 
     #read / write functions
