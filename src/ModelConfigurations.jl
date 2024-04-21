@@ -157,3 +157,63 @@ function setup_verification!(config::MITgcm_config)
 
     return true
 end
+
+
+module MITgcmScratchSpaces
+
+using Downloads, Scratch
+
+# This will be filled in inside `__init__()`
+path = ""
+
+# Downloads a resource, stores it within path
+function download_dataset(url,path)
+    fname = joinpath(path, basename(url))
+    if !isfile(fname)
+        Downloads.download(url, fname)
+    end
+    return fname
+end
+
+function __init__()
+    global path = @get_scratch!("src")
+end
+
+end
+
+"""
+    testreport(config::MITgcm_config,ext="")
+
+Run the testreport script for one model `config`,
+with additional options (optional) speficied in `ext`
+
+```
+using MITgcm
+testreport(MITgcm_config(configuration="front_relax"),"-norun")
+#testreport(MITgcm_config(configuration="all"),"-norun")
+```
+"""
+function testreport(config::MITgcm_config,ext="")
+    nm=config.configuration
+    try
+        pth=pwd()
+    catch e
+        cd()
+    end
+    pth=pwd()
+    cd(tempdir())
+    println(pwd())
+    if nm!=="all"
+        lst=[nm]
+    else
+        exps=verification_experiments()
+        lst=[exps[i].configuration for i in 1:length(exps)]
+    end
+    for nm in lst
+        c=`$(MITgcm_path[1])/verification/testreport -t $(MITgcm_path[1])/verification/$(nm) $ext`
+        isempty(ext) ? c=`$(MITgcm_path[1])/verification/testreport -t $(MITgcm_path[1])/verification/$(nm)` : nothing
+        @suppress run(c)
+    end
+    cd(pth)
+    return true
+end
