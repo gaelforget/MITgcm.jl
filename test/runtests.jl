@@ -5,6 +5,11 @@ MITgcm_download()
 
 @testset "MITgcm.jl" begin
 
+    submission_script=MITgcm.create_script()
+    fil=tempname()*".csh"
+    MITgcm.to_csh(submission_script,fil)
+    @test isfile(fil)
+
     #format conversions
     (γ,Γ)=MeshArrays.GridOfOnes("CubeSphere",30,30)
     @test isa(convert2gcmfaces(Γ.XC),Array)
