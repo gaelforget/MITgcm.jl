@@ -38,8 +38,6 @@ module ECCO4_inputs
 using Dataverse, ClimateModels.DataFrames, ClimateModels.CSV
 export get_list, get_files
 
-#(DataAccessApi,NativeApi)=pyDataverse.APIs()
-
 ##
 
 list0=[
@@ -81,19 +79,15 @@ end
 Create a list of Dataverse files from folder with specified `name`.
 
 ```
-fil0="input/dowload_files.jl"
-include(fil0); using Main.baseline2_files
-
-list1=get_list()
-
+list1=MITgcm.ECCO4_testreport.get_list()
 nam1="surface forcing fields"
-list2=get_list(list1,nam1)
+list2=MITgcm.ECCO4_testreport.get_list(list1,nam1)
 ```
 """
 function get_list(list1::DataFrame,name::String)
     try
         doi=list1[list1.name.==name,:].doi[1]
-        pyDataverse.dataset_file_list(doi)
+        Dataverse.file_list(doi)
     catch
         ""
     end
@@ -105,24 +99,21 @@ end
 Create a list of Dataverse files from folder with specified `name`.
 
 ```
-fil0="Dataverse_files.jl"
-include(fil0); using Main.Dataverse_files
-
-list1=get_list()
-
+list1=MITgcm.ECCO4_testreport.get_list()
 nam1="model initialization"
-get_files(list1,nam1,tempdir())
+MITgcm.ECCO4_testreport.get_files(list1,nam1,tempname())
 ```
 """
 function get_files(list1::DataFrame,nam1::String,path1::String)
-    list2=get_list(list1,nam1)
-    list3=DataverseDownloads.download_urls(list2)
+    !isdir(path1) ? mkdir(path1) : nothing
+    list3=get_list(list1,nam1)
     path3=joinpath(path1,list1[list1.name.==nam1,:].folder[1])
     !isdir(path3) ? mkdir(path3) : nothing
     println("Download started ...")
     println("  See : $(path3)")
-    to_do_list=setdiff(list3.name,readdir(path3))
-    [DataverseDownloads.download_files(list3,n,path3) for n in to_do_list];
+    to_do_list=setdiff(list3.filename,readdir(path3))
+    #show(to_do_list)
+    [Dataverse.file_download(list3,n,path3) for n in to_do_list];
     println("and now completed!")
     path3
 end
