@@ -16,6 +16,10 @@ Global ocean model configurations used in [NASA's ECCO](https://ecco-group.org) 
 
 ```@docs
 setup_ECCO4!
+ECCO4_inputs.get_list
+ECCO4_inputs.get_files
+ECCO4_testreport.compute
+ECCO4_testreport.compare
 ```
 
 ## MITgcm/Verification
@@ -49,4 +53,5 @@ setup_verification!
 verification_experiments
 MITgcm_download
 MITgcm_path
+testreport
 ```
