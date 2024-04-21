@@ -93,7 +93,7 @@ MITgcm_download()
     #
     fil=joinpath(@__DIR__,"..","examples","configurations","OCCA2.toml")
     MC=MITgcm_config(inputs=read_toml(fil))
-    setup(MC)
+    @suppress setup(MC)
     @test MC.inputs[:setup][:build][:exe]=="mitgcmuv"
  
     list1=ECCO4_inputs.get_list()

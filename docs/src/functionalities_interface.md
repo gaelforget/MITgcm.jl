@@ -7,7 +7,12 @@ using MITgcm
 MC=MITgcm_config(configuration="advect_xy")
 setup(MC)
 build(MC,"--allow-skip")
-MITgcm_launch(MC)
+launch(MC)
+```
+
+```@example 1
+sc=scan_rundir(joinpath(MC,"run"))
+keys(sc)
 ```
 
 ## Functionalities
