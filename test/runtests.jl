@@ -1,6 +1,9 @@
-using MITgcm, ClimateModels, MeshArrays, OceanStateEstimation
-using ClimateModels.Suppressor
-using Test
+using MITgcm, NetCDF, OceanStateEstimation, Test
+
+using MITgcm.MeshArrays
+using MITgcm.ClimateModels.Suppressor
+using MITgcm.ClimateModels.DataFrames
+using MITgcm.ClimateModels.CSV
 
 MITgcm_download()
 
@@ -102,7 +105,6 @@ MITgcm_download()
     fil=joinpath(MC,"inputs_baseline2","README.pdf")
     @test isfile(fil)
 
-    using ClimateModels.DataFrames, ClimateModels.CSV
     ref_file=joinpath(MC,"MITgcm","mysetups","ECCOv4","test","testreport_baseline2.csv")
     ref=CSV.read(ref_file,DataFrame)
     report=deepcopy(ref); report.value.+=rand(length(ref.value))
