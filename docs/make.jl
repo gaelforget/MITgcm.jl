@@ -1,9 +1,9 @@
-using Documenter, MITgcm
+using Documenter, MITgcm, NetCDF
 import PlutoSliderServer
 using Plots, CairoMakie
 
 makedocs(;
-    modules=[MITgcm],
+    modules=[MITgcm,Base.get_extension(MITgcm, :MITgcmNetCDFExt)],
     format=Documenter.HTML(),
     pages=[
         "Home" => "index.md",
