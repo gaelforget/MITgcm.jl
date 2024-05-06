@@ -2,7 +2,7 @@ module MITgcm
 
 using Dates, Printf, SparseArrays, UUIDs
 using MeshArrays, ClimateModels
-using Downloads, Glob, FortranFiles
+using Glob, FortranFiles
 
 using ClimateModels.DataFrames
 using ClimateModels.Suppressor
