@@ -571,7 +571,8 @@ end
 
 module MITgcmScratchSpaces
 
-using Downloads, Scratch
+using Dataverse, Scratch
+using Dataverse.downloads.Downloads
 
 # This will be filled in inside `__init__()`
 path = ""
