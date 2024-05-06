@@ -45,18 +45,7 @@ MITgcm_path = [ "" , ""]
 module downloads
     import MITgcm.MITgcmScratchSpaces
     import MITgcm.MITgcm_path
-    using Tar, CodecZlib
-
-    """
-        untargz(fil)
-    
-    Decompress and extract data from a `.tar.gz` file.
-    """
-    function untargz(fil)
-        open(fil) do io
-            Tar.extract(CodecZlib.GzipDecompressorStream(io))
-        end
-    end
+    import Dataverse
 
     """
         MITgcm_download()
@@ -69,7 +58,7 @@ module downloads
         dir_out=joinpath(MITgcmScratchSpaces.path,"MITgcm_test")
         if !isdir(dir_out)
             MITgcmScratchSpaces.download_dataset(url,MITgcmScratchSpaces.path)
-            tmp_path=untargz(joinpath(MITgcmScratchSpaces.path,fil))
+            tmp_path=Dataverse.untargz(joinpath(MITgcmScratchSpaces.path,fil))
             mv(joinpath(tmp_path,fil[1:end-7]),dir_out)
             rm(joinpath(MITgcmScratchSpaces.path,fil))
         end
@@ -82,7 +71,7 @@ module downloads
         dir_out=joinpath(MITgcmScratchSpaces.path,"pickup_hs94.cs-32x32x5")
         if !isdir(dir_out)
             MITgcmScratchSpaces.download_dataset(url,MITgcmScratchSpaces.path)
-            tmp_path=untargz(joinpath(MITgcmScratchSpaces.path,fil))
+            tmp_path=Dataverse.untargz(joinpath(MITgcmScratchSpaces.path,fil))
             mv(tmp_path,dir_out)
             rm(joinpath(MITgcmScratchSpaces.path,fil))
         end
@@ -92,9 +81,6 @@ end
 
 MITgcm_download=downloads.MITgcm_download
 HS94_pickup_download=downloads.HS94_pickup_download
-
-import MITgcm.downloads: untargz
-export untargz
 
 #more:
 #
