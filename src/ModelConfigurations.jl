@@ -100,9 +100,9 @@ end
 Create a list of Dataverse files from folder with specified `name`.
 
 ```
-list1=ECCO4_inputs..get_list()
+list1=ECCO4_inputs.get_list()
 nam1="model initialization"
-ECCO4_inputs..get_files(list1,nam1,tempname())
+ECCO4_inputs.get_files(list1,nam1,tempname())
 ```
 """
 function get_files(list1::DataFrame,nam1::String,path1::String)
