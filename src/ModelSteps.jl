@@ -182,7 +182,13 @@ function MITgcm_launch(config::MITgcm_config)
     tmp=["STOP NORMAL END"]
     exe=config.inputs[:setup][:build][:exe]
     try
-        @suppress run(pipeline(`./$(exe)`,"output.txt"))
+        if haskey(config.inputs[:setup][:build],:command)
+            s=config.inputs[:setup][:build][:command]
+            c=Cmd(convert(Vector{String}, split(s)))
+            @suppress run(pipeline(c))
+        else
+            @suppress run(pipeline(`./$(exe)`,"output.txt"))
+        end
     catch e
         tmp[1]="model run may have failed"
     end

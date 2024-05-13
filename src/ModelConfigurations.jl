@@ -26,7 +26,7 @@ function setup_ECCO4!(config::MITgcm_config)
         p2=joinpath(p1,"ECCOv4")
         mkdir(p1); mv(p0,p2)
         p3=joinpath(p2,"build")
-        P=OrderedDict(:path=>p3,:options=>"-mods=../code -mpi",:exe=>"mitgcmuv")
+        P=OrderedDict(:path=>p3,:options=>"-mods=../code -mpi",:exe=>"mitgcmuv",:command => "mpirun -np 96 mitgcmuv")
         push!(config.inputs[:setup],(:build => P))
     end
     return true
