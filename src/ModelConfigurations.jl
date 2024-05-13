@@ -26,7 +26,7 @@ function setup_ECCO4!(config::MITgcm_config)
         p2=joinpath(p1,"ECCOv4")
         mkdir(p1); mv(p0,p2)
         p3=joinpath(p2,"build")
-        P=OrderedDict(:path=>p3,:options=>"-mods=../code -mpi",:exe=>"mitgcmuv")
+        P=OrderedDict(:path=>p3,:options=>"-mods=../code -mpi",:exe=>"mitgcmuv",:command => "mpirun -np 96 mitgcmuv")
         push!(config.inputs[:setup],(:build => P))
     end
     return true
@@ -100,9 +100,9 @@ end
 Create a list of Dataverse files from folder with specified `name`.
 
 ```
-list1=ECCO4_inputs..get_list()
+list1=ECCO4_inputs.get_list()
 nam1="model initialization"
-ECCO4_inputs..get_files(list1,nam1,tempname())
+ECCO4_inputs.get_files(list1,nam1,tempname())
 ```
 """
 function get_files(list1::DataFrame,nam1::String,path1::String)
