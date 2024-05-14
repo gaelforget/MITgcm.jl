@@ -1,23 +1,20 @@
 
 """
-    create_script(rundir=pwd())
+    create_script(rundir=pwd(),filename="")
 
 Create submission script -- for NASA pleiades in this example.
 
 ```
-submission_script=MITgcm.create_script()
-fil=tempname()*".csh"
-MITgcm.to_csh(submission_script,fil)
+submission_script=MITgcm.create_script(pwd(),"job.csh")
 ```    
 """
-function create_script(rundir=pwd())
+function create_script(rundir=pwd(),filename="")
 
 ## submission script
 
 submission_script="""
 #PBS -S /bin/csh
 #PBS -l select=1:ncpus=16:mpiprocs=16:model=ivy+4:ncpus=20:mpiprocs=20:model=ivy
-#PBS -q long
 #PBS -l walltime=24:00:00
 #PBS -q long
 #PBS -o $(rundir)
@@ -49,14 +46,16 @@ cd $(rundir)
 mpiexec -np 96 ./mitgcmuv
 """
 
-return submission_script
+isempty(filename) ? fn=tempname()*".csh" : fn=filename
+to_csh(submission_script,fn)
+
+return fn
 
 end
 
-function to_csh(submission_script,fname="submission_script.csh")
+function to_csh(submission_script,fname="job.csh")
   open(fname, "w") do io
     print(io,submission_script)
   end
-  fname
 end
 

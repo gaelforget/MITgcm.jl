@@ -1,7 +1,7 @@
 name = "MITgcm"
 uuid = "dce5fa8e-68ce-4431-a242-9469c69627a0"
 authors = ["gaelforget <gforget@mit.edu>"]
-version = "0.3.7"
+version = "0.3.8"
 
 [deps]
 ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"

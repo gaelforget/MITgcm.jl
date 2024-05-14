@@ -8,26 +8,41 @@ Setup method for ECCO4 and OCCA2 solutions.
 
 ```
 using MITgcm
-fil=joinpath("examples","configurations","OCCA2.toml")
-MC=MITgcm_config(inputs=read_toml(fil))
+pth=joinpath(dirname(pathof(MITgcm)),"..","examples","configurations")
+fil0=joinpath(pth,"ECCO4.toml")
+opt0="-mods=../code -optfile=../../../tools/"*
+     "build_options/linux_amd64_ifort+mpi_ice_nas -mpi"
+path0=joinpath(pwd(),"run1")
+
+MC=MITgcm_config(inputs=read_toml(fil0),folder=path0)
 setup(MC)
+MC.inputs[:setup][:build][:options]=opt0
 build(MC)
 launch(MC)
 ```
 """
 function setup_ECCO4!(config::MITgcm_config)
     if !haskey(config.inputs[:setup],:build)
-        println("get MITgcm checkoint, link code folder, ... ")
+        println("downloading MITgcm ... ")
         u0="https://github.com/MITgcm/MITgcm"; p0=joinpath(config,"MITgcm")
-        run(`$(git()) clone --depth 1 --branch checkpoint68o $(u0) $(p0)`)
+        @suppress run(`$(git()) clone --depth 1 --branch checkpoint68o $(u0) $(p0)`)
+        println("downloading code folder ... ")
         u0="https://github.com/gaelforget/ECCOv4"; p0=joinpath(config,"ECCOv4")
-        run(`$(git()) clone $(u0) $(p0)`)
+        @suppress run(`$(git()) clone $(u0) $(p0)`)
         p1=joinpath(config,"MITgcm","mysetups")
         p2=joinpath(p1,"ECCOv4")
         mkdir(p1); mv(p0,p2)
         p3=joinpath(p2,"build")
-        P=OrderedDict(:path=>p3,:options=>"-mods=../code -mpi",:exe=>"mitgcmuv",:command => "mpirun -np 96 mitgcmuv")
+        P=OrderedDict(:path=>p3,:options=>"-mods=../code -mpi",:exe=>"mitgcmuv")
         push!(config.inputs[:setup],(:build => P))
+        #push!(config.inputs[:setup][:main],(:command => "mpirun -np 96 mitgcmuv"))
+        push!(config.inputs[:setup][:main],(:command => "qsub job.csh"))
+        println("creating job submission script ...")
+        p=joinpath(pathof(config),"run")
+        f=joinpath(p,"submit.csh")
+        create_script(p,f)
+        println("modifying parameters (optional)")
+        config.inputs[:pkg][:PACKAGES][:useECCO]=false
     end
     return true
 end
