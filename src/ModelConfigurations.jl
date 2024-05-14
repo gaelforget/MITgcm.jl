@@ -8,16 +8,22 @@ Setup method for ECCO4 and OCCA2 solutions.
 
 ```
 using MITgcm
-pth=joinpath(dirname(pathof(MITgcm)),"..","examples","configurations")
-fil0=joinpath(pth,"ECCO4.toml")
-opt0="-mods=../code -optfile=../../../tools/"*
-     "build_options/linux_amd64_ifort+mpi_ice_nas -mpi"
-path0=joinpath(pwd(),"run1")
 
-MC=MITgcm_config(inputs=read_toml(fil0),folder=path0)
+params=read_toml(:ECCO4)
+folder=joinpath(pwd(),"tmp1")
+
+MC=MITgcm_config(inputs=params,folder=folder)
+
+#modifying run time options (optional)
+#MC.inputs[:pkg][:PACKAGES][:useECCO]=false
+
 setup(MC)
-MC.inputs[:setup][:build][:options]=opt0
+
+#modifying build options (optional)
+#MC.inputs[:setup][:build][:options]=MITgcm.build_options_pleiades
+
 build(MC)
+
 launch(MC)
 ```
 """
@@ -41,8 +47,6 @@ function setup_ECCO4!(config::MITgcm_config)
         p=joinpath(pathof(config),"run")
         f=joinpath(p,"submit.csh")
         create_script(p,f)
-        println("modifying parameters (optional)")
-        config.inputs[:pkg][:PACKAGES][:useECCO]=false
     end
     return true
 end
@@ -95,9 +99,9 @@ end
 Create a list of Dataverse files from folder with specified `name`.
 
 ```
-list1=ECCO4_inputs..get_list()
+list1=ECCO4_inputs.get_list()
 nam1="surface forcing fields"
-list2=ECCO4_inputs..get_list(list1,nam1)
+list2=ECCO4_inputs.get_list(list1,nam1)
 ```
 """
 function get_list(list1::DataFrame,name::String)
@@ -573,7 +577,7 @@ function setup_verification!(config::MITgcm_config)
         :version=>"main")
     P[:build]=OrderedDict(
         :path=>"$(MITgcm_path[1])/verification/$(config.configuration)/build",
-        :options=>"-mods=../code",
+        :options=>build_options_default,
         :exe=>"mitgcmuv",
         )
     push!(params,(:setup => P))

@@ -483,7 +483,7 @@ Write all `MITgcm` namelist to files in `output_path`, from corresponding `toml 
 
 ```
 using MITgcm
-params=read_toml("OCCA2.toml")
+params=read_toml(:OCCA2)
 write_all_namelists(params)
 ```
 """
@@ -500,13 +500,12 @@ function write_all_namelists(params,output_path=tempname())
 end
 
 """
-    read_toml(toml_file)
+    read_toml(toml_file::String)
 
 Read toml parameter file into an OrderedDict with Symbol keys, consistent with `tracked_parameters.toml`
 
 ```
 using MITgcm, TOML
-
 toml_file=joinpath("examples","configurations","tutorial_held_suarez_cs.toml")
 params=read_toml(toml_file)
 ```
@@ -520,9 +519,8 @@ open(tempname()*".toml", "w") do io
     TOML.print(io, MC.inputs)
 end
 ```
-
 """
-function read_toml(toml_file)
+function read_toml(toml_file::String)
     PA=ClimateModels.TOML.parsefile(toml_file)
 
     meta = read(toml_file,String)
@@ -557,6 +555,22 @@ function read_toml(toml_file)
     end
 
     params
+end
+
+"""
+    read_toml(config_name::Symbol)
+
+Read toml parameter file specified by configuration name.
+
+```
+using MITgcm
+params=read_toml(:OCCA2)
+```
+"""
+function read_toml(config_name::Symbol)
+    pth=joinpath(dirname(pathof(MITgcm)),"..","examples","configurations")
+    fil0=joinpath(pth,string(config_name)*".toml")
+    read_toml(fil0)
 end
 
 """
