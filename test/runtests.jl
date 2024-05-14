@@ -9,9 +9,7 @@ MITgcm_download()
 
 @testset "MITgcm.jl" begin
 
-    submission_script=MITgcm.create_script()
-    fil=tempname()*".csh"
-    MITgcm.to_csh(submission_script,fil)
+    fil=MITgcm.create_script()
     @test isfile(fil)
 
     #format conversions

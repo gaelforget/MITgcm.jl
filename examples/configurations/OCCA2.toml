@@ -534,7 +534,7 @@ profilesDoGenGrid = true
 "profilesfiles(12)" = "xbt_jan2016"
 
 [salt_plume.SALT_PLUME_PARM01]
-SPsalFRAC = "0.5D0"
+SPsalFRAC = 0.5
 
 [seaice.SEAICE_PARM01]
 SEAICE_drag = 0.002

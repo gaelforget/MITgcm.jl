@@ -37,8 +37,9 @@ function build(config::MITgcm_config)
     pth=pwd()
     cd(config.inputs[:setup][:build][:path])
     opt=config.inputs[:setup][:build][:options]
+    opt=Cmd(convert(Vector{String}, split(opt)))
     try
-        @suppress run(`../../../tools/genmake2 $(opt)`) #$ext
+        @suppress run(`../../../tools/genmake2 $(opt)`)
         @suppress run(`make clean`)
         @suppress run(`make depend`)
         @suppress run(`make -j 4`)
@@ -59,8 +60,8 @@ code files, headers, etc  in the `build/` folder before `make` compiles the mode
 (part of the climate model interface as specialized for `MITgcm`)
 """
 function build(config::MITgcm_config,options::String)
-    exe=config.inputs[:setup][:build][:exe]
     if options=="--allow-skip"
+        exe=config.inputs[:setup][:build][:exe]
         tst=!isfile(joinpath(config.inputs[:setup][:build][:path],exe))
         tst ? build(config) : nothing
     else
@@ -180,13 +181,13 @@ function MITgcm_launch(config::MITgcm_config)
     pth=pwd()
     cd(joinpath(config.folder,string(config.ID),"run"))
     tmp=["STOP NORMAL END"]
-    exe=config.inputs[:setup][:build][:exe]
     try
-        if haskey(config.inputs[:setup][:build],:command)
-            s=config.inputs[:setup][:build][:command]
+        if haskey(config.inputs[:setup][:main],:command)
+            s=config.inputs[:setup][:main][:command]
             c=Cmd(convert(Vector{String}, split(s)))
             @suppress run(pipeline(c))
         else
+            exe=config.inputs[:setup][:build][:exe]
             @suppress run(pipeline(`./$(exe)`,"output.txt"))
         end
     catch e
