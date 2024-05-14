@@ -7,9 +7,8 @@ makedocs(;
     format=Documenter.HTML(),
     pages=[
         "Home" => "index.md",
-        "Manual" => ["functionalities.md","functionalities_interface.md",
-        "functionalities_configurations.md","functionalities_read.md",
-        "functionalities_more.md"],
+        "Manual" => ["functionalities.md","functionalities_configurations.md",
+        "functionalities_interface.md","functionalities_read.md","functionalities_more.md"],
         "Examples" => "examples.md",
         "Contribute" => "contributing.md",
     ],
