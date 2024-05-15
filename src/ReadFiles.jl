@@ -292,7 +292,7 @@ end
 """
     read_namelist(fil)
 
-Read a `MITgcm` namelist file, parse it, and return as a NamedTuple
+Read a `MITgcm` namelist file in native format, parse it, and return as a `NamedTuple`.
 
 ```
 using MITgcm
@@ -422,21 +422,16 @@ end
 """
     write_namelist(fil)
 
-Save a `MITgcm` namelist file. In the example below, one is read from file, modified, and then saved to a new file using write_namelist.
+Save a `MITgcm` namelist file (native format). In the example below, one is read from file, modified, and then saved to a new file using write_namelist.
 
 ```
 using MITgcm
 fil=joinpath(MITgcm_path[1],"verification","advect_xy","run","data")
-nml=read_namelist(fil)
-write_namelist(fil*"_new",namelist)
-```
-
-or
-
-```
 nml=read(fil,MITgcm_namelist())
 write(fil*"_new",nml)
 ```
+
+or `write_namelist(fil*"_new",namelist)`.
 """
 function write_namelist(fil,namelist)
 	fid = open(fil, "w")
@@ -502,18 +497,19 @@ end
 """
     read_toml(toml_file::String)
 
-Read toml parameter file into an OrderedDict with Symbol keys, consistent with `tracked_parameters.toml`
+Read toml parameter file into an OrderedDict with Symbol keys, consistent with `tracked_parameters.toml`.
 
 ```
 using MITgcm, TOML
-toml_file=joinpath("examples","configurations","tutorial_held_suarez_cs.toml")
+pth=joinpath(dirname(pathof(MITgcm)),"..","examples","configurations")
+toml_file=joinpath(pth,"tutorial_held_suarez_cs.toml")
 params=read_toml(toml_file)
 ```
 
-which can be uses to start a new model run:
+Writing parameters to file is straightforward. For example:
 
 ```
-MC=MITgcm_config(configuration="tutorial_held_suarez_cs",inputs=params)
+MC=MITgcm_config(configuration="tutorial_held_suarez_cs")
 setup(MC)
 open(tempname()*".toml", "w") do io
     TOML.print(io, MC.inputs)
