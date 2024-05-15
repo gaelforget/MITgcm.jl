@@ -64,10 +64,11 @@ function setup_ECCO4!(config::MITgcm_config)
     else
         p=ECCO4_inputs.download_input_folder(config)
     end
-    println(p)
-    f=readdir(p)
-    pth_run=joinpath(pathof(config),"run")
-    [symlink(joinpath(p,f[i]),joinpath(pth_run,f[i])) for i in 1:length(f)]
+    if isdir(p)
+        f=readdir(p)
+        pth_run=joinpath(pathof(config),"run")
+        [symlink(joinpath(p,f[i]),joinpath(pth_run,f[i])) for i in 1:length(f)]
+    end
 
     return true
 end
