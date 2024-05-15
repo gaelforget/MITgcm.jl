@@ -24,30 +24,32 @@ end
     build(config::MITgcm_config)
 
 Build the model using `genmake2`, `make depend`, and `make`. The first two link all 
-code files, headers, etc  in the `build/` folder before compiling the model
+code files, headers, etc  in the `build/` folder before compiling the model.
 
-(part of the climate model interface as specialized for `MITgcm`)
+Note : this is skipped if `config.inputs[:setup][:main][:exe]` is specified.
 """
 function build(config::MITgcm_config)
-    try
+    if !haskey(config.inputs[:setup][:main],:exe)
+        try
+            pth=pwd()
+        catch e
+            cd()
+        end
         pth=pwd()
-    catch e
-        cd()
+        cd(config.inputs[:setup][:build][:path])
+        opt=config.inputs[:setup][:build][:options]
+        opt=Cmd(convert(Vector{String}, split(opt)))
+        try
+            @suppress run(`../../../tools/genmake2 $(opt)`)
+            @suppress run(`make clean`)
+            @suppress run(`make depend`)
+            @suppress run(`make -j 4`)
+        catch e
+            println("model compilation may have failed")
+        end
+        cd(pth)
+        return true
     end
-    pth=pwd()
-    cd(config.inputs[:setup][:build][:path])
-    opt=config.inputs[:setup][:build][:options]
-    opt=Cmd(convert(Vector{String}, split(opt)))
-    try
-        @suppress run(`../../../tools/genmake2 $(opt)`)
-        @suppress run(`make clean`)
-        @suppress run(`make depend`)
-        @suppress run(`make -j 4`)
-    catch e
-        println("model compilation may have failed")
-    end
-    cd(pth)
-    return true
 end
 
 """

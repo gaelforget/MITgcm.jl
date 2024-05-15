@@ -92,15 +92,14 @@ MITgcm_download()
     @test isa(Γ,NamedTuple)
 
     #
-    fil=joinpath(@__DIR__,"..","examples","configurations","OCCA2.toml")
-    MC=MITgcm_config(inputs=read_toml(fil))
+    MC=MITgcm_config(inputs=read_toml(:OCCA2))
+    push!(MC.inputs[:setup][:main],(:input_folder => tempname()))
     @suppress setup(MC)
-    @test MC.inputs[:setup][:build][:exe]=="mitgcmuv"
  
     list1=ECCO4_inputs.get_list()
     nam1="documentation"
-    @suppress ECCO4_inputs.get_files(list1,nam1,pathof(MC))
-    fil=joinpath(MC,"inputs_baseline2","README.pdf")
+    @suppress ECCO4_inputs.get_files(list1,nam1,joinpath(MC,"run"))
+    fil=joinpath(MC,"run","README.pdf")
     @test isfile(fil)
 
     ref_file=joinpath(MC,"MITgcm","mysetups","ECCOv4","test","testreport_baseline2.csv")
