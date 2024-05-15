@@ -38,8 +38,9 @@ Global ocean model configurations used in [NASA's ECCO](https://ecco-group.org) 
 
 ```@docs
 setup_ECCO4!
-ECCO4_inputs.get_list
+ECCO4_inputs.download_input_folder
 ECCO4_inputs.get_files
+ECCO4_inputs.get_list
 ECCO4_testreport.compute
 ECCO4_testreport.compare
 ```

@@ -14,7 +14,7 @@ Pkg.add("MITgcm")
 ```
 
 !!! tip
-	The [ECCO-Docker](https://github.com/gaelforget/ECCO-Docker#readme) has `MITgcm.jl` pre-installed, as well as `gfortran` and `mpi` that are required to run `MITgcm`. The [ECCO-Binder](https://mybinder.org/v2/gh/gaelforget/ECCO-Docker/HEAD) is available to try functionalities in the cloud, freely.
+	The [ECCO-Docker](https://github.com/gaelforget/ECCO-Docker#readme) _image_ has `MITgcm.jl` pre-installed, as well as `gfortran`, `MPI`, and `NetCDF` allowing to run any `MITgcm` configuration. The [ECCO-Binder](https://mybinder.org/v2/gh/gaelforget/ECCO-Docker/HEAD) _instance_ (free, but small) is available to try functionalities in the cloud.
 
 ## MITgcm File Formats
 
