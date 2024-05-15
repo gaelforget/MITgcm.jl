@@ -17,6 +17,9 @@ MC=MITgcm_config(inputs=params,folder=folder)
 #providing executable (optional)
 #push!(MC.inputs[:setup][:main],(:exe => "./mitgcmuv"))
 
+#providing input folder (optional)
+#push!(MC.inputs[:setup][:main],(:input_folder => "./input_folder"))
+
 #modifying run time options (optional)
 #MC.inputs[:pkg][:PACKAGES][:useECCO]=false
 
@@ -31,32 +34,41 @@ launch(MC)
 ```
 """
 function setup_ECCO4!(config::MITgcm_config)
-    if !haskey(config.inputs[:setup],:build)
-        if !haskey(config.inputs[:setup][:main],:exe)
-            println("downloading MITgcm ... ")
-            u0="https://github.com/MITgcm/MITgcm"; p0=joinpath(config,"MITgcm")
-            @suppress run(`$(git()) clone --depth 1 --branch checkpoint68o $(u0) $(p0)`)
-            println("downloading code folder ... ")
-            u0="https://github.com/gaelforget/ECCOv4"; p0=joinpath(config,"ECCOv4")
-            @suppress run(`$(git()) clone $(u0) $(p0)`)
-            p1=joinpath(config,"MITgcm","mysetups")
-            p2=joinpath(p1,"ECCOv4")
-            mkdir(p1); mv(p0,p2)
-            p3=joinpath(p2,"build")
-            n3="mitgcmuv"
-        else
-            p3=dirname(config.inputs[:setup][:main][:exe])
-            n3=basename(config.inputs[:setup][:main][:exe])
-        end
-        P=OrderedDict(:path=>p3,:options=>"-mods=../code -mpi",:exe=>n3)
-        push!(config.inputs[:setup],(:build => P))
-        #push!(config.inputs[:setup][:main],(:command => "mpirun -np 96 mitgcmuv"))
-        push!(config.inputs[:setup][:main],(:command => "qsub job.csh"))
-        println("creating job submission script ...")
-        p=joinpath(pathof(config),"run")
-        f=joinpath(p,"submit.csh")
-        create_script(p,f)
+    if !haskey(config.inputs[:setup][:main],:exe)
+        println("downloading MITgcm ... ")
+        u0="https://github.com/MITgcm/MITgcm"; p0=joinpath(config,"MITgcm")
+        @suppress run(`$(git()) clone --depth 1 --branch checkpoint68o $(u0) $(p0)`)
+        println("downloading code folder ... ")
+        u0="https://github.com/gaelforget/ECCOv4"; p0=joinpath(config,"ECCOv4")
+        @suppress run(`$(git()) clone $(u0) $(p0)`)
+        p1=joinpath(config,"MITgcm","mysetups")
+        p2=joinpath(p1,"ECCOv4")
+        mkdir(p1); mv(p0,p2)
+        p3=joinpath(p2,"build")
+        n3="mitgcmuv"
+    else
+        p3=dirname(config.inputs[:setup][:main][:exe])
+        n3=basename(config.inputs[:setup][:main][:exe])
     end
+    P=OrderedDict(:path=>p3,:options=>"-mods=../code -mpi",:exe=>n3)
+    push!(config.inputs[:setup],(:build => P))
+    #push!(config.inputs[:setup][:main],(:command => "mpirun -np 96 mitgcmuv"))
+    push!(config.inputs[:setup][:main],(:command => "qsub job.csh"))
+    println("creating job submission script ...")
+    p=joinpath(pathof(config),"run")
+    f=joinpath(p,"submit.csh")
+    create_script(p,f)
+
+    if haskey(config.inputs[:setup][:main],:input_folder)
+        p=config.inputs[:setup][:main][:input_folder]
+    else
+        p=ECCO4_inputs.download_input_folder(config)
+    end
+    println(p)
+    f=readdir(p)
+    pth_run=joinpath(pathof(config),"run")
+    [symlink(joinpath(p,f[i]),joinpath(pth_run,f[i])) for i in 1:length(f)]
+
     return true
 end
 
@@ -65,21 +77,22 @@ end
 module ECCO4_inputs
 
 using Dataverse, ClimateModels.DataFrames, ClimateModels.CSV
-export get_list, get_files
+import MITgcm: MITgcm_config
+export get_list, get_files, download_input_folder
 
 ##
 
 list0=[
-    "doi:10.7910/DVN/PICCRE,documentation,inputs_baseline2",
+    "doi:10.7910/DVN/PICCRE,documentation,",
     "doi:10.7910/DVN/9WYSZF,surface forcing fields,forcing_baseline2",
-    "doi:10.7910/DVN/7XYXSF,model initialization,inputs_baseline2",
-    "doi:10.7910/DVN/GNOREE,in situ T-S profiles,inputs_baseline2",
-    "doi:10.7910/DVN/MEDQWY,sea level anomaly,inputs_baseline2",
-    "doi:10.7910/DVN/L3OQT0,sea surface temperature,inputs_baseline2",
-    "doi:10.7910/DVN/DKXQHO,ice cover fraction,inputs_baseline2",
-    "doi:10.7910/DVN/F8BCRF,surface wind stress,inputs_baseline2",
-    "doi:10.7910/DVN/SYZMUX,bottom pressure,inputs_baseline2",
-    "doi:10.7910/DVN/H2Q1ND,miscellaneous,inputs_baseline2"];
+    "doi:10.7910/DVN/7XYXSF,model initialization,",
+    "doi:10.7910/DVN/GNOREE,in situ T-S profiles,",
+    "doi:10.7910/DVN/MEDQWY,sea level anomaly,",
+    "doi:10.7910/DVN/L3OQT0,sea surface temperature,",
+    "doi:10.7910/DVN/DKXQHO,ice cover fraction,",
+    "doi:10.7910/DVN/F8BCRF,surface wind stress,",
+    "doi:10.7910/DVN/SYZMUX,bottom pressure,",
+    "doi:10.7910/DVN/H2Q1ND,miscellaneous,"];
 
 fil0=joinpath(tempdir(),"Dataverse_list.csv")
 
@@ -123,7 +136,7 @@ function get_list(list1::DataFrame,name::String)
 end
 
 """
-    get_files(list1::DataFrame,nam1::String)
+    get_files(list1::DataFrame,nam1::String,path1::String)
 
 Create a list of Dataverse files from folder with specified `name`.
 
@@ -145,6 +158,29 @@ function get_files(list1::DataFrame,nam1::String,path1::String)
     [Dataverse.file_download(list3,n,path3) for n in to_do_list];
     println("and now completed!")
     path3
+end
+
+"""
+    download_input_folder(config::MITgcm_config)
+"""
+function download_input_folder(config::MITgcm_config)
+    p=joinpath(config,"input_folder")
+    mkdir(p)
+    list1=ECCO4_inputs.get_list()
+    nam1="model initialization"
+    ECCO4_inputs.get_files(list1,nam1,p)
+    nam1="surface forcing fields"
+    ECCO4_inputs.get_files(list1,nam1,p)
+    if config.inputs[:pkg][:PACKAGES][:useECCO]
+        list2=["sea level anomaly","sea surface temperature",
+        "ice cover fraction","surface wind stress","bottom pressure"]
+        [ECCO4_inputs.get_files(list1,nam2,p) for nam2 in list2]
+    end
+    if config.inputs[:pkg][:PACKAGES][:useProfiles]
+        nam1="in situ T-S profiles"
+        ECCO4_inputs.get_files(list1,nam1,p)
+    end
+    p
 end
 
 end
