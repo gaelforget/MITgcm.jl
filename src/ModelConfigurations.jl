@@ -15,10 +15,10 @@ folder=joinpath(pwd(),"tmp1")
 MC=MITgcm_config(inputs=params,folder=folder)
 
 #providing executable (optional)
-#push!(MC.inputs[:setup][:main],(:exe => "./mitgcmuv"))
+#push!(MC.inputs[:setup][:main],(:exe => joinpath(pwd(),"mitgcmuv")))
 
 #providing input folder (optional)
-#push!(MC.inputs[:setup][:main],(:input_folder => "./input_folder"))
+#push!(MC.inputs[:setup][:main],(:input_folder => joinpath(pwd(),"input_folder")))
 
 #modifying run time options (optional)
 #MC.inputs[:pkg][:PACKAGES][:useECCO]=false
