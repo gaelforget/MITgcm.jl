@@ -14,6 +14,9 @@ folder=joinpath(pwd(),"tmp1")
 
 MC=MITgcm_config(inputs=params,folder=folder)
 
+#providing executable (optional)
+#push!(MC.inputs[:setup][:main],(:exe => "./mitgcmuv"))
+
 #modifying run time options (optional)
 #MC.inputs[:pkg][:PACKAGES][:useECCO]=false
 
@@ -29,17 +32,23 @@ launch(MC)
 """
 function setup_ECCO4!(config::MITgcm_config)
     if !haskey(config.inputs[:setup],:build)
-        println("downloading MITgcm ... ")
-        u0="https://github.com/MITgcm/MITgcm"; p0=joinpath(config,"MITgcm")
-        @suppress run(`$(git()) clone --depth 1 --branch checkpoint68o $(u0) $(p0)`)
-        println("downloading code folder ... ")
-        u0="https://github.com/gaelforget/ECCOv4"; p0=joinpath(config,"ECCOv4")
-        @suppress run(`$(git()) clone $(u0) $(p0)`)
-        p1=joinpath(config,"MITgcm","mysetups")
-        p2=joinpath(p1,"ECCOv4")
-        mkdir(p1); mv(p0,p2)
-        p3=joinpath(p2,"build")
-        P=OrderedDict(:path=>p3,:options=>"-mods=../code -mpi",:exe=>"mitgcmuv")
+        if !haskey(config.inputs[:setup][:main],:exe)
+            println("downloading MITgcm ... ")
+            u0="https://github.com/MITgcm/MITgcm"; p0=joinpath(config,"MITgcm")
+            @suppress run(`$(git()) clone --depth 1 --branch checkpoint68o $(u0) $(p0)`)
+            println("downloading code folder ... ")
+            u0="https://github.com/gaelforget/ECCOv4"; p0=joinpath(config,"ECCOv4")
+            @suppress run(`$(git()) clone $(u0) $(p0)`)
+            p1=joinpath(config,"MITgcm","mysetups")
+            p2=joinpath(p1,"ECCOv4")
+            mkdir(p1); mv(p0,p2)
+            p3=joinpath(p2,"build")
+            n3="mitgcmuv"
+        else
+            p3=dirname(config.inputs[:setup][:main][:exe])
+            n3=basename(config.inputs[:setup][:main][:exe])
+        end
+        P=OrderedDict(:path=>p3,:options=>"-mods=../code -mpi",:exe=>n3)
         push!(config.inputs[:setup],(:build => P))
         #push!(config.inputs[:setup][:main],(:command => "mpirun -np 96 mitgcmuv"))
         push!(config.inputs[:setup][:main],(:command => "qsub job.csh"))
