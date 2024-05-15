@@ -7,6 +7,7 @@ The two main output formats of MITgcm gridded fields are called `MDS` and `MNC`.
 The `standard output file` can be scanned to collect information about the model run. 
 
 ```@docs
+monitor
 scan_rundir
 scan_stdout
 read_available_diagnostics

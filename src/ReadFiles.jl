@@ -45,7 +45,14 @@ function scan_stdout(filout::String)
     #1.2 packages
     l0 = findall(occursin.("PACKAGES_BOOT: On/Off package Summary",tmp))[1]
     l1 = findall(occursin.("PACKAGES_BOOT: End of package Summary",tmp))[1]
-    pac = tmp[l0:l1]
+    pac = tmp[l0+1:l1-1]
+    ll=findall( [!occursin("-------",ln) for ln in pac] )
+    pac = pac[ll]
+    ll=findall( [!occursin("autodiff",ln) for ln in pac] )
+    pac = pac[ll]
+    pac_keys = [split(ln)[1][5:end] for ln in pac]
+    pac_values = [!occursin("not used",ln) for ln in pac]
+    pac=(; zip(Symbol.(pac_keys), pac_values)...)
     #1.3 parameters (time, grid)
     l0 = findall(occursin.("Time stepping paramters",tmp))[1]
     l1 = findall(occursin.("Gridding paramters",tmp))[1]
