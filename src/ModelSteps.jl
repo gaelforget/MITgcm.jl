@@ -203,3 +203,25 @@ function MITgcm_launch(config::MITgcm_config)
     cd(pth)
     return tmp[1]
 end
+
+to_DF(x)=DataFrame((name=[keys(x)...],value=[values(x)...]))
+
+"""
+    function monitor(config::MITgcm_config)
+
+Call `scan_rundir` and show to REPL. 
+"""
+monitor(config::MITgcm_config) = begin
+    rundir=joinpath(config,"run")
+    sc=MITgcm.scan_rundir(rundir)
+    lst=[:packages, :params_grid, :params_files, :params_time, :completed]
+    show(config)
+    for nam in lst
+        println("")
+        println(nam)
+        show(to_DF(sc[nam]))
+        println("")
+    end
+end
+
+
