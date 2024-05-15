@@ -93,7 +93,6 @@ MITgcm_download()
 
     #
     MC=MITgcm_config(inputs=read_toml(:OCCA2))
-    push!(MC.inputs[:setup][:main],(:exe => tempname()))
     push!(MC.inputs[:setup][:main],(:input_folder => tempname()))
     @suppress setup(MC)
  
