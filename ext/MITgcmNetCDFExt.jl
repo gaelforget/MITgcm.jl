@@ -1,7 +1,7 @@
 module MITgcmNetCDFExt
 
     using MITgcm, NetCDF
-    using MITgcm.Printf, MITgcm.MeshArrays, MITgcm.ClimateModels, MITgcm.Glob
+    using MITgcm.Printf, MITgcm.MeshArrays, MITgcm.Glob
     import MITgcm: read_nctiles, read_mnc
 
 """
@@ -37,9 +37,9 @@ function read_nctiles(fileName::String,fldName::String,mygrid::gcmgrid;
 
     fileIn=joinpath(pth1,lst[1])
     fileRoot= eccoVersion4Release4 ? fileIn[1:end-11] : fileIn[1:end-8]
-    ntile=ClimateModels.ncgetatt(fileIn,"Global","ntile")
+    ntile=ncgetatt(fileIn,"Global","ntile")
 
-    x = ClimateModels.ncread(fileIn,fldName)
+    x = ncread(fileIn,fldName)
     s = [size(x,i) for i in 1:ndims(x)]
     n=length(size(x))
     start=ones(Int,n)
@@ -71,7 +71,7 @@ function read_nctiles(fileName::String,fldName::String,mygrid::gcmgrid;
                 fileCounter += 1
                 verbose ? @info("Reading file $(fileIn)") : nothing
                 for l in 1:13, k in 1:50
-                    x = ClimateModels.ncread(fileIn,fldName,start,count)
+                    x = ncread(fileIn,fldName,start,count)
                     face = tiles[l].face
                     i=collect(tiles[l].i)
                     j=collect(tiles[l].j)
@@ -95,7 +95,7 @@ function read_nctiles(fileName::String,fldName::String,mygrid::gcmgrid;
                 fileIn=@sprintf("%s.%04d.nc",fileRoot,n+n0)
                 if isfile(fileIn) #skip if no file / blank tile
                     verbose ? @info("Reading file $(fileIn)") : nothing
-                    x = ClimateModels.ncread(fileIn,fldName,start,count)
+                    x = ncread(fileIn,fldName,start,count)
                     i=collect(1:s[1]) .+ i0[n]
                     j=collect(1:s[2]) .+ j0[n]
                     f0[i,j,:,:]=x[:,:,:,:]
@@ -122,10 +122,10 @@ function read_mnc(pth::String,fil::String,var::String)
     lst=lst[findall(occursin.(fil,lst).*occursin.(".nc",lst))]
 
     fil=joinpath(pth,lst[1])
-    ncfile=ClimateModels.NetCDF.open(fil)
+    ncfile=NetCDF.open(fil)
     ncatts=ncfile.gatts
 
-    v = ClimateModels.NetCDF.open(fil, var)
+    v = NetCDF.open(fil, var)
     if haskey(v.atts,"coordinates")
         has_RC=occursin("RC",v.atts["coordinates"])
         has_iter=occursin("iter",v.atts["coordinates"])
@@ -147,13 +147,13 @@ function read_mnc(pth::String,fil::String,var::String)
 
     for f in lst
         fil=joinpath(pth,f)
-        ncfile=ClimateModels.NetCDF.open(fil)
+        ncfile=NetCDF.open(fil)
         ncatts=ncfile.gatts
         b=(ncatts["bi"],ncatts["bj"])
         s=(ncatts["sNx"],ncatts["sNy"])
         ii=(b[1]-1)*s[1] .+ collect(1:s[1])
         jj=(b[2]-1)*s[2] .+ collect(1:s[2])
-        v = ClimateModels.NetCDF.open(fil, var)
+        v = NetCDF.open(fil, var)
         if has_RC*has_iter
             x[ii,jj,:,:]=v[:,:,:,:]
         elseif has_RC|has_iter
