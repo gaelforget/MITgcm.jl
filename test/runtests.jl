@@ -162,7 +162,7 @@ MITgcm_download()
     isfile(f2) ? nothing : symlink(f1,f2)
 
     MC=MITgcm_config(configuration="flt_example")
-    @suppress tmp=testreport(MC)
+    tmp=testreport(MC)
     pth=joinpath(MITgcm_path[1],"verification/flt_example/run/")
     tmp=read_flt(pth,Float32)
     
