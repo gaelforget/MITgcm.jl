@@ -157,6 +157,10 @@ MITgcm_download()
 
     ##
 
+    f1=joinpath(MITgcm_path[1],"verification","flt_example","results","output.with_flt.txt")
+    f2=joinpath(MITgcm_path[1],"verification","flt_example","results","output.txt")
+    isfile(f2) ? nothing : symlink(f1,f2)
+
     MC=MITgcm_config(configuration="flt_example")
     tmp=testreport(MC)
     pth=joinpath(MITgcm_path[1],"verification/flt_example/run/")

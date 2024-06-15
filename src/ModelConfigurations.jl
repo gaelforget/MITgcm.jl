@@ -646,6 +646,7 @@ path = ""
 function download_dataset(url,path)
     fname = joinpath(path, basename(url))
     if !isfile(fname)
+        !isdir(path) ? mkdir(path) : nothing
         Downloads.download(url, fname)
     end
     return fname
