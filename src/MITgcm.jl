@@ -46,6 +46,7 @@ module downloads
     import MITgcm.MITgcmScratchSpaces
     import MITgcm.MITgcm_path
     import Dataverse
+    using Glob
 
     """
         MITgcm_download()
@@ -53,17 +54,43 @@ module downloads
     Download default, compact version of MITgcm from zenodo.
     """
     function MITgcm_download()
-        url = "https://zenodo.org/record/5750290/files/MITgcm_test.tar.gz"
-        fil="MITgcm_test.tar.gz"
-        dir_out=joinpath(MITgcmScratchSpaces.path,"MITgcm_test")
-        if !isdir(dir_out)
-            MITgcmScratchSpaces.download_dataset(url,MITgcmScratchSpaces.path)
-            tmp_path=Dataverse.untargz(joinpath(MITgcmScratchSpaces.path,fil))
-            mv(joinpath(tmp_path,fil[1:end-7]),dir_out)
-            rm(joinpath(MITgcmScratchSpaces.path,fil))
+        url0="https://zenodo.org/records/11515564/files/"
+        url_small=url0*"MITgcm-checkpoint68y-small.tar.gz"
+        url_verif=url0*"MITgcm-checkpoint68y-verif.tar.gz"
+        MITgcm_path[1]=joinpath(MITgcmScratchSpaces.path,"MITgcm-checkpoint68y")
+        if !isdir(MITgcm_path[1])
+            one_download(url_small,"MITgcm",MITgcm_path[1])
+        else
+            f=basename(url_small)
+            @warn "previously downloaded copy of MITgcm ($f) will be used"
         end
-        MITgcm_path[1]=joinpath(MITgcmScratchSpaces.path,"MITgcm_test")
+        if !isdir(joinpath(MITgcm_path[1],"verification","tutorial_held_suarez_cs"))
+            one_download(url_verif,
+                joinpath("MITgcm","verification"),
+                joinpath(MITgcm_path[1],"verification"))
+        else
+            f=basename(url_verif)
+            @warn "previously downloaded copy of MITgcm verification experiments ($f) will be used"
+        end
     end
+
+one_download(url,folder,path,folder2="") = begin
+#        println.((" ","a",url,folder,path))
+        MITgcmScratchSpaces.download_dataset(url,path)
+        fil=basename(url)
+        tmp_path=Dataverse.untargz(joinpath(path,fil))
+        path2=(isempty(folder2) ? path : joinpath(path,folder2) )
+        if !ispath(path2)
+            mv(joinpath(tmp_path,folder),path2)
+        else
+            lst=glob("*",joinpath(tmp_path,folder))
+            for fil in lst
+                path3=joinpath(path2,basename(fil))
+                !ispath(path3) ? mv(fil,path3) : nothing
+            end            
+        end
+        rm(joinpath(path,fil))
+end
 
     function HS94_pickup_download()
         url = "https://zenodo.org/record/5422009/files/pickup_hs94.cs-32x32x5.tar.gz"
