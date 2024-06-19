@@ -10,6 +10,9 @@ There are several ways to use `MITgcm.jl` to e.g. analyze model results or run a
 !!! note
 	Compiling MITgcm requires [a fortran compiler](https://fortran-lang.org/learn/os_setup/install_gfortran). This is a requirement for all notebooks except `MITgcm_configurations.jl`.
 
+!!! tip
+	The [ECCO-Docker](https://github.com/gaelforget/ECCO-Docker#readme) _image_ has `MITgcm.jl` pre-installed, as well as `gfortran`, `MPI`, and `NetCDF` allowing to run any `MITgcm` configuration. The [ECCO-Binder](https://mybinder.org/v2/gh/gaelforget/ECCO-Docker/HEAD) _instance_ (free, but small) is available to try functionalities in the cloud.
+
 ## Standard Modeling Workflow
 
 Here is the standard way to run a model configuration using `MITgcm.jl`.

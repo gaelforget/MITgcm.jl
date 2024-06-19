@@ -1,64 +1,4 @@
 
-module MITgcmScratchSpaces
-
-using Downloads, Scratch
-
-# This will be filled in inside `__init__()`
-path = ""
-
-# Downloads a resource, stores it within path
-function download_dataset(url,path)
-    fname = joinpath(path, basename(url))
-    if !isfile(fname)
-        Downloads.download(url, fname)
-    end
-    return fname
-end
-
-function __init__()
-    global path = @get_scratch!("src")
-end
-
-end
-
-
-"""
-    testreport(config::MITgcm_config,ext="")
-
-Run the testreport script for one model `config`,
-with additional options (optional) speficied in `ext`
-
-```
-using MITgcm
-testreport(MITgcm_config(configuration="front_relax"),"-norun")
-#testreport(MITgcm_config(configuration="all"),"-norun")
-```
-"""
-function testreport(config::MITgcm_config,ext="")
-    nm=config.configuration
-    try
-        pth=pwd()
-    catch e
-        cd()
-    end
-    pth=pwd()
-    cd(tempdir())
-    println(pwd())
-    if nm!=="all"
-        lst=[nm]
-    else
-        exps=verification_experiments()
-        lst=[exps[i].configuration for i in 1:length(exps)]
-    end
-    for nm in lst
-        c=`$(MITgcm_path[1])/verification/testreport -t $(MITgcm_path[1])/verification/$(nm) $ext`
-        isempty(ext) ? c=`$(MITgcm_path[1])/verification/testreport -t $(MITgcm_path[1])/verification/$(nm)` : nothing
-        @suppress run(c)
-    end
-    cd(pth)
-    return true
-end
-
 import ClimateModels: compile, build, setup, clean, git
 
 """
@@ -84,29 +24,32 @@ end
     build(config::MITgcm_config)
 
 Build the model using `genmake2`, `make depend`, and `make`. The first two link all 
-code files, headers, etc  in the `build/` folder before compiling the model
+code files, headers, etc  in the `build/` folder before compiling the model.
 
-(part of the climate model interface as specialized for `MITgcm`)
+Note : this is skipped if `config.inputs[:setup][:main][:exe]` is specified.
 """
 function build(config::MITgcm_config)
-    try
+    if !haskey(config.inputs[:setup][:main],:exe)
+        try
+            pth=pwd()
+        catch e
+            cd()
+        end
         pth=pwd()
-    catch e
-        cd()
+        cd(config.inputs[:setup][:build][:path])
+        opt=config.inputs[:setup][:build][:options]
+        opt=Cmd(convert(Vector{String}, split(opt)))
+        try
+            @suppress run(`../../../tools/genmake2 $(opt)`)
+            @suppress run(`make clean`)
+            @suppress run(`make depend`)
+            @suppress run(`make -j 4`)
+        catch e
+            println("model compilation may have failed")
+        end
+        cd(pth)
+        return true
     end
-    pth=pwd()
-    cd(config.inputs[:setup][:build][:path])
-    opt=config.inputs[:setup][:build][:options]
-    try
-        @suppress run(`../../../tools/genmake2 $(opt)`) #$ext
-        @suppress run(`make clean`)
-        @suppress run(`make depend`)
-        @suppress run(`make -j 4`)
-    catch e
-        println("model compilation may have failed")
-    end
-    cd(pth)
-    return true
 end
 
 """
@@ -119,8 +62,8 @@ code files, headers, etc  in the `build/` folder before `make` compiles the mode
 (part of the climate model interface as specialized for `MITgcm`)
 """
 function build(config::MITgcm_config,options::String)
-    exe=config.inputs[:setup][:build][:exe]
     if options=="--allow-skip"
+        exe=config.inputs[:setup][:build][:exe]
         tst=!isfile(joinpath(config.inputs[:setup][:build][:path],exe))
         tst ? build(config) : nothing
     else
@@ -152,6 +95,11 @@ function compile(config::MITgcm_config)
     cd(pth)
     return true
 end
+
+build_options_default="-mods=../code"
+
+build_options_pleiades="-mods=../code -optfile=../../../tools/"*
+"build_options/linux_amd64_ifort+mpi_ice_nas -mpi"
 
 """
     setup(config::MITgcm_config)
@@ -225,36 +173,6 @@ function setup(config::MITgcm_config)
 end
 
 """
-    setup_ECCO4!(config::MITgcm_config)
-
-Setup method for ECCO4 and OCCA2 solutions.
-
-```
-fil=joinpath("examples","configurations","OCCA2.toml")
-MC=MITgcm_config(inputs=read_toml(fil))
-setup(MC)
-build(MC)
-MITgcm_launch(MC)
-```
-"""
-function setup_ECCO4!(config::MITgcm_config)
-    if !haskey(config.inputs[:setup],:build)
-        println("get MITgcm checkoint, link code folder, ... ")
-        u0="https://github.com/MITgcm/MITgcm"; p0=joinpath(config,"MITgcm")
-        run(`$(git()) clone --depth 1 --branch checkpoint68o $(u0) $(p0)`)
-        u0="https://github.com/gaelforget/ECCOv4"; p0=joinpath(config,"ECCOv4")
-        run(`$(git()) clone $(u0) $(p0)`)
-        p1=joinpath(config,"MITgcm","mysetups")
-        p2=joinpath(p1,"ECCOv4")
-        mkdir(p1); mv(p0,p2)
-        p3=joinpath(p2,"build")
-        P=OrderedDict(:path=>p3,:options=>"-mods=../code -mpi",:exe=>"mitgcmuv")
-        push!(config.inputs[:setup],(:build => P))
-    end
-    return true
-end
-
-"""
     MITgcm_launch(config::MITgcm_config)
 
 Go to `run/` folder and effectively call `mitgcmuv > output.txt`
@@ -270,12 +188,40 @@ function MITgcm_launch(config::MITgcm_config)
     pth=pwd()
     cd(joinpath(config.folder,string(config.ID),"run"))
     tmp=["STOP NORMAL END"]
-    exe=config.inputs[:setup][:build][:exe]
     try
-        @suppress run(pipeline(`./$(exe)`,"output.txt"))
+        if haskey(config.inputs[:setup][:main],:command)
+            s=config.inputs[:setup][:main][:command]
+            c=Cmd(convert(Vector{String}, split(s)))
+            @suppress run(pipeline(c))
+        else
+            exe=config.inputs[:setup][:build][:exe]
+            @suppress run(pipeline(`./$(exe)`,"output.txt"))
+        end
     catch e
         tmp[1]="model run may have failed"
     end
     cd(pth)
     return tmp[1]
 end
+
+to_DF(x)=DataFrame((name=[keys(x)...],value=[values(x)...]))
+
+"""
+    function monitor(config::MITgcm_config)
+
+Call `scan_rundir` and show to REPL. 
+"""
+monitor(config::MITgcm_config) = begin
+    rundir=joinpath(config,"run")
+    sc=MITgcm.scan_rundir(rundir)
+    lst=[:packages, :params_grid, :params_files, :params_time, :completed]
+    show(config)
+    for nam in lst
+        println("")
+        println(nam)
+        show(to_DF(sc[nam]))
+        println("")
+    end
+end
+
+

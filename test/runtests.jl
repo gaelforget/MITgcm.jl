@@ -1,9 +1,16 @@
-using MITgcm, ClimateModels, MeshArrays, OceanStateEstimation
-using Test
+using MITgcm, NetCDF, OceanStateEstimation, Test
+
+using MITgcm.MeshArrays
+using MITgcm.ClimateModels.Suppressor
+using MITgcm.ClimateModels.DataFrames
+using MITgcm.ClimateModels.CSV
 
 MITgcm_download()
 
 @testset "MITgcm.jl" begin
+
+    fil=MITgcm.create_script()
+    @test isfile(fil)
 
     #format conversions
     (γ,Γ)=MeshArrays.GridOfOnes("CubeSphere",30,30)
@@ -85,10 +92,21 @@ MITgcm_download()
     @test isa(Γ,NamedTuple)
 
     #
-    fil=joinpath(@__DIR__,"..","examples","configurations","OCCA2.toml")
-    MC=MITgcm_config(inputs=read_toml(fil))
-    setup(MC)
-    @test MC.inputs[:setup][:build][:exe]=="mitgcmuv"
+    MC=MITgcm_config(inputs=read_toml(:OCCA2))
+    push!(MC.inputs[:setup][:main],(:input_folder => tempname()))
+    @suppress setup(MC)
+ 
+    list1=ECCO4_inputs.get_list()
+    nam1="documentation"
+    @suppress ECCO4_inputs.get_files(list1,nam1,joinpath(MC,"run"))
+    fil=joinpath(MC,"run","README.pdf")
+    @test isfile(fil)
+
+    ref_file=joinpath(MC,"MITgcm","mysetups","ECCOv4","test","testreport_baseline2.csv")
+    ref=CSV.read(ref_file,DataFrame)
+    report=deepcopy(ref); report.value.+=rand(length(ref.value))
+    @suppress ECCO4_testreport.compare(report,ref)
+    @test isa(report,DataFrame)
 
     #read / write functions
 
@@ -138,6 +156,10 @@ MITgcm_download()
     @test isa(tmp,MeshArray)
 
     ##
+
+    f1=joinpath(MITgcm_path[1],"verification","flt_example","results","output.with_flt.txt")
+    f2=joinpath(MITgcm_path[1],"verification","flt_example","results","output.txt")
+    isfile(f2) ? nothing : symlink(f1,f2)
 
     MC=MITgcm_config(configuration="flt_example")
     tmp=testreport(MC)
