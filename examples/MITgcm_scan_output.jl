@@ -124,6 +124,7 @@ md"""## 3. Visualize Grid
 begin
 	myaz_slider = @bind myaz NumberField(-1:0.1:1; default=-0.2)
 	tick_button = @bind tick PlutoUI.Clock(2)
+	skip_build_button = @bind skip_build CheckBox(default=true)
 	md"""
 	Azimuth for 3d view (if applicable) : 
 	
@@ -134,38 +135,48 @@ begin
 	Click to loop through (if verification) : 
 	
 	$(tick_button)	
+
+	####
+	Use existing `mitgcmuv` if available or rebuild it everytime : 
+
+	$(skip_build_button)
 	"""
 end
 
 # ╔═╡ 211ab33e-d482-49dd-9448-0f5c6e63a280
 begin
-	tick; 
-	
+	tick
 	if tst=="ECCO"
 		i=0
 		siz=Γecco.XC.grid.ioSize
 		az=myaz*π; el=0.2π
 		f=myviz(Γecco; title="ECCO version 4 grid \n grid name = LLC90      size = $siz")
 	else
-		n=length(list_exps)
-		isnothing(tick) ? kk=1 : kk=max(min(tick,n),1)
-		i=list_exps[kk]
+		n=length(exps)		
+		i=mod1(tick,length(exps))
+		
+		MC=MITgcm_config(configuration=exps[i].configuration)
+		setup(MC)
+		skip_build ? build(MC,"--allow-skip") : build(MC)
+		launch(MC)
+		MC
 
-		#i=list_exps[ii]
-
-		if sc[i].params_files.use_mdsio
-			Γ=GridLoad_mdsio(exps[i])
+		rundir=joinpath(MC,"run")
+		SR=scan_rundir(rundir)
+		
+		if SR.params_files.use_mdsio
+			Γ=GridLoad_mdsio(MC)
 		else
-			Γ=GridLoad_mnc(exps[i])
+			Γ=GridLoad_mnc(MC)
 		end
 
-		is2d=sum(sc[i].params_files.ioSize.>1)==2
-		siz=sc[i].params_files.ioSize
+		is2d=sum(SR.params_files.ioSize.>1)==2
+		siz=SR.params_files.ioSize
 
-		tt=exps[i].configuration*" \n exp ID = $i / $n           size = $siz"
-		if sc[i].params_grid.usingCartesianGrid&&is2d
+		tt=MC.configuration*" \n exp ID = $i / $n           size = $siz"
+		if SR.params_grid.usingCartesianGrid&&is2d
 			f=myviz(Γ;title=tt)
-		elseif sc[i].params_grid.usingCylindricalGrid&&is2d
+		elseif SR.params_grid.usingCylindricalGrid&&is2d
 			f=myviz(Γ;title=tt)
 		elseif is2d
 			f=myviz(Γ;title=tt)
@@ -173,25 +184,26 @@ begin
 			f=myviz(Γ;title=tt)
 		end
 		f
+#	else
+#		@warn "verification experiments need to be run first"
+#		i=-1
 	end
 end
 
 # ╔═╡ a444cf7e-cbe1-4e13-981b-184f1a64d3d5
- i>0 ? exps[i] : "ECCO v4 / LLC90 grid"
+ i>0 ? MC : (i==0 ? "ECCO v4 / LLC90 grid" : "no experiment selected")
 
 # ╔═╡ 49e5553c-b316-4c2c-821a-0dd6148006dc
- i>0 ? sc[i].params_grid : typeof(Γecco.XC)
+i>0 ? SR.params_grid : typeof(Γecco.XC)
 
 # ╔═╡ 405d7388-074d-400f-bc77-054dd10bc51f
- i>0 ? sc[i].params_files.ioSize : Γecco.XC.grid.ioSize
+i>0 ? SR.params_files.ioSize : Γecco.XC.grid.ioSize
 
 # ╔═╡ 92b6319a-a56d-483e-a7eb-6f71966364c5
 begin
 	i>0 ? dd=Float64.(Γ.Depth) : dd=Float64.(Γecco.Depth)
 	minimum(dd),maximum(dd)
 end
-
-
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
