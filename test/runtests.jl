@@ -163,7 +163,10 @@ MITgcm.set_environment_variables_to_default()
     isfile(f2) ? nothing : symlink(f1,f2)
 
     MC=MITgcm_config(configuration="flt_example")
-    tmp=testreport(MC)
+    a=MITgcm.build_options_default[1]
+    b="-optfile=../../"
+    !occursin(b,a) ? opt="" : opt=split(a,b)[2]
+    tmp=testreport(MC,opt)
     pth=joinpath(MITgcm_path[1],"verification/flt_example/run/")
     tmp=read_flt(pth,Float32)
     
