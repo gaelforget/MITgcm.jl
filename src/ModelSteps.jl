@@ -96,10 +96,13 @@ function compile(config::MITgcm_config)
     return true
 end
 
-build_options_default="-mods=../code"
-
 build_options_pleiades="-mods=../code -optfile=../../../tools/"*
-"build_options/linux_amd64_ifort+mpi_ice_nas -mpi"
+  "build_options/linux_amd64_ifort+mpi_ice_nas -mpi"
+
+linux_arm64_gfortran="-mods=../code -optfile=../../../tools/"*
+  "build_options/linux_arm64_gfortran"
+
+build_options_default=["-mods=../code", linux_arm64_gfortran,build_options_pleiades]
 
 """
     setup(config::MITgcm_config)
