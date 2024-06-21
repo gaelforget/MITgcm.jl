@@ -54,7 +54,7 @@ module downloads
     
     Download default, compact version of MITgcm from zenodo.
     """
-    function MITgcm_download()
+    function MITgcm_download(;do_warn=true)
         url0="https://zenodo.org/records/11515564/files/"
         url_small=url0*"MITgcm-checkpoint68y-small.tar.gz"
         url_verif=url0*"MITgcm-checkpoint68y-verif.tar.gz"
@@ -63,7 +63,7 @@ module downloads
             one_download(url_small,"MITgcm",MITgcm_path[1])
         else
             f=basename(url_small)
-            @warn "previously downloaded copy of MITgcm ($f) will be used"
+            !do_warn ? nothing : @warn "previously downloaded copy of MITgcm ($f) will be used"
         end
         if !isdir(joinpath(MITgcm_path[1],"verification","tutorial_held_suarez_cs"))
             one_download(url_verif,
@@ -71,7 +71,7 @@ module downloads
                 joinpath(MITgcm_path[1],"verification"))
         else
             f=basename(url_verif)
-            @warn "previously downloaded copy of MITgcm verification experiments ($f) will be used"
+            !do_warn ? nothing : @warn "previously downloaded copy of MITgcm verification experiments ($f) will be used"
         end
     end
 
@@ -109,6 +109,16 @@ end
 
 MITgcm_download=downloads.MITgcm_download
 HS94_pickup_download=downloads.HS94_pickup_download
+
+"""
+    MITgcm.default_path()
+
+Return default path, and download via MITgcm_download if needed.
+"""
+default_path()=begin
+    MITgcm_download(do_warn=false)
+    MITgcm_path[1]
+end
 
 #more:
 #
