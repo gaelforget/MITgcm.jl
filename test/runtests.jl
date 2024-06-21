@@ -5,10 +5,12 @@ using MITgcm.ClimateModels.Suppressor
 using MITgcm.ClimateModels.DataFrames
 using MITgcm.ClimateModels.CSV
 
-MITgcm_download()
-MITgcm.set_environment_variables_to_default()
-
 @testset "MITgcm.jl" begin
+
+    MITgcm.set_environment_variables_to_default()
+
+    path0=MITgcm.default_path()
+    @test ispath(path0)
 
     fil=MITgcm.create_script()
     @test isfile(fil)
@@ -158,13 +160,16 @@ MITgcm.set_environment_variables_to_default()
 
     ##
 
-    f1=joinpath(MITgcm_path[1],"verification","flt_example","results","output.with_flt.txt")
-    f2=joinpath(MITgcm_path[1],"verification","flt_example","results","output.txt")
+    f1=joinpath(path0,"verification","flt_example","results","output.with_flt.txt")
+    f2=joinpath(path0,"verification","flt_example","results","output.txt")
     isfile(f2) ? nothing : symlink(f1,f2)
 
     MC=MITgcm_config(configuration="flt_example")
-    tmp=testreport(MC)
-    pth=joinpath(MITgcm_path[1],"verification/flt_example/run/")
+    a=MITgcm.build_options_default[1]
+    b="-optfile=../../../"
+    !occursin(b,a) ? opt="" : opt="-optfile="*joinpath(path0,split(a,b)[2])
+    tmp=testreport(MC,opt)
+    pth=joinpath(path0,"verification/flt_example/run/")
     tmp=read_flt(pth,Float32)
     
     @test isa(tmp[1,1],Number)

@@ -623,7 +623,7 @@ function setup_verification!(config::MITgcm_config)
         :version=>"main")
     P[:build]=OrderedDict(
         :path=>"$(MITgcm_path[1])/verification/$(config.configuration)/build",
-        :options=>build_options_default,
+        :options=>build_options_default[1],
         :exe=>"mitgcmuv",
         )
     push!(params,(:setup => P))
