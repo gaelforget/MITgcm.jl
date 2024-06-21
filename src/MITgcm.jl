@@ -17,6 +17,7 @@ include("FormatConversions.jl")
 include("PhysicalOceanography.jl")
 include("ModelConfigurations.jl")
 include("ShellScripting.jl")
+include("System.jl")
 
 export MITgcm_path, MITgcmScratchSpaces
 export MITgcm_download, HS94_pickup_download

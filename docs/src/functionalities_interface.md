@@ -4,6 +4,7 @@ The [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl/#readme)'s
 
 ```@example 1
 using MITgcm
+MITgcm.set_environment_variables_to_default()
 MC=MITgcm_config(configuration="advect_xy")
 setup(MC)
 build(MC,"--allow-skip")

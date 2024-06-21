@@ -1,4 +1,4 @@
-using MITgcm, NetCDF, OceanStateEstimation, Test
+using MITgcm, NetCDF, Climatology, Test
 
 using MITgcm.MeshArrays
 using MITgcm.ClimateModels.Suppressor
@@ -6,6 +6,7 @@ using MITgcm.ClimateModels.DataFrames
 using MITgcm.ClimateModels.CSV
 
 MITgcm_download()
+MITgcm.set_environment_variables_to_default()
 
 @testset "MITgcm.jl" begin
 
