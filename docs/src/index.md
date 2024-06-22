@@ -16,11 +16,11 @@ Pages = [
 Depth = 1
 ```
 
-## Main Features
+## Major Features
 
-- Read / Write / Scan the various MITgcm file types
-- Standard MITgcm Run Workflow (Julia interface)
+- Standard model run workflow (MITgcm-Julia interface)
 - Standard MITgcm configurations (`verification`, `ECCO`)
+- Read and write the various MITgcm file types
 - Examples (docs, and notebooks in `examples/`)
 
 ```@raw html

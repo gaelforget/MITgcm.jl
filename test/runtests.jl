@@ -52,9 +52,7 @@ using MITgcm.ClimateModels.CSV
 
     #
 
-    myexp="advect_cs"
-    iexp=findall([exps[i].configuration==myexp for i in 1:length(exps)])[1]
-    MC=exps[iexp]
+    MC=MITgcm_config(configuration="advect_cs")
 
     @test setup(MC)
     @test clean(MC)=="no task left in pipeline"

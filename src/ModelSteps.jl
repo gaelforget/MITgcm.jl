@@ -39,11 +39,14 @@ function build(config::MITgcm_config)
         cd(config.inputs[:setup][:build][:path])
         opt=config.inputs[:setup][:build][:options]
         opt=Cmd(convert(Vector{String}, split(opt)))
+        do_build=(!config.inputs[:setup][:build][:quick])||(!ispath("mitgcmuv"))
         try
-            @suppress run(`../../../tools/genmake2 $(opt)`)
-            @suppress run(`make clean`)
-            @suppress run(`make depend`)
-            @suppress run(`make -j 4`)
+            if do_build
+                @suppress run(`../../../tools/genmake2 $(opt)`)
+                @suppress run(`make clean`)
+                @suppress run(`make depend`)
+                @suppress run(`make -j 4`)
+            end
         catch e
             println("model compilation may have failed")
         end

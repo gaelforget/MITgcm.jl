@@ -4,19 +4,57 @@
 
 Functionalities are documented in the coming sections, and in the [Examples](@ref).
 
-## Installation Instructions
+## Getting Started
 
-You can install the latest version of `MITgcm.jl` using the built-in [package manager](https://pkgdocs.julialang.org/). 
+Installing the latest version of `MITgcm.jl` with the built-in [package manager](https://pkgdocs.julialang.org/) is the recommended method. 
 
 ```
 using Pkg
 Pkg.add("MITgcm")
 ```
 
-!!! tip
-	The [ECCO-Docker](https://github.com/gaelforget/ECCO-Docker#readme) _image_ has `MITgcm.jl` pre-installed, as well as `gfortran`, `MPI`, and `NetCDF` allowing to run any `MITgcm` configuration. The [ECCO-Binder](https://mybinder.org/v2/gh/gaelforget/ECCO-Docker/HEAD) _instance_ (free, but small) is available to try functionalities in the cloud.
+### Running MITgcm
 
-## MITgcm File Formats
+Assuming that all went well, then it is time to start running MITgcm interactively.
+
+```@example 0
+using MITgcm
+MC=MITgcm_config(configuration="advect_xy")
+```
+
+```@example 0
+setup(MC)
+MC.inputs[:setup][:build][:quick]=true #specify exe instead?
+```
+
+```@example 0
+build(MC)
+launch(MC)
+log(MC)
+```
+
+### Using Model Output
+
+Often users just want to read, visulaize, and use model results already available (without the need to run MITgcm again). 
+
+!!! tip
+    For more use cases, see [Climatology.jl](https://github.com/juliaocean/Climatology.jl#readme) , [MeshArrays.jl](https://github.com/juliaclimate/MeshArrays.jl#readme), [IndividualDisplacements.jl](https://github.com/juliaclimate/IndividualDisplacements.jl#readme).
+
+Read example:
+
+```@example 0
+readdir(joinpath(MC,"run"))
+```
+
+Plot example:
+
+```@example 0
+nothing #plot(MC)
+```
+
+## Major Features
+
+### MITgcm File Formats
 
 A common use case for `MITgcm.jl` is to use and analyze model output from a previous `MITgcm` run. As an example, the [notebook from JuliaCon2021](https://juliaocean.github.io/MarineEcosystemsJuliaCon2021.jl/dev/MITgcm_tutorial_global_oce_biogeo.html) ([MITgcm\_tutorial\_global\_oce\_biogeo.jl](https://juliaocean.github.io/MarineEcosystemsJuliaCon2021.jl/dev/MITgcm_tutorial_global_oce_biogeo.jl)) reads and visualize results from the standard `MITgcm` configuration called [tutorial\_global\_oce_biogeo](https://mitgcm.readthedocs.io/en/latest/examples/global_oce_biogeo/global_oce_biogeo.html).
 
@@ -37,7 +75,7 @@ Grid variables are often needed for analysis. The grid output can be read from f
 !!! note 
     The [MITgcm\_scan\_output.jl](https://github.com/gaelforget/MITgcm.jl/blob/master/examples/MITgcm_scan_output.jl) notebook does this in bulk for all configurations in `MITgcm/verification` and displays the gridded model domain for each model configuration ([this page](https://gaelforget.github.io/MITgcm.jl/dev/examples/MITgcm_scan_output.html)).
 
-## MITgcm Configurations
+### MITgcm Configurations
 
 In `MITgcm.jl`, a model configuration is represented as a [`MITgcm_config`](@ref). This data structure allows you take advantage of the [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl) interface for example. [`setup`](@ref) can prepare a temporary directory for the `MITgcm_config` to run in. Then [`build`](@ref) can compile the model, and [`MITgcm_launch`](@ref) run it.
 
@@ -48,8 +86,22 @@ The [`verification_experiments`](@ref) function provides a list of standard mode
 
 Interactive notebooks can be found in the [Examples](@ref) section (and the `examples/` subfolder). They demonstrate functionalities like plotting with [Makie.jl](https://makie.juliaplots.org/stable/) and particle tracking with  [IndividualDisplacements.jl](https://github.com/JuliaClimate/IndividualDisplacements.jl).
 
+## Trouble Shooting
+
+The [`MITgcm.system_check`](@ref) function will try running MITgcm and report back. If the result is negative for any particular item, please refer to the MITgcm documentation for more guidance.
+
+```@example 0
+using MITgcm
+MITgcm.system_check(setenv=true)
+```
+	
+!!! tip
+    - Building and running MITgcm requires a [fortran compiler](https://fortran-lang.org/learn/os_setup/install_gfortran). Some configurations further require installing [MPI](https://mitgcm.readthedocs.io/en/latest/getting_started/getting_started.html?highlight=mpi_INC_DIR#building-with-mpi) and [NetCDF](https://mitgcm.readthedocs.io/en/latest/outp_pkgs/outp_pkgs.html?highlight=NetCDF#netcdf-i-o-pkg-mnc) libraries.
+	 - The [ECCO-Docker](https://github.com/gaelforget/ECCO-Docker#readme) _image_ has `MITgcm.jl` pre-installed, as well as `gfortran`, `MPI`, and `NetCDF` allowing to run any `MITgcm` configuration. The [ECCO-Binder](https://mybinder.org/v2/gh/gaelforget/ECCO-Docker/HEAD) _instance_ (free, but small) is available to try functionalities in the cloud.
+
+The [`MITgcm.scan_output`](@ref) function ...
+
 ## API Reference
 
 ```@index
 ```
-
