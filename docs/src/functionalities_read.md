@@ -42,7 +42,7 @@ read_bin
 read_nctiles
 ```
 
-# Input Files
+## Input Files
 
 Run-time parameters to `MITgcm` are provided via text files. This package can read and write them in two formats (standard `TOML` format, or the native `MITgcm_namelist` format).
 

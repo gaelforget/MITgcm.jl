@@ -1,6 +1,6 @@
-# ClimateModels Interface
+# Interface to MITgcm
 
-The [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl/#readme)'s interface is implemented in this pacakge. This allows you to easily create model simulations using `MITgcm` conveniently from `Julia`.
+The [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl/#readme)'s interface is implemented in `MITgcm.jl`. This allows you to easily create model simulations using `MITgcm` conveniently from `Julia`.
 
 ```@example 1
 using MITgcm

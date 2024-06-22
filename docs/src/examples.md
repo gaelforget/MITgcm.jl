@@ -3,7 +3,7 @@
 using MITgcm
 ```
 
-# Examples
+# Example, Notebooks
 
 There are several ways to use `MITgcm.jl` to e.g. analyze model results or run a new model simulation.
 
