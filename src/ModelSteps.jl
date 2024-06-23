@@ -39,7 +39,7 @@ function build(config::MITgcm_config)
         cd(config.inputs[:setup][:build][:path])
         opt=config.inputs[:setup][:build][:options]
         opt=Cmd(convert(Vector{String}, split(opt)))
-        do_build=(!config.inputs[:setup][:build][:quick])||(!ispath("mitgcmuv"))
+        do_build=(config.inputs[:setup][:build][:rebuild])||(!ispath(config.inputs[:setup][:build][:exe]))
         try
             if do_build
                 @suppress run(`../../../tools/genmake2 $(opt)`)

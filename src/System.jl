@@ -1,8 +1,8 @@
 
-quickrun(;configuration="advect_xy")=begin
+test_run(;configuration="advect_xy",rebuild=false)=begin
   MC=MITgcm_config(configuration=configuration)
   setup(MC)
-  MC.inputs[:setup][:build][:quick]=true
+  MC.inputs[:setup][:build][:rebuild]=rebuild
   build(MC)
   launch(MC)
   RS=scan_rundir(joinpath(MC,"run"))
@@ -12,9 +12,16 @@ end
     system_check(;set_environment_variables_to_default=false)
 
 """
-system_check(;setenv=false)=begin
+system_check(;setenv=false,rebuild=false)=begin
+
   setenv ? MITgcm.set_environment_variables_to_default() : nothing
-  tests=Dict()
+
+  test_env_nc=haskey(ENV,"NETCDF_ROOT")
+  test_env_mpi=haskey(ENV,"MPI_INC_DIR")
+
+  ##
+
+  tests=[]
   tst=[false]
   try
     path0=MITgcm.default_path()
@@ -22,22 +29,23 @@ system_check(;setenv=false)=begin
   catch
     tst[1]=false
   end
-  push!(tests,("download"=>tst[1]))
+  push!(tests,("MITgcm download"=>tst[1]))
     
-  RS=quickrun(configuration="advect_xy")
-  push!(tests,("complete"=>RS[:completed]))
+  RS=test_run(configuration="advect_xy",rebuild=rebuild)
+  push!(tests,("run complete"=>RS[:completed]))
 
-  RS=quickrun(configuration="hs94.cs-32x32x5")
-  push!(tests,("netcdf"=>RS[:packages][:mnc]))
+  RS=test_run(configuration="hs94.cs-32x32x5",rebuild=rebuild)
+  push!(tests,("netcdf output"=>RS[:packages][:mnc]))
 
-  #log(MC)
-  #monitor(MC)
+  push!(tests,("NETCDF_ROOT"=>test_env_nc))
+  push!(tests,("MPI_INC_DIR"=>test_env_mpi))
 
   #- download
   #- compile
   #- run completed
   #- netcdf / mnc 
   #- mpi
+  #- env
 
   tests
 end
