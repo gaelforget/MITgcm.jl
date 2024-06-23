@@ -39,7 +39,7 @@ log(MC)
 
 If we have a previous build of `MITgcm` for this then we can specify the file path as a parameter, `:exe`. 
 
-If `:exe` is not specified, or if no file is found at the specified path, `build`](@ref) will attempt to build the model for us.
+If `:exe` is not specified, or if no file is found at the specified path, [`build`](@ref) will attempt to build the model for us.
 
 ```@example 0
 exe=joinpath(MITgcm.default_path(),"verification",
@@ -55,7 +55,7 @@ MC.inputs[:setup][:build][:exe]=exe
 
 ### Using Model Output
 
-As `MITgcm` users, we often want to read and analize model output from an earlier model run. To this end, `MITgcm.jl` provides methods to read the various file formats that `MITgcm` generates.
+As `MITgcm` users, we often want to read and visualise model output from an earlier model run. To this end, `MITgcm.jl` provides methods to read the various file formats that `MITgcm` generates.
 
 Read example:
 
@@ -71,7 +71,7 @@ using CairoMakie
 
 fig, ax, hm = heatmap(T[1:32,:,1])
 ax.title="temperature"
-Colorbar(fig[:, 1], hm)
+Colorbar(fig[1, 2], hm)
 
 fig
 ```
@@ -86,7 +86,7 @@ fig
 
 ### MITgcm File Formats
 
-`MITgcm.jl` can be used to analyze model output from a previous `MITgcm` run. `MITgcm` stores model output within a _run/_ folder. This includes the standard _STDOUT_ text files, and other file formats listed below. [`scan_rundir`](@ref) can be used to provide a summary of what's in the _run/_ folder. 
+`MITgcm` stores model output within a _run/_ folder, such as the standard _STDOUT_ text files, and other file formats listed below. [`scan_rundir`](@ref) can be used to provide a summary of what's in the _run/_ folder. For more see:
 
 - [Standard Output](@ref) (text)
 - [Input Files](@ref) (text)
@@ -95,16 +95,20 @@ fig
 - [Grid Files](@ref) (binary or netcdf)
 - [Other Files](@ref)
 
-Grid variables are often needed for analysis. The grid output can be read from file using either [`GridLoad_mdsio`](@ref) or [`GridLoad_mnc`](@ref). This will return `Γ.XC`, `Γ.YC`, etc formated using [MeshArrays.jl](https://github.com/JuliaClimate/MeshArrays.jl). See also [`GridLoad_native`](@ref).
+Grid variables are often needed for analysis. They can be read from file using either [`GridLoad_mdsio`](@ref) or [`GridLoad_mnc`](@ref). This will return `Γ.XC`, `Γ.YC`, etc formated using [MeshArrays.jl](https://github.com/JuliaClimate/MeshArrays.jl). See also [`GridLoad_native`](@ref).
 
 !!! note 
     The [MITgcm\_scan\_output.jl](https://github.com/gaelforget/MITgcm.jl/blob/master/examples/MITgcm_scan_output.jl) notebook does this in bulk for all configurations in `MITgcm/verification` and displays the gridded model domain for each model configuration ([this page](https://gaelforget.github.io/MITgcm.jl/dev/examples/MITgcm_scan_output.html)).
 
 ### MITgcm Configurations
 
-In `MITgcm.jl`, a model configuration is represented as a [`MITgcm_config`](@ref). This data structure allows you take advantage of the [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl) interface for example. [`setup`](@ref) can prepare a temporary directory for the `MITgcm_config` to run in. Then [`build`](@ref) can compile the model, and [`MITgcm_launch`](@ref) run it.
+`MITgcm.jl` represents a model configuration using [`MITgcm_config`](@ref). This data structure allows you take advantage of the [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl) interface for example. 
 
-The [`verification_experiments`](@ref) function provides a list of standard model configurations. Each one has a subfolder in `joinpath(MITgcm_path[1],"verification")` where MITgcm can be compiled as `mitgcmuv`. 
+- [`setup`](@ref) prepares a run directory for the `MITgcm_config`
+- [`build`](@ref) compiles the model (if needed)
+- [`MITgcm_launch`](@ref) starts the model run
+
+The [`verification_experiments`](@ref) function provides a list of standard model configurations. Each one has a subfolder in `joinpath(default_path(),"verification")` where the model often gets compiled. 
 
 !!! note
     For more on these aspects, see [Examples](@ref), [Model Configurations](@ref), and [ClimateModels Interface](@ref).
