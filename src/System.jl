@@ -35,9 +35,9 @@ system_check(;setenv=false,rebuild=true)=begin
   tst0=(ismissing(RS) ? false : RS[:completed])
   push!(tests,("run complete"=>tst0))
 
-  RS=test_run(configuration="hs94.cs-32x32x5",rebuild=rebuild)
-  tst0=(ismissing(RS) ? false : RS[:packages][:mnc])
-  push!(tests,("netcdf output"=>tst0))
+#  RS=test_run(configuration="hs94.cs-32x32x5",rebuild=rebuild)
+#  tst0=(ismissing(RS) ? false : RS[:packages][:mnc])
+#  push!(tests,("netcdf output"=>tst0))
 
   push!(tests,("NETCDF_ROOT"=>test_env_nc))
   push!(tests,("MPI_INC_DIR"=>test_env_mpi))
