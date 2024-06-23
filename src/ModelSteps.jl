@@ -29,7 +29,7 @@ code files, headers, etc  in the `build/` folder before compiling the model.
 Note : this is skipped if `config.inputs[:setup][:main][:exe]` is specified.
 """
 function build(config::MITgcm_config)
-    if !haskey(config.inputs[:setup][:main],:exe)
+    if (!haskey(config.inputs[:setup][:main],:exe))||isempty(config.inputs[:setup][:main][:exe])
         try
             pth=pwd()
         catch e
@@ -39,11 +39,14 @@ function build(config::MITgcm_config)
         cd(config.inputs[:setup][:build][:path])
         opt=config.inputs[:setup][:build][:options]
         opt=Cmd(convert(Vector{String}, split(opt)))
+        do_build=(config.inputs[:setup][:build][:rebuild])||(!ispath(config.inputs[:setup][:build][:exe]))
         try
-            @suppress run(`../../../tools/genmake2 $(opt)`)
-            @suppress run(`make clean`)
-            @suppress run(`make depend`)
-            @suppress run(`make -j 4`)
+            if do_build
+                @suppress run(`../../../tools/genmake2 $(opt)`)
+                @suppress run(`make clean`)
+                @suppress run(`make depend`)
+                @suppress run(`make -j 4`)
+            end
         catch e
             println("model compilation may have failed")
         end
@@ -198,7 +201,11 @@ function MITgcm_launch(config::MITgcm_config)
             @suppress run(pipeline(c))
         else
             exe=config.inputs[:setup][:build][:exe]
-            @suppress run(pipeline(`./$(exe)`,"output.txt"))
+            try 
+                @suppress run(pipeline(`./$(exe)`,"output.txt"))
+            catch
+                @suppress run(pipeline(`$(exe)`,"output.txt"))
+            end
         end
     catch e
         tmp[1]="model run may have failed"

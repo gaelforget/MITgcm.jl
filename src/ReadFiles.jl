@@ -12,12 +12,20 @@ function scan_rundir(pth::String)
     filout=joinpath(pth,"output.txt")
     !isfile(filout) ? filout=joinpath(pth,"STDOUT.0000") : nothing
     if isfile(filout)
-        stdout=scan_stdout(filout)
+        tmp=readlines(filout)
+        stdout=( isempty(tmp) ? missing : scan_stdout(filout) )
     else
         stdout=missing
     end
     return stdout
 end
+
+"""
+    scan_rundir(config::MITgcm_config)
+
+Scan a MITgcm run directory (joinpath(MC,"run")) and then, if found, the standard output text file ("output.txt" or "STDOUT.0000") via `scan_stdout`.
+"""
+scan_rundir(config::MITgcm_config)=scan_rundir(joinpath(config,"run"))
 
 """
     scan_stdout(filout::String)
@@ -99,8 +107,13 @@ function scan_stdout(filout::String)
         ioSize[1]=size(tmp)
     end
     if tst_mnc
-        tmp=read_mnc(pth_mnc,"grid","XC")
-        ioSize[1]=size(tmp)
+        try
+            tmp=read_mnc(pth_mnc,"grid","XC")
+            ioSize[1]=size(tmp)
+        catch e
+            @warn "failed to read mnc file (using NetCDF ?)"
+            ioSize[1]=(0,0)
+        end
     end
 
     par3=(use_mdsio=tst_mdsio,use_mnc=tst_mnc,ioSize=ioSize[1])
@@ -364,8 +377,8 @@ end
 Read all `MITgcm` namelist files in `input_path`, parse them, and return as a NamedTuple of NamedTuples.
 
 ```
-using MITgcm; MITgcm_download()
-input_path=joinpath(MITgcm_path[1],"verification","advect_xy","input")
+using MITgcm; path0=default_path()
+input_path=joinpath(path0,"verification","advect_xy","input")
 params=read_all_namelists(input_path)
 ```
 """

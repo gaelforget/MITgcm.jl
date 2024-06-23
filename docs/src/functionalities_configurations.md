@@ -2,12 +2,6 @@
 
 In `MITgcm.jl`, a model configuration is represented as a [`MITgcm_config`](@ref). Model parameters are handled as ordered dictionaries and stored as `TOML` files. Standard model configurations are readily supported.
 
-!!! note
-	Compiling MITgcm requires [a fortran compiler](https://fortran-lang.org/learn/os_setup/install_gfortran). Some configurations further require installing [MPI](https://mitgcm.readthedocs.io/en/latest/getting_started/getting_started.html?highlight=mpi_INC_DIR#building-with-mpi) and [NetCDF](https://mitgcm.readthedocs.io/en/latest/outp_pkgs/outp_pkgs.html?highlight=NetCDF#netcdf-i-o-pkg-mnc) libraries.
-	
-!!! tip
-	The [ECCO-Docker](https://github.com/gaelforget/ECCO-Docker#readme) _image_ has `MITgcm.jl` pre-installed, as well as `gfortran`, `MPI`, and `NetCDF` allowing to run any `MITgcm` configuration. The [ECCO-Binder](https://mybinder.org/v2/gh/gaelforget/ECCO-Docker/HEAD) _instance_ is available to try functionalities in the cloud, freely.
-
 ## MITgcm_config
 
 The data structure that enables `MITgcm.jl` is called `MITgcm_config`.
@@ -73,10 +67,7 @@ MITgcm_config(configuration="MLAdjust")
 ## Functionalities
 
 ```@docs
-MITgcm_download
-MITgcm_path
 verification_experiments
 setup_verification!
 testreport
-MITgcm.set_environment_variables_to_default
 ```
