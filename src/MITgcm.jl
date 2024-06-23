@@ -54,7 +54,7 @@ module downloads
     
     Download default, compact version of MITgcm from zenodo.
     """
-    function MITgcm_download(;do_warn=true)
+    function MITgcm_download(;do_warn=false)
         url0="https://zenodo.org/records/11515564/files/"
         url_small=url0*"MITgcm-checkpoint68y-small.tar.gz"
         url_verif=url0*"MITgcm-checkpoint68y-verif.tar.gz"

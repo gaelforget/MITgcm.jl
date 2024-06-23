@@ -2,13 +2,15 @@ using Documenter, MITgcm, NetCDF
 import PlutoSliderServer
 using Plots, CairoMakie
 
+MITgcm.set_environment_variables_to_default()
+
 makedocs(;
     modules=[MITgcm,Base.get_extension(MITgcm, :MITgcmNetCDFExt)],
     format=Documenter.HTML(),
     pages=[
         "Contents" => "index.md",
-        "Manual" => ["functionalities.md","functionalities_configurations.md",
-        "functionalities_interface.md","functionalities_read.md","functionalities_more.md"],
+        "Manual" => ["functionalities.md","functionalities_interface.md",
+        "functionalities_configurations.md","functionalities_read.md","functionalities_more.md"],
         "Examples" => "examples.md",
         "Contribute" => "contributing.md",
     ],

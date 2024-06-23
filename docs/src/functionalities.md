@@ -15,7 +15,9 @@ Pkg.add("MITgcm")
 
 ### Running MITgcm
 
-Let's start running MITgcm interactively.
+Let's start running MITgcm interactively. 
+
+The first command defines a data structure, [`MITgcm_config`](@ref), that we can then use from Julia. The [`setup`](@ref) command, by default, creates a folder in your `tempdir()` to run `MITgcm`.
 
 ```@example 0
 using MITgcm
@@ -23,8 +25,6 @@ MC=MITgcm_config(configuration="advect_xy")
 setup(MC)
 show(MC)
 ```
-
-The first command defines a data structure, [`MITgcm_config`](@ref), that we can then use from Julia. The [`setup`](@ref) command, by default, creates a folder in your `tempdir()` to run `MITgcm`.
 
 If we have already build `MITgcm` for this then we can specify it as part of the parameters. 
 
@@ -103,7 +103,7 @@ The [`verification_experiments`](@ref) function provides a list of standard mode
 
 Interactive notebooks can be found in the [Examples](@ref) section (and the `examples/` subfolder). They demonstrate functionalities like plotting with [Makie.jl](https://makie.juliaplots.org/stable/) and particle tracking with  [IndividualDisplacements.jl](https://github.com/JuliaClimate/IndividualDisplacements.jl).
 
-## Trouble Shooting
+## Troubleshooting
 
 The [`MITgcm.system_check`](@ref) function will try running MITgcm and report back. If the result is negative for any particular item, please refer to the MITgcm documentation for more guidance.
 
@@ -114,6 +114,7 @@ MITgcm.system_check(setenv=true)
 	
 !!! tip
     - Building and running MITgcm requires a [fortran compiler](https://fortran-lang.org/learn/os_setup/install_gfortran). Some configurations further require installing [MPI](https://mitgcm.readthedocs.io/en/latest/getting_started/getting_started.html?highlight=mpi_INC_DIR#building-with-mpi) and [NetCDF](https://mitgcm.readthedocs.io/en/latest/outp_pkgs/outp_pkgs.html?highlight=NetCDF#netcdf-i-o-pkg-mnc) libraries.
+    - `MITgcm.set_environment_variables_to_default()`
 	 - The [ECCO-Docker](https://github.com/gaelforget/ECCO-Docker#readme) _image_ has `MITgcm.jl` pre-installed, as well as `gfortran`, `MPI`, and `NetCDF` allowing to run any `MITgcm` configuration. The [ECCO-Binder](https://mybinder.org/v2/gh/gaelforget/ECCO-Docker/HEAD) _instance_ (free, but small) is available to try functionalities in the cloud.
 
 The [`MITgcm.scan_output`](@ref) function ...
