@@ -12,7 +12,7 @@ MITgcm_config
 
 ## Model Parameters
 
-Model parameters can be stored as a `TOML` file.
+Model parameters can be stored as a `TOML` file, and represented as a nested `OrderedDic`.
 
 ```@example 2
 using MITgcm # hide
@@ -21,7 +21,7 @@ fil=joinpath(p0,"..","examples","configurations","OCCA2.toml") # hide
 read_toml(fil)
 ```
 
-## ECCO solutions
+## Global ECCO Configuration
 
 Global ocean model configurations used in [NASA's ECCO](https://ecco-group.org) ocean state estimation program.
 - ECCO4 : [Forget et al., 2015](http://www.geosci-model-dev.net/8/3071/2015/) (`doi:10.5194/gmd-8-3071-2015`)
@@ -39,7 +39,7 @@ ECCO4_testreport.compute
 ECCO4_testreport.compare
 ```
 
-## Verification Experiments
+## Verification Experiment Configurations
 
 The [MITgcm/verification](https://mitgcm.readthedocs.io/en/latest/getting_started/getting_started.html) sub-folder of the `MITgcm` source code provides a suite of small model configurations, often used by model developers. 
 
