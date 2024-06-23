@@ -12,7 +12,8 @@ function scan_rundir(pth::String)
     filout=joinpath(pth,"output.txt")
     !isfile(filout) ? filout=joinpath(pth,"STDOUT.0000") : nothing
     if isfile(filout)
-        stdout=scan_stdout(filout)
+        tmp=readlines(filout)
+        stdout=( isempty(tmp) ? missing : scan_stdout(filout) )
     else
         stdout=missing
     end

@@ -9,12 +9,12 @@ test_run(;configuration="advect_xy",rebuild=false)=begin
 end
 
 """
-    system_check(;set_environment_variables_to_default=false)
+    system_check(;setenv=false,rebuild=true)
 
 """
-system_check(;setenv=false,rebuild=false)=begin
+system_check(;setenv=false,rebuild=true)=begin
 
-  setenv ? MITgcm.set_environment_variables_to_default() : nothing
+  setenv ? set_environment_variables_to_default() : nothing
 
   test_env_nc=haskey(ENV,"NETCDF_ROOT")
   test_env_mpi=haskey(ENV,"MPI_INC_DIR")
@@ -32,10 +32,12 @@ system_check(;setenv=false,rebuild=false)=begin
   push!(tests,("MITgcm download"=>tst[1]))
     
   RS=test_run(configuration="advect_xy",rebuild=rebuild)
-  push!(tests,("run complete"=>RS[:completed]))
+  tst0=(ismissing(RS) ? false : RS[:completed])
+  push!(tests,("run complete"=>tst0))
 
   RS=test_run(configuration="hs94.cs-32x32x5",rebuild=rebuild)
-  push!(tests,("netcdf output"=>RS[:packages][:mnc]))
+  tst0=(ismissing(RS) ? false : RS[:packages][:mnc])
+  push!(tests,("netcdf output"=>tst0))
 
   push!(tests,("NETCDF_ROOT"=>test_env_nc))
   push!(tests,("MPI_INC_DIR"=>test_env_mpi))

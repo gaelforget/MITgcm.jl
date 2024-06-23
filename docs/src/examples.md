@@ -25,7 +25,7 @@ MC=MITgcm_config(configuration="advect_xy")
 
 ```@example 1
 setup(MC)
-build(MC,"--allow-skip")
+build(MC)
 log(MC)
 ```
 

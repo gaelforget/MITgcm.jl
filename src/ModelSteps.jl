@@ -201,7 +201,11 @@ function MITgcm_launch(config::MITgcm_config)
             @suppress run(pipeline(c))
         else
             exe=config.inputs[:setup][:build][:exe]
-            @suppress run(pipeline(`./$(exe)`,"output.txt"))
+            try 
+                @suppress run(pipeline(`./$(exe)`,"output.txt"))
+            catch
+                @suppress run(pipeline(`$(exe)`,"output.txt"))
+            end
         end
     catch e
         tmp[1]="model run may have failed"
