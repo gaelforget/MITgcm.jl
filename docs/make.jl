@@ -1,6 +1,6 @@
 using Documenter, MITgcm, NetCDF
 import PlutoSliderServer
-using Plots, CairoMakie
+import Plots, CairoMakie
 
 MITgcm.set_environment_variables_to_default()
 
