@@ -13,6 +13,7 @@ makedocs(;
         "functionalities_configurations.md","functionalities_read.md","functionalities_more.md"],
         "Examples" => "examples.md",
         "Contribute" => "contributing.md",
+        "API" => "API.md",
     ],
     warnonly = [:cross_references,:missing_docs],
     repo=Remotes.GitHub("gaelforget", "MITgcm.jl"),

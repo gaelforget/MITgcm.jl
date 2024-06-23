@@ -28,19 +28,20 @@ show(MC)
 
 If we have already build `MITgcm` for this then we can specify it as part of the parameters. 
 
-Otherwise, the `run` command will attempts to [`build`](@ref) the model for us.
+If `:exe` is not specified, or if no file is found at this path, then the [`build`](@ref) will attempt to compule the model for us.
 
 ```@example 0
 exe=joinpath(MITgcm.default_path(),"verification",MC.configuration,"build","mitgcmuv") #hide
 MC.inputs[:setup][:build][:exe]=exe
 ```
 
-Next we can call `run` on the `MITgcm_config`, and afterwards use the `log` method to get a report. 
+After `setup`, the standard workflow is to call [`build`](@ref) and then [`MITgcm_launch`](@ref). 
 
-The `run` command is the same as [`build`](@ref) followed by [`MITgcm_launch`](@ref).
+Next we can use the `log` method to get a status report. 
 
 ```@example 0
-run(MC)
+build(MC)
+launch(MC)
 log(MC)
 ```
 
@@ -54,9 +55,6 @@ log(MC)
 
 As `MITgcm` users, we often want to read and analize model output from an earlier model run. To this end, `MITgcm.jl` provides methods to read the various file formats that `MITgcm` generates.
 
-!!! tip
-    For more use cases, see [Climatology.jl](https://github.com/juliaocean/Climatology.jl#readme) , [MeshArrays.jl](https://github.com/juliaclimate/MeshArrays.jl#readme), [IndividualDisplacements.jl](https://github.com/juliaclimate/IndividualDisplacements.jl#readme).
-
 Read example:
 
 ```@example 0
@@ -69,16 +67,17 @@ Plot example:
 nothing #plot(MC)
 ```
 
-## Major Features
+!!! tip
+    For more use cases, see [Climatology.jl](https://github.com/juliaocean/Climatology.jl#readme) , [MeshArrays.jl](https://github.com/juliaclimate/MeshArrays.jl#readme), [IndividualDisplacements.jl](https://github.com/juliaclimate/IndividualDisplacements.jl#readme).
+
+## Main Features
+
+- MITgcm File Formats
+- MITgcm Configurations
 
 ### MITgcm File Formats
 
-A common use case for `MITgcm.jl` is to use and analyze model output from a previous `MITgcm` run. As an example, the [notebook from JuliaCon2021](https://juliaocean.github.io/MarineEcosystemsJuliaCon2021.jl/dev/MITgcm_tutorial_global_oce_biogeo.html) ([MITgcm\_tutorial\_global\_oce\_biogeo.jl](https://juliaocean.github.io/MarineEcosystemsJuliaCon2021.jl/dev/MITgcm_tutorial_global_oce_biogeo.jl)) reads and visualize results from the standard `MITgcm` configuration called [tutorial\_global\_oce_biogeo](https://mitgcm.readthedocs.io/en/latest/examples/global_oce_biogeo/global_oce_biogeo.html).
-
-!!! note 
-    This notebook builds and runs `tutorial_global_oce_biogeo` from within `Julia`. Alternatively, the [MITgcm documentation](https://mitgcm.readthedocs.io/en/latest/getting_started/getting_started.html) explains how to build and run tutorials at the command line in `linux`. 
-
-A typical `MITgcm` run stores model output within the _run/_ folder, including the standard _STDOUT_ text files. [`scan_rundir`](@ref) / [`scan_stdout`](@ref) provides a summary information about what's in the _run/_ folder. With this metadata, we are ready to read model output. The various file formats that `MITgcm` can generate are covered below.
+`MITgcm.jl` can be used to analyze model output from a previous `MITgcm` run. `MITgcm` stores model output within a _run/_ folder. This includes the standard _STDOUT_ text files, and other file formats listed below. [`scan_rundir`](@ref) can be used to provide a summary of what's in the _run/_ folder. 
 
 - [Standard Output](@ref) (text)
 - [Input Files](@ref) (text)
@@ -111,15 +110,13 @@ The [`MITgcm.system_check`](@ref) function will try running MITgcm and report ba
 using MITgcm
 MITgcm.system_check(setenv=true)
 ```
+
+The [`scan_output`](@ref) function ...
+	
+The [`set_environment_variables_to_default()`](@ref) function ...
+
+The [`default_path`](@ref) function ...	
 	
 !!! tip
     - Building and running MITgcm requires a [fortran compiler](https://fortran-lang.org/learn/os_setup/install_gfortran). Some configurations further require installing [MPI](https://mitgcm.readthedocs.io/en/latest/getting_started/getting_started.html?highlight=mpi_INC_DIR#building-with-mpi) and [NetCDF](https://mitgcm.readthedocs.io/en/latest/outp_pkgs/outp_pkgs.html?highlight=NetCDF#netcdf-i-o-pkg-mnc) libraries.
-    - `MITgcm.set_environment_variables_to_default()`
 	 - The [ECCO-Docker](https://github.com/gaelforget/ECCO-Docker#readme) _image_ has `MITgcm.jl` pre-installed, as well as `gfortran`, `MPI`, and `NetCDF` allowing to run any `MITgcm` configuration. The [ECCO-Binder](https://mybinder.org/v2/gh/gaelforget/ECCO-Docker/HEAD) _instance_ (free, but small) is available to try functionalities in the cloud.
-
-The [`MITgcm.scan_output`](@ref) function ...
-
-## API Reference
-
-```@index
-```

@@ -1,6 +1,6 @@
 # MITgcm.jl
 
-Julia interface to [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) which allows user to not only read and analyze model output, but also download the source code, build the model executable, set run-time parameters, run simulations, verify model results, and perform other tasks related to MITgcm. These functionalities are documented via the [Examples](@ref) section.
+Julia interface to [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) which allows user to not only read and analyze model output, but also download the source code, build the model executable, set run-time parameters, run simulations, verify model results, and perform other tasks related to MITgcm. These functionalities are documented via the [Examples, Notebooks](@ref) section.
 
 ## [Table Of Contents](@id main-contents)
 
@@ -12,11 +12,12 @@ Pages = [
     "functionalities_read.md",
     "examples.md",
     "contributing.md",
+    "API.md",
 ]
 Depth = 1
 ```
 
-## Major Features
+## Features
 
 - Standard model run workflow (MITgcm-Julia interface)
 - Standard MITgcm configurations (`verification`, `ECCO`)

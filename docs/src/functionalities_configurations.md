@@ -67,11 +67,7 @@ MITgcm_config(configuration="MLAdjust")
 ## Functionalities
 
 ```@docs
-MITgcm_download
-MITgcm_path
 verification_experiments
 setup_verification!
 testreport
-MITgcm.set_environment_variables_to_default
-MITgcm.system_check
 ```

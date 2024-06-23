@@ -20,6 +20,13 @@ function scan_rundir(pth::String)
 end
 
 """
+    scan_rundir(config::MITgcm_config)
+
+Scan a MITgcm run directory (joinpath(MC,"run")) and then, if found, the standard output text file ("output.txt" or "STDOUT.0000") via `scan_stdout`.
+"""
+scan_rundir(config::MITgcm_config)=scan_rundir(joinpath(config,"run"))
+
+"""
     scan_stdout(filout::String)
 
 Scan a MITgcm standard output text file ("output.txt" or "STDOUT.0000") and return a NamedTuple of information collected.
