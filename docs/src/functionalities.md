@@ -1,8 +1,8 @@
 # Overview
 
-`MITgcm.jl` provides supports the analysis of [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) results in `Julia`. It can also compile a model configuration, edit model parameters, and run model simulations from within `julia`. 
+`MITgcm.jl` provides supports the analysis of [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) results in `Julia`. It can also compile a model configuration ([`MITgcm_config`](@ref)) edit model parameters, and run model simulations from within `julia`. 
 
-Functionalities are documented in the coming sections, and in the [Examples](@ref).
+Functionalities are documented in the coming sections, and in [Examples, Notebooks](@ref).
 
 ## Getting Started
 
@@ -15,27 +15,44 @@ Pkg.add("MITgcm")
 
 ### Running MITgcm
 
-Assuming that all went well, then it is time to start running MITgcm interactively.
+Let's start running MITgcm interactively.
 
 ```@example 0
 using MITgcm
 MC=MITgcm_config(configuration="advect_xy")
-```
-
-```@example 0
 setup(MC)
-MC.inputs[:setup][:build][:quick]=true #specify exe instead?
+show(MC)
 ```
 
+The first command defines a data structure, [`MITgcm_config`](@ref), that we can then use from Julia. The [`setup`](@ref) command, by default, creates a folder in your `tempdir()` to run `MITgcm`.
+
+If we have already build `MITgcm` for this then we can specify it as part of the parameters. 
+
+Otherwise, the `run` command will attempts to [`build`](@ref) the model for us.
+
 ```@example 0
-build(MC)
-launch(MC)
+exe=joinpath(MITgcm.default_path(),"verification",MC.configuration,"build","mitgcmuv") #hide
+MC.inputs[:setup][:build][:exe]=exe
+```
+
+Next we can call `run` on the `MITgcm_config`, and afterwards use the `log` method to get a report. 
+
+The `run` command is the same as [`build`](@ref) followed by [`MITgcm_launch`](@ref).
+
+```@example 0
+run(MC)
 log(MC)
 ```
 
+!!! tip
+    - For longer `MITgcm` simulations run, users often prefer to use a queuing system or batch script (not an interactive session).
+    - [`setup`](@ref) can generate a submission script for this, via [`create_script`](@ref)
+    - `config.inputs[:setup][:main][:command] = "qsub submit.csh"`
+
+
 ### Using Model Output
 
-Often users just want to read, visulaize, and use model results already available (without the need to run MITgcm again). 
+As `MITgcm` users, we often want to read and analize model output from an earlier model run. To this end, `MITgcm.jl` provides methods to read the various file formats that `MITgcm` generates.
 
 !!! tip
     For more use cases, see [Climatology.jl](https://github.com/juliaocean/Climatology.jl#readme) , [MeshArrays.jl](https://github.com/juliaclimate/MeshArrays.jl#readme), [IndividualDisplacements.jl](https://github.com/juliaclimate/IndividualDisplacements.jl#readme).
