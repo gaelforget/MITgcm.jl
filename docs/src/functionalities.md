@@ -42,16 +42,13 @@ If we have a previous build of `MITgcm` for this then we can specify the file pa
 If `:exe` is not specified, or if no file is found at the specified path, [`build`](@ref) will attempt to build the model for us.
 
 ```@example 0
-exe=joinpath(MITgcm.default_path(),"verification",
-	MC.configuration,"build","mitgcmuv")
+exe=joinpath(default_path(),"verification",MC.configuration,"build","mitgcmuv")
 MC.inputs[:setup][:build][:exe]=exe
 ```
 
 !!! tip
     - For longer `MITgcm` simulations run, users often prefer to use a queuing system or batch script (not an interactive session).
-    - [`setup`](@ref) can generate a submission script for this, via [`create_script`](@ref)
-    - `config.inputs[:setup][:main][:command] = "qsub submit.csh"`
-
+    - [`setup`](@ref) can generate and submit a batch script, via [`create_script`](@ref) and `config.inputs[:setup][:main][:command] = "qsub submit.csh"`
 
 ### Using Model Output
 
@@ -78,6 +75,9 @@ fig
 
 !!! tip
     For more use cases, see [Climatology.jl](https://github.com/juliaocean/Climatology.jl#readme) , [MeshArrays.jl](https://github.com/juliaclimate/MeshArrays.jl#readme), [IndividualDisplacements.jl](https://github.com/juliaclimate/IndividualDisplacements.jl#readme).
+    - [climatology notebook](https://juliaocean.github.io/Climatology.jl/dev/examples/ECCO_standard_plots.html) shows a whole set of ocean variables, transports, etc computed from global MITgcm solutions (ECCO4 and OCCA2)
+    - [geography notebook](https://juliaclimate.github.io/MeshArrays.jl/dev/tutorials/geography.html) and [vector tutorial](https://juliaclimate.github.io/MeshArrays.jl/dev/tutorials/vectors.html) present generic recipes, readily applicable to most MITgcm configurations
+    - [ocean pathways](https://juliaclimate.github.io/IndividualDisplacements.jl/dev/examples/global_ocean_circulation.html) can also be computed from MITgcm output
 
 ## Main Features
 
