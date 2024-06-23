@@ -1,6 +1,6 @@
 # Overview
 
-`MITgcm.jl` provides supports the analysis of [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) results in `Julia`. It can also compile a model configuration ([`MITgcm_config`](@ref)) edit model parameters, and run model simulations from within `julia`. 
+`MITgcm.jl` allows the analysis of [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) results in `Julia`. It can also setup, build, and launch a chosen model configuration ([`MITgcm_config`](@ref)) from within `julia`. 
 
 Functionalities are documented in the coming sections, and in [Examples, Notebooks](@ref).
 
@@ -21,18 +21,10 @@ The first command defines a data structure, [`MITgcm_config`](@ref), that we can
 
 ```@example 0
 using MITgcm
-MC=MITgcm_config(configuration="advect_xy")
+MC=MITgcm_config(configuration="tutorial_held_suarez_cs")
 setup(MC)
-show(MC)
-```
-
-If we have already build `MITgcm` for this then we can specify it as part of the parameters. 
-
-If `:exe` is not specified, or if no file is found at this path, then the [`build`](@ref) will attempt to compule the model for us.
-
-```@example 0
 exe=joinpath(MITgcm.default_path(),"verification",MC.configuration,"build","mitgcmuv") #hide
-MC.inputs[:setup][:build][:exe]=exe
+show(MC)
 ```
 
 After `setup`, the standard workflow is to call [`build`](@ref) and then [`MITgcm_launch`](@ref). 
@@ -43,6 +35,16 @@ Next we can use the `log` method to get a status report.
 build(MC)
 launch(MC)
 log(MC)
+```
+
+If we have a previous build of `MITgcm` for this then we can specify the file path as a parameter, `:exe`. 
+
+If `:exe` is not specified, or if no file is found at the specified path, `build`](@ref) will attempt to build the model for us.
+
+```@example 0
+exe=joinpath(MITgcm.default_path(),"verification",
+	MC.configuration,"build","mitgcmuv")
+MC.inputs[:setup][:build][:exe]=exe
 ```
 
 !!! tip
@@ -58,13 +60,20 @@ As `MITgcm` users, we often want to read and analize model output from an earlie
 Read example:
 
 ```@example 0
-readdir(joinpath(MC,"run"))
+T=read_mdsio(joinpath(MC,"run"),"T.0000276496")
+size(T)
 ```
 
 Plot example:
 
 ```@example 0
-nothing #plot(MC)
+using CairoMakie
+
+fig, ax, hm = heatmap(T[1:32,:,1])
+ax.title="temperature"
+Colorbar(fig[:, 1], hm)
+
+fig
 ```
 
 !!! tip
@@ -104,19 +113,17 @@ Interactive notebooks can be found in the [Examples](@ref) section (and the `exa
 
 ## Troubleshooting
 
-The [`MITgcm.system_check`](@ref) function will try running MITgcm and report back. If the result is negative for any particular item, please refer to the MITgcm documentation for more guidance.
+The [`system_check`](@ref) method will try running MITgcm and report back. If the result is negative for any particular item, you may want to consult the [MITgcm documentation](http://mitgcm.readthedocs.io/en/latest/?badge=latest) for more guidance.
 
 ```@example 0
 using MITgcm
 MITgcm.system_check(setenv=true)
 ```
 
-The [`scan_output`](@ref) function ...
-	
-The [`set_environment_variables_to_default()`](@ref) function ...
+The [`set_environment_variables_to_default()`](@ref) method can be used to set `NETCDF_ROOT` and `MPI_INC_DIR` to default values.
 
-The [`default_path`](@ref) function ...	
-	
+The [`scan_rundir`](@ref) method can be used to inspect the run directory of an experiment.
+		
 !!! tip
     - Building and running MITgcm requires a [fortran compiler](https://fortran-lang.org/learn/os_setup/install_gfortran). Some configurations further require installing [MPI](https://mitgcm.readthedocs.io/en/latest/getting_started/getting_started.html?highlight=mpi_INC_DIR#building-with-mpi) and [NetCDF](https://mitgcm.readthedocs.io/en/latest/outp_pkgs/outp_pkgs.html?highlight=NetCDF#netcdf-i-o-pkg-mnc) libraries.
 	 - The [ECCO-Docker](https://github.com/gaelforget/ECCO-Docker#readme) _image_ has `MITgcm.jl` pre-installed, as well as `gfortran`, `MPI`, and `NetCDF` allowing to run any `MITgcm` configuration. The [ECCO-Binder](https://mybinder.org/v2/gh/gaelforget/ECCO-Docker/HEAD) _instance_ (free, but small) is available to try functionalities in the cloud.

@@ -29,7 +29,8 @@ code files, headers, etc  in the `build/` folder before compiling the model.
 Note : this is skipped if `config.inputs[:setup][:main][:exe]` is specified.
 """
 function build(config::MITgcm_config)
-    if (!haskey(config.inputs[:setup][:main],:exe))||isempty(config.inputs[:setup][:main][:exe])
+    do_build=(config.inputs[:setup][:build][:rebuild])||(!ispath(config.inputs[:setup][:build][:exe]))
+    if do_build
         try
             pth=pwd()
         catch e
@@ -39,14 +40,11 @@ function build(config::MITgcm_config)
         cd(config.inputs[:setup][:build][:path])
         opt=config.inputs[:setup][:build][:options]
         opt=Cmd(convert(Vector{String}, split(opt)))
-        do_build=(config.inputs[:setup][:build][:rebuild])||(!ispath(config.inputs[:setup][:build][:exe]))
         try
-            if do_build
-                @suppress run(`../../../tools/genmake2 $(opt)`)
-                @suppress run(`make clean`)
-                @suppress run(`make depend`)
-                @suppress run(`make -j 4`)
-            end
+            @suppress run(`../../../tools/genmake2 $(opt)`)
+            @suppress run(`make clean`)
+            @suppress run(`make depend`)
+            @suppress run(`make -j 4`)
         catch e
             println("model compilation may have failed")
         end
