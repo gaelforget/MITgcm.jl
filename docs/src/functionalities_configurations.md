@@ -39,26 +39,18 @@ ECCO4_testreport.compute
 ECCO4_testreport.compare
 ```
 
-## Verification Experiment Configurations
+## Verification Experiments
 
-The [MITgcm/verification](https://mitgcm.readthedocs.io/en/latest/getting_started/getting_started.html) sub-folder of the `MITgcm` source code provides a suite of small model configurations, often used by model developers. 
+The [MITgcm/verification](https://mitgcm.readthedocs.io/en/latest/getting_started/getting_started.html) sub-folder of the `MITgcm` source code provides a suite of small model configurations, often used by model developers for testing. 
 
-To use them, you first want to use [`MITgcm_download`](@ref) to get the source code.
-
-```@example 1
-using MITgcm
-MITgcm_download()
-MITgcm_path[1]
-```
-
-To list of these model configurations is provided by [`verification_experiments`](@ref). 
+To list of these model configurations (as installed) is provided by [`verification_experiments`](@ref). 
 
 ```@example 1
 ves=verification_experiments()
 [ve.configuration for ve in ves]
 ```
 
-To try one, you want to use [`MITgcm_config`](@ref) as follows.
+They can be used via a [`MITgcm_config`](@ref) as follows.
 
 ```@example 1
 MITgcm_config(configuration="MLAdjust")

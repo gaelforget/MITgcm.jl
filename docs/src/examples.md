@@ -5,7 +5,7 @@ using MITgcm
 
 # Examples, Notebooks
 
-There are several ways to use `MITgcm.jl` to e.g. analyze model results or run a new model simulation.
+There are several ways to use `MITgcm.jl` to e.g. analyze model results or run a new model simulation. The notebooks presented here focus on running `MITgcm` mostly.
 
 !!! tip
 	- Compiling MITgcm requires [a fortran compiler](https://fortran-lang.org/learn/os_setup/install_gfortran). This is a requirement for all notebooks except `MITgcm_configurations.jl`.
