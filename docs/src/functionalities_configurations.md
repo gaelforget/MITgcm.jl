@@ -46,6 +46,7 @@ The [MITgcm/verification](https://mitgcm.readthedocs.io/en/latest/getting_starte
 To list of these model configurations (as installed) is provided by [`verification_experiments`](@ref). 
 
 ```@example 1
+using MITgcm # hide
 ves=verification_experiments()
 [ve.configuration for ve in ves]
 ```
