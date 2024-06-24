@@ -24,17 +24,36 @@ The cutting-edge of climate modeling, and much of its legacy, is based on numeri
 
 Models like `MITgcm` benefit from decades of accumulated expertise, careful inspection, and continuous integration. Running such a model or exploiting its results does not require knowing the computer language being used internally. However, `Fortran`-based models can sometime appear complicated or inconvenient to operate due to technical hurdles like having to use a compiler directly, to edit text files manually, or to deal with shell-scripting. Fortunately, such issues are easily alleviated by providing a user-friendly interface (e.g., Fig. \ref{fig:interact}) written in a high-level language (e.g., `Julia`) to interact with climate models written in lower-level languages as done here for `MITgcm`.
 
-`MITgcm.jl` can read the various types of model output that `MITgcm` generates. This feature in itself enables not only common result analyses like mapping and plotting, but also accurate computations of quantities like ocean heat transport and global warming (Fig. \ref{fig:examples}, @Forget2015a, @Forget2019, @Forget2024). In addition, `MITgcm.jl` makes it easy to deploy and run any configuration of `MITgcm` on laptops, HPC clusters, and in the cloud. Run-time model parameters are represented in `Julia` as an ordered dictionary and can be exported to the standard `TOML` file format or to the native `MITgcm` format. Owing to this two-way interface, `MITgcm` can now be used from Jupyter or Pluto notebooks directly. `MITgcm.jl` includes a series of examples and tutorials to that effect (e.g., Fig. \ref{fig:interact}). Video presentations listed below further demonstrate key features.
+![Examples of `MITgcm` output, read, processed, and plotted in Julia using `MITgcm.jl`. Top left : global mean ocean warming over 1980-2022 [@Forget2024]. Top right : time mean view of the global ocean conveyor belt [@Rousselet2021]. Bottom right : tracking seawater pathtways along the Gulf Stream via `IndividualDisplacements.jl` [@Forget2021]. Bottom left : global `MITgcm` simulation on a 4km resolution Lat-Lon-Cap grid [@Forget2015a] visualize in `Julia`. \label{fig:examples}](MITgcm_Examples.png){ width=100% }
+
+`MITgcm.jl` can read the various types of model output that `MITgcm` generates. This feature in itself enables not only common result analyses like mapping and plotting, but also accurate computations of quantities like ocean heat transport and global warming (Fig. \ref{fig:examples}, @Forget2015a, @Forget2019, @Forget2024). In addition, `MITgcm.jl` makes it easy to deploy and run any configuration of `MITgcm` on laptops, HPC clusters, and in the cloud. Run-time model parameters are represented in `Julia` as an ordered dictionary and can be exported to the standard `TOML` file format or to the native `MITgcm` format. Owing to this two-way interface, `MITgcm` can now be used from Jupyter or Pluto notebooks directly. `MITgcm.jl` includes a series of examples and tutorials to that effect (e.g., Fig. \ref{fig:interact}). 
+
+In the code example below, `MITgcm_config` defines the `MC` data structure. The `run` command is equivalent to the `setup(MC); build(MC); launch(MC)` sequence. `readdir` will list the content of the folder where `MITgcm` ran this experiment (a temporary folder by default).
+
+```
+using MITgcm
+MC=MITgcm_config(configuration="tutorial_held_suarez_cs")
+run(MC)
+readdir(joinpath(MC,"run"))
+```
+
+We can then modify parameters in julia, call `write_all_namelists` to update the `MITgcm` run-time parameter files accordingly, and rerun a new model simulation in the same folder. In the example below, we extend the simulation to 64 time steps. 
+
+```
+MC.inputs[:main][:PARM03][:nTimeSteps]=64
+write_all_namelists(MC.inputs,joinpath(MC,"run"))
+MITgcm_launch(MC)    
+```
+
+![Notebook that operates `MITgcm` interactively, and let's user visualize model results without having to write code. Both Jupyter and Pluto notebooks are supported.\label{fig:interact}](Pluto_workflow.png){ width=100% }
 
 `MITgcm.jl` brings all of `MITgcm`'s modeling capabilities to a new category of users, who may not be trained in `Fortran` or shell-scripting. Furthermore, `MITgcm.jl` implements the `ClimateModels.jl` interface [@ClimateModels2024], which (1) streamlines the handling of file folders, (2) makes it easier to run and rerun simulations, and (3) supports an extensive lineup of complementary models written in various languages. `MITgcm.jl` can also be used to build integrated cyberinfrastructure solutions as demonstrated in  @Duckworth2023. 
 
 `MITgcm.jl` in turn provides the vast `MITgcm` user community with a bridge to new tools for machine learning, artificial intelligence, differential equations, visualization, etc from the `Julia` software stack. Examples include the use of `MITgcm` output in offline mode to estimate sea water pathways and ocean transports (Fig. \ref{fig:examples}, @Forget2021), or simulate the behavior of marine ecosystems using an agent-based modeling approach [@Wu2022].
 
-![Examples of `MITgcm` output, read, processed, and plotted in Julia using `MITgcm.jl`. Top left : global mean ocean warming over 1980-2022 [@Forget2024]. Top right : time mean view of the global ocean conveyor belt [@Rousselet2021]. Bottom right : tracking seawater pathtways along the Gulf Stream via `IndividualDisplacements.jl` [@Forget2021]. Bottom left : global `MITgcm` simulation on a 4km resolution Lat-Lon-Cap grid [@Forget2015a] visualize in `Julia`. \label{fig:examples}](MITgcm_Examples.png){ width=100% }
-
-![Notebook that operates `MITgcm` interactively, and let's user visualize model results without having to write code. Both Jupyter and Pluto notebooks are supported.\label{fig:interact}](Pluto_workflow.png){ width=100% }
-
 ## Video Presentations
+
+Video presentations listed below further demonstrate key features of `MITgcm.jl`.
 
 - [MITgcm demo](https://youtu.be/0ec8I2-A5oQ?si=DXavbks9qRHCxFMx) that uses the `ClimateModels.jl` interface to run `MITgcm` via `MITgcm.jl`.
 - [JuliaCon2021](https://www.youtube.com/watch?v=XR5hKCja0uw&t=0s) `ClimateModels.jl ` was presented at JuliaCon in 2021.
@@ -42,7 +61,7 @@ Models like `MITgcm` benefit from decades of accumulated expertise, careful insp
 
 # Acknowledgements
 
-G.F. is supported by NASA Awards 80NSSC20K0796, 80NSSC23K0355, 80NSSC22K1697, 1676067, and 1686358.
+G.F. is supported by NASA Awards 80NSSC20K0796, 80NSSC23K0355, 80NSSC22K1697, 1676067, and 1686358, as well as Simons Foundation awards 329108 (SCOPE) and 549931 (CBIOMES).
 
 # References
 
