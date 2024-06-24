@@ -2,12 +2,6 @@
 
 In `MITgcm.jl`, a model configuration is represented as a [`MITgcm_config`](@ref). Model parameters are handled as ordered dictionaries and stored as `TOML` files. Standard model configurations are readily supported.
 
-!!! note
-	Compiling MITgcm requires [a fortran compiler](https://fortran-lang.org/learn/os_setup/install_gfortran). Some configurations further require installing [MPI](https://mitgcm.readthedocs.io/en/latest/getting_started/getting_started.html?highlight=mpi_INC_DIR#building-with-mpi) and [NetCDF](https://mitgcm.readthedocs.io/en/latest/outp_pkgs/outp_pkgs.html?highlight=NetCDF#netcdf-i-o-pkg-mnc) libraries.
-	
-!!! tip
-	The [ECCO-Docker](https://github.com/gaelforget/ECCO-Docker#readme) _image_ has `MITgcm.jl` pre-installed, as well as `gfortran`, `MPI`, and `NetCDF` allowing to run any `MITgcm` configuration. The [ECCO-Binder](https://mybinder.org/v2/gh/gaelforget/ECCO-Docker/HEAD) _instance_ is available to try functionalities in the cloud, freely.
-
 ## MITgcm_config
 
 The data structure that enables `MITgcm.jl` is called `MITgcm_config`.
@@ -18,7 +12,7 @@ MITgcm_config
 
 ## Model Parameters
 
-Model parameters can be stored as a `TOML` file.
+Model parameters can be stored as a `TOML` file, and represented as a nested `OrderedDic`.
 
 ```@example 2
 using MITgcm # hide
@@ -27,7 +21,7 @@ fil=joinpath(p0,"..","examples","configurations","OCCA2.toml") # hide
 read_toml(fil)
 ```
 
-## ECCO solutions
+## Global ECCO Configuration
 
 Global ocean model configurations used in [NASA's ECCO](https://ecco-group.org) ocean state estimation program.
 - ECCO4 : [Forget et al., 2015](http://www.geosci-model-dev.net/8/3071/2015/) (`doi:10.5194/gmd-8-3071-2015`)
@@ -47,24 +41,17 @@ ECCO4_testreport.compare
 
 ## Verification Experiments
 
-The [MITgcm/verification](https://mitgcm.readthedocs.io/en/latest/getting_started/getting_started.html) sub-folder of the `MITgcm` source code provides a suite of small model configurations, often used by model developers. 
+The [MITgcm/verification](https://mitgcm.readthedocs.io/en/latest/getting_started/getting_started.html) sub-folder of the `MITgcm` source code provides a suite of small model configurations, often used by model developers for testing. 
 
-To use them, you first want to use [`MITgcm_download`](@ref) to get the source code.
-
-```@example 1
-using MITgcm
-MITgcm_download()
-MITgcm_path[1]
-```
-
-To list of these model configurations is provided by [`verification_experiments`](@ref). 
+To list of these model configurations (as installed) is provided by [`verification_experiments`](@ref). 
 
 ```@example 1
+using MITgcm # hide
 ves=verification_experiments()
 [ve.configuration for ve in ves]
 ```
 
-To try one, you want to use [`MITgcm_config`](@ref) as follows.
+They can be used via a [`MITgcm_config`](@ref) as follows.
 
 ```@example 1
 MITgcm_config(configuration="MLAdjust")
@@ -73,8 +60,6 @@ MITgcm_config(configuration="MLAdjust")
 ## Functionalities
 
 ```@docs
-MITgcm_download
-MITgcm_path
 verification_experiments
 setup_verification!
 testreport

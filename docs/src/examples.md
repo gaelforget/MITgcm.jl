@@ -3,46 +3,13 @@
 using MITgcm
 ```
 
-# Examples
+# Examples, Notebooks
 
-There are several ways to use `MITgcm.jl` to e.g. analyze model results or run a new model simulation.
-
-!!! note
-	Compiling MITgcm requires [a fortran compiler](https://fortran-lang.org/learn/os_setup/install_gfortran). This is a requirement for all notebooks except `MITgcm_configurations.jl`.
+There are several ways to use `MITgcm.jl` to e.g. analyze model results or run a new model simulation. The notebooks presented here focus on running `MITgcm` mostly.
 
 !!! tip
-	The [ECCO-Docker](https://github.com/gaelforget/ECCO-Docker#readme) _image_ has `MITgcm.jl` pre-installed, as well as `gfortran`, `MPI`, and `NetCDF` allowing to run any `MITgcm` configuration. The [ECCO-Binder](https://mybinder.org/v2/gh/gaelforget/ECCO-Docker/HEAD) _instance_ (free, but small) is available to try functionalities in the cloud.
-
-## Standard Modeling Workflow
-
-Here is the standard way to run a model configuration using `MITgcm.jl`.
-
-```@example 1
-using MITgcm
-MITgcm_download()
-MC=MITgcm_config(configuration="advect_xy")
-```
-
-```@example 1
-setup(MC)
-build(MC,"--allow-skip")
-log(MC)
-```
-
-```@example 1
-MC.inputs
-```
-
-```@example 1
-MITgcm_launch(MC)
-readdir(MC,"run")
-```
-
-```@example 1
-rundir=joinpath(MC,"run")
-sc=scan_rundir(rundir)
-sc.params_grid
-```
+	- Compiling MITgcm requires [a fortran compiler](https://fortran-lang.org/learn/os_setup/install_gfortran). This is a requirement for all notebooks except `MITgcm_configurations.jl`.
+	- The [ECCO-Docker](https://github.com/gaelforget/ECCO-Docker#readme) _image_ has `MITgcm.jl` pre-installed, as well as `gfortran`, `MPI`, and `NetCDF` allowing to run any `MITgcm` configuration. The [ECCO-Binder](https://mybinder.org/v2/gh/gaelforget/ECCO-Docker/HEAD) _instance_ (free, but small) is available to try functionalities in the cloud.
 
 ## Notebooks Listing
 
@@ -51,12 +18,29 @@ sc.params_grid
 - [MITgcm_run.jl](MITgcm_run.html) ([code link](https://raw.githubusercontent.com/gaelforget/MITgcm.jl/master/examples/MITgcm_run.jl)) : a detailed look into compiling and running the model.
 - [MITgcm_worklow.jl](MITgcm_worklow.html) ([code link](https://raw.githubusercontent.com/gaelforget/MITgcm.jl/master/examples/MITgcm_worklow.jl)): build, setup, run, and plot for a chosen standard MITgcm configuration.
 
-!!! note
-	The `HS94*` series of examples need to be run in sequence, as they rely on output from one another. This tutorial runs the [Held and Suarez 94](https://mitgcm.readthedocs.io/en/latest/overview/global_atmos_hs.html) benchmark	 with MITgcm on a cube sphere grid, and illustrates particle tracking in the Atmosphere using	[MeshArrays.jl](https://juliaclimate.github.io/MeshArrays.jl/dev/) and [IndividualDisplacements.jl](https://juliaclimate.github.io/IndividualDisplacements.jl/dev/).
+The `HS94*` series of examples need to be run in sequence, as they rely on output from one another. This tutorial runs the [Held and Suarez 94](https://mitgcm.readthedocs.io/en/latest/overview/global_atmos_hs.html) benchmark	 with MITgcm on a cube sphere grid, and illustrates particle tracking in the Atmosphere using	[MeshArrays.jl](https://juliaclimate.github.io/MeshArrays.jl/dev/) and [IndividualDisplacements.jl](https://juliaclimate.github.io/IndividualDisplacements.jl/dev/).
 
 - [HS94_animation.jl](HS94_animation.html) ([code link](https://raw.githubusercontent.com/gaelforget/MITgcm.jl/master/examples/HS94_animation.jl)) : run `hs94.cs-32x32x5` configuration, read output, interpolate, and plot maps.
 - [HS94_particles.jl](HS94_particles.html) ([code link](https://raw.githubusercontent.com/gaelforget/MITgcm.jl/master/examples/HS94_particles.jl)) : compute particle trajectories from `hs94.cs-32x32x5` output generated earlier.
 - [HS94_Makie.jl](HS94_Makie.html) ([code link](https://raw.githubusercontent.com/gaelforget/MITgcm.jl/master/examples/HS94_Makie.jl)) : using `Makie.jl` instead of `Plots.jl`
+
+
+## Standard Modeling Workflow
+
+Here is the standard way to run a model configuration using `MITgcm.jl`.
+
+```@example 1
+using MITgcm
+MC=MITgcm_config(configuration="advect_xy")
+run(MC)
+MC.inputs
+```
+
+```@example 1
+rundir=joinpath(MC,"run")
+sc=scan_rundir(rundir)
+sc.params_grid
+```
 
 ## Pluto Notebooks
 

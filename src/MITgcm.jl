@@ -17,6 +17,7 @@ include("FormatConversions.jl")
 include("PhysicalOceanography.jl")
 include("ModelConfigurations.jl")
 include("ShellScripting.jl")
+include("System.jl")
 
 export MITgcm_path, MITgcmScratchSpaces
 export MITgcm_download, HS94_pickup_download
@@ -26,9 +27,10 @@ export monitor #pause, stop, clock, train, help
 export verification_experiments, setup_verification!, testreport
 export setup_ECCO4!, ECCO4_inputs, ECCO4_testreport
 export read_namelist, write_namelist, read_toml
-export read_all_namelists, write_all_namelists
+export read_all_namelists, write_all_namelists, parse_param
 export read_mdsio, read_meta, read_available_diagnostics
-export scan_rundir, scan_stdout
+export scan_rundir, scan_stdout, create_script, default_path
+export set_environment_variables_to_default, system_check
 export read_bin, read_flt, read_mnc, read_nctiles, findtiles
 export GridLoad_mnc, GridLoad_mdsio, GridLoad_native
 export cube2compact, compact2cube, convert2array, convert2gcmfaces
@@ -53,7 +55,7 @@ module downloads
     
     Download default, compact version of MITgcm from zenodo.
     """
-    function MITgcm_download()
+    function MITgcm_download(;do_warn=false)
         url0="https://zenodo.org/records/11515564/files/"
         url_small=url0*"MITgcm-checkpoint68y-small.tar.gz"
         url_verif=url0*"MITgcm-checkpoint68y-verif.tar.gz"
@@ -62,7 +64,7 @@ module downloads
             one_download(url_small,"MITgcm",MITgcm_path[1])
         else
             f=basename(url_small)
-            @warn "previously downloaded copy of MITgcm ($f) will be used"
+            !do_warn ? nothing : @warn "previously downloaded copy of MITgcm ($f) will be used"
         end
         if !isdir(joinpath(MITgcm_path[1],"verification","tutorial_held_suarez_cs"))
             one_download(url_verif,
@@ -70,7 +72,7 @@ module downloads
                 joinpath(MITgcm_path[1],"verification"))
         else
             f=basename(url_verif)
-            @warn "previously downloaded copy of MITgcm verification experiments ($f) will be used"
+            !do_warn ? nothing : @warn "previously downloaded copy of MITgcm verification experiments ($f) will be used"
         end
     end
 
@@ -108,6 +110,16 @@ end
 
 MITgcm_download=downloads.MITgcm_download
 HS94_pickup_download=downloads.HS94_pickup_download
+
+"""
+    MITgcm.default_path()
+
+Return default path, and download via MITgcm_download if needed.
+"""
+default_path()=begin
+    MITgcm_download(do_warn=false)
+    MITgcm_path[1]
+end
 
 #more:
 #

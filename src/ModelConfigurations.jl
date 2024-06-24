@@ -50,7 +50,7 @@ function setup_ECCO4!(config::MITgcm_config)
         p3=dirname(config.inputs[:setup][:main][:exe])
         n3=basename(config.inputs[:setup][:main][:exe])
     end
-    P=OrderedDict(:path=>p3,:options=>"-mods=../code -mpi",:exe=>n3)
+    P=OrderedDict(:path=>p3,:options=>"-mods=../code -mpi",:rebuild=>false,:exe=>n3)
     push!(config.inputs[:setup],(:build => P))
     #push!(config.inputs[:setup][:main],(:command => "mpirun -np 96 mitgcmuv"))
     push!(config.inputs[:setup][:main],(:command => "qsub submit.csh"))
@@ -515,7 +515,7 @@ exps=verification_experiments()
 ```
 """
 function verification_experiments()
-MITgcm_download()
+default_path()
 pth=joinpath(MITgcm_path[1],"verification")
 lst=readdir(pth)
 tmp=[isfile(joinpath(pth,i,"code","packages.conf")) for i in lst]
@@ -623,7 +623,8 @@ function setup_verification!(config::MITgcm_config)
         :version=>"main")
     P[:build]=OrderedDict(
         :path=>"$(MITgcm_path[1])/verification/$(config.configuration)/build",
-        :options=>build_options_default,
+        :options=>build_options_default[1],
+        :rebuild=>false,
         :exe=>"mitgcmuv",
         )
     push!(params,(:setup => P))

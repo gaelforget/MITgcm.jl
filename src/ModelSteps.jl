@@ -29,7 +29,8 @@ code files, headers, etc  in the `build/` folder before compiling the model.
 Note : this is skipped if `config.inputs[:setup][:main][:exe]` is specified.
 """
 function build(config::MITgcm_config)
-    if !haskey(config.inputs[:setup][:main],:exe)
+    do_build=(config.inputs[:setup][:build][:rebuild])||(!ispath(config.inputs[:setup][:build][:exe]))
+    if do_build
         try
             pth=pwd()
         catch e
@@ -96,10 +97,13 @@ function compile(config::MITgcm_config)
     return true
 end
 
-build_options_default="-mods=../code"
-
 build_options_pleiades="-mods=../code -optfile=../../../tools/"*
-"build_options/linux_amd64_ifort+mpi_ice_nas -mpi"
+  "build_options/linux_amd64_ifort+mpi_ice_nas -mpi"
+
+linux_arm64_gfortran="-mods=../code -optfile=../../../tools/"*
+  "build_options/linux_arm64_gfortran"
+
+build_options_default=["-mods=../code", linux_arm64_gfortran,build_options_pleiades]
 
 """
     setup(config::MITgcm_config)
@@ -195,7 +199,11 @@ function MITgcm_launch(config::MITgcm_config)
             @suppress run(pipeline(c))
         else
             exe=config.inputs[:setup][:build][:exe]
-            @suppress run(pipeline(`./$(exe)`,"output.txt"))
+            try 
+                @suppress run(pipeline(`./$(exe)`,"output.txt"))
+            catch
+                @suppress run(pipeline(`$(exe)`,"output.txt"))
+            end
         end
     catch e
         tmp[1]="model run may have failed"
