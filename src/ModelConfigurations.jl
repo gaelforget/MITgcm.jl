@@ -503,6 +503,52 @@ end
 
 end #module ECCO4_testreport
 
+## Darwin3
+
+"""
+    setup_darwin3!(config::MITgcm_config)
+
+Setup method for Darwin3 one dimensional examples.
+"""
+function setup_darwin3!(config::MITgcm_config)
+    u0="https://github.com/darwinproject/darwin3"; p0=joinpath(config,"MITgcm")
+    @suppress run(`$(git()) clone --depth 1 --branch darwin_ckpt68y $(u0) $(p0)`)
+
+    p1=joinpath(config,"MITgcm","mysetups")
+    p2=joinpath(p1,config.configuration)
+    mkdir(p1); mkdir(p2); mkdir(joinpath(p2,"build"))
+
+    Darwin3_1D_configs_download()
+
+    p3=joinpath(MITgcmScratchSpaces.path,"Darwin3_1D_examples","code_"*config.configuration)
+    p4=joinpath(p2,"code_"*config.configuration)
+    cp(p3,p4)
+
+    p3=joinpath(MITgcmScratchSpaces.path,"Darwin3_1D_examples","input_"*config.configuration)
+    p4=joinpath(p2,"input_"*config.configuration)
+    cp(p3,p4)
+
+    params=read_all_namelists(p4)
+    params[:main][:PARM03][:nTimeSteps]=64
+
+    P=OrderedDict()
+    P[:main]=OrderedDict(
+        :category=>"darwin3",
+        :name=>config.configuration,
+        :version=>"main")
+    P[:build]=OrderedDict(
+        :path=>joinpath(p2,"build"),
+        :options=>"-mods=../code_"*config.configuration,
+        :rebuild=>false,
+        :exe=>"mitgcmuv",
+        )
+    push!(params,(:setup => P))
+
+    push!(config.inputs,params...)
+
+    #nTimeSteps=48
+end
+
 ## verification experiments
 
 """

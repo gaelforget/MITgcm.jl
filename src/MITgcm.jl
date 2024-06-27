@@ -26,6 +26,7 @@ export testreport, build, compile, setup, clean, launch
 export monitor #pause, stop, clock, train, help
 export verification_experiments, setup_verification!, testreport
 export setup_ECCO4!, ECCO4_inputs, ECCO4_testreport
+export setup_darwin3!
 export read_namelist, write_namelist, read_toml
 export read_all_namelists, write_all_namelists, parse_param
 export read_mdsio, read_meta, read_available_diagnostics
@@ -106,10 +107,23 @@ end
         end
     end
 
+   function Darwin3_1D_configs_download()
+        url="https://zenodo.org/records/12572750/files/Darwin3_1D_examples.tar.gz"
+        fil="Darwin3_1D_examples.tar.gz"
+        dir_out=joinpath(MITgcmScratchSpaces.path,"Darwin3_1D_examples")
+        if !isdir(dir_out)
+            MITgcmScratchSpaces.download_dataset(url,MITgcmScratchSpaces.path)
+            tmp_path=Dataverse.untargz(joinpath(MITgcmScratchSpaces.path,fil))
+            mv(tmp_path,dir_out)
+            rm(joinpath(MITgcmScratchSpaces.path,fil))
+        end
+    end
+
 end
 
 MITgcm_download=downloads.MITgcm_download
 HS94_pickup_download=downloads.HS94_pickup_download
+Darwin3_1D_configs_download=downloads.Darwin3_1D_configs_download
 
 """
     MITgcm.default_path()

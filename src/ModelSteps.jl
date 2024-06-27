@@ -131,15 +131,17 @@ function setup(config::MITgcm_config)
         [symlink(joinpath(p,f[i]),joinpath(pth_run,f[i])) for i in 1:length(f)]
     end
 
-    if !haskey(config.inputs,:setup)||(config.inputs[:setup][:main][:category]=="verification")
-        setup_verification!(config)
-    elseif !isempty(config.inputs)
+    if !isempty(config.inputs)
         nam=config.inputs[:setup][:main][:name]
         if nam=="ECCO4"||nam=="OCCA2"
             setup_ECCO4!(config)
         else
             error("unknown model configuration")
         end
+    elseif config.model=="darwin3"
+        setup_darwin3!(config)
+    elseif !haskey(config.inputs,:setup)||(config.inputs[:setup][:main][:category]=="verification")
+        setup_verification!(config)    
     else
         error("unknown model configuration")
     end
@@ -147,6 +149,13 @@ function setup(config::MITgcm_config)
     pth_tra=joinpath(pth_log,"tracked_parameters")
     !isdir(pth_tra) ? mkdir(pth_tra) : nothing
     write_all_namelists(config.inputs,pth_tra)
+
+    if config.model=="darwin3"
+        p3=joinpath(MITgcmScratchSpaces.path,"Darwin3_1D_examples","input_"*config.configuration,"input_1D_BATS")
+        ispath(p3) ? cp(p3,joinpath(pth_run,"input_1D_BATS")) : nothing
+        p3=joinpath(MITgcmScratchSpaces.path,"Darwin3_1D_examples","input_"*config.configuration,"OPTICS_COEFF2")
+        ispath(p3) ? cp(p3,joinpath(pth_run,"OPTICS_COEFF2")) : nothing        
+    end
 
     #replace namelists with editeable versions in pth_tra
     pth_mv=joinpath(config.folder,string(config.ID),"original_parameters")
