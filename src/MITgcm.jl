@@ -108,7 +108,7 @@ end
     end
 
    function Darwin3_1D_configs_download()
-        url="https://zenodo.org/records/12572750/files/Darwin3_1D_examples.tar.gz"
+        url="https://zenodo.org/records/12575686/files/Darwin3_1D_examples.tar.gz"
         fil="Darwin3_1D_examples.tar.gz"
         dir_out=joinpath(MITgcmScratchSpaces.path,"Darwin3_1D_examples")
         if !isdir(dir_out)
