@@ -135,6 +135,8 @@ function setup(config::MITgcm_config)
         nam=config.inputs[:setup][:main][:name]
         if nam=="ECCO4"||nam=="OCCA2"
             setup_ECCO4!(config)
+        elseif config.inputs[:setup][:main][:category]=="verification"
+            setup_verification!(config)    
         else
             error("unknown model configuration")
         end
