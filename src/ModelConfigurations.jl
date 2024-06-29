@@ -511,8 +511,8 @@ end #module ECCO4_testreport
 Setup method for Darwin3 one dimensional examples.
 """
 function setup_darwin3!(config::MITgcm_config)
-    u0="https://github.com/darwinproject/darwin3"; p0=joinpath(config,"MITgcm")
-    @suppress run(`$(git()) clone --depth 1 --branch darwin_ckpt68y $(u0) $(p0)`)
+    p0=joinpath(config,"MITgcm")
+    cp(MITgcm.getdata("darwin3code"),p0)
 
     p1=joinpath(config,"MITgcm","mysetups")
     p2=joinpath(p1,config.configuration)
@@ -520,11 +520,11 @@ function setup_darwin3!(config::MITgcm_config)
 
     Darwin3_1D_configs_download()
 
-    p3=joinpath(MITgcmScratchSpaces.path,"Darwin3_1D_examples","code_"*config.configuration)
+    p3=joinpath(MITgcm.getdata("darwin3oneD"),"code_"*config.configuration)
     p4=joinpath(p2,"code_"*config.configuration)
     cp(p3,p4)
 
-    p3=joinpath(MITgcmScratchSpaces.path,"Darwin3_1D_examples","input_"*config.configuration)
+    p3=joinpath(MITgcm.getdata("darwin3oneD"),"input_"*config.configuration)
     p4=joinpath(p2,"input_"*config.configuration)
     cp(p3,p4)
 
@@ -562,7 +562,7 @@ exps=verification_experiments()
 """
 function verification_experiments()
 default_path()
-pth=joinpath(MITgcm_path[1],"verification")
+pth=MITgcm_path[2]
 lst=readdir(pth)
 tmp=[isfile(joinpath(pth,i,"code","packages.conf")) for i in lst]
 tmp2=[isfile(joinpath(pth,i,"code","SIZE.h")) for i in lst]
@@ -619,11 +619,11 @@ Setup method for verification experiments.
 function setup_verification!(config::MITgcm_config)
     pth_run=joinpath(config.folder,string(config.ID),"run")
 
-    MITgcm_download()
-    p="$(MITgcm_path[1])/verification/$(config.configuration)/input"
+    p=joinpath(MITgcm_path[2],config.configuration,"input")
+
     tmpA=readdir(p)
     f=tmpA[findall([!isfile(joinpath(pth_run,tmpA[i])) for i in 1:length(tmpA)])]
-    [symlink(joinpath(p,f[i]),joinpath(pth_run,f[i])) for i in 1:length(f)]
+    [(!isfile(joinpath(pth_run,f[i])) ? symlink(joinpath(p,f[i]),joinpath(pth_run,f[i])) : nothing ) for i in 1:length(f)]
 
     #replace relative paths with absolutes then exe prepare_run
     if isfile(joinpath(pth_run,"prepare_run"))
@@ -640,11 +640,11 @@ function setup_verification!(config::MITgcm_config)
         meta = split(meta,"\n")
         ii=findall(occursin.("../../",meta))
         for i in ii
-            meta[i]=replace(meta[i],"../../" => "$(MITgcm_path[1])/verification/")
+            meta[i]=replace(meta[i],"../../" => MITgcm_path[2]*"/")
         end
         ii=findall(occursin.("../",meta))
         for i in ii
-            meta[i]=replace(meta[i],"../" => "$(MITgcm_path[1])/verification/$(config.configuration)")
+            meta[i]=replace(meta[i],"../" => joinpath(MITgcm_path[2],config.configuration))
         end
         #rm old file from run dir
         rm(fil)
@@ -662,13 +662,17 @@ function setup_verification!(config::MITgcm_config)
 
     params=read_all_namelists(pth_run)
 
+    rootdir=MITgcm_path[1]
+    builddir=joinpath(MITgcm_path[2],config.configuration,"build")
+
     P=OrderedDict()
     P[:main]=OrderedDict(
         :category=>"verification",
         :name=>config.configuration,
         :version=>"main")
     P[:build]=OrderedDict(
-        :path=>"$(MITgcm_path[1])/verification/$(config.configuration)/build",
+        :path=>builddir,
+        :rootdir=>rootdir,
         :options=>build_options_default[1],
         :rebuild=>false,
         :exe=>"mitgcmuv",
@@ -677,67 +681,5 @@ function setup_verification!(config::MITgcm_config)
 
     push!(config.inputs,params...)
 
-    return true
-end
-
-
-module MITgcmScratchSpaces
-
-using Dataverse, Scratch
-using Dataverse.downloads.Downloads
-
-# This will be filled in inside `__init__()`
-path = ""
-
-# Downloads a resource, stores it within path
-function download_dataset(url,path)
-    fname = joinpath(path, basename(url))
-    if !isfile(fname)
-        !isdir(path) ? mkdir(path) : nothing
-        Downloads.download(url, fname)
-    end
-    return fname
-end
-
-function __init__()
-    global path = @get_scratch!("src")
-end
-
-end
-
-"""
-    testreport(config::MITgcm_config,ext="")
-
-Run the testreport script for one model `config`,
-with additional options (optional) speficied in `ext`
-
-```
-using MITgcm
-testreport(MITgcm_config(configuration="front_relax"),"-norun")
-#testreport(MITgcm_config(configuration="all"),"-norun")
-```
-"""
-function testreport(config::MITgcm_config,ext="")
-    nm=config.configuration
-    try
-        pth=pwd()
-    catch e
-        cd()
-    end
-    pth=pwd()
-    cd(tempdir())
-    println(pwd())
-    if nm!=="all"
-        lst=[nm]
-    else
-        exps=verification_experiments()
-        lst=[exps[i].configuration for i in 1:length(exps)]
-    end
-    for nm in lst
-        c=`$(MITgcm_path[1])/verification/testreport -t $(MITgcm_path[1])/verification/$(nm) $ext`
-        isempty(ext) ? c=`$(MITgcm_path[1])/verification/testreport -t $(MITgcm_path[1])/verification/$(nm)` : nothing
-        @suppress run(c)
-    end
-    cd(pth)
     return true
 end

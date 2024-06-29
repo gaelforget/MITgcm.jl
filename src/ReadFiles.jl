@@ -897,8 +897,7 @@ function read_flt(dirIn::String,prec::DataType)
 
    n2=Array{Int,1}(undef,nf)
    for ff=1:nf
-      fil=dirIn*filList[ff]
-      #println(fil)
+      fil=joinpath(dirIn,filList[ff])
       tmp=stat(fil)
       n2[ff]=Int64(tmp.size/n1/reclen)-1
    end
@@ -907,7 +906,7 @@ function read_flt(dirIn::String,prec::DataType)
    ii=0;
    #@softscope for ff=1:nf
    for ff=1:nf
-      fil=dirIn*filList[ff]
+      fil=joinpath(dirIn,filList[ff])
       fid = open(fil)
       tmp = Array{prec,2}(undef,(n1,n2[ff]+1))
       read!(fid,tmp)
