@@ -70,14 +70,19 @@ begin
 	RC=read_mdsio(joinpath(MC,"run","RC.data"))[:]
 	msk=read_mdsio(joinpath(MC,"run","hFacC.data"))[:] 
 	msk=[(m>0 ? 1 : NaN) for m in msk]
-	tracer=read_mdsio(joinpath(MC,"run","PTRACER01.0000000000.data"))[:]
+	qtr=(ptr>9 ? "$(ptr)" : "0$(ptr)")
+	tracer_0=read_mdsio(joinpath(MC,"run","PTRACER$(qtr).0000000000.data"))[:]
+	tracer_64=read_mdsio(joinpath(MC,"run","PTRACER$(qtr).0000000064.data"))[:]
 end
+
+# ╔═╡ 2d2f310f-9f67-46a6-a0b7-cf96e2268f39
+readdir(MC,"run")
 
 # ╔═╡ 854fc514-8b7d-47d9-9bb1-7fae4528e020
 MC.inputs
 
 # ╔═╡ ac880e26-48b1-4001-a84b-1f624e746639
-md"""## appendix"""
+md"""## Appendix"""
 
 # ╔═╡ 7bb2774f-e23d-488e-a58b-bcd530856708
 function ptr_name(ptr)
@@ -88,8 +93,9 @@ end
 
 # ╔═╡ 9b6a364a-48b6-4c93-8707-4c32d1f8759a
 begin
-	fig,ax,li=lines(msk.*tracer,RC)
-	ax.title=ptr_name(ptr)
+	fig,ax,li=lines(msk.*tracer_0,RC,label="time = 0")
+	lines!(msk.*tracer_64,RC,label="time = 64 steps")
+	ax.title=ptr_name(ptr); axislegend(ax,position=:lb)
 	fig
 end
 
@@ -102,7 +108,7 @@ PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 
 [compat]
 CairoMakie = "~0.12.3"
-MITgcm = "~0.4.1"
+MITgcm = "~0.4.4"
 PlutoUI = "~0.7.59"
 """
 
@@ -112,7 +118,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.4"
 manifest_format = "2.0"
-project_hash = "0c6665110c7d9523668e1aa414e31bf19846e7ed"
+project_hash = "3c2837f5bf9b4345f87cd6027297a917b88b73fe"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -359,6 +365,12 @@ version = "4.1.1"
 git-tree-sha1 = "abe83f3a2f1b857aac70ef8b269080af17764bbe"
 uuid = "9a962f9c-6df0-11e9-0e5d-c546b8b5ee8a"
 version = "1.16.0"
+
+[[deps.DataDeps]]
+deps = ["HTTP", "Libdl", "Reexport", "SHA", "Scratch", "p7zip_jll"]
+git-tree-sha1 = "8ae085b71c462c2cb1cfedcb10c3c877ec6cf03f"
+uuid = "124859b0-ceae-595e-8997-d05f6a7a8dfe"
+version = "0.7.13"
 
 [[deps.DataFrames]]
 deps = ["Compat", "DataAPI", "DataStructures", "Future", "InlineStrings", "InvertedIndices", "IteratorInterfaceExtensions", "LinearAlgebra", "Markdown", "Missings", "PooledArrays", "PrecompileTools", "PrettyTables", "Printf", "REPL", "Random", "Reexport", "SentinelArrays", "SortingAlgorithms", "Statistics", "TableTraits", "Tables", "Unicode"]
@@ -979,10 +991,10 @@ uuid = "6c6e2e6c-3030-632d-7369-2d6c69616d65"
 version = "0.1.4"
 
 [[deps.MITgcm]]
-deps = ["ClimateModels", "Dataverse", "Dates", "Distributed", "FortranFiles", "Glob", "MeshArrays", "Printf", "Scratch", "SharedArrays", "SparseArrays", "Statistics", "UUIDs"]
-git-tree-sha1 = "89cc92b1aa6b2006e39ebd4abd32e7ec88786380"
+deps = ["ClimateModels", "DataDeps", "Dataverse", "Dates", "Distributed", "FortranFiles", "Glob", "MeshArrays", "Printf", "Scratch", "SharedArrays", "SparseArrays", "Statistics", "UUIDs"]
+git-tree-sha1 = "e66106934f58cd472ad7481c960e551abc82f71c"
 uuid = "dce5fa8e-68ce-4431-a242-9469c69627a0"
-version = "0.4.3"
+version = "0.4.4"
 
     [deps.MITgcm.extensions]
     MITgcmNetCDFExt = ["NetCDF"]
@@ -1793,7 +1805,8 @@ version = "3.5.0+0"
 # ╔═╡ Cell order:
 # ╟─91de38ed-9b1d-4b91-8744-1e0db6c4a60d
 # ╟─cbda8aa0-c483-4038-a6dc-957f2e6f8c7b
-# ╠═b12b379b-02d3-477e-b720-e031355fcfc2
+# ╟─b12b379b-02d3-477e-b720-e031355fcfc2
+# ╟─2d2f310f-9f67-46a6-a0b7-cf96e2268f39
 # ╟─9b6a364a-48b6-4c93-8707-4c32d1f8759a
 # ╟─ac48d134-6eaf-4df8-a476-3a06fe035135
 # ╠═854fc514-8b7d-47d9-9bb1-7fae4528e020
@@ -1801,6 +1814,6 @@ version = "3.5.0+0"
 # ╠═301b38d9-a3a0-4f6b-9892-71f86932d1c1
 # ╟─ac880e26-48b1-4001-a84b-1f624e746639
 # ╠═95380a98-b33d-48b2-b244-3e82509c2198
-# ╠═7bb2774f-e23d-488e-a58b-bcd530856708
+# ╟─7bb2774f-e23d-488e-a58b-bcd530856708
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
