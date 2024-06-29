@@ -173,8 +173,7 @@ using MITgcm.ClimateModels.CSV
 
     ##
 
-    HS94_pickup_download()
-    dir_out=joinpath(MITgcmScratchSpaces.path,"pickup_hs94.cs-32x32x5")
+    dir_out=HS94_pickup_download()
     @test isdir(dir_out)
 
 end
