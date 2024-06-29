@@ -35,7 +35,7 @@ MITgcm_launch
 system_check
 set_environment_variables_to_default
 default_path
-MITgcm_download
+MITgcm.getdata
 create_script
 parse_param
 compile
