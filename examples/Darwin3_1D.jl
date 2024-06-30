@@ -16,8 +16,9 @@ end
 
 # ╔═╡ 95380a98-b33d-48b2-b244-3e82509c2198
 begin
-	using MITgcm
+	using MITgcm, Glob
 	using PlutoUI, CairoMakie
+	"Julia packages"
 end
 
 # ╔═╡ 91de38ed-9b1d-4b91-8744-1e0db6c4a60d
@@ -38,14 +39,11 @@ md"""# Darwin3 Model (1D)
 	- [MITgcm.jl](https://github.com/gaelforget/MITgcm.jl#readme).
 """
 
-# ╔═╡ cbda8aa0-c483-4038-a6dc-957f2e6f8c7b
-begin
-	ptr_select = @bind ptr Select(1:10)
-	md"""## Model Output
+# ╔═╡ 4bfab0e3-f1b1-4ad2-8f7b-216812556d53
+md"""## Model Output
 
-	ptracer ID = $(ptr_select)
-	"""
-end
+The `get_data` function reads PP from all tracers, adds them up, and computes the logarithm (magnitude).
+"""
 
 # ╔═╡ ac48d134-6eaf-4df8-a476-3a06fe035135
 md"""## Model Parameters"""
@@ -59,27 +57,28 @@ begin
 	setup(MC)
 
     MC.inputs[:pkg][:PACKAGES][:useMNC]=false
+    MC.inputs[:main][:PARM03][:nTimeSteps]=8640
+	exe=joinpath(tempdir(),"darwin3/MITgcm/mysetups/31+16+3_RT_1D/build/mitgcmuv")
+	MC.inputs[:setup][:build][:exe]=exe
     write_all_namelists(MC.inputs,joinpath(MC,"run"))
     
 	build(MC)
 	MITgcm_launch(MC)
 end
 
+# ╔═╡ 854fc514-8b7d-47d9-9bb1-7fae4528e020
+MC.inputs
+
 # ╔═╡ b12b379b-02d3-477e-b720-e031355fcfc2
 begin	
 	RC=read_mdsio(joinpath(MC,"run","RC.data"))[:]
 	msk=read_mdsio(joinpath(MC,"run","hFacC.data"))[:] 
 	msk=[(m>0 ? 1 : NaN) for m in msk]
-	qtr=(ptr>9 ? "$(ptr)" : "0$(ptr)")
-	tracer_0=read_mdsio(joinpath(MC,"run","PTRACER$(qtr).0000000000.data"))[:]
-	tracer_64=read_mdsio(joinpath(MC,"run","PTRACER$(qtr).0000000064.data"))[:]
+	"RC, msk"
 end
 
-# ╔═╡ 2d2f310f-9f67-46a6-a0b7-cf96e2268f39
+# ╔═╡ 380e7dec-675f-4d25-8554-36ad4c98b1e2
 readdir(MC,"run")
-
-# ╔═╡ 854fc514-8b7d-47d9-9bb1-7fae4528e020
-MC.inputs
 
 # ╔═╡ ac880e26-48b1-4001-a84b-1f624e746639
 md"""## Appendix"""
@@ -91,23 +90,90 @@ function ptr_name(ptr)
 	MC.inputs[:ptracers][:PTRACERS_PARM01][s]
 end
 
-# ╔═╡ 9b6a364a-48b6-4c93-8707-4c32d1f8759a
-begin
-	fig,ax,li=lines(msk.*tracer_0,RC,label="time = 0")
-	lines!(msk.*tracer_64,RC,label="time = 64 steps")
-	ax.title=ptr_name(ptr); axislegend(ax,position=:lb)
-	fig
+# ╔═╡ 1d4f13ff-3fc3-4d5f-bbe8-100c372778ec
+function get_lists(path)
+    lst=glob("PTRtave01*.data",path)
+    times=[split(n,'.')[2] for n in basename.(lst)]
+
+    lst=glob("*000720.data",path)
+    vars=[split(n,'.')[1] for n in basename.(lst)]
+
+    (times,vars)
 end
+
+# ╔═╡ f95e6347-7b2e-42e5-915f-eb964a6d9235
+function get_data(MC)
+	rundir=joinpath(MC,"run")
+	(times,vars)=get_lists(rundir)
+	
+	##
+	
+	nt=length(times)
+	arr=zeros(50,nt)
+	
+	var0="PP"
+	for tt in 1:nt
+	    time0=times[tt]
+	    field0=read_mdsio(joinpath(MC,"run","$(var0).$(time0).data"))[:,:,:,:]
+	    arr[:,tt].=sum(field0,dims=4)[:]
+	end
+	arr,var0
+end
+
+
+# ╔═╡ e6e2e671-a58c-45da-a451-01edc2df2960
+(arr,var0)=get_data(MC)
+
+# ╔═╡ 45e7ff3c-0fd6-4223-a38f-d939d0b62cc5
+function do_plot(RC,times,arr; title="log to total PP", colorrange=(-22,-12))
+    tt=1:length(times)
+    fi,ax,hm=heatmap(tt,-RC,log.(arr)',colorrange=colorrange)
+	ax.xlabel="month"; ax.ylabel="depth (m)"; ax.title=title
+    ylims!(0,200); ax.yreversed = true; Colorbar(fi[1,2], hm)
+    fi
+end
+
+# ╔═╡ f403198f-411f-492c-8ebd-cefb20824c5e
+begin
+	rundir=joinpath(MC,"run")
+	(times,vars)=get_lists(rundir)
+	do_plot(RC,times,arr; title="log of total PP",colorrange=(-22,-12))
+end
+
+# ╔═╡ cbda8aa0-c483-4038-a6dc-957f2e6f8c7b
+begin
+	ptr_select = @bind ptr Select(1:10)
+	md"""## Select Variable
+
+	ptracer ID = $(ptr_select)
+	"""
+end
+
+# ╔═╡ 5bb55266-5589-4575-9468-0fba225e8294
+#	qtr=(ptr>9 ? "$(ptr)" : "0$(ptr)")
+#	tracer_0=read_mdsio(joinpath(MC,"run","PTRACER$(qtr).0000000000.data"))[:]
+#	tracer_64=read_mdsio(joinpath(MC,"run","PTRACER$(qtr).0000000064.data"))[:]
+#   plot_tracer()
+
+# ╔═╡ 9b6a364a-48b6-4c93-8707-4c32d1f8759a
+#function plot_tracer()
+#	fig,ax,li=lines(msk.*tracer_0,RC,label="time = 0")
+#	lines!(msk.*tracer_64,RC,label="time = 64 steps")
+#	ax.title=ptr_name(ptr); axislegend(ax,position=:lb)
+#	fig
+#end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
+Glob = "c27321d9-0574-5035-807b-f59d2c89b15c"
 MITgcm = "dce5fa8e-68ce-4431-a242-9469c69627a0"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 
 [compat]
 CairoMakie = "~0.12.3"
+Glob = "~1.3.1"
 MITgcm = "~0.4.4"
 PlutoUI = "~0.7.59"
 """
@@ -118,7 +184,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.4"
 manifest_format = "2.0"
-project_hash = "3c2837f5bf9b4345f87cd6027297a917b88b73fe"
+project_hash = "aa4c0e140c8c3224dec96ac95ae2ea5e13bd7c82"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -1804,16 +1870,23 @@ version = "3.5.0+0"
 
 # ╔═╡ Cell order:
 # ╟─91de38ed-9b1d-4b91-8744-1e0db6c4a60d
-# ╟─cbda8aa0-c483-4038-a6dc-957f2e6f8c7b
-# ╟─b12b379b-02d3-477e-b720-e031355fcfc2
-# ╟─2d2f310f-9f67-46a6-a0b7-cf96e2268f39
-# ╟─9b6a364a-48b6-4c93-8707-4c32d1f8759a
+# ╟─4bfab0e3-f1b1-4ad2-8f7b-216812556d53
+# ╟─e6e2e671-a58c-45da-a451-01edc2df2960
+# ╟─f403198f-411f-492c-8ebd-cefb20824c5e
 # ╟─ac48d134-6eaf-4df8-a476-3a06fe035135
-# ╠═854fc514-8b7d-47d9-9bb1-7fae4528e020
+# ╟─854fc514-8b7d-47d9-9bb1-7fae4528e020
+# ╟─b12b379b-02d3-477e-b720-e031355fcfc2
 # ╟─2d88fc56-ec4c-48cd-92ae-9dd461b2d9fd
-# ╠═301b38d9-a3a0-4f6b-9892-71f86932d1c1
+# ╟─301b38d9-a3a0-4f6b-9892-71f86932d1c1
+# ╟─380e7dec-675f-4d25-8554-36ad4c98b1e2
 # ╟─ac880e26-48b1-4001-a84b-1f624e746639
-# ╠═95380a98-b33d-48b2-b244-3e82509c2198
+# ╟─95380a98-b33d-48b2-b244-3e82509c2198
 # ╟─7bb2774f-e23d-488e-a58b-bcd530856708
+# ╟─1d4f13ff-3fc3-4d5f-bbe8-100c372778ec
+# ╟─f95e6347-7b2e-42e5-915f-eb964a6d9235
+# ╟─45e7ff3c-0fd6-4223-a38f-d939d0b62cc5
+# ╟─cbda8aa0-c483-4038-a6dc-957f2e6f8c7b
+# ╠═5bb55266-5589-4575-9468-0fba225e8294
+# ╠═9b6a364a-48b6-4c93-8707-4c32d1f8759a
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
