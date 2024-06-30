@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.42
+# v0.19.43
 
 using Markdown
 using InteractiveUtils
@@ -12,6 +12,12 @@ macro bind(def, element)
         global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
         el
     end
+end
+
+# ╔═╡ 8cf4d8ca-84eb-11eb-22d2-255ce7237090
+begin
+	using MITgcm, PlutoUI, Printf
+	exps=verification_experiments()
 end
 
 # ╔═╡ f588eaba-84ef-11eb-0755-bf1b85b2b561
@@ -46,6 +52,29 @@ Each configuration has various groups of parameters, often called namelists, dep
 The chosen defaults, `data` and `PARM01`, are expected to be found in any MITgcm run directory. However, there can be many more parameters. 
 """
 
+# ╔═╡ f40e76c4-86d5-11eb-15b0-cd55d6cd1e65
+md"""### Appendices
+
+The following cells select Julia packages and perform basic operations.
+"""
+
+# ╔═╡ 168e178c-dd09-4e27-8cb6-fc0479a55f75
+begin
+	🏁 = "🏁"
+	imgA="https://user-images.githubusercontent.com/20276764/111042787-12377e00-840d-11eb-8ddb-64cc1cfd57fd.png"
+	imgB="https://user-images.githubusercontent.com/20276764/97648227-970b9780-1a2a-11eb-81c4-65ec2c87efc6.png"
+	md"""$(Resource(imgB, :width => 120))"""
+end
+
+# ╔═╡ 4965715d-93ca-496b-8ab1-238e9c6e34b4
+begin
+	iexp=findall([exps[i].configuration==myexp for i in 1:length(exps)])[1]
+	builddir=joinpath(MITgcm_path[1],"verification",myexp)
+	rundir=joinpath(exps[iexp].folder,string(exps[iexp].ID),"run")
+	!isdir(rundir) ? setup(exps[iexp]) : nothing
+	🏁
+end
+
 # ╔═╡ d7f2c656-8512-11eb-2fdf-47a3e57a55e6
 begin	
 	function list_namelist_files(pth)
@@ -63,6 +92,13 @@ begin
 	end
 end
 
+# ╔═╡ 348c692e-84fe-11eb-3288-dd0a1dedce90
+begin
+	fil=joinpath(rundir,mydats)
+	nml=read(fil,MITgcm_namelist())
+	🏁
+end
+
 # ╔═╡ ca7bb004-8510-11eb-379f-632c3b40723d
 try
 	@bind nmlgroup Select(String.(nml.groups))
@@ -77,53 +113,17 @@ md"""## Browse Parameters
 
 Now displaying 👉 **$myexp / $mydats : $nmlgroup**"""
 
-# ╔═╡ e50726aa-86d3-11eb-0418-fff8fb79ef95
-nml.params[inml]
-
-
-
-
-# ╔═╡ f40e76c4-86d5-11eb-15b0-cd55d6cd1e65
-md"""### Appendices
-
-The following cells select Julia packages and perform basic operations.
-"""
-
-# ╔═╡ 8cf4d8ca-84eb-11eb-22d2-255ce7237090
-begin
-	using MITgcm, PlutoUI, Printf
-	exps=verification_experiments()
-end
-
 # ╔═╡ 9bdb94da-8510-11eb-01a6-c9a1519baa68
 begin
 	inml=findall(nml.groups.==Symbol(nmlgroup))[1]
 	🏁
 end
 
-# ╔═╡ 348c692e-84fe-11eb-3288-dd0a1dedce90
-begin
-	fil=joinpath(rundir,mydats)
-	nml=read(fil,MITgcm_namelist())
-	🏁
-end
+# ╔═╡ e50726aa-86d3-11eb-0418-fff8fb79ef95
+nml.params[inml]
 
-# ╔═╡ 4965715d-93ca-496b-8ab1-238e9c6e34b4
-begin
-	iexp=findall([exps[i].configuration==myexp for i in 1:length(exps)])[1]
-	builddir=joinpath(MITgcm_path[1],"verification",myexp)
-	rundir=joinpath(exps[iexp].folder,string(exps[iexp].ID),"run")
-	!isdir(rundir) ? setup(exps[iexp]) : nothing
-	🏁
-end
 
-# ╔═╡ 168e178c-dd09-4e27-8cb6-fc0479a55f75
-begin
-	🏁 = "🏁"
-	imgA="https://user-images.githubusercontent.com/20276764/111042787-12377e00-840d-11eb-8ddb-64cc1cfd57fd.png"
-	imgB="https://user-images.githubusercontent.com/20276764/97648227-970b9780-1a2a-11eb-81c4-65ec2c87efc6.png"
-	md"""$(Resource(imgB, :width => 120))"""
-end
+
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -232,6 +232,12 @@ version = "4.1.1"
 git-tree-sha1 = "abe83f3a2f1b857aac70ef8b269080af17764bbe"
 uuid = "9a962f9c-6df0-11e9-0e5d-c546b8b5ee8a"
 version = "1.16.0"
+
+[[deps.DataDeps]]
+deps = ["HTTP", "Libdl", "Reexport", "SHA", "Scratch", "p7zip_jll"]
+git-tree-sha1 = "8ae085b71c462c2cb1cfedcb10c3c877ec6cf03f"
+uuid = "124859b0-ceae-595e-8997-d05f6a7a8dfe"
+version = "0.7.13"
 
 [[deps.DataFrames]]
 deps = ["Compat", "DataAPI", "DataStructures", "Future", "InlineStrings", "InvertedIndices", "IteratorInterfaceExtensions", "LinearAlgebra", "Markdown", "Missings", "PooledArrays", "PrecompileTools", "PrettyTables", "Printf", "REPL", "Random", "Reexport", "SentinelArrays", "SortingAlgorithms", "Statistics", "TableTraits", "Tables", "Unicode"]
@@ -467,10 +473,10 @@ uuid = "6c6e2e6c-3030-632d-7369-2d6c69616d65"
 version = "0.1.4"
 
 [[deps.MITgcm]]
-deps = ["ClimateModels", "Dataverse", "Dates", "Distributed", "FortranFiles", "Glob", "MeshArrays", "Printf", "Scratch", "SharedArrays", "SparseArrays", "Statistics", "UUIDs"]
-git-tree-sha1 = "ea8af415a87a5328d12e311df32c2015247c45bb"
+deps = ["ClimateModels", "DataDeps", "Dataverse", "Dates", "Distributed", "FortranFiles", "Glob", "MeshArrays", "Printf", "Scratch", "SharedArrays", "SparseArrays", "Statistics", "UUIDs"]
+git-tree-sha1 = "e66106934f58cd472ad7481c960e551abc82f71c"
 uuid = "dce5fa8e-68ce-4431-a242-9469c69627a0"
-version = "0.4.0"
+version = "0.4.4"
 
     [deps.MITgcm.extensions]
     MITgcmNetCDFExt = ["NetCDF"]
@@ -667,9 +673,9 @@ version = "1.10.0"
 
 [[deps.StaticArrays]]
 deps = ["LinearAlgebra", "PrecompileTools", "Random", "StaticArraysCore"]
-git-tree-sha1 = "6e00379a24597be4ae1ee6b2d882e15392040132"
+git-tree-sha1 = "20833c5b7f7edf0e5026f23db7f268e4f23ec577"
 uuid = "90137ffa-7385-5640-81b9-e52037218182"
-version = "1.9.5"
+version = "1.9.6"
 
     [deps.StaticArrays.extensions]
     StaticArraysChainRulesCoreExt = "ChainRulesCore"
@@ -739,9 +745,9 @@ deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [[deps.TranscodingStreams]]
-git-tree-sha1 = "a947ea21087caba0a798c5e494d0bb78e3a1a3a0"
+git-tree-sha1 = "d73336d81cafdc277ff45558bb7eaa2b04a8e472"
 uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
-version = "0.10.9"
+version = "0.10.10"
 weakdeps = ["Random", "Test"]
 
     [deps.TranscodingStreams.extensions]
