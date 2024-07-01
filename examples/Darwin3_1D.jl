@@ -18,6 +18,8 @@ end
 begin
 	using MITgcm, Glob
 	using PlutoUI, CairoMakie
+    MITgcm.getdata("darwin3code")
+    MITgcm.getdata("darwin3oneD")
 	"Julia packages"
 end
 
