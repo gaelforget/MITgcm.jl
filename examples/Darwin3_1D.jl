@@ -18,8 +18,8 @@ end
 begin
 	using MITgcm, Glob
 	using PlutoUI, CairoMakie
-    MITgcm.getdata("darwin3code")
-    MITgcm.getdata("darwin3oneD")
+	MITgcm.getdata("darwin3code")
+	MITgcm.getdata("darwin3oneD")
 	"Julia packages"
 end
 
@@ -58,11 +58,11 @@ begin
 	MC=MITgcm_config(model="darwin3",configuration="31+16+3_RT_1D")
 	setup(MC)
 
-    MC.inputs[:pkg][:PACKAGES][:useMNC]=false
-    MC.inputs[:main][:PARM03][:nTimeSteps]=8640
-	exe=joinpath(tempdir(),"darwin3/MITgcm/mysetups/31+16+3_RT_1D/build/mitgcmuv")
-	MC.inputs[:setup][:build][:exe]=exe
-    write_all_namelists(MC.inputs,joinpath(MC,"run"))
+	MC.inputs[:pkg][:PACKAGES][:useMNC]=false
+	MC.inputs[:main][:PARM03][:nTimeSteps]=8640
+#	exe=joinpath(tempdir(),"darwin3/MITgcm/mysetups/31+16+3_RT_1D/build/mitgcmuv")
+#	MC.inputs[:setup][:build][:exe]=exe
+	write_all_namelists(MC.inputs,joinpath(MC,"run"))
     
 	build(MC)
 	MITgcm_launch(MC)
