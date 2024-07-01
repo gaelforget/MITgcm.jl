@@ -8,9 +8,9 @@ using InteractiveUtils
 begin	
 	#packages for I/O, interpolation, etc	
 	using MITgcm, MeshArrays, Plots, PlutoUI
-	HS94_pickup_download()
-	PICKUP_hs94_path=joinpath(MITgcmScratchSpaces.path,"pickup_hs94.cs-32x32x5")
-			
+	withenv("DATADEPS_ALWAYS_ACCEPT"=>true) do
+		PICKUP_hs94_path=MITgcm.getdata("hs94pickup")
+	end		
 	🏁 = "🏁"
 	"Downloads and packages : complete."
 end
