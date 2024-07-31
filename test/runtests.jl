@@ -97,7 +97,7 @@ using MITgcm.ClimateModels.CSV
  
     list1=ECCO4_inputs.get_list()
     nam1="documentation"
-    @suppress ECCO4_inputs.get_files(list1,nam1,joinpath(MC,"run"))
+    @suppress ECCO4_inputs.get_files(list1,nam1,joinpath(MC,"run"),filenames=("README.pdf",))
     fil=joinpath(MC,"run","README.pdf")
     @test isfile(fil)
 
