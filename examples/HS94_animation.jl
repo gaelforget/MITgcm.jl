@@ -119,6 +119,8 @@ begin
 	setup(myexp)
 
 	#compile model if not already done
+	filexe=joinpath(MITgcm_path[2],config,"build","mitgcmuv")
+	MC.inputs[:setup][:build][:exe]=filexe
 	build(myexp,"--allow-skip")
 
 	#modify parameters to start from time step 43200, etc
@@ -213,7 +215,11 @@ begin
 end
 
 # ╔═╡ b1ca8b16-7b63-470b-90d0-6ea41eeb5211
-sc
+begin
+	rm(joinpath(tempdir(),"HS94_animation_link"))
+	symlink(pathof(myexp),joinpath(tempdir(),"HS94_animation_link"))
+	sc
+end
 
 
 
