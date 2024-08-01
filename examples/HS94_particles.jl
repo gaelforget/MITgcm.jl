@@ -16,8 +16,7 @@ begin
 	writecube(fil::String,x::MeshArray) = write(fil::String,x::MeshArray)
 
 	#Path to model output
-	PICKUP_hs94_path=joinpath(MITgcmScratchSpaces.path,"pickup_hs94.cs-32x32x5")
-	pth=joinpath(PICKUP_hs94_path,"run/")
+	pth=joinpath(tempdir(),"HS94_animation_link","run")
 end
 
 # ╔═╡ fb0cacc0-4817-41cf-a4ad-ab5e5d9864f3
@@ -110,13 +109,13 @@ begin
 	    t1=m1*𝐷.dt-𝐷.dt+𝐷.t00
 	    #println(m0)
 	
-	    u0=read(𝐷.pth*𝐷.U[m0],𝐷.tmp)[:,𝐷.k]
-	    v0=read(𝐷.pth*𝐷.V[m0],𝐷.tmp)[:,𝐷.k]
+	    u0=read(joinpath(𝐷.pth,𝐷.U[m0]),𝐷.tmp)[:,𝐷.k]
+	    v0=read(joinpath(𝐷.pth,𝐷.V[m0]),𝐷.tmp)[:,𝐷.k]
 	    u0=u0.*𝐷.iDXC; v0=v0.*𝐷.iDYC; #normalize to grid units
 	    (u0,v0)=exchange(u0,v0,1) #add 1 point at each edge for u and v
 	
-	    u1=read(𝐷.pth*𝐷.U[m1],𝐷.tmp)[:,𝐷.k]
-	    v1=read(𝐷.pth*𝐷.V[m1],𝐷.tmp)[:,𝐷.k]
+	    u1=read(joinpath(𝐷.pth,𝐷.U[m1]),𝐷.tmp)[:,𝐷.k]
+	    v1=read(joinpath(𝐷.pth,𝐷.V[m1]),𝐷.tmp)[:,𝐷.k]
 	    u1=u1.*𝐷.iDXC; v1=v1.*𝐷.iDYC; #normalize to grid units
 	    (u1,v1)=exchange(u1,v1,1) #add 1 point at each edge for u and v
 	
@@ -160,7 +159,7 @@ begin
 	    plot(𝐼::Individuals)
 	Plot the initial and final positions as scatter plot in x,y plane.
 	"""
-	function plot(𝐼::Individuals)
+	function plot_xy(𝐼::Individuals)
 	    🔴_by_t = IndividualDisplacements.groupby(𝐼.🔴, :t)
 	    if (sum(names(🔴_by_t).=="lon")==0)
 	        fig=scatter(🔴_by_t[1].x,🔴_by_t[1].y,c=:red,label="t0",marker = (:circle, stroke(0)))
@@ -180,14 +179,16 @@ begin
 	∫!(𝐼)
 	
 	#Plot initial and final locations
-	f1=plot(𝐼)
+	f1=plot_xy(𝐼)
 		
 	#Carry on for several time intervals (𝐼.𝑃.𝑇 .+ 𝐷.dt and so on)
 	for tt=1:ndt-1
 	    update_FlowFields!(𝐼,𝐷)
 	    ∫!(𝐼)
 	end
-	f2=plot(𝐼)
+
+	#Plot initial and final locations (again)
+	f2=plot_xy(𝐼)
 	
 	#Add longitude and latitude
 	add_lonlat!(𝐼.🔴,𝐷.XC,𝐷.YC)
@@ -200,8 +201,8 @@ begin
 	🔴 #using this variable for sync
 	M=(timestamp=now(),author="me",run="HS94")
 	I=(metadata=M, ID=𝐼.🆔, record=🔴, position=𝐼.📌)
-	jldsave(joinpath(PICKUP_hs94_path,"HS94.jld2");I=I)
-	joinpath(PICKUP_hs94_path,"HS94.jld2")
+	jldsave(joinpath(pth,"HS94.jld2");I=I)
+	joinpath(pth,"HS94.jld2")
 end
 
 # ╔═╡ a34adf36-81de-42c2-8407-d408041193b6
@@ -211,7 +212,7 @@ f1
 f2
 
 # ╔═╡ c473fb90-8901-466e-a8e3-c7efd189e1ba
-	f3=plot(𝐼)
+f3=plot_xy(𝐼)
 
 # ╔═╡ 4b295c8e-faa1-435e-bb79-9c89a28c198a
 md"""$(Resource(imgB, :width => 120))"""
@@ -235,7 +236,7 @@ PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.10.4"
+julia_version = "1.10.3"
 manifest_format = "2.0"
 project_hash = "f9675e47c21d7ae8a07d019621824d1e658278ab"
 
@@ -2473,7 +2474,7 @@ version = "1.4.1+1"
 # ╟─c11e2e27-bd3c-4fb2-8d07-75417e7f452e
 # ╟─a6ebb38e-2dcd-4126-bfa1-220df3180b94
 # ╟─bf462d7b-28af-4fc5-9952-e631051df4cd
-# ╟─fb0cacc0-4817-41cf-a4ad-ab5e5d9864f3
+# ╠═fb0cacc0-4817-41cf-a4ad-ab5e5d9864f3
 # ╟─b7c6606e-0d1a-4f65-a65a-0da320586fea
 # ╟─05cbf6ff-032f-4090-8981-da931f9e1521
 # ╟─e032b6d4-959d-11eb-28df-2112db1b1e4e
