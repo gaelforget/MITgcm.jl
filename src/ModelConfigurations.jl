@@ -147,7 +147,7 @@ nam1="model initialization"
 ECCO4_inputs.get_files(list1,nam1,tempname())
 ```
 """
-function get_files(list1::DataFrame,nam1::String,path1::String)
+function get_files(list1::DataFrame,nam1::String,path1::String; filenames=[])
     !isdir(path1) ? mkdir(path1) : nothing
     list3=get_list(list1,nam1)
     path3=joinpath(path1,list1[list1.name.==nam1,:].folder[1])
@@ -155,6 +155,7 @@ function get_files(list1::DataFrame,nam1::String,path1::String)
     println("Download started ...")
     println("  See : $(path3)")
     to_do_list=setdiff(list3.filename,readdir(path3))
+    !isempty(filenames) ? to_do_list=intersect(to_do_list,filenames) : nothing
     #show(to_do_list)
     [Dataverse.file_download(list3,n,path3) for n in to_do_list];
     println("and now completed!")
