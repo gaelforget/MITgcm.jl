@@ -79,25 +79,69 @@ read_mdsio(γ::gcmgrid,args...;kwargs...) = read(read_mdsio(args...;kwargs...),�
 
 ###
 
-diags_path="OCCA2HR1/run2"
-stat_path="dT_run_v5_stat_v5"
+#diags_path=joinpath("data","diags")
+#stats_path=joinpath("data","stats")
 
-files=glob("diags/budg*.0000000732.meta",diags_path)
-isempty(files) ? files=glob("diags/budg*.0000000024.meta",diags_path) : nothing
-isempty(files) ? error("no files found") : nothing
-
-variables=[read_meta(f).fldList for f in files]
-files=[basename(split(f,".")[1]) for f in files]
-times=glob("diags/$(files[1])*data",diags_path)
-times=parse.(Float64,[split(f,".")[end-1] for f in times])
+function files_list(diags_path="")
+ files=glob("budg*.0000000732.meta",diags_path)
+ isempty(files) ? files=glob("budg*.0000000024.meta",diags_path) : nothing
+ if isempty(files)
+  println("no budget files found")
+  variables=[]
+  files=[]
+  times=[]
+ else
+  variables=[read_meta(f).fldList for f in files]
+  files=[basename(split(f,".")[1]) for f in files]
+  times=glob("$(files[1])*data",diags_path)
+  times=parse.(Float64,[split(f,".")[end-1] for f in times])
+ end
+ files,variables,times
+ end
 
 γ=GridSpec("LatLonCap",MeshArrays.GRID_LLC90)
+#(files,variables,times)=files_list()
 
 ###
 
-function clim_files(year1=2004, yearN=2006)
-  lst1a=glob("diags/state_2d*data",diags_path); year1a=1980
-  lst1b=glob("*jld2",stat_path); year1b=2004
+function time_axis(ntim)
+if ntim==999
+  year_start=1941
+elseif ntim==771
+  year_start=1960
+elseif ntim==531
+  year_start=1980
+elseif ntim==240
+  year_start=1992
+else
+  year_start=0
+end
+tim=year_start .+ 1/12 .*((1:ntim).-0.5)
+
+if ntim==999
+  year_start=1941
+elseif ntim==771
+  year_start=1960
+elseif ntim==531
+  year_start=1980
+elseif ntim==240
+  year_start=1992
+else
+  year_start=0
+end
+tim=year_start .+ 1/12 .*((1:ntim).-0.5)
+
+m0=(1992-year_start)*12
+tim_clim=[(m0+m:12:m0+240) for m in 1:12]
+
+tim,tim_clim
+end
+
+###
+
+function clim_files(year1=2004, yearN=2006, diags_path="",stats_path="")
+  lst1a=glob("state_2d*data",diags_path); year1a=1980
+  lst1b=glob("*jld2",stats_path); year1b=2004
   i_a=(year1-year1a)*12 .+(1:12*(yearN-year1+1))
   i_b=(year1-year1b)*12 .+(1:12*(yearN-year1+1))
   (lst1a[i_a],lst1b[i_b])
@@ -132,28 +176,33 @@ end
 
 ###
 
-function add_one_field!(x,variable,record; fileroot="",fac=1.0)
-  if isempty(fileroot)
+function add_one_field!( x,variable,record; fac=1.0, 
+	 diags_path="" , fileroot="", 
+	 fileroots=String[], variables=[])
+  if isempty(fileroot)&&!isempty(fileroots)
     a=[findall(in(variable,vs)) for vs in variables]
     b=findall((!isempty).(a))
     if length(b)==1
-      fr=files[b[1]]
+      fr=fileroots[b[1]]
     elseif length(b)>1
-      println("need to select one as fileroot : $(files[b])")
+      println("need to specify fileroot from : $(fileroots[b])")
     else
       error("variable not found")
     end
-  else
+  elseif !isempty(fileroot)
     fr=fileroot
+  else
+    error("fileroot not found")
   end
-  file=glob("diags/$(fr)*data",diags_path)[record]
+  #println("fr=$(fr) diags_path=$(diags_path)")
+  file=glob("$(fr)*data",diags_path)[record]
   #println(file*" -- "*variable)
   x.+=fac*read_mdsio(γ,file,Symbol(variable))
 end
 
 ###
 
-fil_geothermal=joinpath(diags_path,"geothermalFlux.bin")
+fil_geothermal=joinpath("data","geothermalFlux.bin")
 geoThermal=read_bin(fil_geothermal,Float32,γ)
 
 rhoconst =1029; #sea water density
@@ -169,8 +218,7 @@ module BUDG
 using MeshArrays, Statistics, Glob, JLD2
 import Main.GRID: M, γ, area, dep_RF, nl, nr, hFacC, Depth, DRF
 import Main.GRID: DXG, DYG, lats
-import Main.IO_CLIM: geoThermal, add_one_field!, times, clim
-import Main.IO_CLIM: jldsave, save_object
+import Main.IO_CLIM: geoThermal, add_one_field!
 
 function parms()
 yearFirst=1992; #first year covered by model integration
@@ -207,13 +255,13 @@ end
 
 ###
 
-function still_to_process(path0="tmp/dT_budget_monthly")
+function still_to_process(output_path="",times=[])
   nt=length(times)
   test=fill(false,nt)
   for t in 2:nt-1
     tt="$(Int(times[t]))"
     tt=repeat("0",10-length(tt))*tt
-    test[t]=!isfile(joinpath(path0,"dT_budget_$(tt).jld2"))
+    test[t]=!isfile(joinpath(output_path,"dT_budget_$(tt).jld2"))
   end
   findall(test)
 end
@@ -224,27 +272,27 @@ import Base: zeros
 zeros(g::gcmgrid,n::Int)=read(zeros(g.ioSize...,n),g)
 
 """
-    layer_heat_budget(t,kbu)
+    layer_heat_budget(t,times,diags_path="")
 
 Compute heat budget from MITgcm output at time t, from level k=kbu to k=50
 
 - Units are in K*m/s
 - multiply by P.rcp to convert to W/m2
 """
-function layer_heat_budget(t,kbu)
+function layer_heat_budget(t,times,diags_path="")
 t_m_1=t-1
 
 fr="budg3d_snap_set2"
 tmp1=zeros(γ,nr)
-add_one_field!(tmp1,"THETA",t_m_1,fileroot=fr)
+add_one_field!(tmp1,"THETA",t_m_1,diags_path=diags_path,fileroot=fr)
 tmp2=zeros(γ,nr)
-add_one_field!(tmp2,"THETA",t,fileroot=fr)
+add_one_field!(tmp2,"THETA",t,diags_path=diags_path,fileroot=fr)
 
 fr="budg2d_snap_set1"
 tmp01=zeros(γ)
-add_one_field!(tmp01,"ETAN",t_m_1,fileroot=fr)
+add_one_field!(tmp01,"ETAN",t_m_1,diags_path=diags_path,fileroot=fr)
 tmp02=zeros(γ)
-add_one_field!(tmp02,"ETAN",t,fileroot=fr)
+add_one_field!(tmp02,"ETAN",t,diags_path=diags_path,fileroot=fr)
 
 for k in 1:nr
     tmp00=DRF[k]*hFacC[:,k]*(1 .+tmp01/Depth)
@@ -260,9 +308,10 @@ forc=zeros(γ,nr)
 adv=zeros(γ,nr)
 dif=zeros(γ,nr)
 
-add_one_field!(adv,"ADVr_TH",t,fac=-1)
-add_one_field!(dif,"DFrE_TH",t,fac=-1)
-add_one_field!(dif,"DFrI_TH",t,fac=-1)
+fr="budg3d_zflux_set3"
+add_one_field!(adv,"ADVr_TH",t,fac=-1,diags_path=diags_path,fileroot=fr)
+add_one_field!(dif,"DFrE_TH",t,fac=-1,diags_path=diags_path,fileroot=fr)
+add_one_field!(dif,"DFrI_TH",t,fac=-1,diags_path=diags_path,fileroot=fr)
 
 # vertical divergence
 for k in 1:nr-1
@@ -272,8 +321,9 @@ end
 
 TFLUX=zeros(γ)
 oceQsw=zeros(γ)
-add_one_field!(TFLUX,"TFLUX",t,fac=1/P.rcp)
-add_one_field!(oceQsw,"oceQsw",t,fac=1/P.rcp)
+fr="budg2d_zflux_set1"
+add_one_field!(TFLUX,"TFLUX",t,fac=1/P.rcp,diags_path=diags_path,fileroot=fr)
+add_one_field!(oceQsw,"oceQsw",t,fac=1/P.rcp,diags_path=diags_path,fileroot=fr)
 
 for k in 1:nr
   dd=dep_RF[k]
@@ -294,16 +344,16 @@ end
 #fr=(kbu==1 ? "budg2d_hflux_set2" : "budg2d_hflux_set3_$(kbu)")
 fr="budg3d_hflux_set2"
 tmpU=zeros(γ,nr)
-add_one_field!(tmpU,"ADVx_TH",t,fileroot=fr)
+add_one_field!(tmpU,"ADVx_TH",t,diags_path=diags_path,fileroot=fr)
 difU=zeros(γ,nr)
-add_one_field!(difU,"DFxE_TH",t,fileroot=fr)
+add_one_field!(difU,"DFxE_TH",t,diags_path=diags_path,fileroot=fr)
 
 #fr=(kbu==1 ? "budg2d_hflux_set2" : "budg2d_hflux_set3_$(kbu)")
 fr="budg3d_hflux_set2"
 tmpV=zeros(γ,nr)
-add_one_field!(tmpV,"ADVy_TH",t,fileroot=fr)
+add_one_field!(tmpV,"ADVy_TH",t,diags_path=diags_path,fileroot=fr)
 difV=zeros(γ,nr)
-add_one_field!(difV,"DFyE_TH",t,fileroot=fr)
+add_one_field!(difV,"DFyE_TH",t,diags_path=diags_path,fileroot=fr)
 
 for k in 1:nr
   adv[:,k]=(adv[:,k]+convergence(tmpU[:,k],tmpV[:,k]))/area
@@ -316,14 +366,14 @@ end
 ##
 
 """
-    layer_mass_budget(t,kbu)
+    layer_mass_budget(t,times=[],diags_path="")
 
 Compute mass budget from MITgcm output at time t, from level k=kbu to k=50
 
 - Units are in m/s
 - multiply by P.rhoconst to convert to kg/m^2/s
 """
-function layer_mass_budget(t,kbu)
+function layer_mass_budget(t,times=[],diags_path="")
 t_m_1=t-1
 
 tmp1=1 .+zeros(γ,nr)
@@ -331,9 +381,9 @@ tmp2=1 .+zeros(γ,nr)
 
 fr="budg2d_snap_set1"
 tmp01=zeros(γ)
-add_one_field!(tmp01,"ETAN",t_m_1,fileroot=fr)
+add_one_field!(tmp01,"ETAN",t_m_1,diags_path=diags_path,fileroot=fr)
 tmp02=zeros(γ)
-add_one_field!(tmp02,"ETAN",t,fileroot=fr)
+add_one_field!(tmp02,"ETAN",t,diags_path=diags_path,fileroot=fr)
 
 for k in 1:nr
     tmp00=DRF[k]*hFacC[:,k]*(1 .+tmp01/Depth)
@@ -347,7 +397,8 @@ tend=(tmp2-tmp1)/dt
 
 adv=zeros(γ,nr)
 dif=zeros(γ,nr)
-add_one_field!(adv,"WVELMASS",t,fac=-1)
+fr="budg3d_zflux_set3"
+add_one_field!(adv,"WVELMASS",t,fac=-1,diags_path=diags_path,fileroot=fr)
 
 # vertical divergence
 for k in 1:nr-1
@@ -356,16 +407,17 @@ end
 
 forc=zeros(γ,nr)
 oceFWflx=zeros(γ)
-add_one_field!(oceFWflx,"oceFWflx",t,fac=1/P.rhoconst)
+fr="budg2d_zflux_set1"
+add_one_field!(oceFWflx,"oceFWflx",t,fac=1/P.rhoconst,diags_path=diags_path,fileroot=fr)
 forc[:,1]=oceFWflx
 
 fr="budg3d_hflux_set2"
 tmpU=zeros(γ,nr)
-add_one_field!(tmpU,"UVELMASS",t,fileroot=fr)
+add_one_field!(tmpU,"UVELMASS",t,diags_path=diags_path,fileroot=fr)
 
 fr="budg3d_hflux_set2"
 tmpV=zeros(γ,nr)
-add_one_field!(tmpV,"VVELMASS",t,fileroot=fr)
+add_one_field!(tmpV,"VVELMASS",t,diags_path=diags_path,fileroot=fr)
 
 for k in 1:nr
   tmpU[:,k]=tmpU[:,k]*DRF[k]
@@ -379,23 +431,23 @@ end
 ###
 
 """
-    layer_heat_snapshot(t)
+    layer_heat_snapshot(t,diags_path="")
 
 Read snapshot from MITgcm output at time t, integrated from level k=kbu to k=50
 
 - Units are in K*m
 - multiply by P.rcp to convert to J/m^2
 """
-function layer_heat_snapshot(t)
+function layer_heat_snapshot(t,diags_path="")
 t_m_1=t-1
 
 fr="budg3d_snap_set2"
 tmp1=zeros(γ,nr)
-add_one_field!(tmp1,"THETA",t_m_1,fileroot=fr)
+add_one_field!(tmp1,"THETA",t_m_1,diags_path=diags_path,fileroot=fr)
 
 fr="budg2d_snap_set1"
 tmp01=zeros(γ)
-add_one_field!(tmp01,"ETAN",t_m_1,fileroot=fr)
+add_one_field!(tmp01,"ETAN",t_m_1,diags_path=diags_path,fileroot=fr)
 
 for k in 1:nr
     tmp00=DRF[k]*hFacC[:,k]*(1 .+tmp01/Depth)
@@ -406,21 +458,21 @@ return M*tmp1
 end
 
 """
-    layer_mass_snapshot(t)
+    layer_mass_snapshot(t,diags_path="")
 
 Read snapshot from MITgcm output at time t, integrated from level k=kbu to k=50
 
 - Units are in m
 - multiply by P.rhoconst to convert to kg/m^2
 """
-function layer_mass_snapshot(t)
+function layer_mass_snapshot(t,diags_path="")
 t_m_1=t-1
 
 tmp1=1 .+zeros(γ,nr)
 
 fr="budg2d_snap_set1"
 tmp01=zeros(γ)
-add_one_field!(tmp01,"ETAN",t_m_1,fileroot=fr)
+add_one_field!(tmp01,"ETAN",t_m_1,diags_path=diags_path,fileroot=fr)
 
 for k in 1:nr
     tmp00=DRF[k]*hFacC[:,k]*(1 .+tmp01/Depth)
@@ -430,16 +482,16 @@ end
 return M*tmp1
 end
 
-function layer_snapshots(t)
-  H_1=layer_heat_snapshot(t)
-  M_1=layer_mass_snapshot(t)
+function layer_snapshots(t,diags_path="")
+  H_1=layer_heat_snapshot(t,diags_path)
+  M_1=layer_mass_snapshot(t,diags_path)
   return H_1,M_1
 end
 
 ##
 
 """
-    temperature_equation(t)
+    temperature_equation(t,times; input_path="", output_path="")
 
 ```
 for t in 1:36
@@ -447,17 +499,17 @@ for t in 1:36
 end
 ```
 """
-function temperature_equation(t,kbu=18;do_save=false,path="tmp/dT_budget_monthly")
+function temperature_equation(t,times; input_path="", output_path="")
   println(t)
 
-  A=layer_heat_budget(t,1)
+  A=layer_heat_budget(t,times,input_path)
   dH=(tend=A.tend,forc=A.forc, adv=A.adv, dif=A.dif)
 
-  A=layer_mass_budget(t,1)
+  A=layer_mass_budget(t,times,input_path)
   dV=(tend=A.tend,forc=A.forc, adv=A.adv, dif=A.dif)
 
-  (H,V)=layer_snapshots(t)
-  (Hp1,Vp1)=layer_snapshots(t+1)
+  (H,V)=layer_snapshots(t,input_path)
+  (Hp1,Vp1)=layer_snapshots(t+1,input_path)
   T=H/V
   Tp1=Hp1/Vp1
 
@@ -465,13 +517,13 @@ function temperature_equation(t,kbu=18;do_save=false,path="tmp/dT_budget_monthly
   dT1=(dH.tend-Tp1*dV.tend)/V*dt
   dT0=Tp1-T
 
-  if do_save
+  if !isempty(output_path)
     tt="$(Int(times[t]))"
     tt=repeat("0",10-length(tt))*tt
     dT1adv=(dH.adv-Tp1*dV.adv)/V*dt
     dT1dif=(dH.dif-Tp1*dV.dif)/V*dt
     dT1forc=(dH.forc-Tp1*dV.forc)/V*dt
-    jldsave(joinpath(path,"dT_budget_$(tt).jld2"); T0=T, T1=Tp1,
+    jldsave(joinpath(output_path,"dT_budget_$(tt).jld2"); T0=T, T1=Tp1,
 	    t0=3600*times[t-1],t1=3600*times[t],
 	    tend=dT1, adv=dT1adv, dif=dT1dif, forc=dT1forc)
   end
@@ -486,6 +538,8 @@ end
 module PLOTS
 
 using GLMakie, MeshArrays, JLD2, Statistics
+MeshArraysMakieExt = Base.get_extension(MeshArrays, :MeshArraysMakieExt)
+
 import Main.BUDG: P, init_arrays
 import Main.GRID: M
 
@@ -496,7 +550,6 @@ fil_interp=joinpath("data","interp_coeffs_halfdeg.jld2")
 λ=interpolation_setup(fil_interp)
 
 hm(γ::gcmgrid,X::MeshArray;kwargs...) =  heatmap(X;interpolation=λ,kwargs...)
-MeshArraysMakieExt = Base.get_extension(MeshArrays, :MeshArraysMakieExt)
 hm!(a...;ka...)=MeshArraysMakieExt.heatmap_interpolation!(a...;ka...)
 
 function map_two(x1,x2,cr;titles=[], output_file="")
@@ -523,18 +576,18 @@ z[findall(isnan.(z))].=0
 read(sum(z[:,:,k:50],dims=3),x.grid)
 end
 
-function check_budget_1(A; do_save=true, k=1)
+function check_budget_1(A; k=1, output_file="")
   x1=A.tend; tt1="lhs"
   x2=A.adv+A.dif+A.forc-A.tend; tt2="rhs-lhs"
   cr=200 .*(-1,1)./P.rcp
   f=map_two(zsum(x1,k),zsum(x2,k),cr,titles=[tt1,tt2])
-  do_save ? save("tmp/budg_full.png",f) : nothing
+  !isempty(output_file) ? save(output_file,f) : nothing
   f
 end
 
 ###
 
-fil="data/polygons/ne_110m_admin_0_countries.shp"
+fil=joinpath("data","polygons","ne_110m_admin_0_countries.shp")
 pol=MeshArrays.read_polygons(fil)
 
 function projmap_format(v,ttl,cr,pol)
