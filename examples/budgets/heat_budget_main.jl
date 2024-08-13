@@ -19,7 +19,7 @@ using Pkg
 using Distributed
 
 @everywhere begin
-  using GLMakie, MeshArrays, JLD2
+  using CairoMakie, MeshArrays, JLD2
 
   do_plot=true
   do_save=true
@@ -28,7 +28,7 @@ using Distributed
 
   input_path=$(input_path)
   output_path=$(output_path)
-  (files,variables,times)=IO_CLIM.files_list(input_path)
+  (files,variables,times)=BUDG.files_list(input_path)
   todo=BUDG.still_to_process(output_path,times)
   println("left to do : $(length(todo))")
 

@@ -35,9 +35,6 @@ module GRID
 
   nr=length(dep)
 
-  rhoconst =1029; #sea water density
-  rcp      =3994*rhoconst; # sea water rho X heat capacity
-
   dlat=2
   lats=(-90+dlat/2:dlat:90-dlat/2)
   nl=length(lats)
@@ -70,155 +67,15 @@ end
 
 ##
 
-module IO_CLIM
+module BUDG
 
-using JLD2, Glob, MITgcm, MeshArrays, Statistics
+using MeshArrays, Statistics, Glob, JLD2, MITgcm
+
+import Main.GRID: M, γ, area, dep_RF, nl, nr, hFacC, Depth, DRF
+import Main.GRID: DXG, DYG, lats
 
 import MITgcm: read_mdsio
 read_mdsio(γ::gcmgrid,args...;kwargs...) = read(read_mdsio(args...;kwargs...),γ)
-
-###
-
-#diags_path=joinpath("data","diags")
-#stats_path=joinpath("data","stats")
-
-function files_list(diags_path="")
- files=glob("budg*.0000000732.meta",diags_path)
- isempty(files) ? files=glob("budg*.0000000024.meta",diags_path) : nothing
- if isempty(files)
-  println("no budget files found")
-  variables=[]
-  files=[]
-  times=[]
- else
-  variables=[read_meta(f).fldList for f in files]
-  files=[basename(split(f,".")[1]) for f in files]
-  times=glob("$(files[1])*data",diags_path)
-  times=parse.(Float64,[split(f,".")[end-1] for f in times])
- end
- files,variables,times
- end
-
-γ=GridSpec("LatLonCap",MeshArrays.GRID_LLC90)
-#(files,variables,times)=files_list()
-
-###
-
-function time_axis(ntim)
-if ntim==999
-  year_start=1941
-elseif ntim==771
-  year_start=1960
-elseif ntim==531
-  year_start=1980
-elseif ntim==240
-  year_start=1992
-else
-  year_start=0
-end
-tim=year_start .+ 1/12 .*((1:ntim).-0.5)
-
-if ntim==999
-  year_start=1941
-elseif ntim==771
-  year_start=1960
-elseif ntim==531
-  year_start=1980
-elseif ntim==240
-  year_start=1992
-else
-  year_start=0
-end
-tim=year_start .+ 1/12 .*((1:ntim).-0.5)
-
-m0=(1992-year_start)*12
-tim_clim=[(m0+m:12:m0+240) for m in 1:12]
-
-tim,tim_clim
-end
-
-###
-
-function clim_files(year1=2004, yearN=2006, diags_path="",stats_path="")
-  lst1a=glob("state_2d*data",diags_path); year1a=1980
-  lst1b=glob("*jld2",stats_path); year1b=2004
-  i_a=(year1-year1a)*12 .+(1:12*(yearN-year1+1))
-  i_b=(year1-year1b)*12 .+(1:12*(yearN-year1+1))
-  (lst1a[i_a],lst1b[i_b])
-end
-
-function clim_read_mdsio!(tmp1,l1,X)
-  tmp1.=0
-  for m in 1:12
-    f1=l1[m:12:end]; nn=length(f1)
-    [tmp1[:,:,:,m].+=1/nn*read_mdsio(f1[n],Symbol(X)) for n in 1:nn]
-  end
-  tmp1[findall(isnan.(tmp1))].=NaN
-end
-
-function clim_read_jld2!(tmp2,l2)
-  tmp2.=0
-  for m in 1:12
-    f2=l2[m:12:end]; nn=length(f2)
-    [tmp2[:,:,:,m].+=1/nn*load(f2[n])["single_stored_object"] for n in 1:nn]
-  end
-  tmp2[findall(isnan.(tmp2))].=NaN
-end
-
-function clim(z,year0=1980,year1=2004,yearN=2006)
-    m0=(year1-year0)*12
-    n=(yearN-year1+1)*12
-    zc=[mean(z[m0+m:12:m0+n]) for m in 1:12]
-    n1=Int(floor(length(z)/12))
-    n2=length(z)-12*n1
-    vcat(repeat(zc,n1),zc[1:n2])
-end
-
-###
-
-function add_one_field!( x,variable,record; fac=1.0, 
-	 diags_path="" , fileroot="", 
-	 fileroots=String[], variables=[])
-  if isempty(fileroot)&&!isempty(fileroots)
-    a=[findall(in(variable,vs)) for vs in variables]
-    b=findall((!isempty).(a))
-    if length(b)==1
-      fr=fileroots[b[1]]
-    elseif length(b)>1
-      println("need to specify fileroot from : $(fileroots[b])")
-    else
-      error("variable not found")
-    end
-  elseif !isempty(fileroot)
-    fr=fileroot
-  else
-    error("fileroot not found")
-  end
-  #println("fr=$(fr) diags_path=$(diags_path)")
-  file=glob("$(fr)*data",diags_path)[record]
-  #println(file*" -- "*variable)
-  x.+=fac*read_mdsio(γ,file,Symbol(variable))
-end
-
-###
-
-fil_geothermal=joinpath("data","geothermalFlux.bin")
-geoThermal=read_bin(fil_geothermal,Float32,γ)
-
-rhoconst =1029; #sea water density
-rcp      =3994*rhoconst; # sea water rho X heat capacity
-geoThermal.=geoThermal/rcp
-
-end
-
-##
-
-module BUDG
-
-using MeshArrays, Statistics, Glob, JLD2
-import Main.GRID: M, γ, area, dep_RF, nl, nr, hFacC, Depth, DRF
-import Main.GRID: DXG, DYG, lats
-import Main.IO_CLIM: geoThermal, add_one_field!
 
 function parms()
 yearFirst=1992; #first year covered by model integration
@@ -242,6 +99,57 @@ return (yearFirst=yearFirst, yearLast, timeStep=timeStep,
 end
 
 P=parms()
+
+###
+
+fil_geothermal=joinpath("data","geothermalFlux.bin")
+geoThermal=read_bin(fil_geothermal,Float32,γ)
+geoThermal.=geoThermal/P.rcp
+
+###
+
+function files_list(diags_path="")
+ files=glob("budg*.0000000732.meta",diags_path)
+ isempty(files) ? files=glob("budg*.0000000024.meta",diags_path) : nothing
+ if isempty(files)
+  println("no budget files found")
+  variables=[]
+  files=[]
+  times=[]
+ else
+  variables=[read_meta(f).fldList for f in files]
+  files=[basename(split(f,".")[1]) for f in files]
+  times=glob("$(files[1])*data",diags_path)
+  times=parse.(Float64,[split(f,".")[end-1] for f in times])
+ end
+ files,variables,times
+end
+
+###
+
+function add_one_field!( x,variable,record; fac=1.0,
+         diags_path="" , fileroot="",
+         fileroots=String[], variables=[])
+  if isempty(fileroot)&&!isempty(fileroots)
+    a=[findall(in(variable,vs)) for vs in variables]
+    b=findall((!isempty).(a))
+    if length(b)==1
+      fr=fileroots[b[1]]
+    elseif length(b)>1
+      println("need to specify fileroot from : $(fileroots[b])")
+    else
+      error("variable not found")
+    end
+  elseif !isempty(fileroot)
+    fr=fileroot
+  else
+    error("fileroot not found")
+  end
+  #println("fr=$(fr) diags_path=$(diags_path)")
+  file=glob("$(fr)*data",diags_path)[record]
+  #println(file*" -- "*variable)
+  x.+=fac*read_mdsio(γ,file,Symbol(variable))
+end
 
 ###
 
@@ -537,7 +445,7 @@ end
 
 module PLOTS
 
-using GLMakie, MeshArrays, JLD2, Statistics
+using CairoMakie, MeshArrays, JLD2, Statistics
 MeshArraysMakieExt = Base.get_extension(MeshArrays, :MeshArraysMakieExt)
 
 import Main.BUDG: P, init_arrays
