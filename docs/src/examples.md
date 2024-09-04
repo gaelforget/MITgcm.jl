@@ -26,6 +26,9 @@ The `HS94*` series of examples need to be run in sequence, as they rely on outpu
 - [HS94_particles.jl](HS94_particles.html) ([code link](https://raw.githubusercontent.com/gaelforget/MITgcm.jl/master/examples/HS94_particles.jl)) : compute particle trajectories from `hs94.cs-32x32x5` output generated earlier.
 - [HS94_Makie.jl](HS94_Makie.html) ([code link](https://raw.githubusercontent.com/gaelforget/MITgcm.jl/master/examples/HS94_Makie.jl)) : using `Makie.jl` instead of `Plots.jl`
 
+!!! note
+    The three examples in this series have to be run in sequence. `HS94_animation.jl` generates files that are then used in `HS94_particles.jl`, which generates output in turn used in `HS94_Makie.jl`.
+
 The following example uses the [Darwin3 package](https://darwin3.readthedocs.io/en/latest/phys_pkgs/darwin.html) that models marine microbes and microbial communities. See [MIT's Darwin Project](https://darwinproject.mit.edu) for more information about this effort.
 
 - [Darwin3_1D.jl](Darwin3_1D.html) ([code link](https://raw.githubusercontent.com/gaelforget/MITgcm.jl/master/examples/Darwin3_1D.jl)) : one-dimensional examples.
