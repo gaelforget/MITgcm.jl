@@ -23,10 +23,13 @@ keys(sc)
 
 ### Main
 
+!!! note
+    The following three methods implement the [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl/#readme)'s interface for [MITgcm](https://github.com/MITgcm/MITgcm#readme).
+
 ```@docs
 setup
 build
-MITgcm_launch
+launch
 ```
 
 ### Tools
@@ -38,6 +41,12 @@ default_path
 MITgcm.getdata
 create_script
 parse_param
+```
+
+!!! note
+    The following methods are imported from [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl/#readme)and customized for [MITgcm](https://github.com/MITgcm/MITgcm#readme).
+
+```@docs
 compile
 clean
 ```│

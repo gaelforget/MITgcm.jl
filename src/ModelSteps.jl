@@ -1,5 +1,5 @@
 
-import ClimateModels: compile, build, setup, clean, git
+import ClimateModels: compile, build, setup, clean, git, launch
 
 """
     clean(config::MITgcm_config)
@@ -193,12 +193,14 @@ function setup(config::MITgcm_config)
 end
 
 """
-    MITgcm_launch(config::MITgcm_config)
+    launch(config::MITgcm_config)
 
 Go to `run/` folder and effectively call `mitgcmuv > output.txt`
 
 (part of the climate model interface as specialized for `MITgcm`)
 """
+launch(config::MITgcm_config)=MITgcm_launch(config)
+
 function MITgcm_launch(config::MITgcm_config)
     try
         pth=pwd()
