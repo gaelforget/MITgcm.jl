@@ -49,7 +49,8 @@ begin
 	pth_run=joinpath(myexp.folder,string(myexp.ID),"run")
 	md""" ## Model Configuration
 
-	This is a data structure of type `MITgcm_config` (a concrete type of `AbstractModelConfig`).
+	- Any MITgcm configuration can be represented as `MITgcm_config`. 
+	- This data structure is a concrete type of `AbstractModelConfig`.
 	"""
 end	
 
@@ -61,19 +62,42 @@ md""" ## Worflow Steps
 
 The animation just above results from the following workflow steps:
 
-- setup & compile
-- run model
-- process output
+- setup & build model
+- launch model run
+- look at model output
+
+Just below is the code that carries out the first two steps. Then we take a closer look at model output.  
 """
 
-# ╔═╡ 9238b863-dd69-42ce-8f36-995b4757cc1a
-md""" #### Contents of model run folder
+# ╔═╡ 0076cf3d-9fb5-426b-8cd7-5fd1d161a789
+md"""## Model Output"""
 
-The first cell below list all files found in files the run directory. The second displays the end of the standard output file (e.g. `output.txt`) generated during the model run. The third is the result of the `scan_rundir` function.
+# ╔═╡ 9238b863-dd69-42ce-8f36-995b4757cc1a
+md"""### Run folder Contents
+
+- The first cell below list all files found in files the run directory (inputs and outputs). 
+- The second displays the end of the standard output file (e.g. `output.txt`) generated during the model run. 
+"""
+
+# ╔═╡ 30c7ee99-8f99-4af0-8505-f100beca019f
+md"""!!! tip
+    The `scan_rundir` function can be used to gather summary information and key parameters like the number of model time steps. The result is shown below.
 """
 
 # ╔═╡ 88a5819f-6f35-40e8-9a82-8fd6f97001b1
-md""" #### Contents of the pickup folder"""
+md"""## Model Parameters
+
+- There are many possible combinations of run-time model parameters in MITgcm. Each optional package of MITgcm can add to the list, and require their own parameters.
+- Parameters are most often provided to MITgcm in the form of text files. However, parameters that vary in space and time are instead provided in binary or netcdf formats.
+
+!!! tip
+    For more information about specifying model parameters, please refer to the [MITgcm documentation](https://mitgcm.readthedocs.io/en/latest/getting_started/getting_started.html#parameters-simulation-controls)
+
+### Initial Conditions
+
+- The initial state of MITgcm is typically specified via `pickup` files that contain all state variables needed to restart the model from where it stopped. 
+- Here we use a file called `pickup.0000043200.data` that was previously generated. `MITgcm.jl` downloads it to `PICKUP_hs94_path`, as shown below. 
+"""
 
 # ╔═╡ 37294d8a-a70e-419a-a60b-11d09930c6b0
 readdir(PICKUP_hs94_path)
@@ -127,7 +151,7 @@ begin
 	#modify parameters to start from time step 43200, etc
 	modify_params_HS94(myexp)
 
-	#provide initial condition for time step 43200
+	#initial condition for time step 43200 (previously computed, and downloaded)
 	fil1=joinpath(PICKUP_hs94_path,"pickup.0000043200.data")
 	fil2=joinpath(pth_run,"pickup.0000043200.data")
 	!isfile(fil2) ? cp(fil1,fil2) : nothing
@@ -143,7 +167,7 @@ end
 # ╔═╡ 0aa37844-b4b9-4f58-adf7-15ae9a490993
 begin
 	step1==🏁
-	MITgcm.launch(myexp)
+	launch(myexp)
 	step2=🏁
 end
 
@@ -222,8 +246,6 @@ begin
 	symlink(pathof(myexp),lnk)
 	sc
 end
-
-
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1635,13 +1657,15 @@ version = "1.4.1+1"
 # ╟─bd0803d8-c70d-47b8-a76e-5765f4ba01c6
 # ╠═aad7e042-ba39-4518-8f3e-da59b77c13cb
 # ╠═0aa37844-b4b9-4f58-adf7-15ae9a490993
+# ╟─0076cf3d-9fb5-426b-8cd7-5fd1d161a789
 # ╟─b77f7ff2-da7e-41b3-b3f6-3819b09cd33c
 # ╟─9238b863-dd69-42ce-8f36-995b4757cc1a
 # ╟─0ca84f4e-f5bf-40d0-bf46-7a0e70b7aded
 # ╟─ca299148-6aa8-4379-88e3-c4500ddc779f
+# ╟─30c7ee99-8f99-4af0-8505-f100beca019f
 # ╟─b1ca8b16-7b63-470b-90d0-6ea41eeb5211
 # ╟─88a5819f-6f35-40e8-9a82-8fd6f97001b1
-# ╟─37294d8a-a70e-419a-a60b-11d09930c6b0
+# ╠═37294d8a-a70e-419a-a60b-11d09930c6b0
 # ╟─f0185b52-2297-4e8c-b44b-8c29b634607a
 # ╟─3668f786-9597-11eb-01a1-87d34b49eef9
 # ╟─fa968801-6892-4475-9b27-56472ca611b4
