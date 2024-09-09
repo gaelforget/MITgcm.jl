@@ -327,8 +327,10 @@ function read_namelist(fil)
     meta = split(meta,"\n")
     meta = meta[findall((!isempty).(meta))]
     meta = meta[findall(first.(meta).!=='#')]
-    groups = meta[findall(occursin.('&',meta))]
-	groups = [Symbol(groups[1+2*(i-1)][3:end]) for i in 1:Int(length(groups)/2)]
+    meta = meta[findall( (!isempty).(lstrip.(meta)) )]
+#    groups = meta[findall(occursin.('&',meta))]
+    groups = meta[findall([ (l[1]=='&')||(l[1]=='/') for l in lstrip.(meta)])]
+    groups = [Symbol(lstrip(lstrip(groups[1+2*(i-1)])[2:end])) for i in 1:Int(length(groups)/2)]
 	params = fill(OrderedDict(),length(groups))
 
 	for i in 1:length(groups)
@@ -336,7 +338,7 @@ function read_namelist(fil)
 		i1=ii
 		tmp0=OrderedDict()
         k0=[:unknown]
-		while !occursin('&',meta[ii])
+		while (!occursin('&',meta[ii]))&&(lstrip(meta[ii])[1]!=='/')
 			if occursin('=',meta[ii])
 				tmp1=split(meta[ii],'=')
                 k0[1]=Symbol(strip(tmp1[1]))
@@ -468,7 +470,12 @@ function write_namelist(fil,namelist)
             isa(x,Bool)&&x==false ? y=".FALSE." : nothing
             if isa(x,Array)&&(eltype(x)<:AbstractString)
                 tmpy=[""]
-                [tmpy[1]*="'"*x[ii]*"', \n " for ii in 1:length(x)]
+                try 
+                    parse(Int,x[1][1])
+                    [tmpy[1]*=x[ii]*", \n " for ii in 1:length(x)]
+                catch
+                    [tmpy[1]*="'"*x[ii]*"', \n " for ii in 1:length(x)]
+                end
                 y=tmpy[1][1:end-4]
             elseif isa(x,Array)
                 tmpy=[""]
@@ -890,8 +897,7 @@ function read_flt(dirIn::String,prec::DataType)
 
    n2=Array{Int,1}(undef,nf)
    for ff=1:nf
-      fil=dirIn*filList[ff]
-      #println(fil)
+      fil=joinpath(dirIn,filList[ff])
       tmp=stat(fil)
       n2[ff]=Int64(tmp.size/n1/reclen)-1
    end
@@ -900,7 +906,7 @@ function read_flt(dirIn::String,prec::DataType)
    ii=0;
    #@softscope for ff=1:nf
    for ff=1:nf
-      fil=dirIn*filList[ff]
+      fil=joinpath(dirIn,filList[ff])
       fid = open(fil)
       tmp = Array{prec,2}(undef,(n1,n2[ff]+1))
       read!(fid,tmp)

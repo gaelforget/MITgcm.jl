@@ -13,10 +13,12 @@ There are several ways to use `MITgcm.jl` to e.g. analyze model results or run a
 
 ## Notebooks Listing
 
+The following notebooks demonstrate core features of `MITgcm.jl`, for running `MITgcm` and analyzing results.
+
+- [MITgcm_worklow.jl](MITgcm_worklow.html) ([code link](https://raw.githubusercontent.com/gaelforget/MITgcm.jl/master/examples/MITgcm_worklow.jl)): build, setup, run, and plot for a chosen standard MITgcm configuration.
+- [MITgcm_run.jl](MITgcm_run.html) ([code link](https://raw.githubusercontent.com/gaelforget/MITgcm.jl/master/examples/MITgcm_run.jl)) : a detailed look into compiling and running the model.
 - [MITgcm_configurations.jl](MITgcm_configurations.html) ([code link](https://raw.githubusercontent.com/gaelforget/MITgcm.jl/master/examples/MITgcm_configurations.jl)); explore MITgcm configurations and their parameters.
 - [MITgcm\_scan\_output.jl](MITgcm_scan_output.html) ([code link](https://raw.githubusercontent.com/gaelforget/MITgcm.jl/master/examples/MITgcm_scan_output.jl)) : scan run directory, standard output, read grid files, and vizualize. 
-- [MITgcm_run.jl](MITgcm_run.html) ([code link](https://raw.githubusercontent.com/gaelforget/MITgcm.jl/master/examples/MITgcm_run.jl)) : a detailed look into compiling and running the model.
-- [MITgcm_worklow.jl](MITgcm_worklow.html) ([code link](https://raw.githubusercontent.com/gaelforget/MITgcm.jl/master/examples/MITgcm_worklow.jl)): build, setup, run, and plot for a chosen standard MITgcm configuration.
 
 The `HS94*` series of examples need to be run in sequence, as they rely on output from one another. This tutorial runs the [Held and Suarez 94](https://mitgcm.readthedocs.io/en/latest/overview/global_atmos_hs.html) benchmark	 with MITgcm on a cube sphere grid, and illustrates particle tracking in the Atmosphere using	[MeshArrays.jl](https://juliaclimate.github.io/MeshArrays.jl/dev/) and [IndividualDisplacements.jl](https://juliaclimate.github.io/IndividualDisplacements.jl/dev/).
 
@@ -24,6 +26,12 @@ The `HS94*` series of examples need to be run in sequence, as they rely on outpu
 - [HS94_particles.jl](HS94_particles.html) ([code link](https://raw.githubusercontent.com/gaelforget/MITgcm.jl/master/examples/HS94_particles.jl)) : compute particle trajectories from `hs94.cs-32x32x5` output generated earlier.
 - [HS94_Makie.jl](HS94_Makie.html) ([code link](https://raw.githubusercontent.com/gaelforget/MITgcm.jl/master/examples/HS94_Makie.jl)) : using `Makie.jl` instead of `Plots.jl`
 
+!!! note
+    The three examples in this series have to be run in sequence. `HS94_animation.jl` generates files that are then used in `HS94_particles.jl`, which generates output in turn used in `HS94_Makie.jl`.
+
+The following example uses the [Darwin3 package](https://darwin3.readthedocs.io/en/latest/phys_pkgs/darwin.html) that models marine microbes and microbial communities. See [MIT's Darwin Project](https://darwinproject.mit.edu) for more information about this effort.
+
+- [Darwin3_1D.jl](Darwin3_1D.html) ([code link](https://raw.githubusercontent.com/gaelforget/MITgcm.jl/master/examples/Darwin3_1D.jl)) : one-dimensional examples.
 
 ## Standard Modeling Workflow
 

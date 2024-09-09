@@ -74,9 +74,7 @@ using MITgcm.ClimateModels.CSV
     Γ=GridLoad_mdsio(MC)
     @test isa(Γ,NamedTuple)
 
-    myexp="MLAdjust"
-    iexp=findall([exps[i].configuration==myexp for i in 1:length(exps)])[1]
-    MC=exps[iexp]
+    MC=MITgcm_config(configuration="MLAdjust")
     setup(MC)
     build(MC,"--allow-skip")
     launch(MC)
@@ -99,7 +97,7 @@ using MITgcm.ClimateModels.CSV
  
     list1=ECCO4_inputs.get_list()
     nam1="documentation"
-    @suppress ECCO4_inputs.get_files(list1,nam1,joinpath(MC,"run"))
+    @suppress ECCO4_inputs.get_files(list1,nam1,joinpath(MC,"run"),filenames=("README.pdf",))
     fil=joinpath(MC,"run","README.pdf")
     @test isfile(fil)
 
@@ -158,8 +156,9 @@ using MITgcm.ClimateModels.CSV
 
     ##
 
-    f1=joinpath(path0,"verification","flt_example","results","output.with_flt.txt")
-    f2=joinpath(path0,"verification","flt_example","results","output.txt")
+    path1=joinpath(MITgcm.getdata("mitgcmsmallverif"),"MITgcm","verification")
+    f1=joinpath(path1,"flt_example","results","output.with_flt.txt")
+    f2=joinpath(path1,"flt_example","results","output.txt")
     isfile(f2) ? nothing : symlink(f1,f2)
 
     MC=MITgcm_config(configuration="flt_example")
@@ -167,15 +166,14 @@ using MITgcm.ClimateModels.CSV
     b="-optfile=../../../"
     !occursin(b,a) ? opt="" : opt="-optfile="*joinpath(path0,split(a,b)[2])
     tmp=testreport(MC,opt)
-    pth=joinpath(path0,"verification/flt_example/run/")
+    pth=joinpath(tmp,"MITgcm","verification","flt_example","run")
     tmp=read_flt(pth,Float32)
     
     @test isa(tmp[1,1],Number)
 
     ##
 
-    HS94_pickup_download()
-    dir_out=joinpath(MITgcmScratchSpaces.path,"pickup_hs94.cs-32x32x5")
+    dir_out=HS94_pickup_download()
     @test isdir(dir_out)
 
 end

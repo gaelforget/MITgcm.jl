@@ -1,10 +1,11 @@
 name = "MITgcm"
 uuid = "dce5fa8e-68ce-4431-a242-9469c69627a0"
 authors = ["gaelforget <gforget@mit.edu>"]
-version = "0.4.2"
+version = "0.4.5"
 
 [deps]
 ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
+DataDeps = "124859b0-ceae-595e-8997-d05f6a7a8dfe"
 Dataverse = "9c0b9be8-e31e-490f-90fe-77697562404d"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
@@ -26,6 +27,7 @@ MITgcmNetCDFExt = ["NetCDF"]
 
 [compat]
 ClimateModels = "0.3"
+DataDeps="0.7"
 Dataverse = "0.2"
 FortranFiles = "0.6"
 Glob = "1"

@@ -147,7 +147,7 @@ nam1="model initialization"
 ECCO4_inputs.get_files(list1,nam1,tempname())
 ```
 """
-function get_files(list1::DataFrame,nam1::String,path1::String)
+function get_files(list1::DataFrame,nam1::String,path1::String; filenames=[])
     !isdir(path1) ? mkdir(path1) : nothing
     list3=get_list(list1,nam1)
     path3=joinpath(path1,list1[list1.name.==nam1,:].folder[1])
@@ -155,6 +155,7 @@ function get_files(list1::DataFrame,nam1::String,path1::String)
     println("Download started ...")
     println("  See : $(path3)")
     to_do_list=setdiff(list3.filename,readdir(path3))
+    !isempty(filenames) ? to_do_list=intersect(to_do_list,filenames) : nothing
     #show(to_do_list)
     [Dataverse.file_download(list3,n,path3) for n in to_do_list];
     println("and now completed!")
@@ -503,6 +504,52 @@ end
 
 end #module ECCO4_testreport
 
+## Darwin3
+
+"""
+    setup_darwin3!(config::MITgcm_config)
+
+Setup method for Darwin3 one dimensional examples.
+"""
+function setup_darwin3!(config::MITgcm_config)
+    p0=joinpath(config,"MITgcm")
+    cp(MITgcm.getdata("darwin3code"),p0)
+
+    p1=joinpath(config,"MITgcm","mysetups")
+    p2=joinpath(p1,config.configuration)
+    mkdir(p1); mkdir(p2); mkdir(joinpath(p2,"build"))
+
+    Darwin3_1D_configs_download()
+
+    p3=joinpath(MITgcm.getdata("darwin3oneD"),"code_"*config.configuration)
+    p4=joinpath(p2,"code_"*config.configuration)
+    cp(p3,p4)
+
+    p3=joinpath(MITgcm.getdata("darwin3oneD"),"input_"*config.configuration)
+    p4=joinpath(p2,"input_"*config.configuration)
+    cp(p3,p4)
+
+    params=read_all_namelists(p4)
+    params[:main][:PARM03][:nTimeSteps]=64
+
+    P=OrderedDict()
+    P[:main]=OrderedDict(
+        :category=>"darwin3",
+        :name=>config.configuration,
+        :version=>"main")
+    P[:build]=OrderedDict(
+        :path=>joinpath(p2,"build"),
+        :options=>"-mods=../code_"*config.configuration,
+        :rebuild=>false,
+        :exe=>"mitgcmuv",
+        )
+    push!(params,(:setup => P))
+
+    push!(config.inputs,params...)
+
+    #nTimeSteps=48
+end
+
 ## verification experiments
 
 """
@@ -516,7 +563,7 @@ exps=verification_experiments()
 """
 function verification_experiments()
 default_path()
-pth=joinpath(MITgcm_path[1],"verification")
+pth=MITgcm_path[2]
 lst=readdir(pth)
 tmp=[isfile(joinpath(pth,i,"code","packages.conf")) for i in lst]
 tmp2=[isfile(joinpath(pth,i,"code","SIZE.h")) for i in lst]
@@ -573,11 +620,11 @@ Setup method for verification experiments.
 function setup_verification!(config::MITgcm_config)
     pth_run=joinpath(config.folder,string(config.ID),"run")
 
-    MITgcm_download()
-    p="$(MITgcm_path[1])/verification/$(config.configuration)/input"
+    p=joinpath(MITgcm_path[2],config.configuration,"input")
+
     tmpA=readdir(p)
     f=tmpA[findall([!isfile(joinpath(pth_run,tmpA[i])) for i in 1:length(tmpA)])]
-    [symlink(joinpath(p,f[i]),joinpath(pth_run,f[i])) for i in 1:length(f)]
+    [(!isfile(joinpath(pth_run,f[i])) ? symlink(joinpath(p,f[i]),joinpath(pth_run,f[i])) : nothing ) for i in 1:length(f)]
 
     #replace relative paths with absolutes then exe prepare_run
     if isfile(joinpath(pth_run,"prepare_run"))
@@ -594,11 +641,11 @@ function setup_verification!(config::MITgcm_config)
         meta = split(meta,"\n")
         ii=findall(occursin.("../../",meta))
         for i in ii
-            meta[i]=replace(meta[i],"../../" => "$(MITgcm_path[1])/verification/")
+            meta[i]=replace(meta[i],"../../" => MITgcm_path[2]*"/")
         end
         ii=findall(occursin.("../",meta))
         for i in ii
-            meta[i]=replace(meta[i],"../" => "$(MITgcm_path[1])/verification/$(config.configuration)")
+            meta[i]=replace(meta[i],"../" => joinpath(MITgcm_path[2],config.configuration))
         end
         #rm old file from run dir
         rm(fil)
@@ -616,13 +663,17 @@ function setup_verification!(config::MITgcm_config)
 
     params=read_all_namelists(pth_run)
 
+    rootdir=MITgcm_path[1]
+    builddir=joinpath(MITgcm_path[2],config.configuration,"build")
+
     P=OrderedDict()
     P[:main]=OrderedDict(
         :category=>"verification",
         :name=>config.configuration,
         :version=>"main")
     P[:build]=OrderedDict(
-        :path=>"$(MITgcm_path[1])/verification/$(config.configuration)/build",
+        :path=>builddir,
+        :rootdir=>rootdir,
         :options=>build_options_default[1],
         :rebuild=>false,
         :exe=>"mitgcmuv",
@@ -631,67 +682,5 @@ function setup_verification!(config::MITgcm_config)
 
     push!(config.inputs,params...)
 
-    return true
-end
-
-
-module MITgcmScratchSpaces
-
-using Dataverse, Scratch
-using Dataverse.downloads.Downloads
-
-# This will be filled in inside `__init__()`
-path = ""
-
-# Downloads a resource, stores it within path
-function download_dataset(url,path)
-    fname = joinpath(path, basename(url))
-    if !isfile(fname)
-        !isdir(path) ? mkdir(path) : nothing
-        Downloads.download(url, fname)
-    end
-    return fname
-end
-
-function __init__()
-    global path = @get_scratch!("src")
-end
-
-end
-
-"""
-    testreport(config::MITgcm_config,ext="")
-
-Run the testreport script for one model `config`,
-with additional options (optional) speficied in `ext`
-
-```
-using MITgcm
-testreport(MITgcm_config(configuration="front_relax"),"-norun")
-#testreport(MITgcm_config(configuration="all"),"-norun")
-```
-"""
-function testreport(config::MITgcm_config,ext="")
-    nm=config.configuration
-    try
-        pth=pwd()
-    catch e
-        cd()
-    end
-    pth=pwd()
-    cd(tempdir())
-    println(pwd())
-    if nm!=="all"
-        lst=[nm]
-    else
-        exps=verification_experiments()
-        lst=[exps[i].configuration for i in 1:length(exps)]
-    end
-    for nm in lst
-        c=`$(MITgcm_path[1])/verification/testreport -t $(MITgcm_path[1])/verification/$(nm) $ext`
-        isempty(ext) ? c=`$(MITgcm_path[1])/verification/testreport -t $(MITgcm_path[1])/verification/$(nm)` : nothing
-        @suppress run(c)
-    end
-    cd(pth)
     return true
 end

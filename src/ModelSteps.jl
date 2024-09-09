@@ -1,5 +1,5 @@
 
-import ClimateModels: compile, build, setup, clean, git
+import ClimateModels: compile, build, setup, clean, git, launch
 
 """
     clean(config::MITgcm_config)
@@ -40,11 +40,16 @@ function build(config::MITgcm_config)
         cd(config.inputs[:setup][:build][:path])
         opt=config.inputs[:setup][:build][:options]
         opt=Cmd(convert(Vector{String}, split(opt)))
+        tst=haskey(config.inputs[:setup][:build],:rootdir)
+        tst ? rootdir=config.inputs[:setup][:build][:rootdir] : rootdir=joinpath(config,"MITgcm")
         try
-            @suppress run(`../../../tools/genmake2 $(opt)`)
-            @suppress run(`make clean`)
-            @suppress run(`make depend`)
-            @suppress run(`make -j 4`)
+            withenv("MITGCM_ROOTDIR"=>rootdir) do
+                genmake2=joinpath(MITgcm_path[1],"tools","genmake2")
+                @suppress run(`$(genmake2) $(opt)`)
+                @suppress run(`make clean`)
+                @suppress run(`make depend`)
+                @suppress run(`make -j 4`)
+            end
         catch e
             println("model compilation may have failed")
         end
@@ -131,15 +136,19 @@ function setup(config::MITgcm_config)
         [symlink(joinpath(p,f[i]),joinpath(pth_run,f[i])) for i in 1:length(f)]
     end
 
-    if !haskey(config.inputs,:setup)||(config.inputs[:setup][:main][:category]=="verification")
-        setup_verification!(config)
-    elseif !isempty(config.inputs)
+    if !isempty(config.inputs)
         nam=config.inputs[:setup][:main][:name]
         if nam=="ECCO4"||nam=="OCCA2"
             setup_ECCO4!(config)
+        elseif config.inputs[:setup][:main][:category]=="verification"
+            setup_verification!(config)    
         else
             error("unknown model configuration")
         end
+    elseif config.model=="darwin3"
+        setup_darwin3!(config)
+    elseif !haskey(config.inputs,:setup)||(config.inputs[:setup][:main][:category]=="verification")
+        setup_verification!(config)    
     else
         error("unknown model configuration")
     end
@@ -147,6 +156,13 @@ function setup(config::MITgcm_config)
     pth_tra=joinpath(pth_log,"tracked_parameters")
     !isdir(pth_tra) ? mkdir(pth_tra) : nothing
     write_all_namelists(config.inputs,pth_tra)
+
+    if config.model=="darwin3"
+        p3=joinpath(MITgcm.getdata("darwin3oneD"),"input_"*config.configuration,"input_1D_BATS")
+        ispath(p3) ? cp(p3,joinpath(pth_run,"input_1D_BATS")) : nothing
+        p3=joinpath(MITgcm.getdata("darwin3oneD"),"input_"*config.configuration,"OPTICS_COEFF2")
+        ispath(p3) ? cp(p3,joinpath(pth_run,"OPTICS_COEFF2")) : nothing        
+    end
 
     #replace namelists with editeable versions in pth_tra
     pth_mv=joinpath(config.folder,string(config.ID),"original_parameters")
@@ -177,12 +193,14 @@ function setup(config::MITgcm_config)
 end
 
 """
-    MITgcm_launch(config::MITgcm_config)
+    launch(config::MITgcm_config)
 
 Go to `run/` folder and effectively call `mitgcmuv > output.txt`
 
 (part of the climate model interface as specialized for `MITgcm`)
 """
+launch(config::MITgcm_config)=MITgcm_launch(config)
+
 function MITgcm_launch(config::MITgcm_config)
     try
         pth=pwd()
@@ -232,4 +250,48 @@ monitor(config::MITgcm_config) = begin
     end
 end
 
+##
+
+"""
+    testreport(config::MITgcm_config,ext="")
+
+Run the testreport script for one model `config`,
+with additional options (optional) speficied in `ext`
+
+```
+using MITgcm
+testreport(MITgcm_config(configuration="front_relax"),"-norun")
+#testreport(MITgcm_config(configuration="all"),"-norun")
+```
+"""
+function testreport(config::MITgcm_config,ext="")
+    nm=config.configuration
+    try
+        pth=pwd()
+    catch e
+        cd()
+    end
+    pth=pwd()
+    tmpdir=tempname(); mkdir(tmpdir); cd(tmpdir)
+    println(pwd())
+    if nm!=="all"
+        lst=[nm]
+    else
+        exps=verification_experiments()
+        lst=[exps[i].configuration for i in 1:length(exps)]
+    end
+
+    cp(MITgcm_path[1],"MITgcm")
+    mv(joinpath("MITgcm","verification"),joinpath("MITgcm","verification.tmp") )
+    cp(MITgcm_path[2],joinpath("MITgcm","verification"))
+    cd(joinpath("MITgcm","verification"))
+
+    for nm in lst
+        c=`./testreport -t $(nm) $ext`
+        isempty(ext) ? c=`./testreport -t $(nm)` : nothing
+        @suppress run(c)
+    end
+    cd(pth)
+    return tmpdir
+end
 
