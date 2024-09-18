@@ -66,7 +66,10 @@ set_environment_variables_to_default()=begin
     ENV_print("DATADEPS_ALWAYS_ACCEPT",true)
     ENV_print("MPI_INC_DIR","/usr/lib/x86_64-linux-gnu/openmpi/include")
     ENV_print("NETCDF_ROOT","/usr")
-  elseif Sys.isapple()
+  elseif Sys.isapple()&&(Sys.ARCH==:x86_64)
+    ENV_print("NETCDF_ROOT","/usr/local")
+    ENV_print("MPI_INC_DIR","/usr/local/include")
+  elseif Sys.isapple() #&&(Sys.ARCH==:AArch64)
     ENV_print("NETCDF_ROOT","/opt/homebrew")
     ENV_print("MPI_INC_DIR","/opt/homebrew/include")
   else
