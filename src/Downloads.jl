@@ -97,6 +97,16 @@ function download_dataset(url,path)
     return fname
 end
 
+# 
+function download_nctiles_sample()
+    lst=Dataverse.file_list("doi:10.7910/DVN/3HPRZI")    
+    v="ETAN"; fil=joinpath(path,v*".0001.nc")
+    if !isfile(fil)
+        lst1=findall([v==n[1:end-8] for n in lst.filename])
+        [Dataverse.file_download(lst,v,path) for v in lst.filename[lst1]]
+    end
+end
+
 function __init__()
     global path = @get_scratch!("src")
 end
