@@ -1,5 +1,6 @@
-using MITgcm, NetCDF, Climatology, Test
+using MITgcm, Test
 
+import NetCDF
 using MITgcm.MeshArrays
 using MITgcm.ClimateModels.Suppressor
 using MITgcm.ClimateModels.DataFrames
@@ -16,7 +17,7 @@ using MITgcm.ClimateModels.CSV
     @test isfile(fil)
 
     #format conversions
-    (γ,Γ)=MeshArrays.GridOfOnes("CubeSphere",30,30)
+    (γ,Γ)=Grids_simple.GridOfOnes("CubeSphere",30,30)
     @test isa(convert2gcmfaces(Γ.XC),Array)
     @test isa(convert2array(Γ.XC),Array)
 
@@ -148,9 +149,9 @@ using MITgcm.ClimateModels.CSV
     read_bin(fil,γ.ioPrec,γ)
     read_bin(tmp2,tmp1)
     read_bin(tmp2,γ)
-    
-    get_ecco_variable_if_needed("ETAN")
-    tmp=read_nctiles(joinpath(ScratchSpaces.ECCO,"ETAN/ETAN"),"ETAN",γ,I=(:,:,1))
+        
+    MITgcmScratchSpaces.download_nctiles_sample()
+    tmp=read_nctiles(joinpath(MITgcmScratchSpaces.path,"ETAN"),"ETAN",γ,I=(:,:,1))
 
     @test isa(tmp,MeshArray)
 
