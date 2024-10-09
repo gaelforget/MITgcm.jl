@@ -8,11 +8,20 @@ Create submission script -- for NASA pleiades in this example.
 submission_script=MITgcm.create_script(pwd(),"job.csh")
 ```    
 """
-function create_script(rundir=pwd(),filename="")
+function create_script(rundir=pwd(),filename="",script=script_for_pleiades)
+  submission_script=script(rundir)
+  isempty(filename) ? fn=tempname()*".csh" : fn=filename
+  to_csh(submission_script,fn)
+  return fn
+end
 
-## submission script
+function to_csh(submission_script,fname="job.csh")
+  open(fname, "w") do io
+    print(io,submission_script)
+  end
+end
 
-submission_script="""
+script_for_pleiades(rundir)="""
 #PBS -S /bin/csh
 #PBS -l select=1:ncpus=16:mpiprocs=16:model=ivy+4:ncpus=20:mpiprocs=20:model=ivy
 #PBS -l walltime=24:00:00
@@ -46,16 +55,39 @@ cd $(rundir)
 mpiexec -np 96 ./mitgcmuv
 """
 
-isempty(filename) ? fn=tempname()*".csh" : fn=filename
-to_csh(submission_script,fn)
+script_for_pcluster(rundir)="""
+#!/bin/bash
+#SBATCH -J ECCO4
+#SBATCH --nodes=3
+#SBATCH --ntasks-per-node=36
+#SBATCH --time=24:00:00
+#SBATCH --exclusive
+#SBATCH --partition=sealevel-c5n18xl-demand
+#SBATCH --mem-per-cpu=1GB
+#SBATCH -o ECCO4-%j-out
+#SBATCH -e ECCO4-%j-out
 
-return fn
+# Initialize and set up the environment
+#--------------------------------------
 
-end
+umask 022
+ulimit -s unlimited
+source /etc/profile
+source /shared/spack/share/spack/setup-env.sh
+source /usr/share/modules/init/sh
 
-function to_csh(submission_script,fname="job.csh")
-  open(fname, "w") do io
-    print(io,submission_script)
-  end
-end
+module purge
+module add openmpi-4.1.1-gcc-9.4.0-jgsdvep
+module add netcdf-fortran-4.5.3-gcc-11.1.0-d35hzyr
+module list
 
+export FORT_BUFFERED=1
+export MPI_BUFS_PER_PROC=128
+export MPI_DISPLAY_SETTINGS=""
+
+#model run
+#---------
+
+cd $(rundir)
+mpiexec -np 96 ./mitgcmuv
+"""
