@@ -256,49 +256,49 @@ end
 """
     testreport(config::MITgcm_config,ext="")
 
-Run the testreport script for one model `config`,
-with additional options (optional) speficied in `ext`
+Run the testreport script for one model `config`, with additional options specified in `ext` if needed.
 
 ```
 using MITgcm
-testreport(MITgcm_config(configuration="front_relax"),"-norun")
-#testreport(MITgcm_config(configuration="all"),"-norun")
+testreport(MITgcm_config(configuration="front_relax"))
+#testreport(MITgcm_config(configuration="front_relax"),"-norun")
 ```
 """
 function testreport(config::MITgcm_config,ext="")
-    setup(config)
-    nm=config.configuration
     try
         pth=pwd()
     catch e
         cd()
     end
     pth=pwd()
-    cd(config)
 
-    println(pwd())
-    if nm!=="all"
-        lst=[nm]
-    else
-        exps=verification_experiments()
-        lst=[exps[i].configuration for i in 1:length(exps)]
-    end
+    ## setup 
 
-    cp(MITgcm_path[1],"MITgcm")
-    mv(joinpath("MITgcm","verification"),joinpath("MITgcm","verification.tmp") )
-    cp(MITgcm_path[2],joinpath("MITgcm","verification"))
-    cd(joinpath("MITgcm","verification"))
+    setup(config)
+    conf=config.configuration
+
+    path_new=joinpath(config,"MITgcm")
+    mkdir(path_new); mkdir(joinpath(path_new,"verification"))
+    path_source=MITgcm_path[1]
+    path_verif=MITgcm_path[2]
+    
+    dirs=["eesupp","model","pkg","tools"]
+    [symlink(joinpath(path_source,d),joinpath(path_new,d)) for d in dirs]
+    cp(joinpath(path_source,"verification","testreport"),joinpath(path_new,"verification","testreport"))
+    cp(joinpath(path_verif,conf),joinpath(path_new,"verification",conf))
+
+    ## build and launch
+
+    cd(joinpath(path_new,"verification"))
 
     ext0=split(config.inputs[:setup][:build][:options])
     ext1=split(ext)
 
-    for nm in lst
-        x=["./testreport","-t" , nm , ext0[2:end]..., ext1...]
-        println(x)
-        c = `$x`
-        println(c)
-        @suppress run(c)
-    end
+    x=["./testreport","-t" , conf , ext0[2:end]..., ext1...]
+    c = `$x`
+    @suppress run(c)
+
     cd(pth)
+    config
 end
 

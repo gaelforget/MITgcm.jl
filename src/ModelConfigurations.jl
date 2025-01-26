@@ -667,6 +667,7 @@ function setup_verification!(config::MITgcm_config)
     builddir=joinpath(MITgcm_path[2],config.configuration,"build")
 
     optfile=if Sys.isapple()&&(Sys.ARCH==:aarch64)
+        #should this bit happen elsewhere?
         if isempty(ENV["MITGCM_ROOTDIR"])
             build_options_default[2]
         else
