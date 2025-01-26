@@ -618,7 +618,7 @@ end
 Setup method for verification experiments.
 """
 function setup_verification!(config::MITgcm_config)
-    pth_run=joinpath(config.folder,string(config.ID),"run")
+    pth_run=joinpath(config,"run")
 
     p=joinpath(MITgcm_path[2],config.configuration,"input")
 
@@ -664,18 +664,25 @@ function setup_verification!(config::MITgcm_config)
     params=read_all_namelists(pth_run)
 
     rootdir=MITgcm_path[1]
-    builddir=joinpath(MITgcm_path[2],config.configuration,"build")
-
     optfile=if Sys.isapple()&&(Sys.ARCH==:aarch64)
-        #should this bit happen elsewhere?
-        if isempty(ENV["MITGCM_ROOTDIR"])
-            build_options_default[2]
-        else
-            "-mods=../code -optfile="*ENV["MITGCM_ROOTDIR"]*"/tools/build_options/linux_arm64_gfortran"
-        end
+        #build_options_default[2]
+        "-mods=../code -optfile="*rootdir*"/tools/build_options/linux_arm64_gfortran"
     else
         build_options_default[1]
     end
+
+    path_new=joinpath(config,"MITgcm")
+    mkdir(path_new); mkdir(joinpath(path_new,"verification"))
+    path_source=MITgcm_path[1]
+    path_verif=MITgcm_path[2]
+    
+    dirs=["eesupp","model","pkg","tools"]
+    [symlink(joinpath(path_source,d),joinpath(path_new,d)) for d in dirs]
+    cp(joinpath(path_source,"verification","testreport"),joinpath(path_new,"verification","testreport"))
+
+    conf=config.configuration
+    cp(joinpath(path_verif,conf),joinpath(path_new,"verification",conf))
+    builddir=joinpath(path_new,"verification",conf,"build")
 
     P=OrderedDict()
     P[:main]=OrderedDict(

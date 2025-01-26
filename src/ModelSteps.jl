@@ -273,32 +273,17 @@ function testreport(config::MITgcm_config,ext="")
     pth=pwd()
 
     ## setup 
-
     setup(config)
-    conf=config.configuration
-
-    path_new=joinpath(config,"MITgcm")
-    mkdir(path_new); mkdir(joinpath(path_new,"verification"))
-    path_source=MITgcm_path[1]
-    path_verif=MITgcm_path[2]
-    
-    dirs=["eesupp","model","pkg","tools"]
-    [symlink(joinpath(path_source,d),joinpath(path_new,d)) for d in dirs]
-    cp(joinpath(path_source,"verification","testreport"),joinpath(path_new,"verification","testreport"))
-    cp(joinpath(path_verif,conf),joinpath(path_new,"verification",conf))
 
     ## build and launch
-
-    cd(joinpath(path_new,"verification"))
-
+    cd(joinpath(config,"MITgcm","verification"))
     ext0=split(config.inputs[:setup][:build][:options])
     ext1=split(ext)
-
-    x=["./testreport","-t" , conf , ext0[2:end]..., ext1...]
+    x=["./testreport","-t" , config.configuration , ext0[2:end]..., ext1...]
     c = `$x`
     @suppress run(c)
-
     cd(pth)
+
     config
 end
 
