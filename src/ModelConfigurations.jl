@@ -665,23 +665,26 @@ function setup_verification!(config::MITgcm_config)
 
     rootdir=MITgcm_path[1]
     optfile=if Sys.isapple()&&(Sys.ARCH==:aarch64)
-        #build_options_default[2]
+        #build_options_default[2] #does not work, cause "../../../tools" v "../tools"        
         "-mods=../code -optfile="*rootdir*"/tools/build_options/linux_arm64_gfortran"
     else
         build_options_default[1]
     end
 
     path_new=joinpath(config,"MITgcm")
-    mkdir(path_new); mkdir(joinpath(path_new,"verification"))
-    path_source=MITgcm_path[1]
-    path_verif=MITgcm_path[2]
-    
-    dirs=["eesupp","model","pkg","tools"]
-    [symlink(joinpath(path_source,d),joinpath(path_new,d)) for d in dirs]
-    cp(joinpath(path_source,"verification","testreport"),joinpath(path_new,"verification","testreport"))
+    if !isdir(path_new)
+        mkdir(path_new); mkdir(joinpath(path_new,"verification"))
+        path_source=MITgcm_path[1]
+        path_verif=MITgcm_path[2]
+        
+        dirs=["eesupp","model","pkg","tools"]
+        [symlink(joinpath(path_source,d),joinpath(path_new,d)) for d in dirs]
+        cp(joinpath(path_source,"verification","testreport"),joinpath(path_new,"verification","testreport"))
+    end
 
     conf=config.configuration
-    cp(joinpath(path_verif,conf),joinpath(path_new,"verification",conf))
+    path_conf=joinpath(path_new,"verification",conf)
+    !isdir(path_conf) ? cp(joinpath(path_verif,conf),path_conf) : nothing
     builddir=joinpath(path_new,"verification",conf,"build")
 
     P=OrderedDict()
