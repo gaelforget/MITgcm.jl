@@ -41,10 +41,11 @@ function build(config::MITgcm_config)
         opt=config.inputs[:setup][:build][:options]
         opt=Cmd(convert(Vector{String}, split(opt)))
         tst=haskey(config.inputs[:setup][:build],:rootdir)
-        tst ? rootdir=config.inputs[:setup][:build][:rootdir] : rootdir=joinpath(config,"MITgcm")
+        rootdir=(tst ? config.inputs[:setup][:build][:rootdir] : joinpath(config,"MITgcm"))
         try
             withenv("MITGCM_ROOTDIR"=>rootdir) do
-                genmake2=joinpath(MITgcm_path[1],"tools","genmake2")
+                genmake2=joinpath(rootdir,"tools","genmake2")
+                #println.([pwd(),genmake2,opt]);
                 @suppress run(`$(genmake2) $(opt)`)
                 @suppress run(`make clean`)
                 @suppress run(`make depend`)
@@ -265,6 +266,7 @@ testreport(MITgcm_config(configuration="front_relax"),"-norun")
 ```
 """
 function testreport(config::MITgcm_config,ext="")
+    setup(config)
     nm=config.configuration
     try
         pth=pwd()
@@ -272,7 +274,8 @@ function testreport(config::MITgcm_config,ext="")
         cd()
     end
     pth=pwd()
-    tmpdir=tempname(); mkdir(tmpdir); cd(tmpdir)
+    cd(config)
+
     println(pwd())
     if nm!=="all"
         lst=[nm]
@@ -286,12 +289,16 @@ function testreport(config::MITgcm_config,ext="")
     cp(MITgcm_path[2],joinpath("MITgcm","verification"))
     cd(joinpath("MITgcm","verification"))
 
+    ext0=split(config.inputs[:setup][:build][:options])
+    ext1=split(ext)
+
     for nm in lst
-        c=`./testreport -t $(nm) $ext`
-        isempty(ext) ? c=`./testreport -t $(nm)` : nothing
+        x=["./testreport","-t" , nm , ext0[2:end]..., ext1...]
+        println(x)
+        c = `$x`
+        println(c)
         @suppress run(c)
     end
     cd(pth)
-    return tmpdir
 end
 

@@ -666,6 +666,16 @@ function setup_verification!(config::MITgcm_config)
     rootdir=MITgcm_path[1]
     builddir=joinpath(MITgcm_path[2],config.configuration,"build")
 
+    optfile=if Sys.isapple()&&(Sys.ARCH==:aarch64)
+        if isempty(ENV["MITGCM_ROOTDIR"])
+            build_options_default[2]
+        else
+            "-mods=../code -optfile="*ENV["MITGCM_ROOTDIR"]*"/tools/build_options/linux_arm64_gfortran"
+        end
+    else
+        build_options_default[1]
+    end
+
     P=OrderedDict()
     P[:main]=OrderedDict(
         :category=>"verification",
@@ -674,7 +684,7 @@ function setup_verification!(config::MITgcm_config)
     P[:build]=OrderedDict(
         :path=>builddir,
         :rootdir=>rootdir,
-        :options=>build_options_default[1],
+        :options=>optfile,
         :rebuild=>false,
         :exe=>"mitgcmuv",
         )
