@@ -41,10 +41,11 @@ function build(config::MITgcm_config)
         opt=config.inputs[:setup][:build][:options]
         opt=Cmd(convert(Vector{String}, split(opt)))
         tst=haskey(config.inputs[:setup][:build],:rootdir)
-        tst ? rootdir=config.inputs[:setup][:build][:rootdir] : rootdir=joinpath(config,"MITgcm")
+        rootdir=(tst ? config.inputs[:setup][:build][:rootdir] : joinpath(config,"MITgcm"))
         try
             withenv("MITGCM_ROOTDIR"=>rootdir) do
-                genmake2=joinpath(MITgcm_path[1],"tools","genmake2")
+                genmake2=joinpath(rootdir,"tools","genmake2")
+                #println.([pwd(),genmake2,opt]);
                 @suppress run(`$(genmake2) $(opt)`)
                 @suppress run(`make clean`)
                 @suppress run(`make depend`)
@@ -255,43 +256,34 @@ end
 """
     testreport(config::MITgcm_config,ext="")
 
-Run the testreport script for one model `config`,
-with additional options (optional) speficied in `ext`
+Run the testreport script for one model `config`, with additional options specified in `ext` if needed.
 
 ```
 using MITgcm
-testreport(MITgcm_config(configuration="front_relax"),"-norun")
-#testreport(MITgcm_config(configuration="all"),"-norun")
+testreport(MITgcm_config(configuration="front_relax"))
+#testreport(MITgcm_config(configuration="front_relax"),"-norun")
 ```
 """
 function testreport(config::MITgcm_config,ext="")
-    nm=config.configuration
     try
         pth=pwd()
     catch e
         cd()
     end
     pth=pwd()
-    tmpdir=tempname(); mkdir(tmpdir); cd(tmpdir)
-    println(pwd())
-    if nm!=="all"
-        lst=[nm]
-    else
-        exps=verification_experiments()
-        lst=[exps[i].configuration for i in 1:length(exps)]
-    end
 
-    cp(MITgcm_path[1],"MITgcm")
-    mv(joinpath("MITgcm","verification"),joinpath("MITgcm","verification.tmp") )
-    cp(MITgcm_path[2],joinpath("MITgcm","verification"))
-    cd(joinpath("MITgcm","verification"))
+    ## setup 
+    setup(config)
 
-    for nm in lst
-        c=`./testreport -t $(nm) $ext`
-        isempty(ext) ? c=`./testreport -t $(nm)` : nothing
-        @suppress run(c)
-    end
+    ## build and launch
+    cd(joinpath(config,"MITgcm","verification"))
+    ext0=split(config.inputs[:setup][:build][:options])
+    ext1=split(ext)
+    x=["./testreport","-t" , config.configuration , ext0[2:end]..., ext1...]
+    c = `$x`
+    @suppress run(c)
     cd(pth)
-    return tmpdir
+
+    config
 end
 

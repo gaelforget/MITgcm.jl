@@ -163,11 +163,8 @@ using MITgcm.ClimateModels.CSV
     isfile(f2) ? nothing : symlink(f1,f2)
 
     MC=MITgcm_config(configuration="flt_example")
-    a=MITgcm.build_options_default[1]
-    b="-optfile=../../../"
-    !occursin(b,a) ? opt="" : opt="-optfile="*joinpath(path0,split(a,b)[2])
-    tmp=testreport(MC,opt)
-    pth=joinpath(tmp,"MITgcm","verification","flt_example","run")
+    testreport(MC)
+    pth=joinpath(MC,"MITgcm","verification","flt_example","run")
     tmp=read_flt(pth,Float32)
     
     @test isa(tmp[1,1],Number)

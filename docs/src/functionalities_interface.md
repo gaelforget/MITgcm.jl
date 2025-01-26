@@ -8,8 +8,8 @@ This allows you to easily create model simulations using `MITgcm` conveniently f
 using MITgcm
 MC=MITgcm_config(configuration="advect_xy")
 setup(MC)
-exe=joinpath(MITgcm_path[2],MC.configuration,"build","mitgcmuv") #hide
-MC.inputs[:setup][:build][:exe]=exe #hide
+#exe=joinpath(MITgcm_path[2],MC.configuration,"build","mitgcmuv") #hide
+#MC.inputs[:setup][:build][:exe]=exe #hide
 build(MC)
 launch(MC)
 ```
