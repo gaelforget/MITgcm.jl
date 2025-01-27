@@ -19,6 +19,7 @@ end
 # ╔═╡ 8cf4d8ca-84eb-11eb-22d2-255ce7237090
 begin
 	using MITgcm, ClimateModels, PlutoUI, Printf, Plots
+	using MITgcm.MeshArrays
 	exps=verification_experiments()		
 	md"""😸"""
 end
@@ -90,8 +91,9 @@ md"""## Where Is `mitgcmuv` compiled?
 begin
 	MC=MITgcm_config(configuration=config)
 	setup(MC)
-	filexe=joinpath(MITgcm_path[2],config,"build","mitgcmuv")
-	MC.inputs[:setup][:build][:exe]=filexe
+
+	#MC.inputs[:setup][:build][:path]=joinpath(MITgcm_path[2],config,"build","mitgcmuv")
+	filexe=MC.inputs[:setup][:build][:path]
 	build(MC,"allow-skip")
 
 	rundir=joinpath(MC,"run")
@@ -1010,9 +1012,9 @@ version = "0.1.4"
 
 [[deps.MITgcm]]
 deps = ["ClimateModels", "DataDeps", "Dataverse", "Dates", "Distributed", "FortranFiles", "Glob", "MeshArrays", "Printf", "Scratch", "SharedArrays", "SparseArrays", "Statistics", "UUIDs"]
-git-tree-sha1 = "0be89f9df4e5bad554a963cee316ce61eb6f51e5"
+git-tree-sha1 = "63831a972c6944c03baddef07e79ba4568a9855d"
 uuid = "dce5fa8e-68ce-4431-a242-9469c69627a0"
-version = "0.5.0"
+version = "0.5.1"
 
     [deps.MITgcm.extensions]
     MITgcmNetCDFExt = ["NetCDF"]
