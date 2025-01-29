@@ -4,10 +4,13 @@
 [![codecov](https://codecov.io/gh/gaelforget/MITgcm.jl/branch/master/graph/badge.svg?token=zUK0vO5K3J)](https://codecov.io/gh/gaelforget/MITgcm.jl)
 [![CI](https://github.com/gaelforget/MITgcm.jl/actions/workflows/ci.yml/badge.svg)](https://github.com/gaelforget/MITgcm.jl/actions/workflows/ci.yml)
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/gaelforget/MITgcm.jl/master)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.06710/status.svg)](https://doi.org/10.21105/joss.06710)
 [![DOI](https://zenodo.org/badge/236192181.svg)](https://zenodo.org/badge/latestdoi/236192181)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/gaelforget/MITgcm.jl/master)
 
 Julia interface to [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) that allows user not only to analyze model output, but also to download the source code, build the model executable, modify run-time parameters, run model simulations, or verify model results against a benchmark.
+
+Forget, G., (2024). MITgcm.jl: a Julia Interface to the MITgcm. Journal of Open Source Software, 9(102), 6710, https://doi.org/10.21105/joss.06710
 
 Notebooks and tutorials are found in [the docs](https://gaelforget.github.io/MITgcm.jl/dev/examples/).
 
