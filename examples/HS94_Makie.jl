@@ -193,6 +193,12 @@ git-tree-sha1 = "389ad5c84de1ae7cf0e28e381131c98ea87d54fc"
 uuid = "fa961155-64e5-5f13-b03f-caf6b980ea82"
 version = "0.5.0"
 
+[[deps.CFTime]]
+deps = ["Dates", "Printf"]
+git-tree-sha1 = "937628bf8b377208ac359f57314fd85d3e0165d9"
+uuid = "179af706-886a-5703-950a-314cd64e0468"
+version = "0.1.4"
+
 [[deps.CRC32c]]
 uuid = "8bf52ea8-c179-5cab-976a-9e18b702a9bc"
 version = "1.11.0"
@@ -244,18 +250,28 @@ weakdeps = ["SparseArrays"]
     ChainRulesCoreSparseArraysExt = "SparseArrays"
 
 [[deps.ClimateModels]]
-deps = ["CSV", "DataFrames", "Dates", "Downloads", "Git", "OrderedCollections", "Pkg", "Statistics", "Suppressor", "TOML", "Test", "UUIDs"]
-git-tree-sha1 = "334084668770f528f541caa37589808b7903a0bc"
+deps = ["CFTime", "CSV", "DataDeps", "DataFrames", "Dataverse", "Dates", "Downloads", "Git", "Glob", "JLD2", "OffsetArrays", "OrderedCollections", "Pkg", "Printf", "Random", "Statistics", "Suppressor", "TOML", "Test", "UUIDs"]
+git-tree-sha1 = "21a16d3f599e0e08298808dd7704027c73e16fb2"
 uuid = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
-version = "0.3.3"
+version = "0.3.8"
 
     [deps.ClimateModels.extensions]
     ClimateModelsCondaExt = ["Conda"]
+    ClimateModelsIniFileExt = ["IniFile"]
+    ClimateModelsMakieExt = ["Makie"]
+    ClimateModelsNetCDFExt = ["NetCDF"]
+    ClimateModelsOceananigansExt = ["Oceananigans"]
     ClimateModelsPyCallExt = ["PyCall"]
+    ClimateModelsZarrExt = ["Zarr"]
 
     [deps.ClimateModels.weakdeps]
     Conda = "8f4d0f93-b110-5947-807f-2305c1781a2d"
+    IniFile = "83e8ac13-25f8-5344-8a64-a9f2b223428f"
+    Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
+    NetCDF = "30363a11-5582-574a-97bb-aa9a979735b9"
+    Oceananigans = "9e8cae18-63c1-5223-a75c-80ca9d6e9a09"
     PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
+    Zarr = "0a941bbe-ad1d-11e8-39d9-ab76183a1d99"
 
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
@@ -1025,15 +1041,15 @@ uuid = "e6f89c97-d47a-5376-807f-9c37f3926c36"
 version = "1.1.0"
 
 [[deps.MIMEs]]
-git-tree-sha1 = "65f28ad4b594aebe22157d6fac869786a255b7eb"
+git-tree-sha1 = "1833212fd6f580c20d4291da9c1b4e8a655b128e"
 uuid = "6c6e2e6c-3030-632d-7369-2d6c69616d65"
-version = "0.1.4"
+version = "1.0.0"
 
 [[deps.MITgcm]]
 deps = ["ClimateModels", "DataDeps", "Dataverse", "Dates", "Distributed", "FortranFiles", "Glob", "MeshArrays", "Printf", "Scratch", "SharedArrays", "SparseArrays", "Statistics", "UUIDs"]
-git-tree-sha1 = "0be89f9df4e5bad554a963cee316ce61eb6f51e5"
+git-tree-sha1 = "63831a972c6944c03baddef07e79ba4568a9855d"
 uuid = "dce5fa8e-68ce-4431-a242-9469c69627a0"
-version = "0.5.0"
+version = "0.5.1"
 
     [deps.MITgcm.extensions]
     MITgcmNetCDFExt = ["NetCDF"]
@@ -1296,9 +1312,9 @@ version = "1.4.3"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "eba4810d5e6a01f612b948c9fa94f905b49087b0"
+git-tree-sha1 = "7e71a55b87222942f0f9337be62e26b1f103d3e4"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.60"
+version = "0.7.61"
 
 [[deps.PolygonOps]]
 git-tree-sha1 = "77b3d3605fc1cd0b42d95eba87dfcd2bf67d5ff6"
@@ -1527,9 +1543,9 @@ version = "0.1.1"
 
 [[deps.StaticArrays]]
 deps = ["LinearAlgebra", "PrecompileTools", "Random", "StaticArraysCore"]
-git-tree-sha1 = "47091a0340a675c738b1304b58161f3b0839d454"
+git-tree-sha1 = "02c8bd479d26dbeff8a7eb1d77edfc10dacabc01"
 uuid = "90137ffa-7385-5640-81b9-e52037218182"
-version = "1.9.10"
+version = "1.9.11"
 weakdeps = ["ChainRulesCore", "Statistics"]
 
     [deps.StaticArrays.extensions]
@@ -1842,9 +1858,9 @@ version = "2.0.3+0"
 
 [[deps.libpng_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Zlib_jll"]
-git-tree-sha1 = "d7b5bbf1efbafb5eca466700949625e07533aff2"
+git-tree-sha1 = "055a96774f383318750a1a5e10fd4151f04c29c5"
 uuid = "b53b4c65-9356-5827-b1ea-8c7a1a84506f"
-version = "1.6.45+1"
+version = "1.6.46+0"
 
 [[deps.libsixel_jll]]
 deps = ["Artifacts", "JLLWrappers", "JpegTurbo_jll", "Libdl", "libpng_jll"]
