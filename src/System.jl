@@ -21,7 +21,7 @@ system_check(;setenv=false,rebuild=true)=begin
 
   ##
 
-  tests=[]
+  tests=Dict()
   tst=[false]
   try
     path0=MITgcm.default_path()

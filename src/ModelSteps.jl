@@ -45,13 +45,17 @@ function build(config::MITgcm_config)
         try
             withenv("MITGCM_ROOTDIR"=>rootdir) do
                 genmake2=joinpath(rootdir,"tools","genmake2")
-                #println.([pwd(),genmake2,opt]);
                 @suppress run(`$(genmake2) $(opt)`)
                 @suppress run(`make clean`)
                 @suppress run(`make depend`)
                 @suppress run(`make -j 4`)
             end
         catch e
+            genmake2=joinpath(rootdir,"tools","genmake2")
+            run(`$(genmake2) $(opt)`)
+            run(`make clean`)
+            run(`make depend`)
+            run(`make -j 4`)
             println("model compilation may have failed")
         end
         cd(pth)
@@ -106,10 +110,10 @@ end
 build_options_pleiades="-mods=../code -optfile=../../../tools/"*
   "build_options/linux_amd64_ifort+mpi_ice_nas -mpi"
 
-linux_arm64_gfortran="-mods=../code -optfile=../../../tools/"*
-  "build_options/linux_arm64_gfortran"
+darwin_arm64_gfortran="-mods=../code -optfile=../../../tools/"*
+  "build_options/darwin_arm64_gfortran"
 
-build_options_default=["-mods=../code", linux_arm64_gfortran,build_options_pleiades]
+build_options_default=["-mods=../code", darwin_arm64_gfortran,build_options_pleiades]
 
 """
     setup(config::MITgcm_config)

@@ -6,9 +6,47 @@ using MITgcm.ClimateModels.Suppressor
 using MITgcm.ClimateModels.DataFrames
 using MITgcm.ClimateModels.CSV
 
+@testset "ECCO4" begin
+
+    MC=MITgcm_config(inputs=read_toml(:OCCA2))
+    push!(MC.inputs[:setup][:main],(:input_folder => tempname()))
+    @suppress setup(MC)
+
+    ECCO4_inputs.list0
+    list1=ECCO4_inputs.get_list()
+    nam1="documentation"
+    @suppress ECCO4_inputs.get_files(list1,nam1,joinpath(MC,"run"),filenames=("README.pdf",))
+    fil=joinpath(MC,"run","README.pdf")
+    @test isfile(fil)
+
+    ref_file=joinpath(MC,"MITgcm","mysetups","ECCOv4","test","testreport_baseline2.csv")
+    ref=CSV.read(ref_file,DataFrame)
+    report=deepcopy(ref); report.value.+=rand(length(ref.value))
+    @suppress ECCO4_testreport.compare(report,ref)
+    @test isa(report,DataFrame)
+
+    ECCO4_inputs.download_input_folder(MC, dry_run=true)
+    MeshArrays.GRID_LLC90_download()
+    ispath(MeshArrays.GRID_LLC90) ? nothing : @warn "missing GRID_LLC90"
+    ECCO4_testreport.compute(joinpath(MC,"run"),dry_run=true)
+
+    ECCO4_testreport.list_diags_files(joinpath(MC,"run"))
+    ECCO4_testreport.list_diags_files_alt(joinpath(MC,"run"))
+        
+    Dataverse=MITgcm.ECCO4_inputs.Dataverse
+    DOI="doi:10.7910/DVN/ODM2IQ"
+    files=Dataverse.file_list(DOI)
+    Dataverse.file_download(DOI,files.filename[2])
+
+    fil0=joinpath(tempdir(),files.filename[2])
+    fc=ECCO4_testreport.parse_fc(fil0)
+    @test isa(fc,NamedTuple)
+end
+
 @testset "MITgcm.jl" begin
 
-    MITgcm.set_environment_variables_to_default()
+    MITgcm_tests=MITgcm.system_check()
+    @test MITgcm_tests["run complete"]
 
     path0=MITgcm.default_path()
     @test ispath(path0)
@@ -35,6 +73,7 @@ using MITgcm.ClimateModels.CSV
     exps=verification_experiments()
     @test isa(exps,Array)
 
+    MC=verification_experiments("advect_xy")
     MC=MITgcm_config(configuration="advect_xy")
     setup(MC)
 
@@ -90,23 +129,6 @@ using MITgcm.ClimateModels.CSV
         Γ=GridLoad_mdsio(MC)
     end
     @test isa(Γ,NamedTuple)
-
-    #
-    MC=MITgcm_config(inputs=read_toml(:OCCA2))
-    push!(MC.inputs[:setup][:main],(:input_folder => tempname()))
-    @suppress setup(MC)
- 
-    list1=ECCO4_inputs.get_list()
-    nam1="documentation"
-    @suppress ECCO4_inputs.get_files(list1,nam1,joinpath(MC,"run"),filenames=("README.pdf",))
-    fil=joinpath(MC,"run","README.pdf")
-    @test isfile(fil)
-
-    ref_file=joinpath(MC,"MITgcm","mysetups","ECCOv4","test","testreport_baseline2.csv")
-    ref=CSV.read(ref_file,DataFrame)
-    report=deepcopy(ref); report.value.+=rand(length(ref.value))
-    @suppress ECCO4_testreport.compare(report,ref)
-    @test isa(report,DataFrame)
 
     #read / write functions
 

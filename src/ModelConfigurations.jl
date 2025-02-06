@@ -147,7 +147,7 @@ nam1="model initialization"
 ECCO4_inputs.get_files(list1,nam1,tempname())
 ```
 """
-function get_files(list1::DataFrame,nam1::String,path1::String; filenames=[])
+function get_files(list1::DataFrame,nam1::String,path1::String; filenames=[] , dry_run=false)
     !isdir(path1) ? mkdir(path1) : nothing
     list3=get_list(list1,nam1)
     path3=joinpath(path1,list1[list1.name.==nam1,:].folder[1])
@@ -157,7 +157,7 @@ function get_files(list1::DataFrame,nam1::String,path1::String; filenames=[])
     to_do_list=setdiff(list3.filename,readdir(path3))
     !isempty(filenames) ? to_do_list=intersect(to_do_list,filenames) : nothing
     #show(to_do_list)
-    [Dataverse.file_download(list3,n,path3) for n in to_do_list];
+    dry_run ? nothing : [Dataverse.file_download(list3,n,path3) for n in to_do_list]
     println("and now completed!")
     path3
 end
@@ -165,22 +165,22 @@ end
 """
     download_input_folder(config::MITgcm_config)
 """
-function download_input_folder(config::MITgcm_config)
+function download_input_folder(config::MITgcm_config; dry_run=false)
     p=joinpath(config,"input_folder")
     mkdir(p)
     list1=ECCO4_inputs.get_list()
     nam1="model initialization"
-    ECCO4_inputs.get_files(list1,nam1,p)
+    ECCO4_inputs.get_files(list1,nam1,p,dry_run=dry_run)
     nam1="surface forcing fields"
-    ECCO4_inputs.get_files(list1,nam1,p)
+    ECCO4_inputs.get_files(list1,nam1,p,dry_run=dry_run)
     if config.inputs[:pkg][:PACKAGES][:useECCO]
         list2=["sea level anomaly","sea surface temperature",
         "ice cover fraction","surface wind stress","bottom pressure"]
-        [ECCO4_inputs.get_files(list1,nam2,p) for nam2 in list2]
+        [ECCO4_inputs.get_files(list1,nam2,p,dry_run=dry_run) for nam2 in list2]
     end
     if config.inputs[:pkg][:PACKAGES][:useProfiles]
         nam1="in situ T-S profiles"
-        ECCO4_inputs.get_files(list1,nam1,p)
+        ECCO4_inputs.get_files(list1,nam1,p,dry_run=dry_run)
     end
     p
 end
@@ -191,6 +191,7 @@ module ECCO4_testreport
 
 using Glob, MeshArrays, ClimateModels.DataFrames
 using Distributed, SharedArrays, Statistics
+import MITgcm: read_mdsio
 
 alt_names=false
 
@@ -206,7 +207,7 @@ end
 report=ECCO4_testreport.compute("run")
 ```
 """
-function compute(pth0)
+function compute(pth0; dry_run=false)
 
  alt_names ? lst=list_diags_files_alt(pth0) : lst=list_diags_files(pth0)
  nt=length(lst.state_2d_set1)
@@ -214,8 +215,7 @@ function compute(pth0)
  tave=193:228
  ntave=length(tave)
  
- #pth00=MeshArrays.GRID_LLC90
- pth00=pth0 #"run"
+ pth00=(dry_run ? MeshArrays.GRID_LLC90 : pth0)
  RAC=RAC_masked(pth00)
  vol=vol_masked(pth00)
  G,LC=load_llc90_grid(pth00)
@@ -606,11 +606,7 @@ Get one configurations of `MITgcm` and return as a `MITgcm_config`
 advect_xy=verification_experiments("advect_xy")
 ```
 """
-function verification_experiments(nam::String)
-    exps=verification_experiments()
-    iexp=findall([exps[i].configuration==nam for i in 1:length(exps)])[1]
-    exps[iexp]
-end
+verification_experiments(nam::String) = MITgcm_config(configuration=nam)
 
 """
     setup_verification!(config::MITgcm_config)
@@ -666,7 +662,7 @@ function setup_verification!(config::MITgcm_config)
     rootdir=MITgcm_path[1]
     optfile=if Sys.isapple()&&(Sys.ARCH==:aarch64)
         #build_options_default[2] #does not work, cause "../../../tools" v "../tools"        
-        "-mods=../code -optfile="*rootdir*"/tools/build_options/linux_arm64_gfortran"
+        "-mods=../code -optfile="*rootdir*"/tools/build_options/darwin_arm64_gfortran"
     else
         build_options_default[1]
     end
