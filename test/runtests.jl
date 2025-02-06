@@ -26,6 +26,7 @@ using MITgcm.ClimateModels.CSV
     @test isa(report,DataFrame)
 
     ECCO4_inputs.download_input_folder(MC, dry_run=true)
+    ispath(MeshArrays.GRID_LLC90) ? nothing : @warn "missing GRID_LLC90"
     ECCO4_testreport.compute(joinpath(MC,"run"),dry_run=true)
 
     ECCO4_testreport.list_diags_files(joinpath(MC,"run"))
