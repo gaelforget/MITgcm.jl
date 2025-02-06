@@ -2,6 +2,7 @@ module datadeps
 
 using DataDeps, Dataverse, Glob
 import DataDeps: @datadep_str
+using Dataverse.downloads.Downloads
 
 """
     unpackDV(filepath)
@@ -60,7 +61,11 @@ Add data to the scratch space folder. Known options for `nam` include
 function getdata(nam::String)
     withenv("DATADEPS_ALWAYS_ACCEPT"=>true) do
         if nam=="mitgcmsmall"
-            datadep"mitgcmsmall"
+            p=datadep"mitgcmsmall"
+            fil=joinpath(p,"MITgcm","tools","build_options","darwin_arm64_gfortran")
+            url="https://raw.githubusercontent.com/MITgcm/MITgcm/refs/heads/master/tools/build_options/darwin_arm64_gfortran"
+            isfile(fil) ? nothing : Downloads.download(url,fil)
+            p
         elseif nam=="mitgcmsmallverif"
             datadep"mitgcmsmallverif"
         elseif nam=="hs94pickup"
