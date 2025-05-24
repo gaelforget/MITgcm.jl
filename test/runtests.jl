@@ -179,10 +179,13 @@ end
     read_bin(tmp2,tmp1)
     read_bin(tmp2,γ)
         
-    MITgcmScratchSpaces.download_nctiles_sample()
-    tmp=read_nctiles(joinpath(MITgcmScratchSpaces.path,"ETAN"),"ETAN",γ,I=(:,:,1))
-
-    @test isa(tmp,MeshArray)
+    try
+        MITgcmScratchSpaces.download_nctiles_sample()
+        tmp=read_nctiles(joinpath(MITgcmScratchSpaces.path,"ETAN"),"ETAN",γ,I=(:,:,1))
+        @test isa(tmp,MeshArray)
+    catch 
+        @warn "could not download from dataverse"
+    end
 
     ##
 
