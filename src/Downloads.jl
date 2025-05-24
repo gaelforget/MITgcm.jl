@@ -62,15 +62,11 @@ function getdata(nam::String)
     withenv("DATADEPS_ALWAYS_ACCEPT"=>true) do
         if nam=="mitgcmsmall"
             p=datadep"mitgcmsmall"
-            fil=joinpath(p,"MITgcm","tools","build_options","darwin_arm64_gfortran")
-            url="https://raw.githubusercontent.com/MITgcm/MITgcm/refs/heads/master/tools/build_options/darwin_arm64_gfortran"
-            isfile(fil) ? nothing : Downloads.download(url,fil)
-            p
         elseif nam=="mitgcmsmallverif"
             datadep"mitgcmsmallverif"
         elseif nam=="hs94pickup"
             datadep"hs94pickup"
-        elseif nam=="darwin3code"
+        elseif nam=="darwin3code"   
             datadep"darwin3code"
         elseif nam=="darwin3oneD"
             datadep"darwin3oneD"
@@ -78,6 +74,14 @@ function getdata(nam::String)
             println("unknown dataset")
         end
     end
+end
+
+function add_darwin_arm64_gfortran(p)
+    pth=joinpath(p,"MITgcm","tools","build_options")
+    fil=joinpath(pth,"darwin_arm64_gfortran")
+    url="https://raw.githubusercontent.com/MITgcm/MITgcm/refs/heads/master/tools/build_options/darwin_arm64_gfortran"
+    ispath(pth)&&!isfile(fil) ? Downloads.download(url,fil) : nothing
+    fil
 end
 
 end #module datadeps
