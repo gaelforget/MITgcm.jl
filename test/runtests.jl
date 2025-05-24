@@ -194,7 +194,7 @@ end
     f2=joinpath(path1,"flt_example","results","output.txt")
     isfile(f2) ? nothing : symlink(f1,f2)
 
-    p=MITgcm.getdata("mitgcmsmallverif")
+    p=MITgcm.getdata("mitgcmsmall")
     f=MITgcm.datadeps.add_darwin_arm64_gfortran(p)
     @test ispath(f)
 
