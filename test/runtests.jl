@@ -184,6 +184,10 @@ end
     f2=joinpath(path1,"flt_example","results","output.txt")
     isfile(f2) ? nothing : symlink(f1,f2)
 
+    p=MITgcm.getdata("mitgcmsmallverif")
+    f=MITgcm.datadeps.add_darwin_arm64_gfortran(p)
+    @test ispath(f)
+
     MC=MITgcm_config(configuration="flt_example")
     testreport(MC)
     pth=joinpath(MC,"MITgcm","verification","flt_example","run")

@@ -66,7 +66,7 @@ function getdata(nam::String)
             datadep"mitgcmsmallverif"
         elseif nam=="hs94pickup"
             datadep"hs94pickup"
-        elseif nam=="darwin3code"
+        elseif nam=="darwin3code"   
             datadep"darwin3code"
         elseif nam=="darwin3oneD"
             datadep"darwin3oneD"
@@ -81,6 +81,7 @@ function add_darwin_arm64_gfortran(p)
     fil=joinpath(pth,"darwin_arm64_gfortran")
     url="https://raw.githubusercontent.com/MITgcm/MITgcm/refs/heads/master/tools/build_options/darwin_arm64_gfortran"
     ispath(pth)&&!isfile(fil) ? Downloads.download(url,fil) : nothing
+    fil
 end
 
 end #module datadeps
