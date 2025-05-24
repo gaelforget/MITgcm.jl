@@ -43,12 +43,11 @@ using MITgcm.ClimateModels.CSV
         Dataverse.file_download(DOI,files.filename[2])
         fil0=joinpath(tempdir(),files.filename[2])
         fc=ECCO4_testreport.parse_fc(fil0)
+        @test isa(fc,NamedTuple)
     catch 
         @warn "could not download from dataverse"
-        fc=NamedTuple()
     end
 
-    @test isa(fc,NamedTuple)
 end
 
 @testset "MITgcm.jl" begin
