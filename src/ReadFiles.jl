@@ -127,6 +127,50 @@ function scan_stdout(filout::String)
     return (packages=pac,params_time=par1,params_grid=par2,params_files=par3,completed=co)
 end
 
+
+"""
+    scan_genmake_log(MC::MITgcm_config)
+
+alias for `scan_genmake_log(pathof(MC),MC.configuration)`
+"""
+scan_genmake_log(MC::MITgcm_config) = scan_genmake_log(pathof(MC),MC.configuration)
+
+"""
+    scan_genmake_log(pth::String,config::String)
+
+```
+println.(f);
+```
+"""
+function scan_genmake_log(pth::String,config::String)
+    genmake_log=joinpath(pth,"MITgcm","verification",config,"build","genmake.log")
+    tmp=readlines(genmake_log)
+    log = OrderedDict()
+
+    ii=findall(occursin.("running",tmp))
+    push!(log,("running"=>tmp[ii]))
+    ii=findall(occursin.("-->",tmp))
+    push!(log,("-->"=>tmp[ii]))
+    ii=findall(occursin.("==>",tmp))
+    push!(log,("==>"=>tmp[ii]))
+    ii=findall(occursin.("warning",tmp))
+    push!(log,("warning"=>tmp[ii]))
+    ii=findall(occursin.("error",tmp))
+    push!(log,("error"=>tmp[ii]))
+
+    genmake_state=joinpath(pth,"MITgcm","verification",config,"build","genmake_state")
+    tmp=readlines(genmake_state)
+    state = OrderedDict()
+
+    for st in tmp
+        nam=split(st,"=")[1]
+        val=st[length(nam)+1:end]
+        push!(state,(nam=>val))
+    end
+
+    log,state
+end
+
 """
     findtiles(ni::Int,nj::Int,mygrid::gcmgrid)
     findtiles(ni::Int,nj::Int,grid::String="LatLonCap",GridParentDir="../inputs/GRID_LLC90/")

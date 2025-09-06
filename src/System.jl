@@ -1,4 +1,6 @@
 
+using StyledStrings
+
 test_run(;configuration="advect_xy",rebuild=false)=begin
   MC=MITgcm_config(configuration=configuration)
   setup(MC)
@@ -33,10 +35,14 @@ system_check(;setenv=false,rebuild=true)=begin
   push!(tests,("MITgcm download"=>tst[1]))
     
   MC=test_run(configuration="advect_xy",rebuild=rebuild)
+  genmake_log,genmake_state=scan_genmake_log(MC)
+  push!(tests,("genmake_log"=>genmake_log))
+  push!(tests,("genmake_state"=>genmake_state))
+
   RS=scan_rundir(joinpath(MC,"run"))
   tst0=(ismissing(RS) ? false : RS[:completed])
   push!(tests,("run complete"=>tst0))
-  push!(tests,("run folder"=>pathof(MC)))
+  push!(tests,("test folder"=>pathof(MC)))
 
 #  RS=test_run(configuration="hs94.cs-32x32x5",rebuild=rebuild)
 #  tst0=(ismissing(RS) ? false : RS[:packages][:mnc])
@@ -51,6 +57,20 @@ system_check(;setenv=false,rebuild=true)=begin
   #- netcdf / mnc 
   #- mpi
   #- env
+
+  for tst in keys(tests)
+    if isa(tests[tst],Bool)
+      x = (tests[tst] ? "✅" : "❌")
+      println(styled"{yellow:$(tst)} $(x)")
+    end
+  end
+
+    for tst in keys(tests)
+    if !isa(tests[tst],Bool)
+      x=typeof(tests[tst])
+      println(styled"{pink:$(tst)} {blue:$(x)}")
+    end
+  end
 
   tests
 end
