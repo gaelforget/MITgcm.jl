@@ -49,9 +49,10 @@ GridLoad_mnc
 GridLoad_native
 ```
 
-## Other Output Files
+## Other Files
 
 ```@docs
+scan_genmake_log
 read_flt
 read_bin
 read_nctiles
