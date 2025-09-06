@@ -2,10 +2,11 @@
 test_run(;configuration="advect_xy",rebuild=false)=begin
   MC=MITgcm_config(configuration=configuration)
   setup(MC)
+  MC.inputs[:setup][:build][:options]=MC.inputs[:setup][:build][:options]*" -devel -ds -ieee"
   MC.inputs[:setup][:build][:rebuild]=rebuild
   build(MC)
   launch(MC)
-  RS=scan_rundir(joinpath(MC,"run"))
+  MC
 end
 
 """
@@ -21,7 +22,7 @@ system_check(;setenv=false,rebuild=true)=begin
 
   ##
 
-  tests=Dict()
+  tests=ClimateModels.OrderedDict()
   tst=[false]
   try
     path0=MITgcm.default_path()
@@ -31,9 +32,11 @@ system_check(;setenv=false,rebuild=true)=begin
   end
   push!(tests,("MITgcm download"=>tst[1]))
     
-  RS=test_run(configuration="advect_xy",rebuild=rebuild)
+  MC=test_run(configuration="advect_xy",rebuild=rebuild)
+  RS=scan_rundir(joinpath(MC,"run"))
   tst0=(ismissing(RS) ? false : RS[:completed])
   push!(tests,("run complete"=>tst0))
+  push!(tests,("run folder"=>pathof(MC)))
 
 #  RS=test_run(configuration="hs94.cs-32x32x5",rebuild=rebuild)
 #  tst0=(ismissing(RS) ? false : RS[:packages][:mnc])

@@ -141,7 +141,7 @@ function setup(config::MITgcm_config)
         [symlink(joinpath(p,f[i]),joinpath(pth_run,f[i])) for i in 1:length(f)]
     end
 
-    if !isempty(config.inputs)
+    if haskey(config.inputs,:setup)
         nam=config.inputs[:setup][:main][:name]
         if nam=="ECCO4"||nam=="OCCA2"
             setup_ECCO4!(config)
