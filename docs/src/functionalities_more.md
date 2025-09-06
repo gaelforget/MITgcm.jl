@@ -2,10 +2,10 @@
 
 ### Related packages 
 
-- [ClimateModels.jl](https://gaelforget.github.io/ClimateModels.jl/stable/) : standard interface for modeling workflows. 
-- [OceanStateEstimation.jl](https://JuliaOcean.github.io/OceanStateEstimation.jl/dev/) : accessing and using ECCO solutions. 
+- [ClimateModels.jl](https://gaelforget.github.io/ClimateModels.jl/stable/) : standard interface for modeling workflows, used in `MITgcm.jl`. 
+- [Climatology.jl](https://JuliaOcean.github.io/Climatology.jl/dev/) : accessing gridded data sets and using ECCO solutions. 
 - [MeshArrays.jl](https://juliaclimate.github.io/MeshArrays.jl/dev/) : data structures for gridded model output.
-- [IndividualDisplacements.jl](https://juliaclimate.github.io/IndividualDisplacements.jl/dev/) : particle tracking applications and pathway simulations. 
+- [Drifters.jl](https://juliaclimate.github.io/Drifters.jl/dev/) : particle tracking applications and pathway simulations. 
 
 ### More Examples
 
