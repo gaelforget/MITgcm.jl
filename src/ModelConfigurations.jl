@@ -662,6 +662,7 @@ function setup_verification!(config::MITgcm_config)
     rootdir=MITgcm_path[1]
     optfile=if Sys.isapple()&&(Sys.ARCH==:aarch64)
         #build_options_default[2] #does not work, cause "../../../tools" v "../tools"        
+#        build_options_default[1]*" -optfile="*rootdir*"/tools/build_options/darwin_arm64_gfortran"
         "-mods=../code -optfile="*rootdir*"/tools/build_options/darwin_arm64_gfortran"
     else
         build_options_default[1]
