@@ -1,5 +1,6 @@
 
 import ClimateModels: compile, build, setup, clean, git, launch
+using StyledStrings
 
 """
     clean(config::MITgcm_config)
@@ -42,7 +43,7 @@ function build(config::MITgcm_config)
         opt=Cmd(convert(Vector{String}, split(opt)))
         tst=haskey(config.inputs[:setup][:build],:rootdir)
         rootdir=(tst ? config.inputs[:setup][:build][:rootdir] : joinpath(config,"MITgcm"))
-        try
+        test=try
             withenv("MITGCM_ROOTDIR"=>rootdir) do
                 genmake2=joinpath(rootdir,"tools","genmake2")
                 @suppress run(`$(genmake2) $(opt)`)
@@ -50,16 +51,21 @@ function build(config::MITgcm_config)
                 @suppress run(`make depend`)
                 @suppress run(`make -j 4`)
             end
+            true
         catch e
-            genmake2=joinpath(rootdir,"tools","genmake2")
-            run(`$(genmake2) $(opt)`)
-            run(`make clean`)
-            run(`make depend`)
-            run(`make -j 4`)
-            println("model compilation may have failed")
+#            genmake2=joinpath(rootdir,"tools","genmake2")
+#            run(`$(genmake2) $(opt)`)
+#            run(`make clean`)
+#            run(`make depend`)
+#            run(`make -j 4`)
+            println(styled"{red:!! model compilation has failed}")
+            println(styled"{red:>>   to try and resolve the issue, look at:}")
+            println(styled"{red:>>   MITgcm_tests=MITgcm.system_check()}")
+            println(styled"{red:>>   <https://mitgcm.readthedocs.io/en/latest/getting_started/getting_started.html#getting-started-with-mitgcm>}")
+            false
         end
         cd(pth)
-        return true
+        return test
     end
 end
 

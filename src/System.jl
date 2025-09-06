@@ -14,6 +14,7 @@ end
 """
     system_check(;setenv=false,rebuild=true)
 
+Run a suite of diagnostics, including a test run of MITgcm.
 """
 system_check(;setenv=false,rebuild=true)=begin
 

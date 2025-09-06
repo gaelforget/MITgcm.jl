@@ -4,8 +4,13 @@ The [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl/#readme)'s
 
 This allows you to easily create model simulations using `MITgcm` conveniently from `Julia`.
 
+
 ```@example 1
 using MITgcm
+MITgcm_tests=MITgcm.system_check()
+```
+
+```@example 1
 MC=MITgcm_config(configuration="advect_xy")
 setup(MC)
 #exe=joinpath(MITgcm_path[2],MC.configuration,"build","mitgcmuv") #hide
