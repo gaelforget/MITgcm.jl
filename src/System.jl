@@ -1,7 +1,17 @@
 
 using StyledStrings
 
-test_run(;configuration="advect_xy",exe="",mpi=false)=begin
+"""
+    MITgcm_test_run(;configuration="advect_xy",exe="",mpi=false)
+
+```
+using MITgcm
+MITgcm_path[1]=joinpath(MITgcm.getdata("mitgcmsmall"),"MITgcm")
+MITgcm_path[2]=joinpath(MITgcm.getdata("mitgcmsmallverif"),"MITgcm","verification")
+MC=MITgcm_test_run()
+```
+"""
+function MITgcm_test_run(;configuration="advect_xy",exe="",mpi=false)
   MC=MITgcm_config(configuration=configuration)
   setup(MC)
   if isempty(exe)&&mpi
@@ -57,7 +67,7 @@ system_check(;setenv=false,exe="",mpi=false)=begin
   push!(tests,("MITgcm download"=>tst[1]))
     
   config="advect_xy"
-  MC=test_run(configuration=config,exe=exe,mpi=mpi)
+  MC=MITgcm_test_run(configuration=config,exe=exe,mpi=mpi)
 
   genmake_log=joinpath(pathof(MC),"MITgcm","verification","advect_xy","build","genmake.log")
   if isfile(genmake_log)
@@ -74,7 +84,7 @@ system_check(;setenv=false,exe="",mpi=false)=begin
   push!(tests,("run complete"=>tst0))
   push!(tests,("test folder"=>pathof(MC)))
 
-#  RS=test_run(configuration="hs94.cs-32x32x5")
+#  RS=MITgcm_test_run(configuration="hs94.cs-32x32x5")
 #  tst0=(ismissing(RS) ? false : RS[:packages][:mnc])
 #  push!(tests,("netcdf output"=>tst0))
 
