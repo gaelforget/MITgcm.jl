@@ -1,12 +1,18 @@
 
 using StyledStrings
 
-test_run(;configuration="advect_xy",rebuild=false)=begin
+test_run(;configuration="advect_xy",exe="")=begin
   MC=MITgcm_config(configuration=configuration)
   setup(MC)
-  MC.inputs[:setup][:build][:options]=MC.inputs[:setup][:build][:options]*" -devel -ds -ieee"
-  MC.inputs[:setup][:build][:rebuild]=rebuild
-  build(MC)
+  if isempty(exe)
+    MC.inputs[:setup][:build][:options]=MC.inputs[:setup][:build][:options]*" -devel -ds -ieee"
+    build(MC)
+  else
+    pth=joinpath(MC,"run","mitgcmuv")
+    rm(pth)
+    symlink(exe,pth)
+    push!(MC.inputs[:setup][:main],(:exe => exe))
+  end  
   launch(MC)
   MC
 end
@@ -16,12 +22,12 @@ end
 
 Run a suite of diagnostics, including a test run of MITgcm.
 """
-system_check(;setenv=false,rebuild=true)=begin
+system_check(;setenv=false,exe="")=begin
 
   setenv ? set_environment_variables_to_default() : nothing
 
-  test_env_nc=haskey(ENV,"NETCDF_ROOT")
-  test_env_mpi=haskey(ENV,"MPI_INC_DIR")
+  test_env_nc=(haskey(ENV,"NETCDF_ROOT") ? ENV["NETCDF_ROOT"] : "")
+  test_env_mpi=(haskey(ENV,"MPI_INC_DIR") ? ENV["MPI_INC_DIR"] : "")
 
   ##
 
@@ -35,17 +41,21 @@ system_check(;setenv=false,rebuild=true)=begin
   end
   push!(tests,("MITgcm download"=>tst[1]))
     
-  MC=test_run(configuration="advect_xy",rebuild=rebuild)
-  genmake_log,genmake_state=scan_genmake_log(MC)
-  push!(tests,("genmake_log"=>genmake_log))
-  push!(tests,("genmake_state"=>genmake_state))
+  MC=test_run(configuration="advect_xy",exe=exe)
+
+  genmake_log=joinpath(pathof(MC),"MITgcm","verification","advect_xy","build","genmake.log")
+  if isfile(genmake_log)
+    genmake_log,genmake_state=scan_genmake_log(MC)
+    push!(tests,("genmake_log"=>genmake_log))
+    push!(tests,("genmake_state"=>genmake_state))
+  end
 
   RS=scan_rundir(joinpath(MC,"run"))
   tst0=(ismissing(RS) ? false : RS[:completed])
   push!(tests,("run complete"=>tst0))
   push!(tests,("test folder"=>pathof(MC)))
 
-#  RS=test_run(configuration="hs94.cs-32x32x5",rebuild=rebuild)
+#  RS=test_run(configuration="hs94.cs-32x32x5")
 #  tst0=(ismissing(RS) ? false : RS[:packages][:mnc])
 #  push!(tests,("netcdf output"=>tst0))
 
@@ -68,7 +78,7 @@ system_check(;setenv=false,rebuild=true)=begin
 
     for tst in keys(tests)
     if !isa(tests[tst],Bool)
-      x=typeof(tests[tst])
+      x=(isa(tests[tst],String) ? tests[tst] : typeof(tests[tst]))
       println(styled"{pink:$(tst)} {blue:$(x)}")
     end
   end

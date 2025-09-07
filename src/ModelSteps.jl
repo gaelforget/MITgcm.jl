@@ -30,7 +30,8 @@ code files, headers, etc  in the `build/` folder before compiling the model.
 Note : this is skipped if `config.inputs[:setup][:main][:exe]` is specified.
 """
 function build(config::MITgcm_config)
-    do_build=(config.inputs[:setup][:build][:rebuild])||(!ispath(config.inputs[:setup][:build][:exe]))
+    skip_build=haskey(config.inputs[:setup][:main],:exe)&&ispath(config.inputs[:setup][:main][:exe])
+    do_build=(!skip_build)&&(config.inputs[:setup][:build][:rebuild]||(!ispath(config.inputs[:setup][:build][:exe])))
     if do_build
         try
             pth=pwd()
