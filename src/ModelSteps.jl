@@ -265,6 +265,46 @@ end
 
 ##
 
+using StyledStrings
+
+"""
+    MITgcm_test_run(;configuration="advect_xy",exe="",mpi=false)
+
+```
+using MITgcm
+MITgcm_path[1]=joinpath(MITgcm.getdata("mitgcmsmall"),"MITgcm")
+MITgcm_path[2]=joinpath(MITgcm.getdata("mitgcmsmallverif"),"MITgcm","verification")
+MC=MITgcm_test_run()
+```
+"""
+function MITgcm_test_run(;configuration="advect_xy",exe="",mpi=false)
+  MC=MITgcm_config(configuration=configuration)
+  setup(MC)
+  if isempty(exe)&&mpi
+    println("compiling and running test with MPI")
+    MC.inputs[:setup][:build][:options]=MC.inputs[:setup][:build][:options]*" -devel -ds -ieee -mpi"
+    SIZE_in=joinpath(pathof(MC),"MITgcm","verification","advect_xy","code","SIZE.h_MPI")
+    SIZE_out=joinpath(pathof(MC),"MITgcm","verification","advect_xy","build","SIZE.h")
+    cp(SIZE_in,SIZE_out)
+    push!(MC.inputs[:setup][:main],(:command => "mpirun -np 2 ./mitgcmuv"))
+    build(MC)
+  elseif isempty(exe)
+    println("compiling and running test")
+    MC.inputs[:setup][:build][:options]=MC.inputs[:setup][:build][:options]*" -devel -ds -ieee"
+    build(MC)
+  else
+    println("running test with precompiled model")
+    pth=joinpath(MC,"run","mitgcmuv")
+    rm(pth)
+    symlink(exe,pth)
+    push!(MC.inputs[:setup][:main],(:exe => exe))
+  end  
+  launch(MC)
+  MC
+end
+
+##
+
 """
     testreport(config::MITgcm_config,ext="")
 
