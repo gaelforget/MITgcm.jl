@@ -28,9 +28,14 @@ test_run(;configuration="advect_xy",exe="",mpi=false)=begin
 end
 
 """
-    system_check(;setenv=false,rebuild=true)
+    system_check(;setenv=false,exe="",mpi=false)
 
 Run a suite of diagnostics, including a test run of MITgcm.
+
+```
+using MITgcm
+SC=MITgcm.system_check()
+```
 """
 system_check(;setenv=false,exe="",mpi=false)=begin
 
@@ -97,11 +102,15 @@ system_check(;setenv=false,exe="",mpi=false)=begin
     end
   end
 
+  println("")
+
   MITgcm.MITgcm_system_check(
     download=tests["MITgcm download"],
     complete=tests["run complete"],
     name=config,
     folder=tests["test folder"],
+    path_MITgcm=MITgcm_path[1],
+    path_verification=MITgcm_path[2],
     NETCDF_ROOT=tests["NETCDF_ROOT"],
     MPI_INC_DIR=tests["MPI_INC_DIR"],
     mpi=mpi,
