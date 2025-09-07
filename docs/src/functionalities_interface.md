@@ -7,7 +7,7 @@ This allows you to easily create model simulations using `MITgcm` conveniently f
 
 ```@example 1
 using MITgcm
-MITgcm_tests=MITgcm.system_check()
+SC=MITgcm.system_check()
 ```
 
 ```@example 1
@@ -20,7 +20,7 @@ launch(MC)
 ```
 
 ```@example 1
-sc=scan_rundir(MC)
+sc=scan_run_dir(MC)
 keys(sc)
 ```
 

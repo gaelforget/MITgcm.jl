@@ -53,7 +53,7 @@ end
 @testset "MITgcm.jl" begin
 
     MITgcm_tests=MITgcm.system_check()
-    @test MITgcm_tests["run complete"]
+    @test MITgcm_tests.complete
 
     path0=MITgcm.default_path()
     @test ispath(path0)
@@ -117,7 +117,7 @@ end
     tmp=read_mdsio(pth,"XC")
     @test isa(tmp,Array)
 
-    scan_rundir(pth)
+    scan_run_dir(pth)
     Γ=GridLoad_mdsio(MC)
     @test isa(Γ,NamedTuple)
 

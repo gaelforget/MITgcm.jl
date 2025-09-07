@@ -60,3 +60,55 @@ Base.@kwdef struct MITgcm_config <: AbstractModelConfig
     folder :: String = tempdir()
     ID :: UUID = UUIDs.uuid4()
 end
+
+
+"""
+    MITgcm_test()
+
+Output of `MITgcm.system_check`.
+
+```
+  download :: Bool = false
+  complete :: Bool = false
+  mpi :: Bool = false
+  genmake_log :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+  genmake_state :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+  name :: String = "advect_xy"
+  folder :: String = ""
+  NETCDF_ROOT :: String = ""
+  MPI_INC_DIR :: String = ""
+```
+"""
+Base.@kwdef struct MITgcm_system_check
+  download :: Bool = false
+  complete :: Bool = false
+  mpi :: Bool = false
+  genmake_log :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+  genmake_state :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+  name :: String = "advect_xy"
+  folder :: String = ""
+  NETCDF_ROOT :: String = ""
+  MPI_INC_DIR :: String = ""
+end
+
+function Base.show(io::IO, z::MITgcm_system_check)
+    zn=fieldnames(typeof(z))
+    printstyled(io, " $(typeof(z)) \n",color=:normal)
+    for nam in (:name,:download,:complete)
+        in(nam,zn) ? printstyled(io, "  $(nam) = ",color=:normal) : nothing
+        val=getfield(z,nam)
+        in(nam,zn) ? printstyled(io, "$(val)\n",color=:magenta) : nothing
+    end
+    for nam in (:genmake_log,:genmake_state)
+        in(nam,zn) ? printstyled(io, "  $(nam) = ",color=:normal) : nothing
+        val=length(keys(getfield(z,nam)))
+        in(nam,zn) ? printstyled(io, "OrderedDict with $(val) keys\n",color=:yellow) : nothing
+    end
+    for nam in (:mpi,:NETCDF_ROOT,:MPI_INC_DIR,:folder)
+        in(nam,zn) ? printstyled(io, "  $(nam) = ",color=:normal) : nothing
+        val=getfield(z,nam)
+        in(nam,zn) ? printstyled(io, "$(val)\n",color=:blue) : nothing
+    end
+
+    return
+end  

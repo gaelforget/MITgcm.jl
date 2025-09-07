@@ -3,11 +3,11 @@ function read_mnc end
 function read_nctiles end
 
 """
-    scan_rundir(pth::String)
+    scan_run_dir(pth::String)
 
 Scan a MITgcm run directory and then, if found, the standard output text file ("output.txt" or "STDOUT.0000") via `scan_stdout`.
 """
-function scan_rundir(pth::String)
+function scan_run_dir(pth::String)
     #1 standard output
     filout=joinpath(pth,"output.txt")
     !isfile(filout) ? filout=joinpath(pth,"STDOUT.0000") : nothing
@@ -20,12 +20,15 @@ function scan_rundir(pth::String)
     return stdout
 end
 
+#alias with old name:
+scan_rundir=scan_run_dir
+
 """
-    scan_rundir(config::MITgcm_config)
+    scan_run_dir(config::MITgcm_config)
 
 Scan a MITgcm run directory (joinpath(MC,"run")) and then, if found, the standard output text file ("output.txt" or "STDOUT.0000") via `scan_stdout`.
 """
-scan_rundir(config::MITgcm_config)=scan_rundir(joinpath(config,"run"))
+scan_run_dir(config::MITgcm_config)=scan_run_dir(joinpath(config,"run"))
 
 """
     scan_stdout(filout::String)
@@ -129,20 +132,20 @@ end
 
 
 """
-    scan_genmake_log(MC::MITgcm_config)
+    scan_build_dir(MC::MITgcm_config)
 
-alias for `scan_genmake_log(pathof(MC),MC.configuration)`
+alias for `scan_build_dir(pathof(MC),MC.configuration)`
 """
-scan_genmake_log(MC::MITgcm_config) = scan_genmake_log(pathof(MC),MC.configuration)
+scan_build_dir(MC::MITgcm_config) = scan_build_dir(pathof(MC),MC.configuration)
 
 """
-    scan_genmake_log(pth::String,config::String)
+    scan_build_dir(pth::String,config::String)
 
 ```
 println.(f);
 ```
 """
-function scan_genmake_log(pth::String,config::String)
+function scan_build_dir(pth::String,config::String)
     genmake_log=joinpath(pth,"MITgcm","verification",config,"build","genmake.log")
     tmp=readlines(genmake_log)
     log = OrderedDict()
@@ -823,7 +826,7 @@ function GridLoad_mnc(rundir::String)
 	tmp=read_mnc(pth,"grid","XC")
     exps_ioSize=size(tmp)
     elty=eltype(tmp)
-    sc=MITgcm.scan_rundir(rundir)
+    sc=MITgcm.scan_run_dir(rundir)
     #
     if sc.params_grid.usingCurvilinearGrid&&(exps_ioSize==(192,32))
         γ=gcmgrid(rundir,"CubeSphere",6,fill((32,32),6),[32 32*6],elty, read, write)
@@ -879,7 +882,7 @@ function GridLoad_mdsio(rundir::String)
     tmp=read_mdsio(rundir,"XC")
     exps_ioSize=size(tmp)
     elty=eltype(tmp)
-    sc=MITgcm.scan_rundir(rundir)
+    sc=MITgcm.scan_run_dir(rundir)
     #
     if sc.params_grid.usingCurvilinearGrid
         readcube(xx::Array,x::MeshArray) = read_mdsio(cube2compact(xx),x)

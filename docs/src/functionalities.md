@@ -86,7 +86,7 @@ fig
 
 ### MITgcm File Formats
 
-`MITgcm` stores model output within a _run/_ folder, such as the standard _STDOUT_ text files, and other file formats listed below. [`scan_rundir`](@ref) can be used to provide a summary of what's in the _run/_ folder. For more see:
+`MITgcm` stores model output within a _run/_ folder, such as the standard _STDOUT_ text files, and other file formats listed below. [`scan_run_dir`](@ref) can be used to provide a summary of what's in the _run/_ folder. For more see:
 
 - [Standard Output](@ref) (text)
 - [Input Files](@ref) (text)
@@ -126,7 +126,7 @@ MITgcm.system_check(setenv=true)
 
 The [`set_environment_variables_to_default()`](@ref) method can be used to set `NETCDF_ROOT` and `MPI_INC_DIR` to default values.
 
-The [`scan_rundir`](@ref) method can be used to inspect the run directory of an experiment.
+The [`scan_run_dir`](@ref) method can be used to inspect the run directory of an experiment.
 		
 !!! tip
     - Building and running MITgcm requires a [fortran compiler](https://fortran-lang.org/learn/os_setup/install_gfortran). Some configurations further require installing [MPI](https://mitgcm.readthedocs.io/en/latest/getting_started/getting_started.html?highlight=mpi_INC_DIR#building-with-mpi) and [NetCDF](https://mitgcm.readthedocs.io/en/latest/outp_pkgs/outp_pkgs.html?highlight=NetCDF#netcdf-i-o-pkg-mnc) libraries.
