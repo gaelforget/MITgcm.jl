@@ -268,17 +268,18 @@ end
 using StyledStrings
 
 """
-    MITgcm_test_run(;configuration="advect_xy",exe="",mpi=false)
+    test_run(MC::MITgcm_config;exe="",mpi=false)
+
+Build (`exe=""``) and run a small MITgcm simulation. 
+If `exe` is specified then reuse precompiled executable.
 
 ```
 using MITgcm
-MITgcm_path[1]=joinpath(MITgcm.getdata("mitgcmsmall"),"MITgcm")
-MITgcm_path[2]=joinpath(MITgcm.getdata("mitgcmsmallverif"),"MITgcm","verification")
-MC=MITgcm_test_run()
+MC=MITgcm_config(configuration="advect_xy")
+test_run(MC)
 ```
 """
-function MITgcm_test_run(;configuration="advect_xy",exe="",mpi=false)
-  MC=MITgcm_config(configuration=configuration)
+function test_run(MC::MITgcm_config;exe="",mpi=false)
   setup(MC)
   if isempty(exe)&&mpi
     println("compiling and running test with MPI")
@@ -302,6 +303,20 @@ function MITgcm_test_run(;configuration="advect_xy",exe="",mpi=false)
   launch(MC)
   MC
 end
+
+
+"""
+    test_run(MC::MITgcm_config;exe="",mpi=false)
+
+```
+using MITgcm
+MITgcm_path[1]=joinpath(MITgcm.getdata("mitgcmsmall"),"MITgcm")
+MITgcm_path[2]=joinpath(MITgcm.getdata("mitgcmsmallverif"),"MITgcm","verification")
+test_run("advect_xy")
+```
+"""
+test_run(config::String;exe="",mpi=false) = 
+    test_run(MITgcm_config(configuration=config);exe=exe,mpi=mpi)
 
 ##
 

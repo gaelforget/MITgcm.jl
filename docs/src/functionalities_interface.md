@@ -40,9 +40,9 @@ launch
 ### Tools
 
 ```@docs
+test_run
 system_check
 MITgcm_system_check
-MITgcm_test_run
 set_environment_variables_to_default
 default_path
 MITgcm.getdata

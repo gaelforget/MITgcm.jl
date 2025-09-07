@@ -31,7 +31,7 @@ system_check(;setenv=false,exe="",mpi=false)=begin
   push!(tests,("MITgcm download"=>tst[1]))
     
   config="advect_xy"
-  MC=MITgcm_test_run(configuration=config,exe=exe,mpi=mpi)
+  MC=test_run(config,exe=exe,mpi=mpi)
 
   genmake_log=joinpath(pathof(MC),"MITgcm","verification","advect_xy","build","genmake.log")
   if isfile(genmake_log)
@@ -48,7 +48,7 @@ system_check(;setenv=false,exe="",mpi=false)=begin
   push!(tests,("run complete"=>tst0))
   push!(tests,("test folder"=>pathof(MC)))
 
-#  RS=MITgcm_test_run(configuration="hs94.cs-32x32x5")
+#  RS=test_run("hs94.cs-32x32x5")
 #  tst0=(ismissing(RS) ? false : RS[:packages][:mnc])
 #  push!(tests,("netcdf output"=>tst0))
 

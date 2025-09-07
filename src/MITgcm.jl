@@ -35,7 +35,7 @@ export read_all_namelists, write_all_namelists, parse_param
 export read_mdsio, read_meta, read_available_diagnostics
 export scan_run_dir, scan_stdout, scan_build_dir, create_script, default_path
 export set_environment_variables_to_default
-export system_check, MITgcm_system_check, MITgcm_test_run 
+export system_check, MITgcm_system_check, test_run 
 export read_bin, read_flt, read_mnc, read_nctiles, findtiles
 export GridLoad_mnc, GridLoad_mdsio, GridLoad_native
 export cube2compact, compact2cube, convert2array, convert2gcmfaces
