@@ -8,9 +8,9 @@ The `standard output file` can be scanned to collect information about the model
 
 ```@docs
 monitor
-scan_rundir
+scan_run_dir
 scan_stdout
-read_available_diagnostics
+scan_build_dir
 ```
 
 ## Input Files
@@ -52,7 +52,7 @@ GridLoad_native
 ## Other Files
 
 ```@docs
-scan_genmake_log
+read_available_diagnostics
 read_flt
 read_bin
 read_nctiles

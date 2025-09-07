@@ -56,7 +56,7 @@ system_check(;setenv=false,exe="",mpi=false)=begin
 
   genmake_log=joinpath(pathof(MC),"MITgcm","verification","advect_xy","build","genmake.log")
   if isfile(genmake_log)
-    genmake_log,genmake_state=scan_genmake_log(MC)
+    genmake_log,genmake_state=scan_build_dir(MC)
     push!(tests,("genmake_log"=>genmake_log))
     push!(tests,("genmake_state"=>genmake_state))
   else
@@ -64,7 +64,7 @@ system_check(;setenv=false,exe="",mpi=false)=begin
     push!(tests,("genmake_state"=>ClimateModels.OrderedDict()))
   end
 
-  RS=scan_rundir(joinpath(MC,"run"))
+  RS=scan_run_dir(joinpath(MC,"run"))
   tst0=(ismissing(RS) ? false : RS[:completed])
   push!(tests,("run complete"=>tst0))
   push!(tests,("test folder"=>pathof(MC)))

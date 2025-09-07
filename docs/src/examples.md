@@ -46,7 +46,7 @@ MC.inputs
 
 ```@example 1
 rundir=joinpath(MC,"run")
-sc=scan_rundir(rundir)
+sc=scan_run_dir(rundir)
 sc.params_grid
 ```
 

@@ -248,11 +248,11 @@ to_DF(x)=DataFrame((name=[keys(x)...],value=[values(x)...]))
 """
     function monitor(config::MITgcm_config)
 
-Call `scan_rundir` and show to REPL. 
+Call `scan_run_dir` and show to REPL. 
 """
 monitor(config::MITgcm_config) = begin
     rundir=joinpath(config,"run")
-    sc=MITgcm.scan_rundir(rundir)
+    sc=MITgcm.scan_run_dir(rundir)
     lst=[:packages, :params_grid, :params_files, :params_time, :completed]
     show(config)
     for nam in lst
