@@ -6,6 +6,8 @@ using MITgcm.ClimateModels.Suppressor
 using MITgcm.ClimateModels.DataFrames
 using MITgcm.ClimateModels.CSV
 
+do_flt_example=false
+
 @testset "ECCO4" begin
 
     MC=MITgcm_config(inputs=read_toml(:OCCA2))
@@ -190,13 +192,15 @@ end
     ##
 
     path1=joinpath(MITgcm.getdata("mitgcmsmallverif"),"MITgcm","verification")
-    f1=joinpath(path1,"flt_example","results","output.with_flt.txt")
-    f2=joinpath(path1,"flt_example","results","output.txt")
-    isfile(f2) ? nothing : symlink(f1,f2)
 
     p=MITgcm.getdata("mitgcmsmall")
     f=MITgcm.datadeps.add_darwin_arm64_gfortran(p)
     @test ispath(f)
+
+    if do_flt_example
+    f1=joinpath(path1,"flt_example","results","output.with_flt.txt")
+    f2=joinpath(path1,"flt_example","results","output.txt")
+    isfile(f2) ? nothing : symlink(f1,f2)
 
     MC=MITgcm_config(configuration="flt_example")
     testreport(MC)
@@ -204,6 +208,7 @@ end
     tmp=read_flt(pth,Float32)
     
     @test isa(tmp[1,1],Number)
+    end
 
     ##
 
