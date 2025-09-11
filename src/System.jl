@@ -2,16 +2,22 @@
 using StyledStrings
 
 """
-    system_check(;setenv=false,exe="",mpi=false)
+    system_check(;setenv=false,exe="",mpi=false,adj=false,opt=" -devel -ds -ieee")
 
 Run a suite of diagnostics, including a test run of MITgcm.
+
+Notes : 
+
+- adj=true requires newer version of MITgcm
+- adj=true requires a properly set up TAF license
+- fix needed : tutorial_global_oce_biogeo/input_ad/data.gmredi and data.grdchk
 
 ```
 using MITgcm
 SC=MITgcm.system_check()
 ```
 """
-system_check(;setenv=false,exe="",mpi=false)=begin
+system_check(;setenv=false,exe="",mpi=false,adj=false,config="advect_xy",opt=" -devel -ds -ieee")=begin
 
   setenv ? set_environment_variables_to_default() : nothing
 
@@ -30,10 +36,9 @@ system_check(;setenv=false,exe="",mpi=false)=begin
   end
   push!(tests,("MITgcm download"=>tst[1]))
     
-  config="advect_xy"
-  MC=test_run(config,exe=exe,mpi=mpi)
+  MC=test_run(config,exe=exe,mpi=mpi,adj=adj,opt=opt)
 
-  genmake_log=joinpath(pathof(MC),"MITgcm","verification","advect_xy","build","genmake.log")
+  genmake_log=joinpath(pathof(MC),"MITgcm","verification",config,"build","genmake.log")
   if isfile(genmake_log)
     genmake_log,genmake_state=scan_build_dir(MC)
     push!(tests,("genmake_log"=>genmake_log))
@@ -54,13 +59,6 @@ system_check(;setenv=false,exe="",mpi=false)=begin
 
   push!(tests,("NETCDF_ROOT"=>test_env_nc))
   push!(tests,("MPI_INC_DIR"=>test_env_mpi))
-
-  #- download
-  #- compile
-  #- run completed
-  #- netcdf / mnc 
-  #- mpi
-  #- env
 
   for tst in keys(tests)
     if isa(tests[tst],Bool)
@@ -88,6 +86,7 @@ system_check(;setenv=false,exe="",mpi=false)=begin
     NETCDF_ROOT=tests["NETCDF_ROOT"],
     MPI_INC_DIR=tests["MPI_INC_DIR"],
     mpi=mpi,
+    adj=adj,
     genmake_log=tests["genmake_log"],
     genmake_state=tests["genmake_state"],
   )

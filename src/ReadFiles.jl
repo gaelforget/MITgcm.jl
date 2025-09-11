@@ -560,10 +560,12 @@ function write_all_namelists(params,output_path=tempname())
     !isdir(output_path) ? mkdir(output_path) : nothing
     for k in keys(params)
         nml=params[k]
-        nml=MITgcm_namelist(collect(keys(nml)),collect(values(nml)))
-        fil="data"*(k!==:main ? "."*string(k) : "")
-        k==:eedata ? fil="eedata" : nothing
-        write_namelist(joinpath(output_path,fil),nml)
+        if isa(nml,OrderedDict)
+            nml=MITgcm_namelist(collect(keys(nml)),collect(values(nml)))
+            fil="data"*(k!==:main ? "."*string(k) : "")
+            k==:eedata ? fil="eedata" : nothing
+            write_namelist(joinpath(output_path,fil),nml)
+        end
     end
     output_path
 end

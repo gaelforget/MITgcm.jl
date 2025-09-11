@@ -616,11 +616,20 @@ Setup method for verification experiments.
 function setup_verification!(config::MITgcm_config)
     pth_run=joinpath(config,"run")
 
-    p=joinpath(MITgcm_path[2],config.configuration,"input")
+
+    do_mpi=(haskey(config.inputs,:mpi) ? config.inputs[:mpi] : false)
+    do_adj=(haskey(config.inputs,:adj) ? config.inputs[:adj] : false)
+#    println("do_mpi=$(do_mpi)")
+#    println("do_adj=$(do_adj)")
+
+    exe=(do_adj ? "mitgcmuv_ad" : "mitgcmuv")
+    
+    inp=(do_adj ? "input_ad" : "input")
+    p=joinpath(MITgcm_path[2],config.configuration,inp)
 
     tmpA=readdir(p)
     f=tmpA[findall([!isfile(joinpath(pth_run,tmpA[i])) for i in 1:length(tmpA)])]
-    [(!isfile(joinpath(pth_run,f[i])) ? symlink(joinpath(p,f[i]),joinpath(pth_run,f[i])) : nothing ) for i in 1:length(f)]
+    [(!ispath(joinpath(pth_run,f[i])) ? symlink(joinpath(p,f[i]),joinpath(pth_run,f[i])) : nothing ) for i in 1:length(f)]
 
     #replace relative paths with absolutes then exe prepare_run
     if isfile(joinpath(pth_run,"prepare_run"))
@@ -641,7 +650,7 @@ function setup_verification!(config::MITgcm_config)
         end
         ii=findall(occursin.("../",meta))
         for i in ii
-            meta[i]=replace(meta[i],"../" => joinpath(MITgcm_path[2],config.configuration))
+            meta[i]=replace(meta[i],"../" => joinpath(MITgcm_path[2],config.configuration)*"/")
         end
         #rm old file from run dir
         rm(fil)
@@ -661,9 +670,12 @@ function setup_verification!(config::MITgcm_config)
 
     rootdir=MITgcm_path[1]
     optfile=if Sys.isapple()&&(Sys.ARCH==:aarch64)
-        #build_options_default[2] #does not work, cause "../../../tools" v "../tools"        
+#        build_options_default[2] #does not work, cause "../../../tools" v "../tools"        
 #        build_options_default[1]*" -optfile="*rootdir*"/tools/build_options/darwin_arm64_gfortran"
-        "-mods=../code -optfile="*rootdir*"/tools/build_options/darwin_arm64_gfortran"
+        code=(do_adj ? "../code_ad" : "../code")
+        "-mods=$(code) -optfile="*rootdir*"/tools/build_options/darwin_arm64_gfortran"
+    elseif do_adj
+        build_options_default_adj[1]
     else
         build_options_default[1]
     end
@@ -684,17 +696,39 @@ function setup_verification!(config::MITgcm_config)
     !isdir(path_conf) ? cp(joinpath(path_verif,conf),path_conf) : nothing
     builddir=joinpath(path_new,"verification",conf,"build")
 
+    if do_mpi
+        optfile=optfile*" -mpi"
+        p=joinpath(pathof(config),"MITgcm","verification",config.configuration)
+        SIZE_in=joinpath(p,"code","SIZE.h_MPI")
+        SIZE_out=joinpath(p,"build","SIZE.h")
+        !ispath(SIZE_out) ? cp(SIZE_in,SIZE_out) : nothing
+    end
+
+    if do_mpi&&do_adj
+        main_command="mpirun -np 2 ./mitgcmuv_ad"
+    elseif do_mpi
+        main_command="mpirun -np 2 ./mitgcmuv"
+    elseif do_adj
+        main_command="./mitgcmuv_ad > output.txt"
+    else
+        main_command="./mitgcmuv > output.txt"
+    end
+
     P=OrderedDict()
     P[:main]=OrderedDict(
         :category=>"verification",
         :name=>config.configuration,
-        :version=>"main")
+        :version=>"main",
+        :command=>main_command,
+        :mpi=>do_mpi,
+        :adj=>do_adj,
+        )
     P[:build]=OrderedDict(
         :path=>builddir,
         :rootdir=>rootdir,
         :options=>optfile,
         :rebuild=>false,
-        :exe=>"mitgcmuv",
+        :exe=>exe,
         )
     push!(params,(:setup => P))
 
@@ -702,3 +736,43 @@ function setup_verification!(config::MITgcm_config)
 
     return true
 end
+
+"""
+    scan_verification(; path=MITgcm_path[2])
+
+Scan the verification folder for 
+    
+- experiments (list_main)
+- adjoint experiments (list_adj)
+- input folders (list_inp)
+- reference results (list_out)
+
+```
+list_main,list_adj,list_inp,list_out=MITgcm.scan_verification()
+```
+"""
+scan_verification(; path=MITgcm_path[2]) = begin
+    lst=readdir(path)
+    lst=lst[findall((!occursin).("._",lst))]
+    lst_not=["verification_parser.py","testreport","README.md"]
+    lst_main=lst[findall((!in).(lst,Ref(lst_not)))]
+
+    lst_adj=String[]
+    lst_inp=[]
+    lst_out=[]
+    for e in lst_main
+        p=joinpath(path,e)
+        #experiments with adj
+        ispath(joinpath(p,"code_ad")) ? push!(lst_adj,e) : nothing
+        #subexperiments for each exp
+        lst=readdir(p)
+        lst=lst[findall((!occursin).("._",lst))]
+        lst=lst[findall([length(t)>=5&&t[1:5]=="input" for t in lst])]
+        push!(lst_inp,lst)
+        #result files
+        lst=readdir(joinpath(p,"results"))
+        lst=lst[findall([length(t)>=6&&t[1:6]=="output" for t in lst])]
+        push!(lst_out,lst)
+    end
+    lst_main,lst_adj,lst_inp,lst_out
+end 

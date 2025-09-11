@@ -63,7 +63,7 @@ end
 
 
 """
-    MITgcm_test()
+    MITgcm_system_check()
 
 Output of `MITgcm.system_check`.
 
@@ -93,12 +93,13 @@ Base.@kwdef struct MITgcm_system_check
   NETCDF_ROOT :: String = ""
   MPI_INC_DIR :: String = ""
   mpi :: Bool = false
+  adj :: Bool = false
 end
 
 function Base.show(io::IO, z::MITgcm_system_check)
     zn=fieldnames(typeof(z))
     printstyled(io, " $(typeof(z)) \n",color=:normal)
-    for nam in (:name,:download,:complete,:mpi)
+    for nam in (:name,:download,:complete,:mpi,:adj)
         in(nam,zn) ? printstyled(io, "  $(nam) = ",color=:normal) : nothing
         val=getfield(z,nam)
         in(nam,zn) ? printstyled(io, "$(val)\n",color=:magenta) : nothing
