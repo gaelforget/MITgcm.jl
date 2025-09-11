@@ -770,7 +770,7 @@ scan_verification(; path=MITgcm_path[2]) = begin
         lst=lst[findall([length(t)>=5&&t[1:5]=="input" for t in lst])]
         push!(lst_inp,lst)
         #result files
-        lst=readdir(p,"results")
+        lst=readdir(joinpath(p,"results"))
         lst=lst[findall([length(t)>=6&&t[1:6]=="output" for t in lst])]
         push!(lst_out,lst)
     end
