@@ -616,7 +616,16 @@ Setup method for verification experiments.
 function setup_verification!(config::MITgcm_config)
     pth_run=joinpath(config,"run")
 
-    p=joinpath(MITgcm_path[2],config.configuration,"input")
+
+    do_mpi=(haskey(config.inputs,:mpi) ? config.inputs[:mpi] : false)
+    do_adj=(haskey(config.inputs,:adj) ? config.inputs[:adj] : false)
+#    println("do_mpi=$(do_mpi)")
+#    println("do_adj=$(do_adj)")
+
+    exe=(do_adj ? "mitgcmuv_ad" : "mitgcmuv")
+    
+    inp=(do_adj ? "input_ad" : "input")
+    p=joinpath(MITgcm_path[2],config.configuration,inp)
 
     tmpA=readdir(p)
     f=tmpA[findall([!isfile(joinpath(pth_run,tmpA[i])) for i in 1:length(tmpA)])]
@@ -641,7 +650,7 @@ function setup_verification!(config::MITgcm_config)
         end
         ii=findall(occursin.("../",meta))
         for i in ii
-            meta[i]=replace(meta[i],"../" => joinpath(MITgcm_path[2],config.configuration))
+            meta[i]=replace(meta[i],"../" => joinpath(MITgcm_path[2],config.configuration)*"/")
         end
         #rm old file from run dir
         rm(fil)
@@ -658,11 +667,6 @@ function setup_verification!(config::MITgcm_config)
     end
 
     params=read_all_namelists(pth_run)
-
-    do_mpi=(haskey(config.inputs,:mpi) ? config.inputs[:mpi] : false)
-    do_adj=(haskey(config.inputs,:adj) ? config.inputs[:adj] : false)
-#    println("do_mpi=$(do_mpi)")
-#    println("do_adj=$(do_adj)")
 
     rootdir=MITgcm_path[1]
     optfile=if Sys.isapple()&&(Sys.ARCH==:aarch64)
@@ -724,7 +728,7 @@ function setup_verification!(config::MITgcm_config)
         :rootdir=>rootdir,
         :options=>optfile,
         :rebuild=>false,
-        :exe=>"mitgcmuv",
+        :exe=>exe,
         )
     push!(params,(:setup => P))
 
@@ -740,10 +744,11 @@ Scan the verification folder for
     
 - experiments (list_main)
 - adjoint experiments (list_adj)
-- sub experiments (list_sub)
+- input folders (list_inp)
+- reference results (list_out)
 
 ```
-list_main,list_adj,list_sub=MITgcm.scan_verification()
+list_main,list_adj,list_inp,list_out=MITgcm.scan_verification()
 ```
 """
 scan_verification(; path=MITgcm_path[2]) = begin
@@ -753,7 +758,8 @@ scan_verification(; path=MITgcm_path[2]) = begin
     lst_main=lst[findall((!in).(lst,Ref(lst_not)))]
 
     lst_adj=String[]
-    lst_sub=[]
+    lst_inp=[]
+    lst_out=[]
     for e in lst_main
         p=joinpath(path,e)
         #experiments with adj
@@ -762,7 +768,11 @@ scan_verification(; path=MITgcm_path[2]) = begin
         lst=readdir(p)
         lst=lst[findall((!occursin).("._",lst))]
         lst=lst[findall([length(t)>=5&&t[1:5]=="input" for t in lst])]
-        push!(lst_sub,lst)
+        push!(lst_inp,lst)
+        #result files
+        lst=readdir(p,"results")
+        lst=lst[findall([length(t)>=6&&t[1:6]=="output" for t in lst])]
+        push!(lst_out,lst)
     end
-    lst_main,lst_adj,lst_sub
+    lst_main,lst_adj,lst_inp,lst_out
 end 

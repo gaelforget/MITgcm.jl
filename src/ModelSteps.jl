@@ -32,6 +32,7 @@ Note : this is skipped if `config.inputs[:setup][:main][:exe]` is specified.
 function build(config::MITgcm_config)
     skip_build=haskey(config.inputs[:setup][:main],:exe)&&ispath(config.inputs[:setup][:main][:exe])
     do_build=(!skip_build)&&(config.inputs[:setup][:build][:rebuild]||(!ispath(config.inputs[:setup][:build][:exe])))
+    do_adj=(haskey(config.inputs,:adj) ? config.inputs[:adj] : false)
     if do_build
         try
             pth=pwd()
@@ -50,7 +51,12 @@ function build(config::MITgcm_config)
                 @suppress run(`$(genmake2) $(opt)`)
                 @suppress run(`make clean`)
                 @suppress run(`make depend`)
-                @suppress run(`make -j 4`)
+                if do_adj
+                    @suppress run(`make adtaf`)
+                    @suppress run(`make adall`)
+                else
+                    @suppress run(`make -j 4`)
+                end
             end
             true
         catch e
