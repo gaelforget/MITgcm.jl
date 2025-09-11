@@ -120,7 +120,8 @@ build_options_pleiades="-mods=../code -optfile=../../../tools/"*
 darwin_arm64_gfortran="-mods=../code -optfile=../../../tools/"*
   "build_options/darwin_arm64_gfortran"
 
-build_options_default=["-mods=../code", darwin_arm64_gfortran,build_options_pleiades]
+build_options_default=["-mods=../code", darwin_arm64_gfortran, build_options_pleiades]
+build_options_default_adj=["-mods=../code_ad"]
 
 """
     setup(config::MITgcm_config)
@@ -149,18 +150,18 @@ function setup(config::MITgcm_config)
     end
 
     if !isempty(config.inputs)
-    #if haskey(config.inputs,:setup)
-        nam=config.inputs[:setup][:main][:name]
+        nam=(haskey(config.inputs,:setup) ? config.inputs[:setup][:main][:name] : config.configuration)
+        verif=(haskey(config.inputs,:setup) ? (config.inputs[:setup][:main][:category]=="verification") : true)
         if nam=="ECCO4"||nam=="OCCA2"
             setup_ECCO4!(config)
-        elseif config.inputs[:setup][:main][:category]=="verification"
+        elseif verif
             setup_verification!(config)    
         else
             error("unknown model configuration")
         end
     elseif config.model=="darwin3"
         setup_darwin3!(config)
-    elseif !haskey(config.inputs,:setup)||(config.inputs[:setup][:main][:category]=="verification")
+    elseif !haskey(config.inputs,:setup)#||(config.inputs[:setup][:main][:category]=="verification")
         setup_verification!(config)    
     else
         error("unknown model configuration")
@@ -226,15 +227,16 @@ function MITgcm_launch(config::MITgcm_config)
     try
         if haskey(config.inputs[:setup][:main],:command)
             s=config.inputs[:setup][:main][:command]
-            c=Cmd(convert(Vector{String}, split(s)))
-            @suppress run(pipeline(c))
+            if s=="./mitgcmuv > output.txt"||s=="./mitgcmuv_ad > output.txt"
+                exe=config.inputs[:setup][:build][:exe]
+                @suppress run(pipeline(`./$(exe)`,"output.txt"))
+            else
+                c=Cmd(convert(Vector{String}, split(s)))
+                @suppress run(pipeline(c))
+            end
         else
             exe=config.inputs[:setup][:build][:exe]
-            try 
-                @suppress run(pipeline(`./$(exe)`,"output.txt"))
-            catch
-                @suppress run(pipeline(`$(exe)`,"output.txt"))
-            end
+            @suppress run(pipeline(`./$(exe)`,"output.txt"))
         end
     catch e
         tmp[1]="model run may have failed"
@@ -268,7 +270,7 @@ end
 using StyledStrings
 
 """
-    test_run(MC::MITgcm_config;exe="",mpi=false)
+    test_run(MC::MITgcm_config; exe="", opt=" -devel -ds -ieee")
 
 Build (`exe=""``) and run a small MITgcm simulation. 
 If `exe` is specified then reuse precompiled executable.
@@ -279,19 +281,11 @@ MC=MITgcm_config(configuration="advect_xy")
 test_run(MC)
 ```
 """
-function test_run(MC::MITgcm_config;exe="",mpi=false)
+function test_run(MC::MITgcm_config; exe="", opt=" -devel -ds -ieee")
   setup(MC)
-  if isempty(exe)&&mpi
-    println("compiling and running test with MPI")
-    MC.inputs[:setup][:build][:options]=MC.inputs[:setup][:build][:options]*" -devel -ds -ieee -mpi"
-    SIZE_in=joinpath(pathof(MC),"MITgcm","verification","advect_xy","code","SIZE.h_MPI")
-    SIZE_out=joinpath(pathof(MC),"MITgcm","verification","advect_xy","build","SIZE.h")
-    cp(SIZE_in,SIZE_out)
-    push!(MC.inputs[:setup][:main],(:command => "mpirun -np 2 ./mitgcmuv"))
-    build(MC)
-  elseif isempty(exe)
-    println("compiling and running test")
-    MC.inputs[:setup][:build][:options]=MC.inputs[:setup][:build][:options]*" -devel -ds -ieee"
+  if isempty(exe)
+    build_options=[MC.inputs[:setup][:build][:options]*opt]
+    MC.inputs[:setup][:build][:options]=build_options[1]
     build(MC)
   else
     println("running test with precompiled model")
@@ -306,7 +300,7 @@ end
 
 
 """
-    test_run(MC::MITgcm_config;exe="",mpi=false)
+    test_run(MC::MITgcm_config; exe="", mpi=false, adj=false, opt=" -devel -ds -ieee")
 
 ```
 using MITgcm
@@ -315,8 +309,10 @@ MITgcm_path[2]=joinpath(MITgcm.getdata("mitgcmsmallverif"),"MITgcm","verificatio
 test_run("advect_xy")
 ```
 """
-test_run(config::String;exe="",mpi=false) = 
-    test_run(MITgcm_config(configuration=config);exe=exe,mpi=mpi)
+test_run(config::String; exe="", mpi=false, adj=false, opt=" -devel -ds -ieee") = begin
+    MC=MITgcm_config(configuration=config,inputs=Dict(:mpi=>mpi,:adj=>adj))
+    test_run(MC; exe=exe, opt=opt)
+end
 
 ##
 

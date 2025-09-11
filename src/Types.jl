@@ -63,7 +63,7 @@ end
 
 
 """
-    MITgcm_test()
+    MITgcm_system_check()
 
 Output of `MITgcm.system_check`.
 
@@ -93,6 +93,7 @@ Base.@kwdef struct MITgcm_system_check
   NETCDF_ROOT :: String = ""
   MPI_INC_DIR :: String = ""
   mpi :: Bool = false
+  adj :: Bool = false
 end
 
 function Base.show(io::IO, z::MITgcm_system_check)

@@ -11,7 +11,7 @@ using MITgcm
 SC=MITgcm.system_check()
 ```
 """
-system_check(;setenv=false,exe="",mpi=false)=begin
+system_check(;setenv=false,exe="",mpi=false,adj=false,opt=" -devel -ds -ieee")=begin
 
   setenv ? set_environment_variables_to_default() : nothing
 
@@ -31,7 +31,7 @@ system_check(;setenv=false,exe="",mpi=false)=begin
   push!(tests,("MITgcm download"=>tst[1]))
     
   config="advect_xy"
-  MC=test_run(config,exe=exe,mpi=mpi)
+  MC=test_run(config,exe=exe,mpi=mpi,adj=adj,opt=opt)
 
   genmake_log=joinpath(pathof(MC),"MITgcm","verification","advect_xy","build","genmake.log")
   if isfile(genmake_log)
@@ -88,6 +88,7 @@ system_check(;setenv=false,exe="",mpi=false)=begin
     NETCDF_ROOT=tests["NETCDF_ROOT"],
     MPI_INC_DIR=tests["MPI_INC_DIR"],
     mpi=mpi,
+    adj=adj,
     genmake_log=tests["genmake_log"],
     genmake_state=tests["genmake_state"],
   )
