@@ -31,12 +31,12 @@ Register data dependency with DataDep.
 """
 function __init__source_code()
     register(DataDep("mitgcmsmall","MITgcm source code (only)",
-        ["https://zenodo.org/records/17102589/files/MITgcm-checkpoint69e-small.tar.gz"],
+        ["https://zenodo.org/records/17102715/files/MITgcm-checkpoint69e-small.tar.gz"],
         ["c98d39d635fceee1f6f1a1b28cdf84b3a1dcaf5f3fe7dbd179336120f56584f0"],      
         post_fetch_method=unpackDV))
     register(DataDep("mitgcmsmallverif","MITgcm verification experiments (subset)",
-        ["https://zenodo.org/records/17102589/files/MITgcm-checkpoint69e-verif.tar.gz"],
-        ["3dad72988640de85791072e99a3785d57da7f9d7fee9ac2de0348ccdb42d7d34"],
+        ["https://zenodo.org/records/17102715/files/MITgcm-checkpoint69e-verif.tar.gz"],
+        ["d59850403749dc1fe8fe42734ac47c3359805e07f022aae536d3733d37587b3d"],
         post_fetch_method=unpackDV))
     register(DataDep("hs94pickup","Held and Suarez simulation pickup",
         ["https://zenodo.org/record/5422009/files/pickup_hs94.cs-32x32x5.tar.gz"],
