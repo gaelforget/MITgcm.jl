@@ -732,3 +732,37 @@ function setup_verification!(config::MITgcm_config)
 
     return true
 end
+
+"""
+    scan_verification(; path=MITgcm_path[2])
+
+Scan the verification folder for 
+    
+- experiments (list_main)
+- adjoint experiments (list_adj)
+- sub experiments (list_sub)
+
+```
+list_main,list_adj,list_sub=MITgcm.scan_verification()
+```
+"""
+scan_verification(; path=MITgcm_path[2]) = begin
+    lst=readdir(path)
+    lst=lst[findall((!occursin).("._",lst))]
+    lst_not=["verification_parser.py","testreport","README.md"]
+    lst_main=lst[findall((!in).(lst,Ref(lst_not)))]
+
+    lst_adj=String[]
+    lst_sub=[]
+    for e in lst_main
+        p=joinpath(path,e)
+        #experiments with adj
+        ispath(joinpath(p,"code_ad")) ? push!(lst_adj,e) : nothing
+        #subexperiments for each exp
+        lst=readdir(p)
+        lst=lst[findall((!occursin).("._",lst))]
+        lst=lst[findall([length(t)>=5&&t[1:5]=="input" for t in lst])]
+        push!(lst_sub,lst)
+    end
+    lst_main,lst_adj,lst_sub
+end 
