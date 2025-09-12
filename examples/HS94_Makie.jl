@@ -4,19 +4,6 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 6c682f64-d02b-4459-bfa5-9b76216dfc91
-begin
-	md"""# HS94_Makie.jl
-
-	### 
-
-
-	Here we read trajectory output generated in `HS94_particles.jl` (file name below).
-	
-	Then we plot it using `Makie.jl` package instead of `plots.jl`.
-	"""
-end
-
 # ╔═╡ b96456b4-8267-11eb-043a-07fc1ee69d34
 begin
 	using JLD2, FileIO, DataFrames, CairoMakie, MITgcm
@@ -31,6 +18,19 @@ begin
         println("!!! Necessary files NOT found in \n!!! $pth")
         println("!!! Please make sure to run the `HS94_particles.jl` notebook first")
     end
+end
+
+# ╔═╡ 6c682f64-d02b-4459-bfa5-9b76216dfc91
+begin
+	md"""# HS94_Makie.jl
+
+	### 
+
+
+	Here we read trajectory output generated in `HS94_particles.jl` (file name below).
+	
+	Then we plot it using `Makie.jl` package instead of `plots.jl`.
+	"""
 end
 
 # ╔═╡ ae030b46-826a-11eb-093e-810bd32a356d
@@ -170,9 +170,9 @@ version = "1.1.0"
 
 [[deps.AxisArrays]]
 deps = ["Dates", "IntervalSets", "IterTools", "RangeArrays"]
-git-tree-sha1 = "16351be62963a67ac4083f748fdb3cca58bfd52f"
+git-tree-sha1 = "4126b08903b777c88edf1754288144a0492c05ad"
 uuid = "39de3d68-74b9-583c-8d2d-e117c070f3a9"
-version = "0.4.7"
+version = "0.4.8"
 
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
@@ -201,9 +201,9 @@ version = "0.5.0"
 
 [[deps.CFTime]]
 deps = ["Dates", "Printf"]
-git-tree-sha1 = "e85b90dfcf01b9de2f4bbda8d989e1344728c0a6"
+git-tree-sha1 = "231b7109712574c14c0c102560c1cffe98e15853"
 uuid = "179af706-886a-5703-950a-314cd64e0468"
-version = "0.2.2"
+version = "0.2.3"
 
 [[deps.CRC32c]]
 uuid = "8bf52ea8-c179-5cab-976a-9e18b702a9bc"
@@ -262,21 +262,21 @@ weakdeps = ["SparseArrays"]
     ChainRulesCoreSparseArraysExt = "SparseArrays"
 
 [[deps.ChunkCodecCore]]
-git-tree-sha1 = "e4a8d39a846ef288256a2cb94a60eb95c78e300a"
+git-tree-sha1 = "51f4c10ee01bda57371e977931de39ee0f0cdb3e"
 uuid = "0b6fb165-00bc-4d37-ab8b-79f91016dbe1"
-version = "0.5.3"
+version = "1.0.0"
 
 [[deps.ChunkCodecLibZlib]]
 deps = ["ChunkCodecCore", "Zlib_jll"]
-git-tree-sha1 = "5866bf08bebfb3743e40c17ce805fbf03f85dbf4"
+git-tree-sha1 = "cee8104904c53d39eb94fd06cbe60cb5acde7177"
 uuid = "4c0bbee4-addc-4d73-81a0-b6caacae83c8"
-version = "0.2.1"
+version = "1.0.0"
 
 [[deps.ChunkCodecLibZstd]]
 deps = ["ChunkCodecCore", "Zstd_jll"]
-git-tree-sha1 = "6225e84baab33a74d6b16186c4465c46cb6b035a"
+git-tree-sha1 = "34d9873079e4cb3d0c62926a225136824677073f"
 uuid = "55437552-ac27-4d47-9aa3-63184e8fd398"
-version = "0.2.1"
+version = "1.0.0"
 
 [[deps.ClimateModels]]
 deps = ["CFTime", "CSV", "DataDeps", "DataFrames", "Dataverse", "Dates", "Downloads", "Git", "Glob", "JLD2", "OffsetArrays", "OrderedCollections", "Pkg", "Printf", "Random", "Statistics", "Suppressor", "TOML", "Test", "UUIDs"]
@@ -407,9 +407,9 @@ version = "0.7.13"
 
 [[deps.DataFrames]]
 deps = ["Compat", "DataAPI", "DataStructures", "Future", "InlineStrings", "InvertedIndices", "IteratorInterfaceExtensions", "LinearAlgebra", "Markdown", "Missings", "PooledArrays", "PrecompileTools", "PrettyTables", "Printf", "Random", "Reexport", "SentinelArrays", "SortingAlgorithms", "Statistics", "TableTraits", "Tables", "Unicode"]
-git-tree-sha1 = "a37ac0840a1196cd00317b57e39d6586bf0fd6f6"
+git-tree-sha1 = "c967271c27a95160e30432e011b58f42cd7501b5"
 uuid = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-version = "1.7.1"
+version = "1.8.0"
 
 [[deps.DataStructures]]
 deps = ["OrderedCollections"]
@@ -574,9 +574,9 @@ version = "1.11.0"
 
 [[deps.FillArrays]]
 deps = ["LinearAlgebra"]
-git-tree-sha1 = "6a70198746448456524cb442b8af316927ff3e1a"
+git-tree-sha1 = "173e4d8f14230a7523ae11b9a3fa9edb3e0efd78"
 uuid = "1a297f60-69ca-5386-bcde-b61e274b549b"
-version = "1.13.0"
+version = "1.14.0"
 weakdeps = ["PDMats", "SparseArrays", "Statistics"]
 
     [deps.FillArrays.extensions]
@@ -673,15 +673,15 @@ version = "3.7.0+0"
 
 [[deps.Git_jll]]
 deps = ["Artifacts", "Expat_jll", "JLLWrappers", "LibCURL_jll", "Libdl", "Libiconv_jll", "OpenSSL_jll", "PCRE2_jll", "Zlib_jll"]
-git-tree-sha1 = "cd06e503111a7c5ef1d4a339de6ccf5bd7437b32"
+git-tree-sha1 = "e2aef26f7d273f1e5b1daba56837c47b49b4388f"
 uuid = "f8c6e375-362e-5223-8a59-34ff63f689eb"
-version = "2.51.0+0"
+version = "2.51.1+0"
 
 [[deps.Glib_jll]]
 deps = ["Artifacts", "GettextRuntime_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Libiconv_jll", "Libmount_jll", "PCRE2_jll", "Zlib_jll"]
-git-tree-sha1 = "35fbd0cefb04a516104b8e183ce0df11b70a3f1a"
+git-tree-sha1 = "50c11ffab2a3d50192a228c313f05b5b5dc5acb2"
 uuid = "7746bdde-850d-59dc-9ae8-88ece973131d"
-version = "2.84.3+0"
+version = "2.86.0+0"
 
 [[deps.Glob]]
 git-tree-sha1 = "97285bbd5230dd766e9ef6749b80fc617126d496"
@@ -913,9 +913,9 @@ version = "1.0.0"
 
 [[deps.JLD2]]
 deps = ["ChunkCodecLibZlib", "ChunkCodecLibZstd", "FileIO", "MacroTools", "Mmap", "OrderedCollections", "PrecompileTools", "ScopedValues"]
-git-tree-sha1 = "da485e1e36e9c6d4403aa7b6d1db6806a66aa05a"
+git-tree-sha1 = "da2e9b4d1abbebdcca0aa68afa0aa272102baad7"
 uuid = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
-version = "0.6.0"
+version = "0.6.2"
 
     [deps.JLD2.extensions]
     UnPackExt = "UnPack"
@@ -943,9 +943,9 @@ version = "0.1.6"
 
 [[deps.JpegTurbo_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "e95866623950267c1e4878846f848d94810de475"
+git-tree-sha1 = "4255f0032eafd6451d707a51d5f0248b8a165e4d"
 uuid = "aacddb02-875f-59d6-b918-886e6ef4fbf8"
-version = "3.1.2+0"
+version = "3.1.3+0"
 
 [[deps.KernelDensity]]
 deps = ["Distributions", "DocStringExtensions", "FFTW", "Interpolations", "StatsBase"]
@@ -1094,10 +1094,10 @@ uuid = "6c6e2e6c-3030-632d-7369-2d6c69616d65"
 version = "1.1.0"
 
 [[deps.MITgcm]]
-deps = ["ClimateModels", "DataDeps", "Dataverse", "Dates", "Distributed", "FortranFiles", "Glob", "MeshArrays", "Printf", "Scratch", "SharedArrays", "SparseArrays", "Statistics", "UUIDs"]
-git-tree-sha1 = "7b4cdd940ef3b417c8cf7013919563b3118f807f"
+deps = ["ClimateModels", "DataDeps", "Dataverse", "Dates", "Distributed", "FortranFiles", "Glob", "MeshArrays", "Printf", "Scratch", "SharedArrays", "SparseArrays", "Statistics", "StyledStrings", "UUIDs"]
+git-tree-sha1 = "f03d4b418021902aa0c955365279174558b2f913"
 uuid = "dce5fa8e-68ce-4431-a242-9469c69627a0"
-version = "0.5.3"
+version = "0.5.7"
 
     [deps.MITgcm.extensions]
     MITgcmNetCDFExt = ["NetCDF"]
@@ -1394,10 +1394,10 @@ uuid = "21216c6a-2e73-6563-6e65-726566657250"
 version = "1.5.0"
 
 [[deps.PrettyTables]]
-deps = ["Crayons", "LaTeXStrings", "Markdown", "PrecompileTools", "Printf", "Reexport", "StringManipulation", "Tables"]
-git-tree-sha1 = "1101cd475833706e4d0e7b122218257178f48f34"
+deps = ["Crayons", "LaTeXStrings", "Markdown", "PrecompileTools", "Printf", "REPL", "Reexport", "StringManipulation", "Tables"]
+git-tree-sha1 = "86e787c2c5e29c1ff9d0b72227bcc29d7d39e14e"
 uuid = "08abe8d2-0d0c-5749-adfa-8a2ac140af0d"
-version = "2.4.0"
+version = "3.0.8"
 
 [[deps.Printf]]
 deps = ["Unicode"]
