@@ -19,18 +19,22 @@ end
 # ╔═╡ 8cf4d8ca-84eb-11eb-22d2-255ce7237090
 begin
 	using MITgcm, PlutoUI, Printf
-	exps=verification_experiments()
+	list_main,list_adj,list_inp,list_out=MITgcm.scan_verification()
 end
 
 # ╔═╡ f588eaba-84ef-11eb-0755-bf1b85b2b561
 begin
 md"""# Standard MITgcm configurations
 
-This notebook scans configuration folders of [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) within `MITgcm/verification` using [MITgcm.jl](https://gaelforget.github.io/MITgcm.jl/dev/). It then let's user inspect parameters interactively. 
+- This notebook scans configuration folders of [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest). 
+- It then let's user inspect parameters interactively. 
+- But does not run MITgcm. Other notebooks do.
 
 !!! tip
 	For more on compiling and running a model configuration, please refer to the [examples deck](https://gaelforget.github.io/MITgcm.jl/dev/examples/) for more on that topic.
 
+!!! note
+	If you use a live version of this notebook, selecting e.g. a different model configuration from the list below will make the other notebook cells react (e.g. displayed contents). If instead you visualize an html version of this notebook, then cells wont react.	
 """
 end
 
@@ -38,13 +42,26 @@ end
 md"""## Select Model Configuration
 
 $(TableOfContents())
-
-!!! note
-	If you use a live version of this notebook, selecting a different configuration from the list below will make the other notebook cells react (e.g. displayed contents). If you visualize an html version of this notebook, then cells wont react.
 """
 
 # ╔═╡ a28f7354-84eb-11eb-1830-1f401bf2db97
-@bind myexp Select([exps[i].configuration for i in 1:length(exps)],default="advect_cs")
+@bind myexp Select(list_main,default="advect_cs")
+
+# ╔═╡ 0f2a6475-cd52-44ca-ac53-6fda751dd405
+println.(list_main);
+
+# ╔═╡ 24e471d6-6d0c-43b3-be5f-0c193c4da1cb
+begin
+	iexp=findall(list_main.==myexp)[1]
+	println.(list_inp[iexp]);
+	md"""### List of model simulations 
+	
+	Model configuration $(myexp) includes the following subfolders.
+	"""
+end
+
+# ╔═╡ 90825087-b13a-4567-9e60-e130b90bf9bb
+@bind mysub Select(list_inp[iexp],default="input")
 
 # ╔═╡ f051e094-85ab-11eb-22d4-5bd61ac572a1
 md"""## Select Parameter Group
@@ -70,10 +87,13 @@ end
 
 # ╔═╡ 4965715d-93ca-496b-8ab1-238e9c6e34b4
 begin
-	iexp=findall([exps[i].configuration==myexp for i in 1:length(exps)])[1]
-	builddir=joinpath(MITgcm_path[1],"verification",myexp)
-	rundir=joinpath(exps[iexp].folder,string(exps[iexp].ID),"run")
-	!isdir(rundir) ? setup(exps[iexp]) : nothing
+	inputs=Dict(:input_folder=>mysub)
+    MC=MITgcm_config(configuration=myexp,inputs=inputs);
+
+	setup(MC)
+
+	builddir=joinpath(MC,"MITgcm","verification",myexp)
+	rundir=joinpath(MC,"run")
 	🏁
 end
 
@@ -87,11 +107,13 @@ begin
 	end
 	
 	dats=list_namelist_files(rundir)
-	try
-		@bind mydats Select([dats[i] for i in 1:length(dats)])
-	catch e
-		"Error: could not find any namelist in $(pth)"
-	end
+end
+
+# ╔═╡ 49fc5503-b09f-4c5b-a86e-1cd2f10e61ca
+try
+	@bind mydats Select([dats[i] for i in 1:length(dats)])
+catch e
+	"Error: could not find any namelist in $(pth)"
 end
 
 # ╔═╡ 348c692e-84fe-11eb-3288-dd0a1dedce90
@@ -108,13 +130,6 @@ catch e
 	"Error: could not find any namelist in $(rundir)"
 end
 
-# ╔═╡ e73fda3a-f05a-49b4-a83d-e7b535467106
-md"""## Browse Parameters
-
-#
-
-Now displaying 👉 **$myexp / $mydats : $nmlgroup**"""
-
 # ╔═╡ 9bdb94da-8510-11eb-01a6-c9a1519baa68
 begin
 	inml=findall(nml.groups.==Symbol(nmlgroup))[1]
@@ -126,6 +141,13 @@ nml.params[inml]
 
 
 
+
+# ╔═╡ e73fda3a-f05a-49b4-a83d-e7b535467106
+md"""## Browse Parameters
+
+#
+
+Display 👉 **$myexp / run / $mydats / $nmlgroup**"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -978,16 +1000,20 @@ version = "17.4.0+2"
 # ╟─f588eaba-84ef-11eb-0755-bf1b85b2b561
 # ╟─98b6621c-85ab-11eb-29d1-af0433598c6a
 # ╟─a28f7354-84eb-11eb-1830-1f401bf2db97
+# ╟─0f2a6475-cd52-44ca-ac53-6fda751dd405
+# ╟─24e471d6-6d0c-43b3-be5f-0c193c4da1cb
+# ╟─90825087-b13a-4567-9e60-e130b90bf9bb
 # ╟─f051e094-85ab-11eb-22d4-5bd61ac572a1
-# ╟─d7f2c656-8512-11eb-2fdf-47a3e57a55e6
+# ╟─49fc5503-b09f-4c5b-a86e-1cd2f10e61ca
 # ╟─ca7bb004-8510-11eb-379f-632c3b40723d
+# ╟─348c692e-84fe-11eb-3288-dd0a1dedce90
+# ╟─9bdb94da-8510-11eb-01a6-c9a1519baa68
 # ╟─e73fda3a-f05a-49b4-a83d-e7b535467106
 # ╟─e50726aa-86d3-11eb-0418-fff8fb79ef95
 # ╟─f40e76c4-86d5-11eb-15b0-cd55d6cd1e65
 # ╟─8cf4d8ca-84eb-11eb-22d2-255ce7237090
-# ╟─9bdb94da-8510-11eb-01a6-c9a1519baa68
-# ╟─348c692e-84fe-11eb-3288-dd0a1dedce90
-# ╟─4965715d-93ca-496b-8ab1-238e9c6e34b4
+# ╠═4965715d-93ca-496b-8ab1-238e9c6e34b4
+# ╟─d7f2c656-8512-11eb-2fdf-47a3e57a55e6
 # ╟─168e178c-dd09-4e27-8cb6-fc0479a55f75
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
