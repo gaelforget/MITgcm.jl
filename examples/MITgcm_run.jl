@@ -20,43 +20,63 @@ end
 begin
 	🏁="🏁"
 	using MITgcm, PlutoUI, Printf
-	exps=verification_experiments()
 	🏁
 end
 
 # ╔═╡ 6ef93b0e-859f-11eb-1b3b-d76b26d678dc
 begin
-	md"""# How to compile and run MITgcm
+	md"""# How-to: Build and Run MITgcm
 
 	###
 
-	Here we use [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) interactively via [MITgcm.jl](https://gaelforget.github.io/MITgcm.jl/dev/) as needed in a typical modeling workflow. 
+	Here we run [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) interactively via [MITgcm.jl](https://gaelforget.github.io/MITgcm.jl/dev/) as needed in a typical modeling workflow. 
 	
 	This includes compiling and running the model via the simple interface defined in [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl).
 	"""
 end
 
-# ╔═╡ 2b5e1c5c-933d-41a6-9cce-b6b848b591a9
-md"""## Select model configuration:
+# ╔═╡ a78333fc-d0e2-45f2-948f-72e37d27b278
+TableOfContents()
 
-$(TableOfContents())
+# ╔═╡ 2b5e1c5c-933d-41a6-9cce-b6b848b591a9
+md"""## Select Model Configuration
 
 !!! note
 	If you use a live version of this notebook, selecting a different configuration from the list below will make the other notebook cells react (e.g. displayed contents). If you visualize an html version of this notebook, then cells wont react.
 """
 
-# ╔═╡ b59456f8-4610-4803-98f8-dc06115f2451
-md"""Select one of the configurations listed in `verification_experiments()`.
+# ╔═╡ 11b024ac-86d1-11eb-1db9-47a5e41398e3
+@bind do_link PlutoUI.Button("Setup (e.g. link input files to run/ folder)")
 
-$(@bind myexp Select([exps[i].configuration for i in 1:length(exps)],default="advect_xy"))
+# ╔═╡ 76291182-86d1-11eb-1524-73dc02ca7b64
+@bind do_build PlutoUI.Button("Build mitgcmuv")
 
-#
+# ╔═╡ 5d826e4c-859d-11eb-133d-859c3abe3ebe
+@bind do_run PlutoUI.Button("Run mitgcmuv in run/ folder")
 
-Here is it's `MITgcm_config` data structure, `exps[iexp]` :
+# ╔═╡ 3ff9f3f7-bc4f-4752-a7fc-e8cfcd59952d
+md"""## Explore the Results
+
+Here are the files now found in the `run/` folder:
 """
 
-# ╔═╡ 7fa8a460-89d4-11eb-19bb-bbacdd32719a
-MC=MITgcm_config(configuration=myexp)
+# ╔═╡ baf468f8-4ae1-40d3-8077-91f81442d047
+md"""## Appendices
+
+The following code cells select Julia packages and perform basic operations.
+"""
+
+# ╔═╡ d6dde00e-07b3-48a0-b135-9738ccda2bbc
+list_main,list_adj,list_inp,list_out=MITgcm.scan_verification()
+
+# ╔═╡ 2f6f9a61-dfa3-4554-83f8-9e5fd13bc14d
+println.(list_main);
+
+# ╔═╡ b59456f8-4610-4803-98f8-dc06115f2451
+md"""$(@bind myexp Select(list_main,default="advect_xy"))
+
+We can define `MITgcm_config` for the chosen `myexp`. 
+"""
 
 # ╔═╡ d90039c4-85a1-11eb-0d82-77db4decaa6e
 md"""## Trigger individual operations:
@@ -67,7 +87,7 @@ The workflow below consists in four steps:
 clean(exps[iexp])
 setup(exps[iexp])
 build(exps[iexp])
-MITgcm.launch(exps[iexp])
+launch(exps[iexp])
 ```
 
 which can be triggered individually as shown below for the selected model configuration (**$myexp**).
@@ -76,8 +96,24 @@ which can be triggered individually as shown below for the selected model config
 	Letting each operation complete before triggering another one may work best.
 """
 
-# ╔═╡ 11b024ac-86d1-11eb-1db9-47a5e41398e3
-@bind do_link PlutoUI.Button("Setup (e.g. link input files to run/ folder)")
+# ╔═╡ 886e9416-8da3-49e7-a9d0-0ceca85d74b0
+begin
+	iexp=findall(list_main.==myexp)[1]
+	println.(list_inp[iexp]);
+	md"""## Select a Standard Simulation
+	
+	Model configuration $(myexp) includes the following subfolders.
+	"""
+end
+
+# ╔═╡ ac352746-226b-4a0b-931e-986214c783ec
+@bind mysub Select(list_inp[iexp],default="input")
+
+# ╔═╡ 7fa8a460-89d4-11eb-19bb-bbacdd32719a
+begin
+	inputs=Dict(:input_folder=>mysub)
+	MC=MITgcm_config(configuration=myexp,inputs=inputs);
+end
 
 # ╔═╡ 31829f08-86d1-11eb-3e26-dfae038b4c01
 let
@@ -86,9 +122,6 @@ let
 	🏁
 end
 
-# ╔═╡ 76291182-86d1-11eb-1524-73dc02ca7b64
-@bind do_build PlutoUI.Button("Build mitgcmuv")
-
 # ╔═╡ 848241fe-86d1-11eb-3b30-b94aa0b4431d
 let
 	do_link; do_build
@@ -96,21 +129,12 @@ let
 	🏁
 end
 
-# ╔═╡ 5d826e4c-859d-11eb-133d-859c3abe3ebe
-@bind do_run PlutoUI.Button("Run mitgcmuv in run/ folder")
-
 # ╔═╡ 550d996a-859d-11eb-34bf-717389fbf809
 let
 	do_run
-	MITgcm.launch(MC)
+	launch(MC)
 	🏁
 end
-
-# ╔═╡ 3ff9f3f7-bc4f-4752-a7fc-e8cfcd59952d
-md""" ## A Quick Look at the Results
-
-Here are the files now found in the `run/` folder:
-"""
 
 # ╔═╡ a04c1cd6-3b9e-4e69-b986-c863b120bb0b
 begin
@@ -118,12 +142,6 @@ begin
 	rundir=joinpath(MC,"run")
 	readdir(rundir)
 end
-
-# ╔═╡ baf468f8-4ae1-40d3-8077-91f81442d047
-md"""### Appendices
-
-The following cells select Julia packages and perform basic operations.
-"""
 
 # ╔═╡ 173e97bb-711a-4d3c-8bd3-a9b1da1743d5
 begin
@@ -987,9 +1005,13 @@ version = "17.4.0+2"
 
 # ╔═╡ Cell order:
 # ╟─6ef93b0e-859f-11eb-1b3b-d76b26d678dc
+# ╟─a78333fc-d0e2-45f2-948f-72e37d27b278
 # ╟─2b5e1c5c-933d-41a6-9cce-b6b848b591a9
+# ╟─2f6f9a61-dfa3-4554-83f8-9e5fd13bc14d
 # ╟─b59456f8-4610-4803-98f8-dc06115f2451
-# ╟─7fa8a460-89d4-11eb-19bb-bbacdd32719a
+# ╟─886e9416-8da3-49e7-a9d0-0ceca85d74b0
+# ╟─ac352746-226b-4a0b-931e-986214c783ec
+# ╠═7fa8a460-89d4-11eb-19bb-bbacdd32719a
 # ╟─d90039c4-85a1-11eb-0d82-77db4decaa6e
 # ╟─11b024ac-86d1-11eb-1db9-47a5e41398e3
 # ╟─31829f08-86d1-11eb-3e26-dfae038b4c01
@@ -1001,6 +1023,7 @@ version = "17.4.0+2"
 # ╟─a04c1cd6-3b9e-4e69-b986-c863b120bb0b
 # ╟─baf468f8-4ae1-40d3-8077-91f81442d047
 # ╟─8cf4d8ca-84eb-11eb-22d2-255ce7237090
+# ╠═d6dde00e-07b3-48a0-b135-9738ccda2bbc
 # ╟─173e97bb-711a-4d3c-8bd3-a9b1da1743d5
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
