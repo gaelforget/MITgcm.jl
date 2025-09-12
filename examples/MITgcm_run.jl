@@ -57,7 +57,10 @@ md"""## Select Model Configuration
 # ╔═╡ 3ff9f3f7-bc4f-4752-a7fc-e8cfcd59952d
 md"""## Explore the Results
 
-Here are the files now found in the `run/` folder:
+Here are 
+
+- list of files now found in the `run/` folder
+- information gathered from the model standard output file
 """
 
 # ╔═╡ baf468f8-4ae1-40d3-8077-91f81442d047
@@ -81,13 +84,13 @@ We can define `MITgcm_config` for the chosen `myexp`.
 # ╔═╡ d90039c4-85a1-11eb-0d82-77db4decaa6e
 md"""## Trigger individual operations:
 
-The workflow below consists in four steps:
+The workflow below consists in three steps that can be abbreviated as `run(MC)`.
 
 ```julia
-clean(exps[iexp])
-setup(exps[iexp])
-build(exps[iexp])
-launch(exps[iexp])
+MC=exps[iexp]
+setup(MC)
+build(MC)
+launch(MC)
 ```
 
 which can be triggered individually as shown below for the selected model configuration (**$myexp**).
@@ -142,6 +145,9 @@ begin
 	rundir=joinpath(MC,"run")
 	readdir(rundir)
 end
+
+# ╔═╡ 908f21b4-b43c-41d8-af08-4da1cf156768
+RS=scan_run_dir(joinpath(MC,"run"))
 
 # ╔═╡ 173e97bb-711a-4d3c-8bd3-a9b1da1743d5
 begin
@@ -1021,6 +1027,7 @@ version = "17.4.0+2"
 # ╟─550d996a-859d-11eb-34bf-717389fbf809
 # ╟─3ff9f3f7-bc4f-4752-a7fc-e8cfcd59952d
 # ╟─a04c1cd6-3b9e-4e69-b986-c863b120bb0b
+# ╟─908f21b4-b43c-41d8-af08-4da1cf156768
 # ╟─baf468f8-4ae1-40d3-8077-91f81442d047
 # ╟─8cf4d8ca-84eb-11eb-22d2-255ce7237090
 # ╠═d6dde00e-07b3-48a0-b135-9738ccda2bbc
