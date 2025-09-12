@@ -620,6 +620,7 @@ function setup_verification!(config::MITgcm_config)
     do_adj=(haskey(config.inputs,:adj) ? config.inputs[:adj] : false)
 #    println("do_mpi=$(do_mpi)")
 #    println("do_adj=$(do_adj)")
+    np=(haskey(config.inputs,:np) ? config.inputs[:np] : 2)
     input_folder=(haskey(config.inputs,:input_folder) ? config.inputs[:input_folder] : "")
 
     exe=(do_adj ? "mitgcmuv_ad" : "mitgcmuv")
@@ -707,9 +708,9 @@ function setup_verification!(config::MITgcm_config)
     end
 
     if do_mpi&&do_adj
-        main_command="mpirun -np 2 ./mitgcmuv_ad"
+        main_command="mpirun -np $(np) ./mitgcmuv_ad"
     elseif do_mpi
-        main_command="mpirun -np 2 ./mitgcmuv"
+        main_command="mpirun -np $(np) ./mitgcmuv"
     elseif do_adj
         main_command="./mitgcmuv_ad > output.txt"
     else
