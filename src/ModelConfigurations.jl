@@ -616,15 +616,17 @@ Setup method for verification experiments.
 function setup_verification!(config::MITgcm_config)
     pth_run=joinpath(config,"run")
 
-
     do_mpi=(haskey(config.inputs,:mpi) ? config.inputs[:mpi] : false)
     do_adj=(haskey(config.inputs,:adj) ? config.inputs[:adj] : false)
 #    println("do_mpi=$(do_mpi)")
 #    println("do_adj=$(do_adj)")
+    input_folder=(haskey(config.inputs,:input_folder) ? config.inputs[:input_folder] : "")
 
     exe=(do_adj ? "mitgcmuv_ad" : "mitgcmuv")
     
     inp=(do_adj ? "input_ad" : "input")
+    inp=(isempty(input_folder) ? inp : input_folder)
+
     p=joinpath(MITgcm_path[2],config.configuration,inp)
 
     tmpA=readdir(p)
@@ -722,6 +724,7 @@ function setup_verification!(config::MITgcm_config)
         :command=>main_command,
         :mpi=>do_mpi,
         :adj=>do_adj,
+        :input_folder=>inp,
         )
     P[:build]=OrderedDict(
         :path=>builddir,
@@ -749,6 +752,13 @@ Scan the verification folder for
 
 ```
 list_main,list_adj,list_inp,list_out=MITgcm.scan_verification()
+
+config="exp4"
+ii=findall(list_main.=="exp4")[1]
+println.(list_inp[ii]);
+
+inputs=Dict(:input_folder=>"input.with_flt")
+MC=MITgcm_config(configuration=config,inputs=inputs)
 ```
 """
 scan_verification(; path=MITgcm_path[2]) = begin
@@ -770,8 +780,12 @@ scan_verification(; path=MITgcm_path[2]) = begin
         lst=lst[findall([length(t)>=5&&t[1:5]=="input" for t in lst])]
         push!(lst_inp,lst)
         #result files
-        lst=readdir(joinpath(p,"results"))
-        lst=lst[findall([length(t)>=6&&t[1:6]=="output" for t in lst])]
+        if ispath(joinpath(p,"results"))
+            lst=readdir(joinpath(p,"results"))
+            lst=lst[findall([length(t)>=6&&t[1:6]=="output" for t in lst])]
+        else
+            lst=[]
+        end
         push!(lst_out,lst)
     end
     lst_main,lst_adj,lst_inp,lst_out

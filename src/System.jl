@@ -8,7 +8,6 @@ Run a suite of diagnostics, including a test run of MITgcm.
 
 Notes : 
 
-- adj=true requires newer version of MITgcm
 - adj=true requires a properly set up TAF license
 - fix needed : tutorial_global_oce_biogeo/input_ad/data.gmredi and data.grdchk
 

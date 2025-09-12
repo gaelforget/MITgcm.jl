@@ -142,7 +142,7 @@ scan_build_dir(MC::MITgcm_config) = scan_build_dir(pathof(MC),MC.configuration)
     scan_build_dir(pth::String,config::String)
 
 ```
-println.(f);
+scan_build_dir(pathof(MC),MC.configuration)
 ```
 """
 function scan_build_dir(pth::String,config::String)
@@ -366,6 +366,7 @@ using MITgcm
 testreport(MITgcm_config(configuration="advect_xy"))
 fil=joinpath(MITgcm_path[1],"verification","advect_xy","run","data")
 namelist=read_namelist(fil)
+
 ```
 """
 function read_namelist(fil)
@@ -405,7 +406,7 @@ function read_namelist(fil)
 			ii += 1
 		end
         for ii in keys(tmp0)
-            tmp0[ii]=parse_param(tmp0[ii])
+            tmp0[ii]=parse_param(tmp0[ii],fix=fixes)
         end
 		params[i]=tmp0
 	end
@@ -455,7 +456,35 @@ end
 
 Parse namelist parameter and return in corresponding type
 """
-function parse_param(p1)
+function fix_D(p1)
+    a=findfirst(".D",p1)
+    if isnothing(a)
+        p1
+    else
+        p1[1:a[1]-1]*".E"*p1[a[2]+1:end]
+    end
+end
+
+function fix_d(p1)
+    a=findfirst(".d",p1)
+    if isnothing(a)
+        p1
+    else
+        p1[1:a[1]-1]*".E"*p1[a[2]+1:end]
+    end
+end
+
+function fix_quotes(a)
+    c=[a...]
+    b=findall(c.=='"')
+    c[b].='''
+    string(c...)
+end
+
+fixes(p1)=fix_quotes(fix_D(fix_d(p1)))
+
+function parse_param(p0; fix=(x->x))
+    p1=fix(p0)
 	p2=missing
 	if p1==".TRUE."||p1==".true."
 		p2=true
