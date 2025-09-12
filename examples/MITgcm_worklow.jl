@@ -20,7 +20,7 @@ end
 begin
 	using MITgcm, ClimateModels, PlutoUI, Printf, Plots
 	using MITgcm.MeshArrays
-	exps=verification_experiments()		
+    list_main,list_adj,list_inp,list_out=MITgcm.scan_verification()
 	md"""😸"""
 end
 
@@ -62,19 +62,26 @@ $(TableOfContents())
 """
 
 # ╔═╡ a28f7354-84eb-11eb-1830-1f401bf2db97
-@bind myexp Select([exps[i].configuration for i in 1:length(exps)],default="advect_xy")
+@bind myexp Select(list_main,default="advect_xy")
 
 # ╔═╡ 766f87b8-f3d4-4e39-8cae-d91679d9af6f
 begin
-	iexp=findall([exps[i].configuration==myexp for i in 1:length(exps)])[1]
-	config=exps[iexp].configuration
+	iexp=findall(list_main.==myexp)[1]
+	MC=MITgcm_config(configuration=myexp)
 end
 
 # ╔═╡ 27227e2d-350a-446b-9d70-b9a83b588ff4
 md"""
 !!! note 
-	The folders listed are created by `ClimateModels.jl`, which uses `git` to document wokflows as they happen via the `log/` subfolder. Below, the _Modify Parameters_ section uses functionality. 
+	The folders listed will be created according to the `ClimateModels.jl` interface. This also creates a `log` subfolder to document wokflows (using `git` internally). Below, the _Modify Parameters_ section uses functionality. 
 """
+
+# ╔═╡ 8fb0f378-2363-4f3e-ac45-440d6e87b92a
+begin
+	step1=true
+	setup(MC)
+	readdir(MC)
+end
 
 # ╔═╡ ee0ed0a0-8817-11eb-124d-a197f1d4545a
 md"""## Where Is `mitgcmuv` compiled?
@@ -89,10 +96,8 @@ md"""## Where Is `mitgcmuv` compiled?
 
 # ╔═╡ eca925ba-8816-11eb-1d6d-39bf08bfe979
 begin
-	MC=MITgcm_config(configuration=config)
-	setup(MC)
+	step1
 
-	#MC.inputs[:setup][:build][:path]=joinpath(MITgcm_path[2],config,"build","mitgcmuv")
 	filexe=MC.inputs[:setup][:build][:path]
 	build(MC,"allow-skip")
 
@@ -139,7 +144,7 @@ To narrow the selection, try typing something in the text field 👉 $(@bind sea
 # ╔═╡ 0f920f90-86e9-11eb-3f6d-2d530bd2e9db
 md"""## Plot Results
 
-Here we show mean temperature in **$(exps[iexp].configuration)** as a function of time. 
+Here we show mean temperature in **$(myexp)** as a function of time. 
 
 _Note: in the absence of air-sea fluxes, for example, this quantity is "conserved" but in other configurarions it can vary with time._
 """
@@ -1864,6 +1869,7 @@ version = "1.9.2+0"
 # ╟─a28f7354-84eb-11eb-1830-1f401bf2db97
 # ╟─766f87b8-f3d4-4e39-8cae-d91679d9af6f
 # ╟─27227e2d-350a-446b-9d70-b9a83b588ff4
+# ╠═8fb0f378-2363-4f3e-ac45-440d6e87b92a
 # ╟─ee0ed0a0-8817-11eb-124d-a197f1d4545a
 # ╟─eca925ba-8816-11eb-1d6d-39bf08bfe979
 # ╟─f051e094-85ab-11eb-22d4-5bd61ac572a1
