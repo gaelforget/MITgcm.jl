@@ -20,9 +20,6 @@ function scan_run_dir(pth::String)
     return stdout
 end
 
-#alias with old name:
-scan_rundir=scan_run_dir
-
 """
     scan_run_dir(config::MITgcm_config)
 
@@ -451,11 +448,6 @@ function read_all_namelists(input_path)
     params
 end
 
-"""
-    parse_param(p1)
-
-Parse namelist parameter and return in corresponding type
-"""
 function fix_D(p1)
     a=findfirst(".D",p1)
     if isnothing(a)
@@ -483,6 +475,11 @@ end
 
 fixes(p1)=fix_quotes(fix_D(fix_d(p1)))
 
+"""
+    parse_param(p1; fix=(x->x))
+
+Parse namelist parameter and return in corresponding type.
+"""
 function parse_param(p0; fix=(x->x))
     p1=fix(p0)
 	p2=missing
