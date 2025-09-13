@@ -58,7 +58,7 @@ To list of these available model configurations is provided by [`scan_verificati
 ```@example 1
 using MITgcm # hide
 list_main,list_adj,list_inp,list_out=scan_verification()
-println.(list_main);
+list_main
 ```
 
 They can be used via a [`MITgcm_config`](@ref) as follows.
