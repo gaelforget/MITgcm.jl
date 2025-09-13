@@ -25,8 +25,7 @@ launch(MC)
 ```
 
 ```@example 1
-sc=scan_run_dir(MC)
-keys(sc)
+monitor(MC)
 ```
 
 ## Functionalities
