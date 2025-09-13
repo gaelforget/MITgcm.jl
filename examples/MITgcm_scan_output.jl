@@ -24,33 +24,15 @@ begin
 end
 
 # ╔═╡ f883622e-dada-4acf-9c90-2c3a3373da66
-md"""# MITgcm Output And Grids
+md"""# Look at MITgcm Output And Grids
+
+_
 
 This notebook demonstrates some of the tools available to scan, read, and display model output.
 """
 
-# ╔═╡ 8586f798-00a3-4ec5-a360-5e709f3c6a72
-begin
-	Γecco=GridLoad(GridSpec("LatLonCap",MeshArrays.GRID_LLC90); option="full")
-	"One grid has been read from file."
-end
-
-# ╔═╡ 4e669f82-8bbc-4df1-847d-bc61c24884c2
-function myviz(G; title="grid points")
-	set_theme!(theme_light())
-    fig = Figure(size = (900,600),markersize=0.1)
-    ax = Axis(fig[1,1],xlabel="x",ylabel="y",title=title)
-
-    #col=[:blue,:greenyellow,:magenta,:yellow2,:tomato,:black]
-    col=[:red,:green,:blue,:magenta,:cyan,:black]
-
-    for f in 1:length(G.XC)
-        tmp=[Meshes.Point(G.XC[f][i],G.YC[f][i]) for i in eachindex(G.XC[f])]
-        Meshes.viz!(ax,tmp,color=col[f],size=1.5)
-    end
-
-    fig
-end
+# ╔═╡ 0ebd8dd1-408d-47d3-87c0-35e656699d6b
+TableOfContents()
 
 # ╔═╡ 98762420-6496-4760-8049-5a3fed396984
 md"""## 1. Scan `MITgcm/verification` folder
@@ -125,21 +107,40 @@ begin
 	tick_button = @bind tick PlutoUI.Clock(2)
 	skip_build_button = @bind skip_build CheckBox(default=true)
 	md"""
-	Azimuth for 3d view (if applicable) : 
-	
-	$(myaz_slider)
+	Azimuth for 3d view (if applicable) = $(myaz_slider)
 	
 	####
 	
-	Click to loop through (if verification) : 
-	
+	Click start to loop through (if verification) :
 	$(tick_button)	
 
 	####
-	Use existing `mitgcmuv` if available or rebuild it everytime : 
+	Use existing `mitgcmuv` if available or rebuild it everytime = $(skip_build_button) 
 
-	$(skip_build_button)
 	"""
+end
+
+# ╔═╡ 8586f798-00a3-4ec5-a360-5e709f3c6a72
+begin
+	Γecco=GridLoad(GridSpec("LatLonCap",MeshArrays.GRID_LLC90); option="full")
+	"One grid has been read from file."
+end
+
+# ╔═╡ 4e669f82-8bbc-4df1-847d-bc61c24884c2
+function myviz(G; title="grid points")
+	set_theme!(theme_light())
+    fig = Figure(size = (900,600),markersize=0.1)
+    ax = Axis(fig[1,1],xlabel="x",ylabel="y",title=title)
+
+    #col=[:blue,:greenyellow,:magenta,:yellow2,:tomato,:black]
+    col=[:red,:green,:blue,:magenta,:cyan,:black]
+
+    for f in 1:length(G.XC)
+        tmp=[Meshes.Point(G.XC[f][i],G.YC[f][i]) for i in eachindex(G.XC[f])]
+        Meshes.viz!(ax,tmp,color=col[f],size=1.5)
+    end
+
+    fig
 end
 
 # ╔═╡ 211ab33e-d482-49dd-9448-0f5c6e63a280
@@ -189,6 +190,9 @@ begin
 	end
 end
 
+# ╔═╡ 783cd1ad-72ec-4a02-a8ab-043ca57a271b
+md"""## 4. Data Formats"""
+
 # ╔═╡ a444cf7e-cbe1-4e13-981b-184f1a64d3d5
  i>0 ? MC : (i==0 ? "ECCO v4 / LLC90 grid" : "no experiment selected")
 
@@ -203,6 +207,9 @@ begin
 	i>0 ? dd=Float64.(Γ.Depth) : dd=Float64.(Γecco.Depth)
 	minimum(dd),maximum(dd)
 end
+
+# ╔═╡ 40e7efc8-1f96-49c4-bc5e-6c71256f7e46
+md"""## Appendix"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -2292,9 +2299,7 @@ version = "4.1.0+0"
 
 # ╔═╡ Cell order:
 # ╟─f883622e-dada-4acf-9c90-2c3a3373da66
-# ╟─bb47e9ec-05ce-11ec-265e-85e1b4e90854
-# ╟─8586f798-00a3-4ec5-a360-5e709f3c6a72
-# ╟─4e669f82-8bbc-4df1-847d-bc61c24884c2
+# ╟─0ebd8dd1-408d-47d3-87c0-35e656699d6b
 # ╟─98762420-6496-4760-8049-5a3fed396984
 # ╟─5d739d43-e39b-45d5-8a68-87ee85ae0463
 # ╟─8ab359c9-7090-4671-8856-e775ee4e7556
@@ -2303,9 +2308,14 @@ version = "4.1.0+0"
 # ╟─4d7bf60f-e71c-4a90-b10a-312c4545c555
 # ╟─44263dfc-68b9-4ed8-8d7a-3548cfecdace
 # ╟─211ab33e-d482-49dd-9448-0f5c6e63a280
+# ╟─8586f798-00a3-4ec5-a360-5e709f3c6a72
+# ╟─4e669f82-8bbc-4df1-847d-bc61c24884c2
+# ╟─783cd1ad-72ec-4a02-a8ab-043ca57a271b
 # ╟─a444cf7e-cbe1-4e13-981b-184f1a64d3d5
 # ╟─49e5553c-b316-4c2c-821a-0dd6148006dc
 # ╟─405d7388-074d-400f-bc77-054dd10bc51f
 # ╟─92b6319a-a56d-483e-a7eb-6f71966364c5
+# ╟─40e7efc8-1f96-49c4-bc5e-6c71256f7e46
+# ╟─bb47e9ec-05ce-11ec-265e-85e1b4e90854
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

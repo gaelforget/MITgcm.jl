@@ -32,18 +32,18 @@ begin
 	Here we run [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest) interactively via [MITgcm.jl](https://gaelforget.github.io/MITgcm.jl/dev/) as needed in a typical modeling workflow. 
 	
 	This includes compiling and running the model via the simple interface defined in [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl).
+
+	!!! note
+	    If you use a live version of this notebook, selecting a different configuration from the list below will make the other notebook cells react (e.g. displayed contents). If you visualize an html version of this notebook, then cells wont react.
+
 	"""
 end
 
 # ╔═╡ a78333fc-d0e2-45f2-948f-72e37d27b278
 TableOfContents()
 
-# ╔═╡ 2b5e1c5c-933d-41a6-9cce-b6b848b591a9
-md"""## Select Model Configuration
-
-!!! note
-	If you use a live version of this notebook, selecting a different configuration from the list below will make the other notebook cells react (e.g. displayed contents). If you visualize an html version of this notebook, then cells wont react.
-"""
+# ╔═╡ 3c6db8d4-d3e2-408a-b954-2fd7ef3380ae
+md"""## Create Model Configuration"""
 
 # ╔═╡ 11b024ac-86d1-11eb-1db9-47a5e41398e3
 @bind do_link PlutoUI.Button("Setup (e.g. link input files to run/ folder)")
@@ -57,10 +57,8 @@ md"""## Select Model Configuration
 # ╔═╡ 3ff9f3f7-bc4f-4752-a7fc-e8cfcd59952d
 md"""## Explore the Results
 
-Here are 
-
-- list of files now found in the `run/` folder
-- information gathered from the model standard output file
+- List of files found in the `run/` folder
+- Scan the model standard output file
 """
 
 # ╔═╡ baf468f8-4ae1-40d3-8077-91f81442d047
@@ -72,32 +70,34 @@ The following code cells select Julia packages and perform basic operations.
 # ╔═╡ d6dde00e-07b3-48a0-b135-9738ccda2bbc
 list_main,list_adj,list_inp,list_out=MITgcm.scan_verification()
 
-# ╔═╡ 2f6f9a61-dfa3-4554-83f8-9e5fd13bc14d
-println.(list_main);
+# ╔═╡ 2b5e1c5c-933d-41a6-9cce-b6b848b591a9
+md"""## Select Model Configuration
 
-# ╔═╡ b59456f8-4610-4803-98f8-dc06115f2451
-md"""$(@bind myexp Select(list_main,default="advect_xy"))
+!!! note
+    We will later define a `MITgcm_config` for the chosen `myexp` and `input_foler`. 
 
-We can define `MITgcm_config` for the chosen `myexp`. 
+$(@bind myexp Select(list_main,default="advect_xy"))
 """
 
 # ╔═╡ d90039c4-85a1-11eb-0d82-77db4decaa6e
-md"""## Trigger individual operations:
+md"""## Setup, Build, and Run Model
 
-The workflow below consists in three steps that can be abbreviated as `run(MC)`.
+- The workflow below consists in three steps that can be abbreviated as `run(MC)`. 
+- Each step can be triggered individually as shown below 
+- Selected model configuration is **$myexp**.
 
 ```julia
-MC=exps[iexp]
 setup(MC)
 build(MC)
 launch(MC)
 ```
 
-which can be triggered individually as shown below for the selected model configuration (**$myexp**).
-
 !!! tip
-	Letting each operation complete before triggering another one may work best.
+	It is suggested that you let each model run complete before triggering another one.
 """
+
+# ╔═╡ 2f6f9a61-dfa3-4554-83f8-9e5fd13bc14d
+println.(list_main);
 
 # ╔═╡ 886e9416-8da3-49e7-a9d0-0ceca85d74b0
 begin
@@ -106,11 +106,11 @@ begin
 	md"""## Select a Standard Simulation
 	
 	Model configuration $(myexp) includes the following subfolders.
+
+	$(@bind mysub Select(list_inp[iexp],default="input"))
+
 	"""
 end
-
-# ╔═╡ ac352746-226b-4a0b-931e-986214c783ec
-@bind mysub Select(list_inp[iexp],default="input")
 
 # ╔═╡ 7fa8a460-89d4-11eb-19bb-bbacdd32719a
 begin
@@ -143,11 +143,16 @@ end
 begin
 	do_link; do_run;
 	rundir=joinpath(MC,"run")
-	readdir(rundir)
+	ls=readdir(rundir)
+	display(ls)
 end
 
 # ╔═╡ 908f21b4-b43c-41d8-af08-4da1cf156768
-RS=scan_run_dir(joinpath(MC,"run"))
+begin
+	do_link; do_run;
+	RS=scan_run_dir(joinpath(MC,"run"))
+	display(RS)
+end
 
 # ╔═╡ 173e97bb-711a-4d3c-8bd3-a9b1da1743d5
 begin
@@ -1014,9 +1019,8 @@ version = "17.4.0+2"
 # ╟─a78333fc-d0e2-45f2-948f-72e37d27b278
 # ╟─2b5e1c5c-933d-41a6-9cce-b6b848b591a9
 # ╟─2f6f9a61-dfa3-4554-83f8-9e5fd13bc14d
-# ╟─b59456f8-4610-4803-98f8-dc06115f2451
 # ╟─886e9416-8da3-49e7-a9d0-0ceca85d74b0
-# ╟─ac352746-226b-4a0b-931e-986214c783ec
+# ╟─3c6db8d4-d3e2-408a-b954-2fd7ef3380ae
 # ╠═7fa8a460-89d4-11eb-19bb-bbacdd32719a
 # ╟─d90039c4-85a1-11eb-0d82-77db4decaa6e
 # ╟─11b024ac-86d1-11eb-1db9-47a5e41398e3

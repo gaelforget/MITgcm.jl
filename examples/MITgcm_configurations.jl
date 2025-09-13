@@ -20,18 +20,19 @@ end
 begin
 	using MITgcm, PlutoUI, Printf
 	list_main,list_adj,list_inp,list_out=MITgcm.scan_verification()
+	🏁 = "🏁"
 end
 
 # ╔═╡ f588eaba-84ef-11eb-0755-bf1b85b2b561
 begin
 md"""# Standard MITgcm configurations
 
-- This notebook scans configuration folders of [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest). 
-- It then let's user inspect parameters interactively. 
-- But does not run MITgcm. Other notebooks do.
+In this notebook we:
 
-!!! tip
-	For more on compiling and running a model configuration, please refer to the [examples deck](https://gaelforget.github.io/MITgcm.jl/dev/examples/) for more on that topic.
+- scan configuration folders of [MITgcm](https://mitgcm.readthedocs.io/en/latest/?badge=latest). 
+- interactively inspect parameters interactively. 
+
+but without running MITgcm, unlike in other notebooks do. For notebooks tha build and run a model configuration, please refer to the [examples deck](https://gaelforget.github.io/MITgcm.jl/dev/examples/) for more on that topic.
 
 !!! note
 	If you use a live version of this notebook, selecting e.g. a different model configuration from the list below will make the other notebook cells react (e.g. displayed contents). If instead you visualize an html version of this notebook, then cells wont react.	
@@ -54,14 +55,15 @@ println.(list_main);
 begin
 	iexp=findall(list_main.==myexp)[1]
 	println.(list_inp[iexp]);
-	md"""### List of model simulations 
+	md"""## Select Model Simulation
 	
 	Model configuration $(myexp) includes the following subfolders.
+
+	$(@bind mysub Select(list_inp[iexp],default="input"))
+
+	_
 	"""
 end
-
-# ╔═╡ 90825087-b13a-4567-9e60-e130b90bf9bb
-@bind mysub Select(list_inp[iexp],default="input")
 
 # ╔═╡ f051e094-85ab-11eb-22d4-5bd61ac572a1
 md"""## Select Parameter Group
@@ -72,18 +74,10 @@ The chosen defaults, `data` and `PARM01`, are expected to be found in any MITgcm
 """
 
 # ╔═╡ f40e76c4-86d5-11eb-15b0-cd55d6cd1e65
-md"""### Appendices
+md"""## Appendices
 
 The following cells select Julia packages and perform basic operations.
 """
-
-# ╔═╡ 168e178c-dd09-4e27-8cb6-fc0479a55f75
-begin
-	🏁 = "🏁"
-	imgA="https://user-images.githubusercontent.com/20276764/111042787-12377e00-840d-11eb-8ddb-64cc1cfd57fd.png"
-	imgB="https://user-images.githubusercontent.com/20276764/97648227-970b9780-1a2a-11eb-81c4-65ec2c87efc6.png"
-	md"""$(Resource(imgB, :width => 120))"""
-end
 
 # ╔═╡ 4965715d-93ca-496b-8ab1-238e9c6e34b4
 begin
@@ -107,6 +101,7 @@ begin
 	end
 	
 	dats=list_namelist_files(rundir)
+	display(dats)
 end
 
 # ╔═╡ 49fc5503-b09f-4c5b-a86e-1cd2f10e61ca
@@ -130,6 +125,13 @@ catch e
 	"Error: could not find any namelist in $(rundir)"
 end
 
+# ╔═╡ e73fda3a-f05a-49b4-a83d-e7b535467106
+md"""## Inspect Parameters
+
+_
+
+👉 **$myexp / run / $mydats / $nmlgroup**"""
+
 # ╔═╡ 9bdb94da-8510-11eb-01a6-c9a1519baa68
 begin
 	inml=findall(nml.groups.==Symbol(nmlgroup))[1]
@@ -137,17 +139,14 @@ begin
 end
 
 # ╔═╡ e50726aa-86d3-11eb-0418-fff8fb79ef95
-nml.params[inml]
+display(nml.params[inml])
 
-
-
-
-# ╔═╡ e73fda3a-f05a-49b4-a83d-e7b535467106
-md"""## Browse Parameters
-
-#
-
-Display 👉 **$myexp / run / $mydats / $nmlgroup**"""
+# ╔═╡ 168e178c-dd09-4e27-8cb6-fc0479a55f75
+begin
+	imgA="https://user-images.githubusercontent.com/20276764/111042787-12377e00-840d-11eb-8ddb-64cc1cfd57fd.png"
+	imgB="https://user-images.githubusercontent.com/20276764/97648227-970b9780-1a2a-11eb-81c4-65ec2c87efc6.png"
+	md"""$(Resource(imgB, :width => 120))"""
+end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1002,10 +1001,10 @@ version = "17.4.0+2"
 # ╟─a28f7354-84eb-11eb-1830-1f401bf2db97
 # ╟─0f2a6475-cd52-44ca-ac53-6fda751dd405
 # ╟─24e471d6-6d0c-43b3-be5f-0c193c4da1cb
-# ╟─90825087-b13a-4567-9e60-e130b90bf9bb
 # ╟─f051e094-85ab-11eb-22d4-5bd61ac572a1
 # ╟─49fc5503-b09f-4c5b-a86e-1cd2f10e61ca
 # ╟─ca7bb004-8510-11eb-379f-632c3b40723d
+# ╟─d7f2c656-8512-11eb-2fdf-47a3e57a55e6
 # ╟─348c692e-84fe-11eb-3288-dd0a1dedce90
 # ╟─9bdb94da-8510-11eb-01a6-c9a1519baa68
 # ╟─e73fda3a-f05a-49b4-a83d-e7b535467106
@@ -1013,7 +1012,6 @@ version = "17.4.0+2"
 # ╟─f40e76c4-86d5-11eb-15b0-cd55d6cd1e65
 # ╟─8cf4d8ca-84eb-11eb-22d2-255ce7237090
 # ╠═4965715d-93ca-496b-8ab1-238e9c6e34b4
-# ╟─d7f2c656-8512-11eb-2fdf-47a3e57a55e6
 # ╟─168e178c-dd09-4e27-8cb6-fc0479a55f75
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

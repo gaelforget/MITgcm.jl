@@ -28,13 +28,13 @@ end
 begin
 	md"""# Typical Modeling Workflow
 
-	In this notebook we setup, build, and run the [MIT general circulation model](https://mitgcm.readthedocs.io/en/latest/?badge=latest) interactively via [MITgcm.jl](https://gaelforget.github.io/MITgcm.jl/dev/). 
-	We then read model output files and plot some of the numerical model result.
-	To do this, we use the _ClimateModels' interface_ (`setup`, `build`, `launch`, etc) as implemented by [MITgcm.jl](https://gaelforget.github.io/MITgcm.jl/dev/) for [MITgcm](https://github.com/MITgcm/MITgcm/#readme). 
+	In this notebook we : 
 	
-	!!! note
-		The _ClimateModels' interface_ is defined in [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl)
+	- setup, build, and run the [MIT general circulation model](https://mitgcm.readthedocs.io/en/latest/?badge=latest) interactively via [MITgcm.jl](https://gaelforget.github.io/MITgcm.jl/dev/). 
+	- read model output files and plot some of the numerical model result.
 	
+	using the [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl) interface_ (`setup`, `build`, `launch`, etc) via [MITgcm.jl](https://gaelforget.github.io/MITgcm.jl/dev/) for [MITgcm](https://github.com/MITgcm/MITgcm/#readme). 
+		
 	!!! note
 		With a live version of this notebook, each selection of a different configuration from the list below will make the other notebook cells react (e.g. displayed contents). With a static html version of this notebook, then cells wont react.
 	"""
