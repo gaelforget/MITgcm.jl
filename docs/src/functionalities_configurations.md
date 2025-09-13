@@ -1,3 +1,8 @@
+
+```@meta
+CollapsedDocStrings = true
+```
+
 # Model Configurations
 
 In `MITgcm.jl`, a model configuration is represented as a [`MITgcm_config`](@ref). Model parameters are handled as ordered dictionaries and stored as `TOML` files. Standard model configurations are readily supported.
