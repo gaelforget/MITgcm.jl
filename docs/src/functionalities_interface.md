@@ -45,20 +45,11 @@ launch
 ### Tools
 
 ```@docs
-test_run
-system_check
 MITgcm_system_check
+system_check
+test_run
 set_environment_variables_to_default
 default_path
 MITgcm.getdata
 create_script
-parse_param
 ```
-
-!!! note
-    The following methods are imported from [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl/#readme)and customized for [MITgcm](https://github.com/MITgcm/MITgcm#readme).
-
-```@docs
-compile
-clean
-```│

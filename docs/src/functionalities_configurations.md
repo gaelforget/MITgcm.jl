@@ -37,6 +37,11 @@ Global ocean model configurations used in [NASA's ECCO](https://ecco-group.org) 
 
 ```@docs
 setup_ECCO4!
+```
+
+### Tools
+
+```@docs
 ECCO4_inputs.download_input_folder
 ECCO4_inputs.get_files
 ECCO4_inputs.get_list
@@ -48,24 +53,25 @@ ECCO4_testreport.compare
 
 The [MITgcm/verification](https://mitgcm.readthedocs.io/en/latest/getting_started/getting_started.html) sub-folder of the `MITgcm` source code provides a suite of small model configurations, often used by model developers for testing. 
 
-To list of these model configurations (as installed) is provided by [`verification_experiments`](@ref). 
+To list of these available model configurations is provided by [`scan_verification`](@ref). 
 
 ```@example 1
 using MITgcm # hide
-ves=verification_experiments()
-[ve.configuration for ve in ves]
+list_main,list_adj,list_inp,list_out=scan_verification()
+display(list_main)
 ```
 
 They can be used via a [`MITgcm_config`](@ref) as follows.
 
 ```@example 1
-MITgcm_config(configuration="MLAdjust")
+MITgcm_config(configuration=list_main[1])
 ```
 
-## Functionalities
+### Tools
 
 ```@docs
-verification_experiments
 setup_verification!
+scan_verification
+verification_experiments
 testreport
 ```

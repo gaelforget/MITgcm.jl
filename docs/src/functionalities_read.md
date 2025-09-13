@@ -19,13 +19,13 @@ scan_build_dir
 
 ## Input Files
 
-Run-time parameters to `MITgcm` are provided via text files. This package can read and write them in two formats (standard `TOML` format, or the native `MITgcm_namelist` format).
+Run-time parameters to `MITgcm` are provided via text files, which can be accessed via the `MITgcm_namelist` data structure. `MITgcm.jl` can read and write these parameter files in two formats : standard `TOML` format, or the native `MITgcm` format.
 
-Other inputs (binary or NetCDF files) for gridded data, forcing fields, etc can be provided via an `input_folder` or downloaded as shown in the [`setup_ECCO4!`](@ref).
+Other inputs (binary or NetCDF files) for gridded data, forcing fields, etc can be provided via an `input_folder` as shown in [`setup_verification!`](@ref) and [`setup_ECCO4!`](@ref).
 
 ```@docs
-read_toml
 MITgcm_namelist
+read_toml
 read_namelist
 write_namelist
 read_all_namelists
