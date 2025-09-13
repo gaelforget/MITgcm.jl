@@ -74,10 +74,10 @@ fig
 ```
 
 !!! tip
-    For more use cases, see [Climatology.jl](https://github.com/juliaocean/Climatology.jl#readme) , [MeshArrays.jl](https://github.com/juliaclimate/MeshArrays.jl#readme), [IndividualDisplacements.jl](https://github.com/juliaclimate/IndividualDisplacements.jl#readme).
-    - [climatology notebook](https://juliaocean.github.io/Climatology.jl/dev/examples/ECCO_standard_plots.html) shows a whole set of ocean variables, transports, etc computed from global MITgcm solutions (ECCO4 and OCCA2)
+    For more use cases, see [MeshArrays.jl](https://github.com/juliaclimate/MeshArrays.jl#readme), [Drifters.jl](https://github.com/juliaclimate/Drifters.jl#readme), [Climatology.jl](https://github.com/juliaocean/Climatology.jl#readme).
     - [geography notebook](https://juliaclimate.github.io/MeshArrays.jl/dev/tutorials/geography.html) and [vector tutorial](https://juliaclimate.github.io/MeshArrays.jl/dev/tutorials/vectors.html) present generic recipes, readily applicable to most MITgcm configurations
-    - [ocean pathways](https://juliaclimate.github.io/IndividualDisplacements.jl/dev/examples/global_ocean_circulation.html) can also be computed from MITgcm output
+    - [ocean pathways](https://juliaclimate.github.io/Drifters.jl/dev/examples/global_ocean_circulation.html) can also be computed from MITgcm output
+    - [climatology notebook](https://juliaocean.github.io/Climatology.jl/dev/examples/ECCO_standard_plots.html) shows a whole set of ocean variables, transports, etc computed from global MITgcm solutions (ECCO4 and OCCA2)
 
 ## Main Features
 
@@ -106,14 +106,14 @@ Grid variables are often needed for analysis. They can be read from file using e
 
 - [`setup`](@ref) prepares a run directory for the `MITgcm_config`
 - [`build`](@ref) compiles the model (if needed)
-- [`MITgcm_launch`](@ref) starts the model run
+- [`launch`](@ref) starts the model run
 
-The [`verification_experiments`](@ref) function provides a list of standard model configurations. Each one has a subfolder in `joinpath(default_path(),"verification")` where the model often gets compiled. 
+The [`scan_verification`](@ref) function provides a list of standard model configurations. Each one has a subfolder in `MITgcm_path[2]` which gets compiled using source code from `MITgcm_path[1]`.
 
 !!! note
     For more on these aspects, see [Examples](@ref), [Model Configurations](@ref), and [ClimateModels Interface](@ref).
 
-Interactive notebooks can be found in the [Examples](@ref) section (and the `examples/` subfolder). They demonstrate functionalities like plotting with [Makie.jl](https://makie.juliaplots.org/stable/) and particle tracking with  [IndividualDisplacements.jl](https://github.com/JuliaClimate/IndividualDisplacements.jl).
+Interactive notebooks can be found in the [Examples](@ref) section (and the `examples/` subfolder). They demonstrate functionalities like plotting with [Makie.jl](https://makie.juliaplots.org/stable/) and particle tracking with  [Drifters.jl](https://github.com/JuliaClimate/Drifters.jl).
 
 ## Troubleshooting
 
@@ -124,9 +124,9 @@ using MITgcm
 MITgcm.system_check(setenv=true)
 ```
 
-The [`set_environment_variables_to_default()`](@ref) method can be used to set `NETCDF_ROOT` and `MPI_INC_DIR` to default values.
-
-The [`scan_run_dir`](@ref) method can be used to inspect the run directory of an experiment.
+- [`set_environment_variables_to_default()`](@ref) can be used to set `NETCDF_ROOT` and `MPI_INC_DIR` to default values.
+- [`scan_build_dir`](@ref) can be used to inspect the build directory of an experiment.
+- [`scan_run_dir`](@ref) can be used to inspect the run directory of an experiment.
 		
 !!! tip
     - Building and running MITgcm requires a [fortran compiler](https://fortran-lang.org/learn/os_setup/install_gfortran). Some configurations further require installing [MPI](https://mitgcm.readthedocs.io/en/latest/getting_started/getting_started.html?highlight=mpi_INC_DIR#building-with-mpi) and [NetCDF](https://mitgcm.readthedocs.io/en/latest/outp_pkgs/outp_pkgs.html?highlight=NetCDF#netcdf-i-o-pkg-mnc) libraries.
