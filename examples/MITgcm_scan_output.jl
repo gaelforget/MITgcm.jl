@@ -64,28 +64,25 @@ The model standard output file for each `run` subfolder is then scanned for info
 
 # ╔═╡ 8ab359c9-7090-4671-8856-e775ee4e7556
 begin
-	#list of verification experiments
-	rep=joinpath(MITgcm_path[1],"verification")
-	exps=verification_experiments()
+    list_main,list_adj,list_inp,list_out=MITgcm.scan_verification()
 
 	#
-	sc=Vector{Any}(nothing, length(exps))
-	for i in 1:length(exps)
-		myexp=exps[i].configuration; rundir=joinpath(rep,myexp,"run")
-		try
-			sc[i]=scan_rundir(rundir)
-		catch
-			sc[i]=missing
-		end
-	end
+	sc=Vector{Any}(nothing, length(list_main))
+    for i in 1:length(list_main)
+        myexp=list_main[i]
+        myrundir=joinpath(MITgcm_path[2],myexp,"run")
+        try
+            sc[i]=scan_rundir(myrundir)
+        catch
+            sc[i]=missing
+        end
+    end
 	
-	list_exps=collect(1:length(exps))
+	list_exps=collect(1:length(list_main))
 	
 	with_terminal() do
-		println("List of all $(length(exps)) experiments found : \n\n")
-		for i in 1:length(exps)
-			println(exps[i].configuration)
-		end
+		println("List of all $(length(list_main)) experiments found : \n\n")
+        println.(list_main)
 	end
 	
 end
@@ -96,7 +93,7 @@ begin
 	list_mdsio=findall([sc[i].params_files.use_mdsio for i in ii])
 	list_mnc=findall([sc[i].params_files.use_mnc for i in ii])
 	list_missing=findall((ismissing).(sc))
-	a=(length(list_mdsio),length(list_mnc),length(list_missing),length(exps))
+	a=(length(list_mdsio),length(list_mnc),length(list_missing),length(list_main))
 	md""" Result of scanning `run` subfolders :
 	
 	| All `run` folders | $(a[4])   |
@@ -154,10 +151,10 @@ begin
 		az=myaz*π; el=0.2π
 		f=myviz(Γecco; title="ECCO version 4 grid \n grid name = LLC90      size = $siz")
 	else
-		n=length(exps)		
-		i=mod1(tick,length(exps))
+		n=length(list_main)		
+		i=mod1(tick,length(list_main))
 		
-		MC=MITgcm_config(configuration=exps[i].configuration)
+		MC=MITgcm_config(list_main[i])
 		setup(MC)
 		skip_build ? build(MC,"--allow-skip") : build(MC)
 		launch(MC)
