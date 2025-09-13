@@ -45,8 +45,9 @@ end
 
 # ╔═╡ 207e4c15-7818-4dc3-a048-1dd36ba5a73e
 begin
-	myexp=verification_experiments("hs94.cs-32x32x5")
-	pth_run=joinpath(myexp.folder,string(myexp.ID),"run")
+	config="hs94.cs-32x32x5"
+    myexp=MITgcm_config(configuration=config)
+	pth_run=joinpath(myexp,"run")
 	md""" ## Model Configuration
 
 	- Any MITgcm configuration can be represented as `MITgcm_config`. 
@@ -154,7 +155,6 @@ begin
 	setup(myexp)
 
 	#compile model if not already done
-	config=myexp.configuration
 #	filexe=joinpath(MITgcm_path[2],config,"build","mitgcmuv")
 #	myexp.inputs[:setup][:build][:exe]=filexe
 	build(myexp,"--allow-skip")

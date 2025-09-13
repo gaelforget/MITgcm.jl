@@ -1,3 +1,8 @@
+
+```@meta
+CollapsedDocStrings = true
+```
+
 # Interface to MITgcm
 
 The [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl/#readme)'s interface is implemented in `MITgcm.jl`. 

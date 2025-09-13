@@ -1,3 +1,7 @@
+```@meta
+CollapsedDocStrings = true
+```
+
 # MITgcm File Formats
 
 The two main output formats of MITgcm gridded fields are called `MDS` and `MNC`. In addition, the `standard output file` is a text file that records events during the model run, including its successful completion.
