@@ -52,11 +52,11 @@ end
 
 @testset "MITgcm.jl" begin
 
-    MITgcm_tests=MITgcm.system_check()
-    @test MITgcm_tests.complete
-
     path0=MITgcm.default_path()
     @test ispath(path0)
+
+    MITgcm_tests=MITgcm.system_check()
+    @test MITgcm_tests.complete
 
     fil=MITgcm.create_script()
     @test isfile(fil)
@@ -75,11 +75,17 @@ end
     (ρP,ρI,ρR) = SeaWaterDensity(T,S,D);
     mld=MixedLayerDepth(T,S,D,"BM");
     @test isapprox(mld,134.0)
+end
 
-    #running and reading in verification experiments
+@testset "verification" begin
+    list_main,list_adj,list_inp,list_out=scan_verification()
+    @test in("advect_xy",list_main)
+
+    ii=findall(list_main.=="advect_xy")[1]
+    list_success,list_fail=verification_loop([ii])
+    @test in("advect_xy",list_success)
+
     exps=verification_experiments()
-    @test isa(exps,Array)
-
     MC=verification_experiments("advect_xy")
     MC=MITgcm_config(configuration="advect_xy")
     setup(MC)
@@ -97,8 +103,9 @@ end
     @test nml.groups[1]==:PARM01
     @test nml.params[1][:implicitFreeSurface]
 
-    #
+end
 
+@testset "interface" begin
     MC=MITgcm_config(configuration="advect_cs")
 
     @test setup(MC)
@@ -207,4 +214,11 @@ end
     dir_out=HS94_pickup_download()
     @test isdir(dir_out)
 
+end
+
+@testset "Darwin3" begin
+    MC=MITgcm_config(model="darwin3",configuration="31+16+3_RT_1D")
+    mkdir(pathof(MC))
+    setup_darwin3!(MC)
+    @test in("31+16+3_RT_1D",readdir(MC,"MITgcm","mysetups"))
 end
