@@ -37,6 +37,12 @@ Scan a MITgcm standard output text file ("output.txt" or "STDOUT.0000") and retu
 - params_grid : type of grid (Curvilinear, Cartesian, ...) and array sizes
 - params_files : type of output (use_mdsio, use_mnc) and array size (ioSize)
 - completed : true / false depending on the end of standard output file (filout)
+
+```
+fil="output.txt"
+stdout=scan_stdout(fil)
+stdout.packages
+```
 """
 function scan_stdout(filout::String)
     pth=dirname(filout)
@@ -101,7 +107,7 @@ function scan_stdout(filout::String)
     tst_mdsio = !isempty(filter(x -> occursin("XC",x), readdir(pth)))
     pth_mnc=joinpath(pth,"mnc_test_0001")
     tst_mnc = isdir(pth_mnc)
-    ioSize=Array{Any}(undef,1)
+    ioSize=[[NaN,NaN]]
     if tst_mdsio
         tmp=read_mdsio(pth,"XC")
         ioSize[1]=size(tmp)
@@ -112,7 +118,6 @@ function scan_stdout(filout::String)
             ioSize[1]=size(tmp)
         catch e
             @warn "failed to read mnc file (using NetCDF ?)"
-            ioSize[1]=(0,0)
         end
     end
 
