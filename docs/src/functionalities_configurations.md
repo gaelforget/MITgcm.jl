@@ -72,6 +72,7 @@ MITgcm_config(configuration=list_main[1])
 ```@docs
 setup_verification!
 scan_verification
+verification_loop
 verification_experiments
 testreport
 ```

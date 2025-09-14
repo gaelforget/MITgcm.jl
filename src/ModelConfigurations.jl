@@ -767,6 +767,7 @@ scan_verification(; path=MITgcm_path[2]) = begin
     lst=lst[findall((!occursin).("._",lst))]
     lst_not=["verification_parser.py","testreport","README.md"]
     lst_main=lst[findall((!in).(lst,Ref(lst_not)))]
+    lst_main=lst_main[findall([length(t)>=3&&t[1:3]!=="tr_" for t in lst_main])]
 
     lst_adj=String[]
     lst_inp=[]
@@ -791,3 +792,68 @@ scan_verification(; path=MITgcm_path[2]) = begin
     end
     lst_main,lst_adj,lst_inp,lst_out
 end 
+
+##
+
+verif_cp_if(f,path_in,path_store)=begin
+  fil_in=joinpath(path_in,f)
+  fil_out=joinpath(path_store,f); 
+  isfile(fil_in) ? cp(fil_in,fil_out,force=true) : nothing
+end
+
+verif_cp_store(MC)=begin
+  path_store=joinpath(tempdir(),"MITgcm_verif_results")
+  !isdir(path_store) ? mkdir(path_store) : nothing
+  path_store=joinpath(path_store,MC.configuration)
+  !isdir(path_store) ? mkdir(path_store) : nothing
+
+  path_run=joinpath(MC,"run")
+  path_build=joinpath(MC,"MITgcm","verification",MC.configuration,"build")
+  path_log=joinpath(MC,"log")
+
+  verif_cp_if("output.txt",path_run,path_store)
+  verif_cp_if("STDOUT.0000",path_run,path_store)
+  verif_cp_if("mitgcmuv",path_build,path_store)
+  verif_cp_if("mitgcmuv_ad",path_build,path_store)
+  verif_cp_if("tracked_parameters.toml",path_log,path_store)
+
+  path_store
+end
+
+"""
+    verification_loop(ii=:)
+
+Run verification experiments in a loop. 
+
+- to override the default MITgcm folder and use your own, set MITgcm_path[1:2]
+- all 56 forward experiments should run to completion as expected.
+- 10 experiments do not contain an `input` folder, and will be skipped.
+
+```
+list_skip=[ "tutorial_dic_adjoffline", "tutorial_global_oce_optim", "tutorial_tracer_adjsens" ,
+            "flt_example", "global_oce_latlon", "global_with_exf",
+            "bottom_ctrl_5x5", "cpl_aim+ocn","natl_box", "obcs_ctrl"]
+```    
+"""
+verification_loop(ii=:)=begin
+  list_main,list_adj,list_inp,list_out=scan_verification()
+  list_success=String[]
+  list_fail=String[]
+  for config in list_main[ii]
+    MC=MITgcm_config(configuration=config)
+    println(config*" -- "*pathof(MC))
+    try
+      run(MC)
+      verif_cp_store(MC)
+      push!(list_success,config)
+    catch
+      println("failed : "*config)
+      push!(list_fail,config)
+    end
+  end
+  println("list_fail=$(list_fail)")
+  return list_success,list_fail
+end
+
+
+

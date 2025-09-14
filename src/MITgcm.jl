@@ -27,7 +27,7 @@ export MITgcm_download, HS94_pickup_download
 export MITgcm_config, MITgcm_namelist, MITgcm_launch
 export testreport, build, compile, setup, clean, launch
 export monitor #pause, stop, clock, train, help
-export verification_experiments, setup_verification!, testreport
+export verification_experiments, setup_verification!, verification_loop, testreport
 export setup_ECCO4!, ECCO4_inputs, ECCO4_testreport
 export setup_darwin3!
 export read_namelist, write_namelist, read_toml
