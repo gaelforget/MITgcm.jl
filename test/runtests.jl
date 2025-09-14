@@ -149,16 +149,6 @@ end
     Γ=GridLoad_mdsio(MC)
     @test isa(Γ,NamedTuple)
 
-#    readcube(xx::Array,x::MeshArray) = read(cube2compact(xx),x)
-#    function readcube(fil::String,x::MeshArray) 
-#        p=dirname(fil)*"/"
-#        b=basename(fil)[1:end-5]
-#        xx=read_mdsio(p,b)
-#        read(cube2compact(xx),x)
-#    end
-#    writecube(x::MeshArray) = compact2cube(write(x))
-#    writecube(fil::String,x::MeshArray) = write(fil::String,x::MeshArray)
-    
     γ=gcmgrid(path_cs,"CubeSphere",6,fill((32, 32),6), [192 32], Float64, MITgcm.readcube, MITgcm.writecube)
     Γ = GridLoad(γ)
     tmp1=MITgcm.writecube(Γ.XC)

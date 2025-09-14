@@ -910,6 +910,18 @@ function GridLoad_mdsio(myexp::MITgcm_config)
     GridLoad_mdsio(rundir)
 end
 
+readcube(xx::Array,x::MeshArray) = read_mdsio(cube2compact(xx),x)
+#readcube(fil::String,x::MeshArray) = read_mdsio(fil::String,x::MeshArray)
+function readcube(fil::String,x::MeshArray) 
+        p=dirname(fil)*"/"
+        b=basename(fil)[1:end-5]
+        xx=read_mdsio(p,b)
+        read(cube2compact(xx),x)
+end
+
+writecube(x::MeshArray) = compact2cube(write(x))
+writecube(fil::String,x::MeshArray) = write(fil::String,x::MeshArray)
+
 """
     GridLoad_mdsio(rundir::String)
 
@@ -922,10 +934,6 @@ function GridLoad_mdsio(rundir::String)
     sc=MITgcm.scan_run_dir(rundir)
     #
     if sc.params_grid.usingCurvilinearGrid
-        readcube(xx::Array,x::MeshArray) = read_mdsio(cube2compact(xx),x)
-        readcube(fil::String,x::MeshArray) = read_mdsio(fil::String,x::MeshArray)
-        writecube(x::MeshArray) = compact2cube(write(x))
-        writecube(fil::String,x::MeshArray) = write(fil::String,x::MeshArray)
         γ=gcmgrid(rundir,"CubeSphere",6,fill((32,32),6),[32 32*6],elty, readcube, writecube)
     else
         s1=exps_ioSize
