@@ -50,13 +50,23 @@ using MITgcm.ClimateModels.CSV
 
 end
 
-@testset "MITgcm.jl" begin
+@testset "MITgcm system check" begin
+    MITgcm.getdata("mitgcmsmallverif")
+    p=MITgcm.getdata("mitgcmsmall")
+
+    f=MITgcm.datadeps.add_darwin_arm64_gfortran(p)
+    @test ispath(f)
 
     path0=MITgcm.default_path()
     @test ispath(path0)
 
     MITgcm_tests=MITgcm.system_check()
     @test MITgcm_tests.complete
+end
+
+@testset "MITgcm various" begin
+    dir_out=HS94_pickup_download()
+    @test isdir(dir_out)
 
     fil=MITgcm.create_script()
     @test isfile(fil)
@@ -118,55 +128,48 @@ end
     push!(MC.status,("setup" => "ended"))
     
     launch(MC)
-    pth=joinpath(MC.folder,string(MC.ID),"run")
-    tmp=read_mdsio(pth,"XC.001.001")
+    sc=scan_run_dir(MC)
+    @test sc.completed
+
+    path_cs=joinpath(MC,"run")
+
+    fil=joinpath(path_cs,"available_diagnostics.log")
+    diag=read_available_diagnostics("ETAN";filename=fil)
+    @test diag["units"]=="m"
+
+    ## CS I/O
+
+    tmp=read_mdsio(path_cs,"XC.001.001")
     @test isa(tmp,Array)
-    tmp=read_mdsio(pth,"XC")
+    tmp=read_mdsio(path_cs,"XC")
     @test isa(tmp,Array)
 
-    scan_run_dir(pth)
+    scan_run_dir(path_cs)
     Γ=GridLoad_mdsio(MC)
     @test isa(Γ,NamedTuple)
 
-    MC=MITgcm_config(configuration="MLAdjust")
-    setup(MC)
-    build(MC,"--allow-skip")
-    launch(MC)
-
-    PA=read_toml(joinpath(MC,"log","tracked_parameters.toml"))
-    @test PA[:main][:PARM03][:nTimeSteps]==12
-
-    if isdir(joinpath(MC.folder,string(MC.ID),"run","mnc_test_0001"))
-        Γ=GridLoad_mnc(MC)
-        GridLoad_mnc(Γ.XC.grid)
-    else
-        Γ=GridLoad_mdsio(MC)
-    end
-    @test isa(Γ,NamedTuple)
-
-    #read / write functions
-
-    fil=joinpath(pth,"available_diagnostics.log")
-    read_available_diagnostics("ETAN";filename=fil)
-
-    readcube(xx::Array,x::MeshArray) = read(cube2compact(xx),x)
-    function readcube(fil::String,x::MeshArray) 
-        p=dirname(fil)*"/"
-        b=basename(fil)[1:end-5]
-        xx=read_mdsio(p,b)
-        read(cube2compact(xx),x)
-    end
-    writecube(x::MeshArray) = compact2cube(write(x))
-    writecube(fil::String,x::MeshArray) = write(fil::String,x::MeshArray)
+#    readcube(xx::Array,x::MeshArray) = read(cube2compact(xx),x)
+#    function readcube(fil::String,x::MeshArray) 
+#        p=dirname(fil)*"/"
+#        b=basename(fil)[1:end-5]
+#        xx=read_mdsio(p,b)
+#        read(cube2compact(xx),x)
+#    end
+#    writecube(x::MeshArray) = compact2cube(write(x))
+#    writecube(fil::String,x::MeshArray) = write(fil::String,x::MeshArray)
     
-    γ=gcmgrid(pth,"CubeSphere",6,fill((32, 32),6), [192 32], Float64, readcube, writecube)
+    γ=gcmgrid(path_cs,"CubeSphere",6,fill((32, 32),6), [192 32], Float64, MITgcm.readcube, MITgcm.writecube)
     Γ = GridLoad(γ)
-    tmp1=writecube(Γ.XC)
-    tmp2=readcube(tmp1,Γ.XC)
-
+    tmp1=MITgcm.writecube(Γ.XC)
+    tmp2=MITgcm.readcube(tmp1,Γ.XC)
     @test isa(tmp2,MeshArray)
 
-    ##
+    G=GridLoad_mdsio(path_cs)
+    @test isa(G.XC,MeshArray)
+end
+
+@testset "more I/O functions" begin
+    ## LLC90
 
     γ=GridSpec("LatLonCap",MeshArrays.GRID_LLC90)
     findtiles(30,30,γ)
@@ -186,6 +189,8 @@ end
     read_bin(tmp2,tmp1)
     read_bin(tmp2,γ)
         
+    ## nctiles
+
     try
         MITgcmScratchSpaces.download_nctiles_sample()
         tmp=read_nctiles(joinpath(MITgcmScratchSpaces.path,"ETAN"),"ETAN",γ,I=(:,:,1))
@@ -194,26 +199,33 @@ end
         @warn "could not download from dataverse"
     end
 
-    ##
+end
 
-    path1=joinpath(MITgcm.getdata("mitgcmsmallverif"),"MITgcm","verification")
+@testset "mnc I/O functions" begin
+    MC=MITgcm_config(configuration="MLAdjust")
+    setup(MC)
+    build(MC,"--allow-skip")
+    launch(MC)
 
-    p=MITgcm.getdata("mitgcmsmall")
-    f=MITgcm.datadeps.add_darwin_arm64_gfortran(p)
-    @test ispath(f)
+    PA=read_toml(joinpath(MC,"log","tracked_parameters.toml"))
+    @test PA[:main][:PARM03][:nTimeSteps]==12
 
+    if isdir(joinpath(MC.folder,string(MC.ID),"run","mnc_test_0001"))
+        Γ=GridLoad_mnc(MC)
+        GridLoad_mnc(Γ.XC.grid)
+    else
+        Γ=GridLoad_mdsio(MC)
+    end
+    @test isa(Γ,NamedTuple)
+end
+
+@testset "pkg/flt" begin
     inputs=Dict(:input_folder=>"input.with_flt")
     MC=MITgcm_config(configuration="exp4",inputs=inputs);
     run(MC)
     tmp=read_flt(joinpath(MC,"run"),Float32)
     testreport(MC)
     @test isa(tmp[1,1],Number)
-
-    ##
-
-    dir_out=HS94_pickup_download()
-    @test isdir(dir_out)
-
 end
 
 @testset "Darwin3" begin
