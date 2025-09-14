@@ -403,7 +403,11 @@ function read_namelist(fil)
 			ii += 1
 		end
         for ii in keys(tmp0)
-            tmp0[ii]=parse_param(tmp0[ii],fix=fixes)
+            if !isempty(tmp0[ii])
+                tmp0[ii]=parse_param(tmp0[ii],fix=fixes)
+            else
+                tmp0[ii]=""
+            end
         end
 		params[i]=tmp0
 	end

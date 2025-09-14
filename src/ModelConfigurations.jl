@@ -767,6 +767,7 @@ scan_verification(; path=MITgcm_path[2]) = begin
     lst=lst[findall((!occursin).("._",lst))]
     lst_not=["verification_parser.py","testreport","README.md"]
     lst_main=lst[findall((!in).(lst,Ref(lst_not)))]
+    lst_main=lst_main[findall([length(t)>=3&&t[1:3]!=="tr_" for t in lst_main])]
 
     lst_adj=String[]
     lst_inp=[]
