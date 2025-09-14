@@ -107,7 +107,7 @@ function scan_stdout(filout::String)
     tst_mdsio = !isempty(filter(x -> occursin("XC",x), readdir(pth)))
     pth_mnc=joinpath(pth,"mnc_test_0001")
     tst_mnc = isdir(pth_mnc)
-    ioSize=[[NaN,NaN]]
+    ioSize=[(NaN,NaN)]
     if tst_mdsio
         tmp=read_mdsio(pth,"XC")
         ioSize[1]=size(tmp)
