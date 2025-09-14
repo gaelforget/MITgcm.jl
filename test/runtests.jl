@@ -60,8 +60,9 @@ end
     path0=MITgcm.default_path()
     @test ispath(path0)
 
-    MITgcm_tests=MITgcm.system_check()
-    @test MITgcm_tests.complete
+    SC=MITgcm.system_check()
+    show(SC)
+    @test SC.complete
 end
 
 @testset "MITgcm various" begin
@@ -99,7 +100,7 @@ end
     MC=verification_experiments("advect_xy")
     MC=MITgcm_config(configuration="advect_xy")
     setup(MC)
-
+    
     fil=joinpath(MC.folder,string(MC.ID),"run","data")
     nml=read(fil,MITgcm_namelist())
     write(fil*"_new",nml)
@@ -112,7 +113,6 @@ end
     @test isa(nml,MITgcm_namelist)
     @test nml.groups[1]==:PARM01
     @test nml.params[1][:implicitFreeSurface]
-
 end
 
 @testset "interface" begin
@@ -128,6 +128,7 @@ end
     push!(MC.status,("setup" => "ended"))
     
     launch(MC)
+    monitor(MC)
     sc=scan_run_dir(MC)
     @test sc.completed
 
