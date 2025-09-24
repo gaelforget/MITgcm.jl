@@ -27,7 +27,7 @@ exe=joinpath(MITgcm.default_path(),"verification",MC.configuration,"build","mitg
 show(MC)
 ```
 
-After `setup`, the standard workflow is to call [`build`](@ref) and then [`MITgcm_launch`](@ref). 
+After `setup`, the standard workflow is to call [`build`](@ref) and then [`launch`](@ref). 
 
 Next we can use the `log` method to get a status report. 
 
@@ -124,7 +124,8 @@ using MITgcm
 MITgcm.system_check(setenv=true)
 ```
 
-- [`set_environment_variables_to_default()`](@ref) can be used to set `NETCDF_ROOT` and `MPI_INC_DIR` to default values.
+- [`MITgcm.setenv()`](@ref) can be used to set `NETCDF_ROOT` and `MPI_INC_DIR` to specified values.
+- [`MITgcm.set_environment_variables_to_default()`](@ref) can be used to set `NETCDF_ROOT` and `MPI_INC_DIR` to default values.
 - [`scan_build_dir`](@ref) can be used to inspect the build directory of an experiment.
 - [`scan_run_dir`](@ref) can be used to inspect the run directory of an experiment.
 		
