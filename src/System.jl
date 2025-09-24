@@ -102,10 +102,11 @@ _!!! Warning : it is generally much better to adjust them to your own system !!!
 _!!! Warning : the defaults will likely NOT work on most systems !!!_
 """
 set_environment_variables_to_default()=begin
+  ENV_print("DATADEPS_ALWAYS_ACCEPT",true)
   @static if Sys.islinux()
-    ENV_print("DATADEPS_ALWAYS_ACCEPT",true)
-    ENV_print("MPI_INC_DIR","/usr/lib/x86_64-linux-gnu/openmpi/include")
     ENV_print("NETCDF_ROOT","/usr")
+    #ENV_print("MPI_INC_DIR","/usr/lib/x86_64-linux-gnu/openmpi/include")
+    ENV_print("MPI_INC_DIR","/usr/lib/aarch64-linux-gnu/openmpi/include")
   elseif Sys.isapple()&&(Sys.ARCH==:x86_64)
     ENV_print("NETCDF_ROOT","/usr/local")
     ENV_print("MPI_INC_DIR","/usr/local/include")
