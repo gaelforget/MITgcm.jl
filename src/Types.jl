@@ -117,3 +117,48 @@ function Base.show(io::IO, z::MITgcm_system_check)
 
     return
 end  
+
+
+
+"""
+    MITgcm_run_dir()
+
+Output of `MITgcm.scan_run_dir`.
+
+```
+  file :: String = ""
+  packages :: NamedTuple = NamedTuple()
+  params_time :: NamedTuple = NamedTuple()
+  params_grid :: NamedTuple = NamedTuple()
+  params_files :: NamedTuple = NamedTuple()
+  completed :: Bool = false
+```
+"""
+Base.@kwdef struct MITgcm_run_dir
+  file :: String = ""
+  packages :: NamedTuple = NamedTuple()
+  params_time :: NamedTuple = NamedTuple()
+  params_grid :: NamedTuple = NamedTuple()
+  params_files :: NamedTuple = NamedTuple()
+  completed :: Bool = false
+end
+
+function Base.show(io::IO, z::MITgcm_run_dir)
+    println()
+    zn=fieldnames(typeof(z))
+    printstyled(io, "  type = ",color=:normal)
+    printstyled(io, "$(typeof(z))\n",color=:yellow)
+    for nam in (:file,:completed,)
+        in(nam,zn) ? printstyled(io, "  $(nam) = ",color=:normal) : nothing
+        val=getfield(z,nam)
+        in(nam,zn) ? printstyled(io, "$(val)\n",color=:yellow) : nothing
+    end
+    for nam in (:packages,:params_time,:params_grid,:params_files)
+        in(nam,zn) ? printstyled(io, "  $(nam) = ",color=:normal) : nothing
+        val=length(keys(getfield(z,nam)))
+        val=getfield(z,nam)
+        in(nam,zn) ? printstyled(io, "$(val)\n",color=:magenta) : nothing
+    end
+
+    return
+end  

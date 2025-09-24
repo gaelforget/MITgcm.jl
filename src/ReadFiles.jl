@@ -129,7 +129,7 @@ function scan_stdout(filout::String)
     #2.4 tave
     #2.5 mnc
 
-    return (packages=pac,params_time=par1,params_grid=par2,params_files=par3,completed=co)
+    return  MITgcm_run_dir(file=filout,packages=pac,params_time=par1,params_grid=par2,params_files=par3,completed=co)
 end
 
 
@@ -863,7 +863,7 @@ function GridLoad_mnc(rundir::String)
 	tmp=read_mnc(pth,"grid","XC")
     exps_ioSize=size(tmp)
     elty=eltype(tmp)
-    sc=MITgcm.scan_run_dir(rundir)
+    sc=scan_run_dir(rundir)
     #
     if sc.params_grid.usingCurvilinearGrid&&(exps_ioSize==(192,32))
         γ=gcmgrid(rundir,"CubeSphere",6,fill((32,32),6),[32 32*6],elty, read, write)
@@ -931,7 +931,7 @@ function GridLoad_mdsio(rundir::String)
     tmp=read_mdsio(rundir,"XC")
     exps_ioSize=size(tmp)
     elty=eltype(tmp)
-    sc=MITgcm.scan_run_dir(rundir)
+    sc=scan_run_dir(rundir)
     #
     if sc.params_grid.usingCurvilinearGrid
         γ=gcmgrid(rundir,"CubeSphere",6,fill((32,32),6),[32 32*6],elty, readcube, writecube)

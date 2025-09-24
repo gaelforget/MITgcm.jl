@@ -47,7 +47,8 @@ launch
 MITgcm_system_check
 system_check
 test_run
-set_environment_variables_to_default
+MITgcm.setenv
+MITgcm.set_environment_variables_to_default
 default_path
 MITgcm.getdata
 create_script

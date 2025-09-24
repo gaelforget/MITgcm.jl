@@ -66,9 +66,11 @@ function build(config::MITgcm_config)
 #            run(`make depend`)
 #            run(`make -j 4`)
             println(styled"{red:!! model compilation has failed}")
-            println(styled"{red:>>   to try and resolve the issue, look at:}")
-            println(styled"{red:>>   MITgcm_tests=MITgcm.system_check()}")
-            println(styled"{red:>>   <https://mitgcm.readthedocs.io/en/latest/getting_started/getting_started.html#getting-started-with-mitgcm>}")
+            println(styled"{red:!! To try and resolve the issue, look at:}")
+            println(styled"{red:   help?> MITgcm.setenv}")
+            println(styled"{red:   julia> set_environment_variables_to_default()}")
+            println(styled"{red:   julia> system_check()}")
+            println(styled"{red:   <https://mitgcm.readthedocs.io/en/latest/getting_started/getting_started.html#getting-started-with-mitgcm>}")
             false
         end
         cd(pth)
@@ -260,13 +262,14 @@ Call `scan_run_dir` and show to REPL.
 """
 monitor(config::MITgcm_config) = begin
     rundir=joinpath(config,"run")
-    sc=MITgcm.scan_run_dir(rundir)
+    sc=scan_run_dir(rundir)
     lst=[:packages, :params_grid, :params_files, :params_time, :completed]
     show(config)
     for nam in lst
         println("")
         println(nam)
-        show(to_DF(sc[nam]))
+#        show(to_DF(sc[nam]))
+        show(to_DF(getfield(sc,nam)))
         println("")
     end
 end

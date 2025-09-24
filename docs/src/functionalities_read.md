@@ -12,6 +12,7 @@ The `standard output file` can be scanned to collect information about the model
 
 ```@docs
 monitor
+MITgcm_run_dir
 scan_run_dir
 scan_stdout
 scan_build_dir
