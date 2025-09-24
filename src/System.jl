@@ -13,7 +13,7 @@ Notes :
 
 ```
 using MITgcm
-SC=MITgcm.system_check()
+SC=system_check()
 ```
 """
 system_check(;setenv=false,exe="",mpi=false,adj=false,config="advect_xy",opt=" -devel -ds -ieee")=begin
@@ -102,23 +102,43 @@ _!!! Warning : it is generally much better to adjust them to your own system !!!
 _!!! Warning : the defaults will likely NOT work on most systems !!!_
 """
 set_environment_variables_to_default()=begin
-  ENV_print("DATADEPS_ALWAYS_ACCEPT",true)
+  setenv("DATADEPS_ALWAYS_ACCEPT",true)
+  env=default_environment_variables()
+  setenv("NETCDF_ROOT",env.NETCDF_ROOT)
+  setenv("MPI_INC_DIR",env.MPI_INC_DIR)
+end
+
+"""
+    default_environment_variables()
+
+Suggested default environment variables depending on OS.
+"""
+default_environment_variables()=begin
   @static if Sys.islinux()
-    ENV_print("NETCDF_ROOT","/usr")
-    #ENV_print("MPI_INC_DIR","/usr/lib/x86_64-linux-gnu/openmpi/include")
-    ENV_print("MPI_INC_DIR","/usr/lib/aarch64-linux-gnu/openmpi/include")
+    (NETCDF_ROOT="/usr",MPI_INC_DIR="/usr/lib/aarch64-linux-gnu/openmpi/include")
   elseif Sys.isapple()&&(Sys.ARCH==:x86_64)
-    ENV_print("NETCDF_ROOT","/usr/local")
-    ENV_print("MPI_INC_DIR","/usr/local/include")
+    (NETCDF_ROOT="/usr/local",MPI_INC_DIR="/usr/local/include")
   elseif Sys.isapple() #&&(Sys.ARCH==:AArch64)
-    ENV_print("NETCDF_ROOT","/opt/homebrew")
-    ENV_print("MPI_INC_DIR","/opt/homebrew/include")
+    (NETCDF_ROOT="/opt/homebrew",MPI_INC_DIR="/opt/homebrew/include")
   else
-    #generic_thing(a)
+    (NETCDF_ROOT="",MPI_INC_DIR="")
   end
 end
 
-ENV_print(a,b) = begin
+"""
+    setenv(a,b)
+
+Set environment variable `a` to value `b`. Issue warning.
+
+```
+MITgcm.setenv("DATADEPS_ALWAYS_ACCEPT",true)
+env=MITgcm.default_environment_variables()
+MITgcm.setenv("NETCDF_ROOT",env.NETCDF_ROOT)
+MITgcm.setenv("MPI_INC_DIR",env.MPI_INC_DIR)
+system_check()
+```
+"""
+setenv(a,b) = begin
   @warn "setting environment variable $a to $b"
   ENV[a]=b
 end

@@ -34,7 +34,7 @@ export read_namelist, write_namelist, read_toml
 export read_all_namelists, write_all_namelists, parse_param
 export read_mdsio, read_meta, read_available_diagnostics
 export scan_run_dir, scan_stdout, scan_build_dir, scan_verification
-export create_script, default_path, set_environment_variables_to_default
+export create_script, default_path
 export system_check, MITgcm_system_check, test_run 
 export read_bin, read_flt, read_mnc, read_nctiles, findtiles
 export GridLoad_mnc, GridLoad_mdsio, GridLoad_native

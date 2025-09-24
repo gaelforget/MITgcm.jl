@@ -60,7 +60,8 @@ end
     path0=MITgcm.default_path()
     @test ispath(path0)
 
-    SC=MITgcm.system_check()
+    MITgcm.set_environment_variables_to_default()
+    SC=system_check()
     show(SC)
     @test SC.complete
 end
