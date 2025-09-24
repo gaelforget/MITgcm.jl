@@ -48,7 +48,7 @@ system_check(;setenv=false,exe="",mpi=false,adj=false,config="advect_xy",opt=" -
   end
 
   RS=scan_run_dir(joinpath(MC,"run"))
-  tst0=(ismissing(RS) ? false : RS[:completed])
+  tst0=(ismissing(RS) ? false : RS.completed)
   push!(tests,("run complete"=>tst0))
   push!(tests,("test folder"=>pathof(MC)))
 

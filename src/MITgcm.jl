@@ -24,7 +24,7 @@ getdata=datadeps.getdata
 
 export MITgcm_path, MITgcmScratchSpaces
 export MITgcm_download, HS94_pickup_download
-export MITgcm_config, MITgcm_namelist, MITgcm_launch
+export MITgcm_config, MITgcm_namelist, MITgcm_run_dir
 export testreport, build, compile, setup, clean, launch
 export monitor #pause, stop, clock, train, help
 export verification_experiments, setup_verification!, verification_loop, testreport

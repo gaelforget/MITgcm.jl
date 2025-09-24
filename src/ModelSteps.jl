@@ -268,7 +268,8 @@ monitor(config::MITgcm_config) = begin
     for nam in lst
         println("")
         println(nam)
-        show(to_DF(sc[nam]))
+#        show(to_DF(sc[nam]))
+        show(to_DF(getfield(sc,nam)))
         println("")
     end
 end
