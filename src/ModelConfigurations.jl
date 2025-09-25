@@ -702,7 +702,9 @@ function setup_verification!(config::MITgcm_config)
     if do_mpi
         optfile=optfile*" -mpi"
         p=joinpath(pathof(config),"MITgcm","verification",config.configuration)
-        SIZE_in=joinpath(p,"code","SIZE.h_MPI")
+        SIZE_in1=joinpath(p,"code","SIZE.h_mpi")
+        SIZE_in2=joinpath(p,"code","SIZE.h_MPI")
+        SIZE_in=(isfile(SIZE_in1) ? SIZE_in1 : SIZE_in2)
         SIZE_out=joinpath(p,"build","SIZE.h")
         !ispath(SIZE_out) ? cp(SIZE_in,SIZE_out) : nothing
     end

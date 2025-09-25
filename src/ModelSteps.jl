@@ -68,8 +68,7 @@ function build(config::MITgcm_config)
             println(styled"{red:!! model compilation has failed}")
             println(styled"{red:!! To try and resolve the issue, look at:}")
             println(styled"{red:   help?> MITgcm.setenv}")
-            println(styled"{red:   julia> set_environment_variables_to_default()}")
-            println(styled"{red:   julia> system_check()}")
+            println(styled"{red:   julia> system_check(setenv=true)}")
             println(styled"{red:   <https://mitgcm.readthedocs.io/en/latest/getting_started/getting_started.html#getting-started-with-mitgcm>}")
             false
         end
