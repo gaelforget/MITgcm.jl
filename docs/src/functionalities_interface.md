@@ -7,15 +7,11 @@ CollapsedDocStrings = true
 
 The [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl/#readme)'s interface is implemented in `MITgcm.jl`. 
 
-This allows you to easily create model simulations using `MITgcm` conveniently from `Julia`.
-
+This allows you to easily create model simulations using `MITgcm` conveniently from `Julia`. 
 
 ```@example 1
 using MITgcm
-SC=MITgcm.system_check()
-```
-
-```@example 1
+#SC=MITgcm.system_check() #hide
 MC=MITgcm_config(configuration="advect_xy")
 setup(MC)
 #exe=joinpath(MITgcm_path[2],MC.configuration,"build","mitgcmuv") #hide
@@ -23,6 +19,15 @@ setup(MC)
 build(MC)
 launch(MC)
 ```
+
+Or in abbreviated form, equivalently : 
+
+```
+using MITgcm
+MC=run( MITgcm_config(configuration="advect_xy") )
+```
+
+To get information about how the model simulation is going (or has gone) :
 
 ```@example 1
 monitor(MC)

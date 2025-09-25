@@ -11,9 +11,15 @@ Installing the latest version of `MITgcm.jl` with the built-in [package manager]
 ```
 using Pkg
 Pkg.add("MITgcm")
+
+using MITgcm
+system_check(setenv=true)
 ```
 
-### Running MITgcm
+!!! note
+    The first time you do this, `MITgcm.jl` downloads a few `MITgcm` fortran code folders. This may take a few seconds to a few minutes depending on your network's performance.
+
+## Running MITgcm
 
 Let's start running MITgcm interactively. 
 
@@ -50,7 +56,7 @@ MC.inputs[:setup][:build][:exe]=exe
     - For longer `MITgcm` simulations run, users often prefer to use a queuing system or batch script (not an interactive session).
     - [`setup`](@ref) can generate and submit a batch script, via [`create_script`](@ref) and `config.inputs[:setup][:main][:command] = "qsub submit.csh"`
 
-### Using Model Output
+## Using Model Output
 
 As `MITgcm` users, we often want to read and visualise model output from an earlier model run. To this end, `MITgcm.jl` provides methods to read the various file formats that `MITgcm` generates.
 
@@ -79,12 +85,7 @@ fig
     - [ocean pathways](https://juliaclimate.github.io/Drifters.jl/dev/examples/global_ocean_circulation.html) can also be computed from MITgcm output
     - [climatology notebook](https://juliaocean.github.io/Climatology.jl/dev/examples/ECCO_standard_plots.html) shows a whole set of ocean variables, transports, etc computed from global MITgcm solutions (ECCO4 and OCCA2)
 
-## Main Features
-
-- MITgcm File Formats
-- MITgcm Configurations
-
-### MITgcm File Formats
+## MITgcm File Formats
 
 `MITgcm` stores model output within a _run/_ folder, such as the standard _STDOUT_ text files, and other file formats listed below. [`scan_run_dir`](@ref) can be used to provide a summary of what's in the _run/_ folder. For more see:
 
@@ -100,7 +101,7 @@ Grid variables are often needed for analysis. They can be read from file using e
 !!! note 
     The [MITgcm\_scan\_output.jl](https://github.com/gaelforget/MITgcm.jl/blob/master/examples/MITgcm_scan_output.jl) notebook does this in bulk for all configurations in `MITgcm/verification` and displays the gridded model domain for each model configuration ([this page](https://gaelforget.github.io/MITgcm.jl/dev/examples/MITgcm_scan_output.html)).
 
-### MITgcm Configurations
+## MITgcm Configurations
 
 `MITgcm.jl` represents a model configuration using [`MITgcm_config`](@ref). This data structure allows you take advantage of the [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl) interface for example. 
 
@@ -126,8 +127,7 @@ MITgcm.system_check(setenv=true)
 
 - [`MITgcm.setenv()`](@ref) can be used to set `NETCDF_ROOT` and `MPI_INC_DIR` to specified values.
 - [`MITgcm.set_environment_variables_to_default()`](@ref) can be used to set `NETCDF_ROOT` and `MPI_INC_DIR` to default values.
-- [`scan_build_dir`](@ref) can be used to inspect the build directory of an experiment.
-- [`scan_run_dir`](@ref) can be used to inspect the run directory of an experiment.
+- [`scan_build_dir`](@ref),  [`scan_run_dir`](@ref), and [`monitor`](@ref) can be used to inspect the experiment folders.
 		
 !!! tip
     - Building and running MITgcm requires a [fortran compiler](https://fortran-lang.org/learn/os_setup/install_gfortran). Some configurations further require installing [MPI](https://mitgcm.readthedocs.io/en/latest/getting_started/getting_started.html?highlight=mpi_INC_DIR#building-with-mpi) and [NetCDF](https://mitgcm.readthedocs.io/en/latest/outp_pkgs/outp_pkgs.html?highlight=NetCDF#netcdf-i-o-pkg-mnc) libraries.
