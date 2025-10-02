@@ -6,6 +6,10 @@ using MITgcm.ClimateModels.Suppressor
 using MITgcm.ClimateModels.DataFrames
 using MITgcm.ClimateModels.CSV
 
+println("Sys.islinux=$(Sys.islinux)")
+println("Sys.isapple=$(Sys.isapple)")
+println("Sys.ARCH=$(Sys.ARCH)")
+
 @testset "ECCO4" begin
 
     MC=MITgcm_config(inputs=read_toml(:OCCA2))

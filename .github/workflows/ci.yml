@@ -19,17 +19,25 @@ jobs:
           - '1' # Leave this line unchanged. '1' will automatically expand to the latest stable 1.x release of Julia.
         os:
           - ubuntu-latest
+          - macOS-latest
+          - windows-latest
         arch:
           - x64
+          - aarch64
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v2
         with:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
-      - run: sudo apt update
-      - run: sudo apt-get install libnetcdf-dev
-      - run: sudo apt-get install libnetcdff-dev
+      - run: |
+             if [ "$RUNNER_OS" == "Linux" ]; then
+              sudo apt update
+              sudo apt-get install libnetcdf-dev
+              sudo apt-get install libnetcdff-dev
+             elif [ "$RUNNER_OS" == "macOS" ]; then
+              brew install gfortran open-mpi netcdf netcdf-cxx netcdf-fortran
+             fi
       - uses: actions/cache@v4
         env:
           cache-name: cache-artifacts
