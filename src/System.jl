@@ -118,8 +118,8 @@ default_environment_variables()=begin
     (NETCDF_ROOT="/usr",MPI_INC_DIR="/usr/lib/aarch64-linux-gnu/openmpi/include")
   elseif Sys.islinux()
     (NETCDF_ROOT="/usr",MPI_INC_DIR="/usr/lib/x86_64-linux-gnu/openmpi/include")
-#  elseif Sys.isapple()&&(Sys.ARCH==:x86_64)
-#    (NETCDF_ROOT="/usr/local",MPI_INC_DIR="/usr/local/include")
+  elseif Sys.isapple()&&(Sys.ARCH==:x86_64)
+    (NETCDF_ROOT="/usr/local",MPI_INC_DIR="/usr/local/include")
   elseif Sys.isapple() #&&(Sys.ARCH==:AArch64)
     (NETCDF_ROOT="/opt/homebrew",MPI_INC_DIR="/opt/homebrew/include")
   else
