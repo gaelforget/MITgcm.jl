@@ -35,7 +35,7 @@ jobs:
               sudo apt-get install libnetcdf-dev
               sudo apt-get install libnetcdff-dev
              elif [ "$RUNNER_OS" == "macOS" ]; then
-              brew install gfortran netcdf netcdf-cxx netcdf-fortran
+              brew install gfortran open-mpi netcdf netcdf-cxx netcdf-fortran
              fi
       - uses: actions/cache@v4
         env:
