@@ -114,8 +114,10 @@ end
 Suggested default environment variables depending on OS.
 """
 default_environment_variables()=begin
-  @static if Sys.islinux()
+  @static if Sys.islinux()&&(Sys.ARCH==:AArch64)
     (NETCDF_ROOT="/usr",MPI_INC_DIR="/usr/lib/aarch64-linux-gnu/openmpi/include")
+  elseif Sys.islinux()
+    (NETCDF_ROOT="/usr",MPI_INC_DIR="/usr/lib/x86_64-linux-gnu/openmpi/include")
   elseif Sys.isapple()&&(Sys.ARCH==:x86_64)
     (NETCDF_ROOT="/usr/local",MPI_INC_DIR="/usr/local/include")
   elseif Sys.isapple() #&&(Sys.ARCH==:AArch64)
