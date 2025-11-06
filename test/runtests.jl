@@ -6,9 +6,9 @@ using MITgcm.ClimateModels.Suppressor
 using MITgcm.ClimateModels.DataFrames
 using MITgcm.ClimateModels.CSV
 
-println("Sys.islinux=$(Sys.islinux)")
-println("Sys.isapple=$(Sys.isapple)")
-println("Sys.iswindows=$(Sys.iswindows)")
+println("Sys.islinux=$(Sys.islinux())")
+println("Sys.isapple=$(Sys.isapple())")
+println("Sys.iswindows=$(Sys.iswindows())")
 println("Sys.ARCH=$(Sys.ARCH)")
 
 @testset "ECCO4" begin
