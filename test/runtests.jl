@@ -11,6 +11,9 @@ println("Sys.isapple=$(Sys.isapple())")
 println("Sys.iswindows=$(Sys.iswindows())")
 println("Sys.ARCH=$(Sys.ARCH)")
 
+path_LLC90=MeshArrays.Dataset("GRID_LLC90")
+ispath(path_LLC90) ? nothing : @warn "missing GRID_LLC90"
+
 @testset "ECCO4" begin
 
     MC=MITgcm_config(inputs=read_toml(:OCCA2))
@@ -34,8 +37,6 @@ println("Sys.ARCH=$(Sys.ARCH)")
     @test isa(report,DataFrame)
 
     ECCO4_inputs.download_input_folder(MC, dry_run=true)
-    MeshArrays.GRID_LLC90_download()
-    ispath(MeshArrays.GRID_LLC90) ? nothing : @warn "missing GRID_LLC90"
     ECCO4_testreport.compute(joinpath(MC,"run"),dry_run=true)
 
     ECCO4_testreport.list_diags_files(joinpath(MC,"run"))
@@ -168,16 +169,15 @@ end
 @testset "more I/O functions" begin
     ## LLC90
 
-    γ=GridSpec("LatLonCap",MeshArrays.GRID_LLC90)
+    γ=GridSpec(ID=:LLC90)
     findtiles(30,30,γ)
-    findtiles(30,30,"LatLonCap",MeshArrays.GRID_LLC90)
-    read_meta(MeshArrays.GRID_LLC90,"XC.meta")
+    read_meta(path_LLC90,"XC.meta")
 
     files=["tile00$i.mitgrid" for i in 1:5]
-    Γ=GridLoad_native(MeshArrays.GRID_LLC90,files,γ)
+    Γ=GridLoad_native(path_LLC90,files,γ)
     @test isa(Γ.AngleCS,MeshArray)
 
-    fil=joinpath(MeshArrays.GRID_LLC90,"XC.data")
+    fil=joinpath(path_LLC90,"XC.data")
     tmp1=read_bin(fil,γ)
     tmp2=convert2gcmfaces(tmp1)
     tmp3=convert2array(tmp1)
