@@ -215,7 +215,7 @@ function compute(pth0; dry_run=false)
  tave=193:228
  ntave=length(tave)
  
- pth00=(dry_run ? MeshArrays.GRID_LLC90 : pth0)
+ pth00=(dry_run ? MeshArrays.Dataset("GRID_LLC90") : pth0)
  RAC=RAC_masked(pth00)
  vol=vol_masked(pth00)
  G,LC=load_llc90_grid(pth00)
@@ -448,8 +448,8 @@ function vol_masked(pth0)
     return Float64.(hFacC)
 end
 
-function load_llc90_grid(pth=MeshArrays.GRID_LLC90)
-    pth==MeshArrays.GRID_LLC90 ? γ=GridSpec("LatLonCap",pth) : γ=gcmgrid(pth, "LatLonCap", 5,
+function load_llc90_grid(pth=MeshArrays.Dataset("GRID_LLC90"))
+    pth==MeshArrays.Dataset("GRID_LLC90") ? γ=GridSpec("LatLonCap",pth) : γ=gcmgrid(pth, "LatLonCap", 5,
       [(90, 270), (90, 270), (90, 90), (270, 90), (270, 90)], [90 1170], Float32, read, write)
     G=GridLoad(γ;option="full")
     LC=LatitudeCircles(-89.0:89.0,G)

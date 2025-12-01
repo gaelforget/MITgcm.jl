@@ -122,7 +122,7 @@ end
 
 # ╔═╡ 8586f798-00a3-4ec5-a360-5e709f3c6a72
 begin
-	Γecco=GridLoad(GridSpec("LatLonCap",MeshArrays.GRID_LLC90); option="full")
+	Γecco=GridLoad(GridSpec(ID=:LLC90); option="full")
 	"One grid has been read from file."
 end
 

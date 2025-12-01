@@ -8,7 +8,7 @@ using MeshArrays, FortranFiles
 Load grid variables from native grid files.
 
 ```
-path="GRID_LLC90"
+path=MeshArrays.Dataset("GRID_LLC90")
 files=["tile001.mitgrid","tile002.mitgrid","tile003.mitgrid","tile004.mitgrid","tile005.mitgrid"]
 ioSize=[90 1170]
 facesSize=[(90, 270), (90, 270), (90, 90), (270, 90), (270, 90)]
