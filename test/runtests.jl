@@ -80,7 +80,8 @@ end
     @test isfile(fil)
 
     #format conversions
-    (γ,Γ)=MeshArrays.Grids_simple.GridOfOnes("CubeSphere",30,30)
+    γ=MeshArrays.GridSpec_ones("CubeSphere")
+    Γ=MeshArrays.GridLoad_ones(γ)
     @test isa(convert2gcmfaces(Γ.XC),Array)
     @test isa(convert2array(Γ.XC),Array)
 
