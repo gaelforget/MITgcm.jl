@@ -123,12 +123,12 @@ if found_MITgcm_files
 	    u0=read(joinpath(D.pth,D.U[m0]),D.tmp)[:,D.k]
 	    v0=read(joinpath(D.pth,D.V[m0]),D.tmp)[:,D.k]
 	    u0=u0.*D.iDXC; v0=v0.*D.iDYC; #normalize to grid units
-	    (u0,v0)=exchange(u0,v0,1) #add 1 point at each edge for u and v
+	    (u0,v0)=MeshArrays.exchange_main(u0,v0,1) #add 1 point at each edge for u and v
 	
 	    u1=read(joinpath(D.pth,D.U[m1]),D.tmp)[:,D.k]
 	    v1=read(joinpath(D.pth,D.V[m1]),D.tmp)[:,D.k]
 	    u1=u1.*D.iDXC; v1=v1.*D.iDYC; #normalize to grid units
-	    (u1,v1)=exchange(u1,v1,1) #add 1 point at each edge for u and v
+	    (u1,v1)=MeshArrays.exchange_main(u1,v1,1) #add 1 point at each edge for u and v
 	
 	    I.P.u0[:]=u0.MA[:]
 	    I.P.u1[:]=u1.MA[:]
