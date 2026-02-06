@@ -496,27 +496,3 @@ for k in 1:Nr
 end
 println()
 
-# # -- Demonstrate modifying state from Julia --
-# println("Demonstrating state modification from Julia:")
-# println("  Setting theta anomaly +5C at (45,20) level 1...")
-# original_val = theta[45, 20, 1]
-# theta[45, 20, 1] += 5.0
-# mitgcm_set_theta!(theta)
-
-# # Read it back to verify
-# theta2 = zeros(Float64, Nx, Ny, Nr)
-# mitgcm_get_theta!(theta2)
-# @printf("  Original value: %.4f, Modified value: %.4f\n",
-#         original_val, theta2[45, 20, 1])
-
-# # Restore original
-# theta[45, 20, 1] = original_val
-# mitgcm_set_theta!(theta)
-# println("  Restored original value.")
-# println()
-
-# # -- Finalize --
-# println("Finalizing MITgcm...")
-# mitgcm_finalize()
-# println()
-# println("Done!")
