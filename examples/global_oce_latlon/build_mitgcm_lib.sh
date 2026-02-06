@@ -95,6 +95,17 @@ if [ ! -f "$BUILD_DIR/Makefile" ]; then
     make depend 2>&1 | tail -3
 fi
 
+# For shared library mode, gfortran's -fconvert=big-endian does NOT work
+# when loaded from a non-Fortran host (Julia/C).  Add _BYTESWAPIO so MITgcm
+# does its own byte-swapping in the MDS I/O routines.
+if ! grep -q '_BYTESWAPIO' "$BUILD_DIR/Makefile" 2>/dev/null; then
+    echo "  Adding _BYTESWAPIO flag for shared library compatibility..."
+    sed -i.bak 's/^DEFINES = /DEFINES = -D_BYTESWAPIO /' "$BUILD_DIR/Makefile"
+    echo "  Cleaning and rebuilding with _BYTESWAPIO..."
+    make clean 2>&1 | tail -2
+    make depend 2>&1 | tail -3
+fi
+
 echo "  Compiling MITgcm..."
 make -j$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4) 2>&1 | tail -5
 

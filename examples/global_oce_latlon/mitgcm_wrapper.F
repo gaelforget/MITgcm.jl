@@ -65,6 +65,12 @@ C--   Trap boot errors
 C--   Set thread number for library mode (single-thread)
       myThid_lib = 1
 
+C--   Validate thread setup (sets threadIsRunning flag)
+      CALL CHECK_THREADS( myThid_lib )
+
+C--   Mark thread as complete (needed by EEDIE)
+      threadIsComplete(myThid_lib) = .TRUE.
+
 C--   Initialize fixed model configuration (grid, params, solver)
       CALL INITIALISE_FIXED( myThid_lib )
 

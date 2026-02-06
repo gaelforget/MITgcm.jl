@@ -9,30 +9,39 @@
    3. Steps forward in time, printing diagnostics at each step
    4. Visualizes the prognostic state (theta, salt, uVel, vVel, etaN)
 
- IMPORTANT: This script must be run from the run/ directory where
- the MITgcm input files (data, eedata, *.bin, etc.) are located.
-
  Usage:
-   cd examples/global_oce_latlon/run
-   julia ../run_global_oce_latlon.jl
+   cd examples/global_oce_latlon
+   julia run_global_oce_latlon.jl
 =#
 
 using Printf
 
 # ============================================================
-# Library path
+# Library path and run directory
 # ============================================================
+# NOTE: The shared library must be built with -D_BYTESWAPIO so that
+# MITgcm performs its own byte-swapping for big-endian binary files.
+# gfortran's -fconvert=big-endian flag does NOT work in shared
+# libraries loaded from non-Fortran hosts like Julia.
 
 const SCRIPT_DIR = @__DIR__
+const RUN_DIR = joinpath(SCRIPT_DIR, "run")
+
+# MITgcm reads input files (data, eedata, *.bin) from the working
+# directory, so we cd into the run/ directory automatically.
+if !isdir(RUN_DIR)
+    error("Run directory not found: $RUN_DIR\n" *
+          "Run build_mitgcm_lib.sh first to set up the run directory.")
+end
+cd(RUN_DIR)
 
 # Find the shared library
 function find_library()
-    # Check several locations
     candidates = [
         joinpath(SCRIPT_DIR, "libmitgcm.dylib"),
         joinpath(SCRIPT_DIR, "libmitgcm.so"),
-        joinpath(pwd(), "libmitgcm.dylib"),
-        joinpath(pwd(), "libmitgcm.so"),
+        joinpath(RUN_DIR, "libmitgcm.dylib"),
+        joinpath(RUN_DIR, "libmitgcm.so"),
     ]
     for c in candidates
         isfile(c) && return c
