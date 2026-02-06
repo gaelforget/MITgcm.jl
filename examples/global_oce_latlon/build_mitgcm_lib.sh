@@ -111,24 +111,31 @@ echo "----------------------------------------------"
 cd "$BUILD_DIR"
 
 # Extract compiler flags from the generated Makefile
-FC=$(grep '^FC=' Makefile | head -1 | sed 's/FC=//')
-FFLAGS=$(grep '^FFLAGS=' Makefile | head -1 | sed 's/FFLAGS=//')
-FOPTIM=$(grep '^FOPTIM=' Makefile | head -1 | sed 's/FOPTIM=//')
-INCLUDES=$(grep '^INCLUDES=' Makefile | head -1 | sed 's/INCLUDES=//')
-CPP=$(grep '^CPP=' Makefile | head -1 | sed 's/CPP=//')
+FC=$(make -p -q 2>/dev/null | grep '^FC = ' | head -1 | sed 's/^FC = //')
+FFLAGS=$(make -p -q 2>/dev/null | grep '^FFLAGS = ' | head -1 | sed 's/^FFLAGS = //')
+FOPTIM=$(make -p -q 2>/dev/null | grep '^FOPTIM = ' | head -1 | sed 's/^FOPTIM = //')
+INCLUDES=$(make -p -q 2>/dev/null | grep '^INCLUDES = ' | head -1 | sed 's/^INCLUDES = //')
+DEFINES=$(make -p -q 2>/dev/null | grep '^DEFINES = ' | head -1 | sed 's/^DEFINES = //')
+ROOTDIR=$(make -p -q 2>/dev/null | grep '^ROOTDIR = ' | head -1 | sed 's/^ROOTDIR = //')
+TOOLSDIR="${ROOTDIR}/tools"
 
 # If FC is empty, default to gfortran
 FC=${FC:-gfortran}
 
 echo "  Compiler: $FC"
 echo "  Flags:    $FFLAGS $FOPTIM"
+echo "  Defines:  $DEFINES"
 
-# Preprocess and compile the wrapper
-# The CPP step expands macros (#include, #ifdef, etc.)
-$CPP $INCLUDES $WRAPPER_SRC > mitgcm_wrapper_pp.f 2>/dev/null || \
-    /usr/bin/cpp -traditional -P $INCLUDES $WRAPPER_SRC > mitgcm_wrapper_pp.f
+# Copy wrapper source to build directory (so #include finds headers)
+cp "$WRAPPER_SRC" "$BUILD_DIR/mitgcm_wrapper.F"
 
-$FC $FFLAGS $FOPTIM -fPIC -c mitgcm_wrapper_pp.f -o mitgcm_wrapper.o
+# Preprocess using the same CPP pipeline as MITgcm's Makefile:
+#   cat file.F | /usr/bin/cpp -traditional -P $(DEFINES) $(INCLUDES) | set64bitConst.sh
+cat mitgcm_wrapper.F | /usr/bin/cpp -traditional -P $DEFINES $INCLUDES | \
+    "$TOOLSDIR/set64bitConst.sh" > mitgcm_wrapper.for
+
+# Compile the preprocessed file
+$FC $FFLAGS $FOPTIM -fPIC -c mitgcm_wrapper.for -o mitgcm_wrapper.o
 
 echo "  Wrapper compiled."
 echo ""
@@ -143,14 +150,24 @@ echo "----------------------------------------------"
 # Collect all object files except main.o (which has PROGRAM MAIN)
 OBJ_FILES=$(ls *.o | grep -v '^main\.o$' | tr '\n' ' ')
 
-LIBS=$(grep '^LIBS=' Makefile | head -1 | sed 's/LIBS=//')
+LIBS=$(make -p -q 2>/dev/null | grep '^LIBS = ' | head -1 | sed 's/^LIBS = //')
+
+# Extract library directories from LIBS for rpath
+LIB_DIRS=$(echo "$LIBS" | tr ' ' '\n' | grep '^-L' | sed 's/^-L//')
 
 if [ "$UNAME_S" = "Darwin" ]; then
     SHLIB_NAME="libmitgcm.dylib"
     SHLIB_FLAGS="-dynamiclib -install_name @rpath/$SHLIB_NAME"
+    # Add rpath entries for all library directories
+    for dir in $LIB_DIRS; do
+        SHLIB_FLAGS="$SHLIB_FLAGS -Wl,-rpath,$dir"
+    done
 else
     SHLIB_NAME="libmitgcm.so"
     SHLIB_FLAGS="-shared"
+    for dir in $LIB_DIRS; do
+        SHLIB_FLAGS="$SHLIB_FLAGS -Wl,-rpath,$dir"
+    done
 fi
 
 $FC $SHLIB_FLAGS -o "$OUTPUT_DIR/$SHLIB_NAME" $OBJ_FILES $LIBS
@@ -170,14 +187,32 @@ mkdir -p "$RUN_DIR"
 
 # Link input files
 cd "$RUN_DIR"
-if [ -f "$INPUT_DIR/prepare_run" ]; then
-    # Use the experiment's prepare_run script approach: link all input files
-    for f in "$INPUT_DIR"/*; do
+
+# Link all input files
+for f in "$INPUT_DIR"/*; do
+    fname=$(basename "$f")
+    if [ "$fname" != "prepare_run" ] && [ ! -e "$fname" ]; then
+        ln -sf "$f" .
+    fi
+done
+
+# Link .bin files from tutorial_global_oce_latlon (prepare_run does this)
+TUTORIAL_INPUT="$MITGCM_DIR/verification/tutorial_global_oce_latlon/input"
+if [ -d "$TUTORIAL_INPUT" ]; then
+    echo "  Linking binary data from tutorial experiment..."
+    for f in "$TUTORIAL_INPUT"/*.bin; do
         fname=$(basename "$f")
-        if [ "$fname" != "prepare_run" ] && [ ! -e "$fname" ]; then
+        if [ ! -e "$fname" ]; then
             ln -sf "$f" .
         fi
     done
+    # prepare_run also creates lev_sst_startdec.tmp (Dec record prepended)
+    SST_FILE="$TUTORIAL_INPUT/lev_sst.bin"
+    if [ -f "$SST_FILE" ] && [ ! -f "lev_sst_startdec.tmp" ]; then
+        dd if="$SST_FILE" bs=14400 count=1 skip=11 of=lev_sst_dec.tmp 2>/dev/null
+        cat lev_sst_dec.tmp "$SST_FILE" > lev_sst_startdec.tmp
+        rm -f lev_sst_dec.tmp
+    fi
 fi
 
 # Link binary from build (some experiments need this)
