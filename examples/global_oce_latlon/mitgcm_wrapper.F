@@ -628,3 +628,324 @@ C     Set salinity from a global (Nx,Ny,Nr) array
 
       RETURN
       END
+
+C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
+C     Surface forcing field getters/setters
+C     These allow Julia to read and modify surface boundary conditions:
+C       fu       - zonal wind stress (N/m^2)
+C       fv       - meridional wind stress (N/m^2)
+C       Qnet     - net surface heat flux (W/m^2, positive=cooling)
+C       EmPmR    - freshwater flux (kg/m^2/s)
+C       Qsw      - shortwave radiation (W/m^2)
+C       saltFlux - direct salt flux (g/m^2/s)
+C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
+
+      SUBROUTINE MITGCM_LIB_GET_FU( arr )
+C     Copy zonal wind stress to a global (Nx,Ny) array
+      IMPLICIT NONE
+#include "SIZE.h"
+#include "EEPARAMS.h"
+#include "FFIELDS.h"
+      _RL arr(Nx, Ny)
+      INTEGER bi, bj, i, j, ig, jg
+
+      DO bj = 1, nSy
+        DO bi = 1, nSx
+          DO j = 1, sNy
+            DO i = 1, sNx
+              ig = sNx*(bi-1) + i
+              jg = sNy*(bj-1) + j
+              arr(ig, jg) = fu(i, j, bi, bj)
+            ENDDO
+          ENDDO
+        ENDDO
+      ENDDO
+
+      RETURN
+      END
+
+C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
+
+      SUBROUTINE MITGCM_LIB_SET_FU( arr )
+C     Set zonal wind stress from a global (Nx,Ny) array
+      IMPLICIT NONE
+#include "SIZE.h"
+#include "EEPARAMS.h"
+#include "FFIELDS.h"
+      _RL arr(Nx, Ny)
+      INTEGER bi, bj, i, j, ig, jg
+
+      DO bj = 1, nSy
+        DO bi = 1, nSx
+          DO j = 1, sNy
+            DO i = 1, sNx
+              ig = sNx*(bi-1) + i
+              jg = sNy*(bj-1) + j
+              fu(i, j, bi, bj) = arr(ig, jg)
+            ENDDO
+          ENDDO
+        ENDDO
+      ENDDO
+
+      RETURN
+      END
+
+C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
+
+      SUBROUTINE MITGCM_LIB_GET_FV( arr )
+C     Copy meridional wind stress to a global (Nx,Ny) array
+      IMPLICIT NONE
+#include "SIZE.h"
+#include "EEPARAMS.h"
+#include "FFIELDS.h"
+      _RL arr(Nx, Ny)
+      INTEGER bi, bj, i, j, ig, jg
+
+      DO bj = 1, nSy
+        DO bi = 1, nSx
+          DO j = 1, sNy
+            DO i = 1, sNx
+              ig = sNx*(bi-1) + i
+              jg = sNy*(bj-1) + j
+              arr(ig, jg) = fv(i, j, bi, bj)
+            ENDDO
+          ENDDO
+        ENDDO
+      ENDDO
+
+      RETURN
+      END
+
+C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
+
+      SUBROUTINE MITGCM_LIB_SET_FV( arr )
+C     Set meridional wind stress from a global (Nx,Ny) array
+      IMPLICIT NONE
+#include "SIZE.h"
+#include "EEPARAMS.h"
+#include "FFIELDS.h"
+      _RL arr(Nx, Ny)
+      INTEGER bi, bj, i, j, ig, jg
+
+      DO bj = 1, nSy
+        DO bi = 1, nSx
+          DO j = 1, sNy
+            DO i = 1, sNx
+              ig = sNx*(bi-1) + i
+              jg = sNy*(bj-1) + j
+              fv(i, j, bi, bj) = arr(ig, jg)
+            ENDDO
+          ENDDO
+        ENDDO
+      ENDDO
+
+      RETURN
+      END
+
+C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
+
+      SUBROUTINE MITGCM_LIB_GET_QNET( arr )
+C     Copy net surface heat flux to a global (Nx,Ny) array
+      IMPLICIT NONE
+#include "SIZE.h"
+#include "EEPARAMS.h"
+#include "FFIELDS.h"
+      _RL arr(Nx, Ny)
+      INTEGER bi, bj, i, j, ig, jg
+
+      DO bj = 1, nSy
+        DO bi = 1, nSx
+          DO j = 1, sNy
+            DO i = 1, sNx
+              ig = sNx*(bi-1) + i
+              jg = sNy*(bj-1) + j
+              arr(ig, jg) = Qnet(i, j, bi, bj)
+            ENDDO
+          ENDDO
+        ENDDO
+      ENDDO
+
+      RETURN
+      END
+
+C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
+
+      SUBROUTINE MITGCM_LIB_SET_QNET( arr )
+C     Set net surface heat flux from a global (Nx,Ny) array
+      IMPLICIT NONE
+#include "SIZE.h"
+#include "EEPARAMS.h"
+#include "FFIELDS.h"
+      _RL arr(Nx, Ny)
+      INTEGER bi, bj, i, j, ig, jg
+
+      DO bj = 1, nSy
+        DO bi = 1, nSx
+          DO j = 1, sNy
+            DO i = 1, sNx
+              ig = sNx*(bi-1) + i
+              jg = sNy*(bj-1) + j
+              Qnet(i, j, bi, bj) = arr(ig, jg)
+            ENDDO
+          ENDDO
+        ENDDO
+      ENDDO
+
+      RETURN
+      END
+
+C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
+
+      SUBROUTINE MITGCM_LIB_GET_EMPMR( arr )
+C     Copy freshwater flux (E-P-R) to a global (Nx,Ny) array
+      IMPLICIT NONE
+#include "SIZE.h"
+#include "EEPARAMS.h"
+#include "FFIELDS.h"
+      _RL arr(Nx, Ny)
+      INTEGER bi, bj, i, j, ig, jg
+
+      DO bj = 1, nSy
+        DO bi = 1, nSx
+          DO j = 1, sNy
+            DO i = 1, sNx
+              ig = sNx*(bi-1) + i
+              jg = sNy*(bj-1) + j
+              arr(ig, jg) = EmPmR(i, j, bi, bj)
+            ENDDO
+          ENDDO
+        ENDDO
+      ENDDO
+
+      RETURN
+      END
+
+C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
+
+      SUBROUTINE MITGCM_LIB_SET_EMPMR( arr )
+C     Set freshwater flux (E-P-R) from a global (Nx,Ny) array
+      IMPLICIT NONE
+#include "SIZE.h"
+#include "EEPARAMS.h"
+#include "FFIELDS.h"
+      _RL arr(Nx, Ny)
+      INTEGER bi, bj, i, j, ig, jg
+
+      DO bj = 1, nSy
+        DO bi = 1, nSx
+          DO j = 1, sNy
+            DO i = 1, sNx
+              ig = sNx*(bi-1) + i
+              jg = sNy*(bj-1) + j
+              EmPmR(i, j, bi, bj) = arr(ig, jg)
+            ENDDO
+          ENDDO
+        ENDDO
+      ENDDO
+
+      RETURN
+      END
+
+C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
+
+      SUBROUTINE MITGCM_LIB_GET_QSW( arr )
+C     Copy shortwave radiation to a global (Nx,Ny) array
+      IMPLICIT NONE
+#include "SIZE.h"
+#include "EEPARAMS.h"
+#include "FFIELDS.h"
+      _RL arr(Nx, Ny)
+      INTEGER bi, bj, i, j, ig, jg
+
+      DO bj = 1, nSy
+        DO bi = 1, nSx
+          DO j = 1, sNy
+            DO i = 1, sNx
+              ig = sNx*(bi-1) + i
+              jg = sNy*(bj-1) + j
+              arr(ig, jg) = Qsw(i, j, bi, bj)
+            ENDDO
+          ENDDO
+        ENDDO
+      ENDDO
+
+      RETURN
+      END
+
+C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
+
+      SUBROUTINE MITGCM_LIB_SET_QSW( arr )
+C     Set shortwave radiation from a global (Nx,Ny) array
+      IMPLICIT NONE
+#include "SIZE.h"
+#include "EEPARAMS.h"
+#include "FFIELDS.h"
+      _RL arr(Nx, Ny)
+      INTEGER bi, bj, i, j, ig, jg
+
+      DO bj = 1, nSy
+        DO bi = 1, nSx
+          DO j = 1, sNy
+            DO i = 1, sNx
+              ig = sNx*(bi-1) + i
+              jg = sNy*(bj-1) + j
+              Qsw(i, j, bi, bj) = arr(ig, jg)
+            ENDDO
+          ENDDO
+        ENDDO
+      ENDDO
+
+      RETURN
+      END
+
+C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
+
+      SUBROUTINE MITGCM_LIB_GET_SALTFLUX( arr )
+C     Copy salt flux to a global (Nx,Ny) array
+      IMPLICIT NONE
+#include "SIZE.h"
+#include "EEPARAMS.h"
+#include "FFIELDS.h"
+      _RL arr(Nx, Ny)
+      INTEGER bi, bj, i, j, ig, jg
+
+      DO bj = 1, nSy
+        DO bi = 1, nSx
+          DO j = 1, sNy
+            DO i = 1, sNx
+              ig = sNx*(bi-1) + i
+              jg = sNy*(bj-1) + j
+              arr(ig, jg) = saltFlux(i, j, bi, bj)
+            ENDDO
+          ENDDO
+        ENDDO
+      ENDDO
+
+      RETURN
+      END
+
+C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
+
+      SUBROUTINE MITGCM_LIB_SET_SALTFLUX( arr )
+C     Set salt flux from a global (Nx,Ny) array
+      IMPLICIT NONE
+#include "SIZE.h"
+#include "EEPARAMS.h"
+#include "FFIELDS.h"
+      _RL arr(Nx, Ny)
+      INTEGER bi, bj, i, j, ig, jg
+
+      DO bj = 1, nSy
+        DO bi = 1, nSx
+          DO j = 1, sNy
+            DO i = 1, sNx
+              ig = sNx*(bi-1) + i
+              jg = sNy*(bj-1) + j
+              saltFlux(i, j, bi, bj) = arr(ig, jg)
+            ENDDO
+          ENDDO
+        ENDDO
+      ENDDO
+
+      RETURN
+      END

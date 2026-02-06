@@ -201,6 +201,58 @@ function mitgcm_set_salt!(arr::Array{Float64,3})
     ccall((:mitgcm_lib_set_salt_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
 end
 
+# -- Surface forcing getters --
+
+function mitgcm_get_fu!(arr::Array{Float64,2})
+    ccall((:mitgcm_lib_get_fu_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
+end
+
+function mitgcm_get_fv!(arr::Array{Float64,2})
+    ccall((:mitgcm_lib_get_fv_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
+end
+
+function mitgcm_get_qnet!(arr::Array{Float64,2})
+    ccall((:mitgcm_lib_get_qnet_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
+end
+
+function mitgcm_get_empmr!(arr::Array{Float64,2})
+    ccall((:mitgcm_lib_get_empmr_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
+end
+
+function mitgcm_get_qsw!(arr::Array{Float64,2})
+    ccall((:mitgcm_lib_get_qsw_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
+end
+
+function mitgcm_get_saltflux!(arr::Array{Float64,2})
+    ccall((:mitgcm_lib_get_saltflux_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
+end
+
+# -- Surface forcing setters --
+
+function mitgcm_set_fu!(arr::Array{Float64,2})
+    ccall((:mitgcm_lib_set_fu_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
+end
+
+function mitgcm_set_fv!(arr::Array{Float64,2})
+    ccall((:mitgcm_lib_set_fv_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
+end
+
+function mitgcm_set_qnet!(arr::Array{Float64,2})
+    ccall((:mitgcm_lib_set_qnet_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
+end
+
+function mitgcm_set_empmr!(arr::Array{Float64,2})
+    ccall((:mitgcm_lib_set_empmr_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
+end
+
+function mitgcm_set_qsw!(arr::Array{Float64,2})
+    ccall((:mitgcm_lib_set_qsw_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
+end
+
+function mitgcm_set_saltflux!(arr::Array{Float64,2})
+    ccall((:mitgcm_lib_set_saltflux_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
+end
+
 # ============================================================
 # Helper: print field statistics (min, max, mean)
 # ============================================================
@@ -280,6 +332,80 @@ println()
 # -- Mask for ocean points (hFacC > 0 at surface) --
 ocean_mask_2d = hfacc[:, :, 1]
 
+# ============================================================
+# Surface forcing: simple bulk formulas computed in Julia
+# ============================================================
+#
+# Wind stress:  τ = ρ_air * C_d * |U_wind| * U_wind
+# Heat flux:    Q = ρ_air * c_p_air * C_h * |U_wind| * (SST - T_air)
+#               (positive Qnet = ocean cooling, MITgcm convention)
+# Salt flux:    0 (no freshwater or salt flux)
+
+# Bulk parameters
+const ρ_air   = 1.225      # air density (kg/m³)
+const c_p_air = 1004.0     # specific heat of air (J/kg/K)
+const C_d     = 1.2e-3     # drag coefficient (dimensionless)
+const C_h     = 1.0e-3     # heat transfer coefficient (dimensionless)
+
+# Prescribed atmospheric state (simple latitude-dependent profiles)
+# Zonal wind: u_wind(lat) = 10 m/s * cos(3 * lat_rad) gives
+#   easterlies in tropics, westerlies at mid-latitudes
+# Meridional wind: v_wind = 0
+# Air temperature: T_air(lat) = 25 - 40 * sin²(lat) gives
+#   ~25°C at equator, ~-15°C at poles
+
+u_wind = zeros(Float64, Nx, Ny)
+v_wind = zeros(Float64, Nx, Ny)
+T_air  = zeros(Float64, Nx, Ny)
+
+for j in 1:Ny, i in 1:Nx
+    lat_rad = yc[i, j] * π / 180.0
+    u_wind[i, j] = -10.0 * cos(3.0 * lat_rad)
+    v_wind[i, j] = 0.0
+    T_air[i, j]  = 25.0 - 40.0 * sin(lat_rad)^2
+end
+
+println("Prescribed atmosphere:")
+@printf("  u_wind range: %.2f to %.2f m/s\n", minimum(u_wind), maximum(u_wind))
+@printf("  T_air  range: %.2f to %.2f °C\n",  minimum(T_air),  maximum(T_air))
+println()
+
+# Allocate forcing arrays
+fu_arr       = zeros(Float64, Nx, Ny)
+fv_arr       = zeros(Float64, Nx, Ny)
+qnet_arr     = zeros(Float64, Nx, Ny)
+empmr_arr    = zeros(Float64, Nx, Ny)  # zero freshwater flux
+saltflux_arr = zeros(Float64, Nx, Ny)  # zero salt flux
+
+"""
+    compute_bulk_fluxes!(fu, fv, qnet, sst, u_wind, v_wind, T_air, mask)
+
+Compute surface fluxes from bulk formulas:
+  - fu, fv: wind stress (N/m²)
+  - qnet: net heat flux (W/m², positive = ocean cooling)
+Uses the ocean mask to only set fluxes at ocean points.
+"""
+function compute_bulk_fluxes!(fu, fv, qnet, sst,
+                              u_wind, v_wind, T_air, mask)
+    Nx, Ny = size(fu)
+    for j in 1:Ny, i in 1:Nx
+        if mask[i, j] > 0
+            wind_speed = sqrt(u_wind[i, j]^2 + v_wind[i, j]^2)
+            # Wind stress: τ = ρ_air * C_d * |U| * U
+            fu[i, j] = ρ_air * C_d * wind_speed * u_wind[i, j]
+            fv[i, j] = ρ_air * C_d * wind_speed * v_wind[i, j]
+            # Heat flux: Q = ρ_air * c_p * C_h * |U| * (SST - T_air)
+            # positive = ocean loses heat (MITgcm convention)
+            qnet[i, j] = ρ_air * c_p_air * C_h * wind_speed *
+                          (sst[i, j] - T_air[i, j])
+        else
+            fu[i, j]   = 0.0
+            fv[i, j]   = 0.0
+            qnet[i, j] = 0.0
+        end
+    end
+end
+
 # -- Initial state --
 println("Initial state (before timestepping):")
 mitgcm_get_theta!(theta)
@@ -303,12 +429,27 @@ println("Running $nsteps time steps...")
 println("-" ^ 60)
 
 for step in 1:nsteps
+    # -- Compute bulk fluxes from current SST --
+    mitgcm_get_theta!(theta)
+    sst = @view theta[:, :, 1]
+
+    compute_bulk_fluxes!(fu_arr, fv_arr, qnet_arr, sst,
+                         u_wind, v_wind, T_air, ocean_mask_2d)
+
+    # -- Set surface forcing in MITgcm --
+    mitgcm_set_fu!(fu_arr)
+    mitgcm_set_fv!(fv_arr)
+    mitgcm_set_qnet!(qnet_arr)
+    mitgcm_set_empmr!(empmr_arr)        # zero
+    mitgcm_set_saltflux!(saltflux_arr)   # zero
+
+    # -- Step forward --
     mitgcm_step()
 
     niter = mitgcm_get_niter()
     mtime = mitgcm_get_time()
 
-    # Extract fields
+    # Extract fields after step
     mitgcm_get_theta!(theta)
     mitgcm_get_salt!(salt)
     mitgcm_get_uvel!(uvel)
@@ -326,6 +467,12 @@ for step in 1:nsteps
     field_stats("vVel",  vvel[:,:,1],  mask=ocean_mask_2d)
     field_stats("wVel",  wvel[:,:,1],  mask=ocean_mask_2d)
     field_stats("etaN",  etan,         mask=ocean_mask_2d)
+
+    # Forcing diagnostics (every 5 steps)
+    if step % 5 == 0
+        field_stats("fu",   fu_arr,   mask=ocean_mask_2d)
+        field_stats("Qnet", qnet_arr, mask=ocean_mask_2d)
+    end
 end
 
 println()
@@ -349,27 +496,27 @@ for k in 1:Nr
 end
 println()
 
-# -- Demonstrate modifying state from Julia --
-println("Demonstrating state modification from Julia:")
-println("  Setting theta anomaly +5C at (45,20) level 1...")
-original_val = theta[45, 20, 1]
-theta[45, 20, 1] += 5.0
-mitgcm_set_theta!(theta)
+# # -- Demonstrate modifying state from Julia --
+# println("Demonstrating state modification from Julia:")
+# println("  Setting theta anomaly +5C at (45,20) level 1...")
+# original_val = theta[45, 20, 1]
+# theta[45, 20, 1] += 5.0
+# mitgcm_set_theta!(theta)
 
-# Read it back to verify
-theta2 = zeros(Float64, Nx, Ny, Nr)
-mitgcm_get_theta!(theta2)
-@printf("  Original value: %.4f, Modified value: %.4f\n",
-        original_val, theta2[45, 20, 1])
+# # Read it back to verify
+# theta2 = zeros(Float64, Nx, Ny, Nr)
+# mitgcm_get_theta!(theta2)
+# @printf("  Original value: %.4f, Modified value: %.4f\n",
+#         original_val, theta2[45, 20, 1])
 
-# Restore original
-theta[45, 20, 1] = original_val
-mitgcm_set_theta!(theta)
-println("  Restored original value.")
-println()
+# # Restore original
+# theta[45, 20, 1] = original_val
+# mitgcm_set_theta!(theta)
+# println("  Restored original value.")
+# println()
 
-# -- Finalize --
-println("Finalizing MITgcm...")
-mitgcm_finalize()
-println()
-println("Done!")
+# # -- Finalize --
+# println("Finalizing MITgcm...")
+# mitgcm_finalize()
+# println()
+# println("Done!")
