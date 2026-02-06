@@ -128,6 +128,8 @@ C     !INTERFACE:
 
 C     !DESCRIPTION:
 C     Shut down MITgcm library mode.
+C     Closes all Fortran file units so the library can be
+C     re-initialized in the same process (e.g. Julia session).
 
 C     !USES:
       IMPLICIT NONE
@@ -143,10 +145,32 @@ C     Library state tracking
       INTEGER iloop_lib
       COMMON /MITGCM_LIB_STATE/ myThid_lib, myIter_lib,
      &                          myTime_lib, iloop_lib
+
+C     !LOCAL VARIABLES:
+      INTEGER iUnit
+      LOGICAL isOpen
+#ifdef HAVE_NETCDF
+#include "netcdf.inc"
+      INTEGER ncId, ncStat
+#endif
 CEOP
 
 C--   Print timing statistics
       CALL TIMER_PRINTALL( myThid_lib )
+
+#ifdef HAVE_NETCDF
+C--   Close all open NetCDF file handles (packages like PROFILES
+C     use NF_OPEN which EEDIE does not clean up)
+      DO ncId = 1, 1024
+        ncStat = NF_CLOSE( ncId )
+      ENDDO
+#endif
+
+C--   Close all open Fortran file units (skip stdin=5, stdout=6, stderr=0)
+      DO iUnit = 7, 999
+        INQUIRE( UNIT=iUnit, OPENED=isOpen )
+        IF ( isOpen ) CLOSE( iUnit )
+      ENDDO
 
 C--   Shut down execution environment
       CALL EEDIE

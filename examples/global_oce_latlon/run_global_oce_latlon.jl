@@ -14,7 +14,7 @@
    julia run_global_oce_latlon.jl
 =#
 
-using Printf
+using Printf, Libdl
 
 # ============================================================
 # Library path and run directory
@@ -50,40 +50,63 @@ function find_library()
           "Searched: $(join(candidates, "\n  "))")
 end
 
-const LIBMITGCM = find_library()
-println("Using library: $LIBMITGCM")
+const LIBMITGCM_PATH = find_library()
+println("Using library: $LIBMITGCM_PATH")
 
 # ============================================================
 # Julia wrappers around Fortran library calls
 # ============================================================
+# We use explicit dlopen/dlsym/dlclose so the library can be
+# fully unloaded and reloaded between runs in the same Julia session.
 
-"""
-    mitgcm_get_dims()
+global _mitgcm_lib_handle = C_NULL
 
-Query grid dimensions from the MITgcm library.
-Returns a NamedTuple with sNx, sNy, Nr, OLx, OLy, nSx, nSy, nPx, nPy, Nx, Ny.
-"""
+function mitgcm_sym(name::Symbol)
+    global _mitgcm_lib_handle
+    _mitgcm_lib_handle == C_NULL && error("MITgcm library not loaded")
+    return dlsym(_mitgcm_lib_handle, name)
+end
+
+global _mitgcm_lib_tmpfile = ""
+
+function mitgcm_load()
+    global _mitgcm_lib_handle, _mitgcm_lib_tmpfile
+    if _mitgcm_lib_handle != C_NULL
+        dlclose(_mitgcm_lib_handle)
+        _mitgcm_lib_handle = C_NULL
+    end
+    # Copy to a unique temp file so dlopen gets a fresh library instance
+    # (macOS dyld caches dlopen handles and dlclose doesn't truly unload)
+    _mitgcm_lib_tmpfile = tempname() * (Sys.isapple() ? ".dylib" : ".so")
+    cp(LIBMITGCM_PATH, _mitgcm_lib_tmpfile)
+    _mitgcm_lib_handle = dlopen(_mitgcm_lib_tmpfile)
+end
+
+function mitgcm_unload()
+    global _mitgcm_lib_handle, _mitgcm_lib_tmpfile
+    if _mitgcm_lib_handle != C_NULL
+        dlclose(_mitgcm_lib_handle)
+        _mitgcm_lib_handle = C_NULL
+    end
+    if !isempty(_mitgcm_lib_tmpfile) && isfile(_mitgcm_lib_tmpfile)
+        rm(_mitgcm_lib_tmpfile, force=true)
+        _mitgcm_lib_tmpfile = ""
+    end
+end
+
 function mitgcm_get_dims()
-    sNx = Ref{Int32}(0)
-    sNy = Ref{Int32}(0)
-    Nr  = Ref{Int32}(0)
-    OLx = Ref{Int32}(0)
-    OLy = Ref{Int32}(0)
-    nSx = Ref{Int32}(0)
-    nSy = Ref{Int32}(0)
-    nPx = Ref{Int32}(0)
-    nPy = Ref{Int32}(0)
-    Nx  = Ref{Int32}(0)
-    Ny  = Ref{Int32}(0)
-
-    ccall((:mitgcm_lib_get_dims_, LIBMITGCM), Cvoid,
+    sNx = Ref{Int32}(0); sNy = Ref{Int32}(0); Nr  = Ref{Int32}(0)
+    OLx = Ref{Int32}(0); OLy = Ref{Int32}(0)
+    nSx = Ref{Int32}(0); nSy = Ref{Int32}(0)
+    nPx = Ref{Int32}(0); nPy = Ref{Int32}(0)
+    Nx  = Ref{Int32}(0); Ny  = Ref{Int32}(0)
+    ccall(mitgcm_sym(:mitgcm_lib_get_dims_), Cvoid,
           (Ref{Int32}, Ref{Int32}, Ref{Int32},
            Ref{Int32}, Ref{Int32},
            Ref{Int32}, Ref{Int32},
            Ref{Int32}, Ref{Int32},
            Ref{Int32}, Ref{Int32}),
           sNx, sNy, Nr, OLx, OLy, nSx, nSy, nPx, nPy, Nx, Ny)
-
     return (sNx=Int(sNx[]), sNy=Int(sNy[]), Nr=Int(Nr[]),
             OLx=Int(OLx[]), OLy=Int(OLy[]),
             nSx=Int(nSx[]), nSy=Int(nSy[]),
@@ -91,167 +114,67 @@ function mitgcm_get_dims()
             Nx=Int(Nx[]),   Ny=Int(Ny[]))
 end
 
-"""
-    mitgcm_init()
-
-Initialize MITgcm: boot execution environment, set up grid/parameters,
-load initial conditions.
-"""
 function mitgcm_init()
-    ccall((:mitgcm_lib_init_, LIBMITGCM), Cvoid, ())
+    ccall(mitgcm_sym(:mitgcm_lib_init_), Cvoid, ())
 end
 
-"""
-    mitgcm_step()
-
-Advance the model by one forward time step.
-"""
 function mitgcm_step()
-    ccall((:mitgcm_lib_step_, LIBMITGCM), Cvoid, ())
+    ccall(mitgcm_sym(:mitgcm_lib_step_), Cvoid, ())
 end
 
-"""
-    mitgcm_finalize()
-
-Shut down MITgcm and print timing statistics.
-"""
 function mitgcm_finalize()
-    ccall((:mitgcm_lib_finalize_, LIBMITGCM), Cvoid, ())
+    ccall(mitgcm_sym(:mitgcm_lib_finalize_), Cvoid, ())
 end
 
-"""
-    mitgcm_get_niter()
-
-Return the current iteration number.
-"""
 function mitgcm_get_niter()
     niter = Ref{Int32}(0)
-    ccall((:mitgcm_lib_get_niter_, LIBMITGCM), Cvoid, (Ref{Int32},), niter)
+    ccall(mitgcm_sym(:mitgcm_lib_get_niter_), Cvoid, (Ref{Int32},), niter)
     return Int(niter[])
 end
 
-"""
-    mitgcm_get_time()
-
-Return the current model time in seconds.
-"""
 function mitgcm_get_time()
     t = Ref{Float64}(0.0)
-    ccall((:mitgcm_lib_get_time_, LIBMITGCM), Cvoid, (Ref{Float64},), t)
+    ccall(mitgcm_sym(:mitgcm_lib_get_time_), Cvoid, (Ref{Float64},), t)
     return t[]
 end
 
-# -- Field getters: copy Fortran data into Julia arrays --
+# -- Field getters --
 
-function mitgcm_get_theta!(arr::Array{Float64,3})
-    ccall((:mitgcm_lib_get_theta_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
-end
-
-function mitgcm_get_salt!(arr::Array{Float64,3})
-    ccall((:mitgcm_lib_get_salt_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
-end
-
-function mitgcm_get_uvel!(arr::Array{Float64,3})
-    ccall((:mitgcm_lib_get_uvel_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
-end
-
-function mitgcm_get_vvel!(arr::Array{Float64,3})
-    ccall((:mitgcm_lib_get_vvel_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
-end
-
-function mitgcm_get_wvel!(arr::Array{Float64,3})
-    ccall((:mitgcm_lib_get_wvel_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
-end
-
-function mitgcm_get_etan!(arr::Array{Float64,2})
-    ccall((:mitgcm_lib_get_etan_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
-end
-
-function mitgcm_get_xc!(arr::Array{Float64,2})
-    ccall((:mitgcm_lib_get_xc_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
-end
-
-function mitgcm_get_yc!(arr::Array{Float64,2})
-    ccall((:mitgcm_lib_get_yc_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
-end
-
-function mitgcm_get_rc!(arr::Array{Float64,1})
-    ccall((:mitgcm_lib_get_rc_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
-end
-
-function mitgcm_get_drf!(arr::Array{Float64,1})
-    ccall((:mitgcm_lib_get_drf_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
-end
-
-function mitgcm_get_hfacc!(arr::Array{Float64,3})
-    ccall((:mitgcm_lib_get_hfacc_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
-end
-
-function mitgcm_get_rlow!(arr::Array{Float64,2})
-    ccall((:mitgcm_lib_get_rlow_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
-end
+mitgcm_get_theta!(a::Array{Float64,3})  = ccall(mitgcm_sym(:mitgcm_lib_get_theta_),  Cvoid, (Ref{Float64},), a)
+mitgcm_get_salt!(a::Array{Float64,3})   = ccall(mitgcm_sym(:mitgcm_lib_get_salt_),   Cvoid, (Ref{Float64},), a)
+mitgcm_get_uvel!(a::Array{Float64,3})   = ccall(mitgcm_sym(:mitgcm_lib_get_uvel_),   Cvoid, (Ref{Float64},), a)
+mitgcm_get_vvel!(a::Array{Float64,3})   = ccall(mitgcm_sym(:mitgcm_lib_get_vvel_),   Cvoid, (Ref{Float64},), a)
+mitgcm_get_wvel!(a::Array{Float64,3})   = ccall(mitgcm_sym(:mitgcm_lib_get_wvel_),   Cvoid, (Ref{Float64},), a)
+mitgcm_get_etan!(a::Array{Float64,2})   = ccall(mitgcm_sym(:mitgcm_lib_get_etan_),   Cvoid, (Ref{Float64},), a)
+mitgcm_get_xc!(a::Array{Float64,2})     = ccall(mitgcm_sym(:mitgcm_lib_get_xc_),     Cvoid, (Ref{Float64},), a)
+mitgcm_get_yc!(a::Array{Float64,2})     = ccall(mitgcm_sym(:mitgcm_lib_get_yc_),     Cvoid, (Ref{Float64},), a)
+mitgcm_get_rc!(a::Array{Float64,1})     = ccall(mitgcm_sym(:mitgcm_lib_get_rc_),     Cvoid, (Ref{Float64},), a)
+mitgcm_get_drf!(a::Array{Float64,1})    = ccall(mitgcm_sym(:mitgcm_lib_get_drf_),    Cvoid, (Ref{Float64},), a)
+mitgcm_get_hfacc!(a::Array{Float64,3})  = ccall(mitgcm_sym(:mitgcm_lib_get_hfacc_),  Cvoid, (Ref{Float64},), a)
+mitgcm_get_rlow!(a::Array{Float64,2})   = ccall(mitgcm_sym(:mitgcm_lib_get_rlow_),   Cvoid, (Ref{Float64},), a)
 
 # -- Setters --
 
-function mitgcm_set_theta!(arr::Array{Float64,3})
-    ccall((:mitgcm_lib_set_theta_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
-end
-
-function mitgcm_set_salt!(arr::Array{Float64,3})
-    ccall((:mitgcm_lib_set_salt_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
-end
+mitgcm_set_theta!(a::Array{Float64,3})  = ccall(mitgcm_sym(:mitgcm_lib_set_theta_),  Cvoid, (Ref{Float64},), a)
+mitgcm_set_salt!(a::Array{Float64,3})   = ccall(mitgcm_sym(:mitgcm_lib_set_salt_),   Cvoid, (Ref{Float64},), a)
 
 # -- Surface forcing getters --
 
-function mitgcm_get_fu!(arr::Array{Float64,2})
-    ccall((:mitgcm_lib_get_fu_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
-end
-
-function mitgcm_get_fv!(arr::Array{Float64,2})
-    ccall((:mitgcm_lib_get_fv_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
-end
-
-function mitgcm_get_qnet!(arr::Array{Float64,2})
-    ccall((:mitgcm_lib_get_qnet_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
-end
-
-function mitgcm_get_empmr!(arr::Array{Float64,2})
-    ccall((:mitgcm_lib_get_empmr_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
-end
-
-function mitgcm_get_qsw!(arr::Array{Float64,2})
-    ccall((:mitgcm_lib_get_qsw_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
-end
-
-function mitgcm_get_saltflux!(arr::Array{Float64,2})
-    ccall((:mitgcm_lib_get_saltflux_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
-end
+mitgcm_get_fu!(a::Array{Float64,2})       = ccall(mitgcm_sym(:mitgcm_lib_get_fu_),       Cvoid, (Ref{Float64},), a)
+mitgcm_get_fv!(a::Array{Float64,2})       = ccall(mitgcm_sym(:mitgcm_lib_get_fv_),       Cvoid, (Ref{Float64},), a)
+mitgcm_get_qnet!(a::Array{Float64,2})     = ccall(mitgcm_sym(:mitgcm_lib_get_qnet_),     Cvoid, (Ref{Float64},), a)
+mitgcm_get_empmr!(a::Array{Float64,2})    = ccall(mitgcm_sym(:mitgcm_lib_get_empmr_),    Cvoid, (Ref{Float64},), a)
+mitgcm_get_qsw!(a::Array{Float64,2})      = ccall(mitgcm_sym(:mitgcm_lib_get_qsw_),      Cvoid, (Ref{Float64},), a)
+mitgcm_get_saltflux!(a::Array{Float64,2}) = ccall(mitgcm_sym(:mitgcm_lib_get_saltflux_), Cvoid, (Ref{Float64},), a)
 
 # -- Surface forcing setters --
 
-function mitgcm_set_fu!(arr::Array{Float64,2})
-    ccall((:mitgcm_lib_set_fu_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
-end
-
-function mitgcm_set_fv!(arr::Array{Float64,2})
-    ccall((:mitgcm_lib_set_fv_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
-end
-
-function mitgcm_set_qnet!(arr::Array{Float64,2})
-    ccall((:mitgcm_lib_set_qnet_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
-end
-
-function mitgcm_set_empmr!(arr::Array{Float64,2})
-    ccall((:mitgcm_lib_set_empmr_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
-end
-
-function mitgcm_set_qsw!(arr::Array{Float64,2})
-    ccall((:mitgcm_lib_set_qsw_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
-end
-
-function mitgcm_set_saltflux!(arr::Array{Float64,2})
-    ccall((:mitgcm_lib_set_saltflux_, LIBMITGCM), Cvoid, (Ref{Float64},), arr)
-end
+mitgcm_set_fu!(a::Array{Float64,2})       = ccall(mitgcm_sym(:mitgcm_lib_set_fu_),       Cvoid, (Ref{Float64},), a)
+mitgcm_set_fv!(a::Array{Float64,2})       = ccall(mitgcm_sym(:mitgcm_lib_set_fv_),       Cvoid, (Ref{Float64},), a)
+mitgcm_set_qnet!(a::Array{Float64,2})     = ccall(mitgcm_sym(:mitgcm_lib_set_qnet_),     Cvoid, (Ref{Float64},), a)
+mitgcm_set_empmr!(a::Array{Float64,2})    = ccall(mitgcm_sym(:mitgcm_lib_set_empmr_),    Cvoid, (Ref{Float64},), a)
+mitgcm_set_qsw!(a::Array{Float64,2})      = ccall(mitgcm_sym(:mitgcm_lib_set_qsw_),      Cvoid, (Ref{Float64},), a)
+mitgcm_set_saltflux!(a::Array{Float64,2}) = ccall(mitgcm_sym(:mitgcm_lib_set_saltflux_), Cvoid, (Ref{Float64},), a)
 
 # ============================================================
 # Helper: print field statistics (min, max, mean)
@@ -281,6 +204,9 @@ println("=" ^ 60)
 println("  MITgcm global_oce_latlon - Julia Interface Demo")
 println("=" ^ 60)
 println()
+
+# -- Load library (unloads previous session if any) --
+mitgcm_load()
 
 # -- Initialize --
 println("Initializing MITgcm...")
@@ -422,7 +348,6 @@ field_stats("etaN",  etan,         mask=ocean_mask_2d)
 println()
 
 # -- Time stepping loop --
-# The global_oce_latlon data file has nTimeSteps=20
 nsteps = 20
 
 println("Running $nsteps time steps...")
@@ -496,3 +421,8 @@ for k in 1:Nr
 end
 println()
 
+# -- Finalize and unload library --
+println("Finalizing MITgcm...")
+mitgcm_finalize()
+mitgcm_unload()
+println("Done!")
