@@ -99,7 +99,7 @@ GENMAKE2="$MITGCM_DIR/tools/genmake2"
 UNAME_S=$(uname -s)
 UNAME_M=$(uname -m)
 
-GENMAKE_OPTS="-mods $CODE_DIR"
+GENMAKE_OPTS="-rootdir $MITGCM_DIR -mods $CODE_DIR"
 
 if [ "$UNAME_S" = "Darwin" ] && [ "$UNAME_M" = "arm64" ]; then
     OPTFILE="$MITGCM_DIR/tools/build_options/darwin_arm64_gfortran"
