@@ -1,5 +1,3 @@
-using Downloads: download
-
 const MITGCM_GIT_URL = "https://github.com/MITgcm/MITgcm.git"
 const MITGCM_DEFAULT_CHECKOUT = "checkpoint69j"
 
