@@ -252,6 +252,16 @@ if [ ! -e "$SHLIB_NAME" ]; then
     ln -sf "$OUTPUT_DIR/$SHLIB_NAME" .
 fi
 
+# Override data.diagnostics to disable file output (avoids conflicts when
+# the timestep is changed at runtime from Julia).
+cat > data.diagnostics << 'EOF'
+# Diagnostics disabled for shared-library mode (timestep may change at runtime)
+ &DIAGNOSTICS_LIST
+ &
+ &DIAG_STATIS_PARMS
+ &
+EOF
+
 # Create eedata if not present (needed for EEBOOT)
 if [ ! -f "eedata" ]; then
     cat > eedata << 'EOF'
