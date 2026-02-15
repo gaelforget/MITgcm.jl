@@ -153,6 +153,8 @@ echo "  Flags:    $FFLAGS $FOPTIM"
 echo "  Defines:  $DEFINES"
 
 # Copy wrapper source to build directory (so #include finds headers)
+# Remove any existing read-only copy first (previous builds may leave non-writable files)
+rm -f "$BUILD_DIR/mitgcm_wrapper.F"
 cp "$WRAPPER_SRC" "$BUILD_DIR/mitgcm_wrapper.F"
 
 # Preprocess using the same CPP pipeline as MITgcm's Makefile:
