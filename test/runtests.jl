@@ -232,3 +232,5 @@ end
     setup_darwin3!(MC)
     @test in("31+16+3_RT_1D",readdir(MC,"MITgcm","mysetups"))
 end
+
+include("test_mitgcm_library.jl")
