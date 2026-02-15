@@ -1,3 +1,40 @@
+using Downloads: download
+
+const MITGCM_GIT_URL = "https://github.com/MITgcm/MITgcm.git"
+const MITGCM_DEFAULT_CHECKOUT = "checkpoint69j"
+
+"""
+    download_mitgcm_source(; destination, checkout, url)
+
+Clone the MITgcm source repository.  Returns the path to the cloned directory.
+
+If `destination` already contains a valid MITgcm checkout (has `tools/genmake2`),
+it is reused without re-cloning.
+
+Keyword Arguments
+=================
+- `destination::String`: Where to clone (default: a scratch directory).
+- `checkout::String`: Git tag or branch to check out (default: `"$MITGCM_DEFAULT_CHECKOUT"`).
+- `url::String`: Git repository URL (default: the official MITgcm repo).
+"""
+function download_mitgcm_source(;
+        destination::String = joinpath(Scratch.@get_scratch!("mitgcm_source"), "MITgcm"),
+        checkout::String    = MITGCM_DEFAULT_CHECKOUT,
+        url::String         = MITGCM_GIT_URL)
+
+    genmake = joinpath(destination, "tools", "genmake2")
+    if isfile(genmake)
+        @info "MITgcm source already present at $destination"
+        return destination
+    end
+
+    @info "Cloning MITgcm from $url (checkout: $checkout) ..."
+    mkpath(dirname(destination))
+    run(`git clone --depth 1 --branch $checkout $url $destination`)
+    @info "MITgcm source downloaded to $destination"
+    return destination
+end
+
 """
     build_mitgcm_library(mitgcm_dir; experiment, output_dir)
 
