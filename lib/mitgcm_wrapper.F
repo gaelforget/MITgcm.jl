@@ -973,3 +973,66 @@ C     Set salt flux from a global (Nx,Ny) array
 
       RETURN
       END
+
+C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
+C     Timestep control subroutines
+C     Allow Julia to set/get the model timestep at runtime.
+C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
+
+CBOP
+C     !ROUTINE: MITGCM_LIB_SET_TIMESTEP
+C     !INTERFACE:
+      SUBROUTINE MITGCM_LIB_SET_TIMESTEP( dt )
+
+C     !DESCRIPTION:
+C     Set all timestep parameters to dt (seconds).
+C     This allows Julia to control the model timestep at each
+C     coupling cycle without restarting.
+
+C     !USES:
+      IMPLICIT NONE
+#include "SIZE.h"
+#include "EEPARAMS.h"
+#include "PARAMS.h"
+
+C     !INPUT PARAMETERS:
+      _RL dt
+CEOP
+
+C     !LOCAL VARIABLES:
+      INTEGER k
+
+      deltaT = dt
+      deltaTMom = dt
+      deltaTClock = dt
+      deltaTFreeSurf = dt
+      DO k = 1, Nr
+        dTtracerLev(k) = dt
+      ENDDO
+
+      RETURN
+      END
+
+C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
+CBOP
+C     !ROUTINE: MITGCM_LIB_GET_DELTAT
+C     !INTERFACE:
+      SUBROUTINE MITGCM_LIB_GET_DELTAT( dt_out )
+
+C     !DESCRIPTION:
+C     Return the current base timestep (deltaT) in seconds.
+
+C     !USES:
+      IMPLICIT NONE
+#include "SIZE.h"
+#include "EEPARAMS.h"
+#include "PARAMS.h"
+
+C     !OUTPUT PARAMETERS:
+      _RL dt_out
+CEOP
+
+      dt_out = deltaT
+
+      RETURN
+      END

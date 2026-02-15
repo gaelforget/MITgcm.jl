@@ -19,6 +19,9 @@ include("ModelConfigurations.jl")
 include("ShellScripting.jl")
 include("System.jl")
 include("Downloads.jl")
+include("MITgcmLibrary.jl")
+include("MITgcmBuild.jl")
+include("MITgcmOceanSimulation.jl")
 
 getdata=datadeps.getdata
 
@@ -35,6 +38,14 @@ export read_all_namelists, write_all_namelists, parse_param
 export read_mdsio, read_meta, read_available_diagnostics
 export scan_run_dir, scan_stdout, scan_build_dir, scan_verification
 export create_script, default_path
+export MITgcmLibrary, MITgcmOceanSimulation, build_mitgcm_library
+export refresh_state!
+export step!, get_niter, get_time, set_timestep!, get_timestep
+export set_fu!, set_fv!, set_qnet!, set_empmr!, set_qsw!, set_saltflux!
+export get_fu!, get_fv!, get_qnet!, get_empmr!, get_qsw!, get_saltflux!
+export get_theta!, get_salt!, get_uvel!, get_vvel!, get_wvel!, get_etan!
+export set_theta!, set_salt!
+export get_xc!, get_yc!, get_rc!, get_drf!, get_hfacc!, get_rlow!
 export system_check, MITgcm_system_check, test_run 
 export read_bin, read_flt, read_mnc, read_nctiles, findtiles
 export GridLoad_mnc, GridLoad_mdsio, GridLoad_native

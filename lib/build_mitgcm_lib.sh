@@ -2,12 +2,19 @@
 #
 # build_mitgcm_lib.sh - Build MITgcm as a shared library for Julia interop
 #
-# Usage: ./build_mitgcm_lib.sh [MITGCM_DIR]
+# Usage: ./build_mitgcm_lib.sh MITGCM_DIR EXPERIMENT OUTPUT_DIR [WRAPPER_SRC]
+#
+# Arguments:
+#   MITGCM_DIR   - Path to MITgcm source directory
+#   EXPERIMENT   - Name of the verification experiment (e.g. global_oce_latlon)
+#   OUTPUT_DIR   - Where to place the shared library and run directory
+#   WRAPPER_SRC  - (optional) Path to mitgcm_wrapper.F; defaults to lib/mitgcm_wrapper.F
 #
 # This script:
-#   1. Configures and builds MITgcm for the global_oce_latlon experiment
+#   1. Configures and builds MITgcm for the specified experiment
 #   2. Compiles the library wrapper (mitgcm_wrapper.F)
 #   3. Links everything into a shared library (libmitgcm.dylib / libmitgcm.so)
+#   4. Sets up a run directory with input files
 #
 # The resulting library can be loaded by Julia via ccall.
 
@@ -18,14 +25,21 @@ set -e
 # ============================================================
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-MITGCM_DIR="${1:-$(cd "$SCRIPT_DIR/../../../MITgcm" && pwd)}"
-EXPERIMENT="global_oce_latlon"
+
+if [ $# -lt 3 ]; then
+    echo "Usage: $0 MITGCM_DIR EXPERIMENT OUTPUT_DIR [WRAPPER_SRC]"
+    exit 1
+fi
+
+MITGCM_DIR="$1"
+EXPERIMENT="$2"
+OUTPUT_DIR="$3"
+WRAPPER_SRC="${4:-$SCRIPT_DIR/mitgcm_wrapper.F}"
+
 VERIFICATION_DIR="$MITGCM_DIR/verification/$EXPERIMENT"
 BUILD_DIR="$VERIFICATION_DIR/build"
 CODE_DIR="$VERIFICATION_DIR/code"
 INPUT_DIR="$VERIFICATION_DIR/input"
-WRAPPER_SRC="$SCRIPT_DIR/mitgcm_wrapper.F"
-OUTPUT_DIR="$SCRIPT_DIR"
 
 echo "=============================================="
 echo "Building MITgcm as shared library"
@@ -43,7 +57,6 @@ echo ""
 
 if [ ! -d "$MITGCM_DIR" ]; then
     echo "ERROR: MITgcm directory not found: $MITGCM_DIR"
-    echo "Usage: $0 [path_to_MITgcm]"
     exit 1
 fi
 
@@ -56,6 +69,8 @@ if ! command -v gfortran &> /dev/null; then
     echo "ERROR: gfortran not found. Please install gfortran."
     exit 1
 fi
+
+mkdir -p "$OUTPUT_DIR"
 
 # ============================================================
 # Step 1: Build MITgcm (standard build to get all object files)
@@ -264,8 +279,4 @@ echo "Build complete!"
 echo ""
 echo "Shared library: $OUTPUT_DIR/$SHLIB_NAME"
 echo "Run directory:  $RUN_DIR"
-echo ""
-echo "To run the Julia example:"
-echo "  cd $RUN_DIR"
-echo "  julia $SCRIPT_DIR/run_global_oce_latlon.jl"
 echo "=============================================="
