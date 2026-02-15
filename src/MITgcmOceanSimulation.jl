@@ -44,22 +44,26 @@ Arguments
 
 Keyword Arguments
 =================
-- `experiment::String`: Verification experiment name (default: `"global_oce_latlon"`).
 - `output_dir::String`: Build output directory (default: temp directory).
+- `code_dir::String`: Code directory for `genmake2 -mods` (default: `global_oce_latlon/code`).
+- `input_dir::String`: Input directory with runtime config files (default: `global_oce_latlon/input`).
 - `reference_density::Float64`: Ocean reference density in kg/m³ (default: `1029.0`).
 - `heat_capacity::Float64`: Ocean heat capacity in J/(kg·K) (default: `3994.0`).
+- `verbose::Bool`: Show MITgcm Fortran output (default: `true`).
 """
 function MITgcmOceanSimulation(mitgcm_dir::String;
-                               experiment::String = "global_oce_latlon",
                                output_dir::String = mktempdir(),
+                               code_dir::String   = default_code_dir(mitgcm_dir),
+                               input_dir::String  = default_input_dir(mitgcm_dir),
                                reference_density::Float64 = 1029.0,
-                               heat_capacity::Float64 = 3994.0)
+                               heat_capacity::Float64 = 3994.0,
+                               verbose::Bool = true)
 
     # Build the shared library
-    result = build_mitgcm_library(mitgcm_dir; experiment, output_dir)
+    result = build_mitgcm_library(mitgcm_dir; output_dir, code_dir, input_dir)
 
     # Create and initialize the library interface
-    lib = MITgcmLibrary(result.library_path, result.run_dir)
+    lib = MITgcmLibrary(result.library_path, result.run_dir; verbose)
     init!(lib)
 
     Nx, Ny, Nr = lib.dims.Nx, lib.dims.Ny, lib.dims.Nr
@@ -109,9 +113,10 @@ Create a `MITgcmOceanSimulation` from a pre-built shared library.
 """
 function MITgcmOceanSimulation(library_path::String, run_dir::String;
                                 reference_density::Float64 = 1029.0,
-                                heat_capacity::Float64 = 3994.0)
+                                heat_capacity::Float64 = 3994.0,
+                                verbose::Bool = true)
 
-    lib = MITgcmLibrary(library_path, run_dir)
+    lib = MITgcmLibrary(library_path, run_dir; verbose)
     init!(lib)
 
     Nx, Ny, Nr = lib.dims.Nx, lib.dims.Ny, lib.dims.Nr

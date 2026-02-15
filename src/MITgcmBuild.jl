@@ -35,10 +35,15 @@ function download_mitgcm_source(;
     return destination
 end
 
-"""
-    build_mitgcm_library(mitgcm_dir; experiment, output_dir)
+const DEFAULT_EXPERIMENT = "global_oce_latlon"
 
-Build MITgcm as a shared library for a given verification experiment.
+default_code_dir(mitgcm_dir) = joinpath(mitgcm_dir, "verification", DEFAULT_EXPERIMENT, "code")
+default_input_dir(mitgcm_dir) = joinpath(mitgcm_dir, "verification", DEFAULT_EXPERIMENT, "input")
+
+"""
+    build_mitgcm_library(mitgcm_dir; output_dir, code_dir, input_dir)
+
+Build MITgcm as a shared library.
 
 Arguments
 =========
@@ -46,17 +51,24 @@ Arguments
 
 Keyword Arguments
 =================
-- `experiment::String`: Name of the MITgcm verification experiment (default: `"global_oce_latlon"`).
 - `output_dir::String`: Directory for the shared library and run files (default: a temp directory).
+- `code_dir::String`: Code directory passed to `genmake2 -mods` (contains `SIZE.h`,
+  `packages.conf`, CPP option headers). Defaults to the `global_oce_latlon` verification
+  experiment's code directory.
+- `input_dir::String`: Input directory with runtime config files (`data`, `data.pkg`, etc.).
+  Defaults to the `global_oce_latlon` verification experiment's input directory.
 
 Returns a NamedTuple `(library_path, run_dir)`.
 """
 function build_mitgcm_library(mitgcm_dir::String;
-                               experiment::String = "global_oce_latlon",
-                               output_dir::String = mktempdir())
+                              output_dir::String = mktempdir(),
+                              code_dir::String   = default_code_dir(mitgcm_dir),
+                              input_dir::String  = default_input_dir(mitgcm_dir))
 
     mitgcm_dir = abspath(mitgcm_dir)
     output_dir = abspath(output_dir)
+    code_dir   = abspath(code_dir)
+    input_dir  = abspath(input_dir)
 
     pkg_dir = pkgdir(MITgcm)
     build_script = joinpath(pkg_dir, "lib", "build_mitgcm_lib.sh")
@@ -71,11 +83,17 @@ function build_mitgcm_library(mitgcm_dir::String;
     if !isdir(mitgcm_dir)
         error("MITgcm directory not found: $mitgcm_dir")
     end
+    if !isdir(code_dir)
+        error("Code directory not found: $code_dir")
+    end
+    if !isdir(input_dir)
+        error("Input directory not found: $input_dir")
+    end
 
     mkpath(output_dir)
 
-    cmd = `bash $build_script $mitgcm_dir $experiment $output_dir $wrapper_src`
-    @info "Building MITgcm shared library..." experiment output_dir
+    cmd = `bash $build_script $mitgcm_dir $output_dir $code_dir $input_dir $wrapper_src`
+    @info "Building MITgcm shared library..." output_dir code_dir input_dir
     run(cmd)
 
     lib_name = Sys.isapple() ? "libmitgcm.dylib" : "libmitgcm.so"

@@ -2,16 +2,17 @@
 #
 # build_mitgcm_lib.sh - Build MITgcm as a shared library for Julia interop
 #
-# Usage: ./build_mitgcm_lib.sh MITGCM_DIR EXPERIMENT OUTPUT_DIR [WRAPPER_SRC]
+# Usage: ./build_mitgcm_lib.sh MITGCM_DIR OUTPUT_DIR CODE_DIR INPUT_DIR [WRAPPER_SRC]
 #
 # Arguments:
-#   MITGCM_DIR   - Path to MITgcm source directory
-#   EXPERIMENT   - Name of the verification experiment (e.g. global_oce_latlon)
-#   OUTPUT_DIR   - Where to place the shared library and run directory
-#   WRAPPER_SRC  - (optional) Path to mitgcm_wrapper.F; defaults to lib/mitgcm_wrapper.F
+#   MITGCM_DIR  - Path to MITgcm source directory
+#   OUTPUT_DIR  - Where to place the shared library and run directory
+#   CODE_DIR    - Code directory passed to genmake2 -mods (SIZE.h, packages.conf, etc.)
+#   INPUT_DIR   - Input directory with runtime config files (data, data.pkg, etc.)
+#   WRAPPER_SRC - (optional) Path to mitgcm_wrapper.F; defaults to lib/mitgcm_wrapper.F
 #
 # This script:
-#   1. Configures and builds MITgcm for the specified experiment
+#   1. Configures and builds MITgcm with the given code modifications
 #   2. Compiles the library wrapper (mitgcm_wrapper.F)
 #   3. Links everything into a shared library (libmitgcm.dylib / libmitgcm.so)
 #   4. Sets up a run directory with input files
@@ -26,26 +27,26 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-if [ $# -lt 3 ]; then
-    echo "Usage: $0 MITGCM_DIR EXPERIMENT OUTPUT_DIR [WRAPPER_SRC]"
+if [ $# -lt 4 ]; then
+    echo "Usage: $0 MITGCM_DIR OUTPUT_DIR CODE_DIR INPUT_DIR [WRAPPER_SRC]"
     exit 1
 fi
 
 MITGCM_DIR="$1"
-EXPERIMENT="$2"
-OUTPUT_DIR="$3"
-WRAPPER_SRC="${4:-$SCRIPT_DIR/mitgcm_wrapper.F}"
+OUTPUT_DIR="$2"
+CODE_DIR="$3"
+INPUT_DIR="$4"
+WRAPPER_SRC="${5:-$SCRIPT_DIR/mitgcm_wrapper.F}"
 
-VERIFICATION_DIR="$MITGCM_DIR/verification/$EXPERIMENT"
-BUILD_DIR="$VERIFICATION_DIR/build"
-CODE_DIR="$VERIFICATION_DIR/code"
-INPUT_DIR="$VERIFICATION_DIR/input"
+# Build in OUTPUT_DIR to avoid permission issues with read-only MITgcm source
+BUILD_DIR="$OUTPUT_DIR/build"
 
 echo "=============================================="
 echo "Building MITgcm as shared library"
 echo "=============================================="
 echo "MITgcm dir:   $MITGCM_DIR"
-echo "Experiment:   $EXPERIMENT"
+echo "Code dir:     $CODE_DIR"
+echo "Input dir:    $INPUT_DIR"
 echo "Build dir:    $BUILD_DIR"
 echo "Wrapper src:  $WRAPPER_SRC"
 echo "Output dir:   $OUTPUT_DIR"
@@ -57,6 +58,16 @@ echo ""
 
 if [ ! -d "$MITGCM_DIR" ]; then
     echo "ERROR: MITgcm directory not found: $MITGCM_DIR"
+    exit 1
+fi
+
+if [ ! -d "$CODE_DIR" ]; then
+    echo "ERROR: Code directory not found: $CODE_DIR"
+    exit 1
+fi
+
+if [ ! -d "$INPUT_DIR" ]; then
+    echo "ERROR: Input directory not found: $INPUT_DIR"
     exit 1
 fi
 
@@ -76,7 +87,7 @@ mkdir -p "$OUTPUT_DIR"
 # Step 1: Build MITgcm (standard build to get all object files)
 # ============================================================
 
-echo "Step 1: Building MITgcm for $EXPERIMENT..."
+echo "Step 1: Building MITgcm..."
 echo "----------------------------------------------"
 
 mkdir -p "$BUILD_DIR"
@@ -165,6 +176,13 @@ cat mitgcm_wrapper.F | /usr/bin/cpp -traditional -P $DEFINES $INCLUDES | \
 # Compile the preprocessed file
 $FC $FFLAGS $FOPTIM -fPIC -c mitgcm_wrapper.for -o mitgcm_wrapper.o
 
+# Compile the C error handler (provides safe wrappers + STOP interception)
+ERROR_HANDLER_SRC="$SCRIPT_DIR/mitgcm_error_handler.c"
+if [ -f "$ERROR_HANDLER_SRC" ]; then
+    echo "  Compiling error handler..."
+    cc -fPIC -O2 -c "$ERROR_HANDLER_SRC" -o mitgcm_error_handler.o
+fi
+
 echo "  Wrapper compiled."
 echo ""
 
@@ -216,7 +234,7 @@ mkdir -p "$RUN_DIR"
 # Link input files
 cd "$RUN_DIR"
 
-# Link all input files
+# Link all files from the input directory
 for f in "$INPUT_DIR"/*; do
     fname=$(basename "$f")
     if [ "$fname" != "prepare_run" ] && [ ! -e "$fname" ]; then
@@ -224,12 +242,13 @@ for f in "$INPUT_DIR"/*; do
     fi
 done
 
-# Link .bin files from tutorial_global_oce_latlon (prepare_run does this)
-# This section is specific to the global_oce_latlon experiment.
+# Link .bin files from tutorial_global_oce_latlon if available.
+# The global_oce_latlon experiment shares binary data with the tutorial version.
 TUTORIAL_INPUT="$MITGCM_DIR/verification/tutorial_global_oce_latlon/input"
-if [ "$EXPERIMENT" = "global_oce_latlon" ] && [ -d "$TUTORIAL_INPUT" ]; then
+if [ -d "$TUTORIAL_INPUT" ]; then
     echo "  Linking binary data from tutorial experiment..."
     for f in "$TUTORIAL_INPUT"/*.bin; do
+        [ -f "$f" ] || continue
         fname=$(basename "$f")
         if [ ! -e "$fname" ]; then
             ln -sf "$f" .
@@ -254,15 +273,41 @@ if [ ! -e "$SHLIB_NAME" ]; then
     ln -sf "$OUTPUT_DIR/$SHLIB_NAME" .
 fi
 
-# Override data.diagnostics to disable file output (avoids conflicts when
-# the timestep is changed at runtime from Julia).
-cat > data.diagnostics << 'EOF'
+# Apply default overrides for shared-library mode, but only for files
+# that are NOT already present (i.e. not provided by the input directory).
+
+# Disable diagnostics file output (timestep may change at runtime)
+if [ ! -e "data.diagnostics" ]; then
+    cat > data.diagnostics << 'DIAG_EOF'
 # Diagnostics disabled for shared-library mode (timestep may change at runtime)
  &DIAGNOSTICS_LIST
  &
  &DIAG_STATIS_PARMS
  &
-EOF
+DIAG_EOF
+fi
+
+# Provide empty data.exf so EXF_READPARMS does not crash if compiled in
+if [ ! -e "data.exf" ]; then
+    cat > data.exf << 'EXF_EOF'
+ &EXF_NML_01
+ &
+ &EXF_NML_02
+ &
+ &EXF_NML_03
+ &
+ &EXF_NML_04
+ &
+EXF_EOF
+fi
+
+# Provide empty data.cal (calendar package)
+if [ ! -e "data.cal" ]; then
+    cat > data.cal << 'CAL_EOF'
+ &CAL_NML
+ &
+CAL_EOF
+fi
 
 # Create eedata if not present (needed for EEBOOT)
 if [ ! -f "eedata" ]; then

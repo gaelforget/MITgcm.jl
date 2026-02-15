@@ -1,11 +1,25 @@
 using Libdl
 
 """
+    MITgcmError(message)
+
+Exception thrown when MITgcm encounters a fatal error (Fortran STOP).
+Instead of killing the Julia process, the error is caught and re-thrown
+as a Julia exception.
+"""
+struct MITgcmError <: Exception
+    message::String
+end
+Base.showerror(io::IO, e::MITgcmError) = print(io, "MITgcmError: ", e.message)
+
+"""
     MITgcmLibrary
 
 Low-level interface to MITgcm loaded as a shared library.
 Wraps dlopen/dlclose and provides ccall wrappers for all Fortran subroutines
 exposed by `mitgcm_wrapper.F`.
+
+Set `verbose=false` to suppress MITgcm's Fortran stdout/stderr output.
 """
 mutable struct MITgcmLibrary
     handle      :: Ptr{Nothing}
@@ -18,9 +32,10 @@ mutable struct MITgcmLibrary
                                nPx::Int, nPy::Int,
                                Nx::Int,  Ny::Int}
     initialized :: Bool
+    verbose     :: Bool
 end
 
-function MITgcmLibrary(libpath::String, run_dir::String)
+function MITgcmLibrary(libpath::String, run_dir::String; verbose::Bool = true)
     return MITgcmLibrary(
         C_NULL,
         "",
@@ -28,6 +43,7 @@ function MITgcmLibrary(libpath::String, run_dir::String)
         run_dir,
         (sNx=0, sNy=0, Nr=0, OLx=0, OLy=0, nSx=0, nSy=0, nPx=0, nPy=0, Nx=0, Ny=0),
         false,
+        verbose,
     )
 end
 
@@ -35,6 +51,28 @@ end
 function _sym(lib::MITgcmLibrary, name::Symbol)
     lib.handle == C_NULL && error("MITgcm library not loaded")
     return dlsym(lib.handle, name)
+end
+
+# Suppress C-level stdout/stderr by redirecting file descriptors to /dev/null.
+# This captures Fortran WRITE(*,*) output which goes directly to fd 1/2.
+function _with_output_control(f, lib::MITgcmLibrary)
+    if lib.verbose
+        return f()
+    end
+    old_stdout = ccall(:dup, Cint, (Cint,), 1)
+    old_stderr = ccall(:dup, Cint, (Cint,), 2)
+    devnull = ccall(:open, Cint, (Cstring, Cint), "/dev/null", 1)  # O_WRONLY
+    ccall(:dup2, Cint, (Cint, Cint), devnull, 1)
+    ccall(:dup2, Cint, (Cint, Cint), devnull, 2)
+    ccall(:close, Cint, (Cint,), devnull)
+    try
+        return f()
+    finally
+        ccall(:dup2, Cint, (Cint, Cint), old_stdout, 1)
+        ccall(:dup2, Cint, (Cint, Cint), old_stderr, 2)
+        ccall(:close, Cint, (Cint,), old_stdout)
+        ccall(:close, Cint, (Cint,), old_stderr)
+    end
 end
 
 # Run a function in the MITgcm run directory, then restore the previous directory.
@@ -47,6 +85,15 @@ function _in_run_dir(f, lib::MITgcmLibrary)
     finally
         cd(prev)
     end
+end
+
+# Retrieve the error message from the last intercepted STOP.
+function _get_error_message(lib::MITgcmLibrary)
+    buf = Vector{UInt8}(undef, 512)
+    buflen = Ref{Int32}(512)
+    ccall(_sym(lib, :mitgcm_lib_get_error_msg_), Cvoid,
+          (Ptr{UInt8}, Ref{Int32}), buf, buflen)
+    return String(buf[1:buflen[]])
 end
 
 """
@@ -90,11 +137,20 @@ end
 
 Initialize MITgcm: boot execution environment, load grid, parameters,
 and initial conditions. Must be called from the run directory.
+
+If MITgcm hits a fatal error (Fortran STOP), throws `MITgcmError` instead
+of killing the Julia process.
 """
 function init!(lib::MITgcmLibrary)
     load!(lib)
     _in_run_dir(lib) do
-        ccall(_sym(lib, :mitgcm_lib_init_), Cvoid, ())
+        _with_output_control(lib) do
+            status = ccall(_sym(lib, :mitgcm_lib_safe_init_), Cint, ())
+            if status != 0
+                msg = _get_error_message(lib)
+                throw(MITgcmError("MITgcm initialization failed: $msg"))
+            end
+        end
         lib.dims = get_dims(lib)
         lib.initialized = true
     end
@@ -105,10 +161,19 @@ end
     step!(lib::MITgcmLibrary)
 
 Advance MITgcm by one forward time step.
+
+If MITgcm hits a fatal error (Fortran STOP), throws `MITgcmError` instead
+of killing the Julia process.
 """
 function step!(lib::MITgcmLibrary)
     _in_run_dir(lib) do
-        ccall(_sym(lib, :mitgcm_lib_step_), Cvoid, ())
+        _with_output_control(lib) do
+            status = ccall(_sym(lib, :mitgcm_lib_safe_step_), Cint, ())
+            if status != 0
+                msg = _get_error_message(lib)
+                throw(MITgcmError("MITgcm step failed: $msg"))
+            end
+        end
     end
 end
 
