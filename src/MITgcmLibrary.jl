@@ -37,6 +37,18 @@ function _sym(lib::MITgcmLibrary, name::Symbol)
     return dlsym(lib.handle, name)
 end
 
+# Run a function in the MITgcm run directory, then restore the previous directory.
+# MITgcm reads/writes files relative to CWD during all operations.
+function _in_run_dir(f, lib::MITgcmLibrary)
+    prev = pwd()
+    cd(lib.run_dir)
+    try
+        return f()
+    finally
+        cd(prev)
+    end
+end
+
 """
     load!(lib::MITgcmLibrary)
 
@@ -81,10 +93,11 @@ and initial conditions. Must be called from the run directory.
 """
 function init!(lib::MITgcmLibrary)
     load!(lib)
-    cd(lib.run_dir)
-    ccall(_sym(lib, :mitgcm_lib_init_), Cvoid, ())
-    lib.dims = get_dims(lib)
-    lib.initialized = true
+    _in_run_dir(lib) do
+        ccall(_sym(lib, :mitgcm_lib_init_), Cvoid, ())
+        lib.dims = get_dims(lib)
+        lib.initialized = true
+    end
     return lib
 end
 
@@ -94,7 +107,9 @@ end
 Advance MITgcm by one forward time step.
 """
 function step!(lib::MITgcmLibrary)
-    ccall(_sym(lib, :mitgcm_lib_step_), Cvoid, ())
+    _in_run_dir(lib) do
+        ccall(_sym(lib, :mitgcm_lib_step_), Cvoid, ())
+    end
 end
 
 """
@@ -104,7 +119,9 @@ Shut down MITgcm (close files, print timers) and unload the library.
 """
 function finalize!(lib::MITgcmLibrary)
     if lib.initialized
-        ccall(_sym(lib, :mitgcm_lib_finalize_), Cvoid, ())
+        _in_run_dir(lib) do
+            ccall(_sym(lib, :mitgcm_lib_finalize_), Cvoid, ())
+        end
     end
     unload!(lib)
     return lib

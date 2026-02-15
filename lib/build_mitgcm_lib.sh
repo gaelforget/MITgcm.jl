@@ -223,8 +223,9 @@ for f in "$INPUT_DIR"/*; do
 done
 
 # Link .bin files from tutorial_global_oce_latlon (prepare_run does this)
+# This section is specific to the global_oce_latlon experiment.
 TUTORIAL_INPUT="$MITGCM_DIR/verification/tutorial_global_oce_latlon/input"
-if [ -d "$TUTORIAL_INPUT" ]; then
+if [ "$EXPERIMENT" = "global_oce_latlon" ] && [ -d "$TUTORIAL_INPUT" ]; then
     echo "  Linking binary data from tutorial experiment..."
     for f in "$TUTORIAL_INPUT"/*.bin; do
         fname=$(basename "$f")

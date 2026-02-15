@@ -166,7 +166,4 @@ function refresh_state!(ocean::MITgcmOceanSimulation)
     return nothing
 end
 
-reference_density(ocean::MITgcmOceanSimulation) = ocean.ρ₀
-heat_capacity(ocean::MITgcmOceanSimulation) = ocean.cₚ
-
 Base.eltype(::MITgcmOceanSimulation) = Float64

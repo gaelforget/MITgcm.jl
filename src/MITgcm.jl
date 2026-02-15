@@ -40,7 +40,7 @@ export scan_run_dir, scan_stdout, scan_build_dir, scan_verification
 export create_script, default_path
 export MITgcmLibrary, MITgcmOceanSimulation, build_mitgcm_library
 export refresh_state!
-export step!, get_niter, get_time, set_timestep!, get_timestep
+export step!, init!, finalize!, get_niter, get_time, set_timestep!, get_timestep
 export set_fu!, set_fv!, set_qnet!, set_empmr!, set_qsw!, set_saltflux!
 export get_fu!, get_fv!, get_qnet!, get_empmr!, get_qsw!, get_saltflux!
 export get_theta!, get_salt!, get_uvel!, get_vvel!, get_wvel!, get_etan!
