@@ -39,6 +39,8 @@ export read_mdsio, read_meta, read_available_diagnostics
 export scan_run_dir, scan_stdout, scan_build_dir, scan_verification
 export create_script, default_path
 export MITgcmLibrary, MITgcmOceanSimulation, MITgcmError, build_mitgcm_library, download_mitgcm_source
+export AbstractMITgcmGrid, SphericalPolarGrid, CartesianGrid, CubedSphereGrid, CylindricalGrid
+export infer_grid_type, infer_physical_constants
 export refresh_state!
 export step!, init!, finalize!, get_niter, get_time, set_timestep!, get_timestep
 export set_fu!, set_fv!, set_qnet!, set_empmr!, set_qsw!, set_saltflux!
