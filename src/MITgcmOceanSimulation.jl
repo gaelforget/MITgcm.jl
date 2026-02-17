@@ -146,10 +146,10 @@ function MITgcmOceanSimulation{G}(lib, theta, salt, uvel, vvel, etan,
                                    xc, yc, rc, drf, hfacc,
                                    fu, fv, qnet, empmr, qsw, saltflux,
                                    reference_density, heat_capacity) where G<:AbstractMITgcmGrid
-    return new{G, typeof(lib)}(lib, theta, salt, uvel, vvel, etan,
-                                xc, yc, rc, drf, hfacc,
-                                fu, fv, qnet, empmr, qsw, saltflux,
-                                reference_density, heat_capacity)
+    return MITgcmOceanSimulation{G, typeof(lib)}(lib, theta, salt, uvel, vvel, etan,
+                                                  xc, yc, rc, drf, hfacc,
+                                                  fu, fv, qnet, empmr, qsw, saltflux,
+                                                  reference_density, heat_capacity)
 end
 
 """
