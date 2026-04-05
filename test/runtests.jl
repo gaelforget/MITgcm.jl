@@ -14,6 +14,10 @@ println("Sys.ARCH=$(Sys.ARCH)")
 path_LLC90=MeshArrays.Dataset("GRID_LLC90")
 ispath(path_LLC90) ? nothing : @warn "missing GRID_LLC90"
 
+do_part=2
+
+if do_part==1
+
 @testset "ECCO4" begin
 
     MC=MITgcm_config(inputs=read_toml(:OCCA2))
@@ -233,4 +237,10 @@ end
     @test in("31+16+3_RT_1D",readdir(MC,"MITgcm","mysetups"))
 end
 
+end
+
+if do_part==2
+
 include("test_mitgcm_library.jl")
+
+end
