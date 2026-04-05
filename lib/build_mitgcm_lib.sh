@@ -133,6 +133,16 @@ if ! grep -q '_BYTESWAPIO' "$BUILD_DIR/Makefile" 2>/dev/null; then
 fi
 
 echo "  Compiling MITgcm..."
+
+# Ensure -fPIC for shared library mode
+if ! grep -q -- '-fPIC' "$BUILD_DIR/Makefile" 2>/dev/null; then
+    echo "  Adding -fPIC flag for shared library compatibility..."
+    sed -i.bak 's/^FFLAGS = /FFLAGS = -fPIC /' "$BUILD_DIR/Makefile"
+    sed -i.bak 's/^FOPTIM = /FOPTIM = -fPIC /' "$BUILD_DIR/Makefile"
+    make clean 2>&1 | tail -2
+    make depend 2>&1 | tail -3
+fi
+
 make -j$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4) 2>&1 | tail -5
 
 echo "  MITgcm build complete."
@@ -233,7 +243,7 @@ echo ">> $LIBS"
 
 #echo "$FC $SHLIB_FLAGS -o $OUTPUT_DIR/$SHLIB_NAME $OBJ_FILES $LIBS"
 
-$FC $SHLIB_FLAGS -fPIC -o "$OUTPUT_DIR/$SHLIB_NAME" $OBJ_FILES $LIBS
+$FC $SHLIB_FLAGS -o "$OUTPUT_DIR/$SHLIB_NAME" $OBJ_FILES $LIBS
 
 echo "gf5..."
 
