@@ -206,8 +206,8 @@ else
         @test any(ocean.salt  .!= 0)
 
         # Physical constants
-        @test ocean.ρ₀ > 0
-        @test ocean.cₚ > 0
+        @test ocean.reference_density > 0
+        @test ocean.heat_capacity > 0
 
         # eltype
         @test eltype(ocean) == Float64
