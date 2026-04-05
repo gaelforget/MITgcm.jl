@@ -132,18 +132,24 @@ if ! grep -q '_BYTESWAPIO' "$BUILD_DIR/Makefile" 2>/dev/null; then
     make depend 2>&1 | tail -3
 fi
 
-echo "  Compiling MITgcm..."
+# For shared library mode, compile everything with -fPIC
+echo "  Compiling MITgcm with -fPIC for shared library..."
 
-# Ensure -fPIC for shared library mode
-if ! grep -q -- '-fPIC' "$BUILD_DIR/Makefile" 2>/dev/null; then
-    echo "  Adding -fPIC flag for shared library compatibility..."
-    sed -i.bak 's/^FFLAGS = /FFLAGS = -fPIC /' "$BUILD_DIR/Makefile"
-    sed -i.bak 's/^FOPTIM = /FOPTIM = -fPIC /' "$BUILD_DIR/Makefile"
-    make clean 2>&1 | tail -2
-    make depend 2>&1 | tail -3
-fi
+# Clean previous builds to force recompilation with new flags
+make clean 2>&1 | tail -2
+make depend 2>&1 | tail -3
 
-make -j$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4) 2>&1 | tail -5
+# Build with -fPIC appended to all compiler flags
+# Extract existing flags first
+EXISTING_FFLAGS=$(grep '^FFLAGS = ' "$BUILD_DIR/Makefile" | sed 's/^FFLAGS = //' | head -1)
+EXISTING_FOPTIM=$(grep '^FOPTIM = ' "$BUILD_DIR/Makefile" | sed 's/^FOPTIM = //' | head -1)
+EXISTING_CFLAGS=$(grep '^CFLAGS = ' "$BUILD_DIR/Makefile" | sed 's/^CFLAGS = //' | head -1)
+
+make -j$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4) \
+    FFLAGS="${EXISTING_FFLAGS} -fPIC" \
+    FOPTIM="${EXISTING_FOPTIM} -fPIC" \
+    CFLAGS="${EXISTING_CFLAGS} -fPIC" \
+    2>&1 | tail -5
 
 echo "  MITgcm build complete."
 echo ""
