@@ -196,10 +196,16 @@ echo "----------------------------------------------"
 # Collect all object files except main.o (which has PROGRAM MAIN)
 OBJ_FILES=$(ls *.o | grep -v '^main\.o$' | tr '\n' ' ')
 
+echo "gf1..."
+
 LIBS=$(make -p -q 2>/dev/null | grep '^LIBS = ' | head -1 | sed 's/^LIBS = //')
+
+echo "gf2..."
 
 # Extract library directories from LIBS for rpath
 LIB_DIRS=$(echo "$LIBS" | tr ' ' '\n' | grep '^-L' | sed 's/^-L//')
+
+echo "gf3..."
 
 if [ "$UNAME_S" = "Darwin" ]; then
     SHLIB_NAME="libmitgcm.dylib"
@@ -216,7 +222,11 @@ else
     done
 fi
 
+echo "gf4..."
+
 $FC $SHLIB_FLAGS -o "$OUTPUT_DIR/$SHLIB_NAME" $OBJ_FILES $LIBS
+
+echo "gf5..."
 
 echo "  Created: $OUTPUT_DIR/$SHLIB_NAME"
 echo ""

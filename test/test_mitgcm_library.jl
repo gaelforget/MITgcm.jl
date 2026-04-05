@@ -26,7 +26,7 @@ n_test=2
     #@testset "build_mitgcm_library" 
     if n_test>1
         result = MITgcm.build_mitgcm_library(mitgcm_dir;
-                                              output_dir, code_dir, input_dir)
+                                              output_dir, code_dir, input_dir, verbose=true)
         @test isfile(result.library_path)
         @test isdir(result.run_dir)
     end

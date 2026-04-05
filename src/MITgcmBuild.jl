@@ -1,4 +1,5 @@
 using Scratch
+using MITgcm.ClimateModels.Suppressor
 
 const MITGCM_GIT_URL = "https://github.com/MITgcm/MITgcm.git"
 const MITGCM_DEFAULT_CHECKOUT = "checkpoint69j"
@@ -63,7 +64,8 @@ Returns a NamedTuple `(library_path, run_dir)`.
 function build_mitgcm_library(mitgcm_dir::String;
                               output_dir::String = mktempdir(),
                               code_dir::String   = default_code_dir(mitgcm_dir),
-                              input_dir::String  = default_input_dir(mitgcm_dir))
+                              input_dir::String  = default_input_dir(mitgcm_dir),
+                              verbose=false)
 
     mitgcm_dir = abspath(mitgcm_dir)
     output_dir = abspath(output_dir)
@@ -94,7 +96,11 @@ function build_mitgcm_library(mitgcm_dir::String;
 
     cmd = `bash $build_script $mitgcm_dir $output_dir $code_dir $input_dir $wrapper_src`
     @info "Building MITgcm shared library..." output_dir code_dir input_dir
-    run(cmd)
+    if verbose
+        run(cmd)
+    else
+        @suppress run(cmd)
+    end
 
     lib_name = Sys.isapple() ? "libmitgcm.dylib" : "libmitgcm.so"
     library_path = joinpath(output_dir, lib_name)
