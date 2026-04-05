@@ -23,7 +23,7 @@ else
 
     @testset "build_mitgcm_library" begin
         result = MITgcm.build_mitgcm_library(mitgcm_dir;
-                                              output_dir, code_dir, input_dir)
+                                              output_dir, code_dir, input_dir, verbose=false)
         @test isfile(result.library_path)
         @test isdir(result.run_dir)
     end
@@ -206,8 +206,8 @@ else
         @test any(ocean.salt  .!= 0)
 
         # Physical constants
-        @test ocean.ρ₀ > 0
-        @test ocean.cₚ > 0
+        @test ocean.reference_density > 0
+        @test ocean.heat_capacity > 0
 
         # eltype
         @test eltype(ocean) == Float64
