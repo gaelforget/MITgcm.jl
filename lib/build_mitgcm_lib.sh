@@ -224,6 +224,15 @@ fi
 
 echo "gf4..."
 
+echo ">> $FC"
+echo ">> $SHLIB_FLAGS"
+echo ">> $OUTPUT_DIR"
+echo ">> $OBJ_FILES"
+echo ">> $SHLIB_NAME"
+echo ">> $LIBS"
+
+#echo "$FC $SHLIB_FLAGS -o $OUTPUT_DIR/$SHLIB_NAME $OBJ_FILES $LIBS"
+
 $FC $SHLIB_FLAGS -o "$OUTPUT_DIR/$SHLIB_NAME" $OBJ_FILES $LIBS
 
 echo "gf5..."
