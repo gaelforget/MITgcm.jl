@@ -23,7 +23,7 @@ else
 
     @testset "build_mitgcm_library" begin
         result = MITgcm.build_mitgcm_library(mitgcm_dir;
-                                              output_dir, code_dir, input_dir)
+                                              output_dir, code_dir, input_dir, verbose=false)
         @test isfile(result.library_path)
         @test isdir(result.run_dir)
     end
