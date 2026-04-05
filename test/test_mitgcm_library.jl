@@ -7,7 +7,7 @@ if !has_gfortran
     @warn "gfortran not found — skipping MITgcm shared library tests"
 else
 
-n_test=1
+n_test=2
 
 @testset "MITgcm shared library" begin
     # Download MITgcm source (cached in scratch space)
