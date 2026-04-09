@@ -1,7 +1,7 @@
 name = "MITgcm"
 uuid = "dce5fa8e-68ce-4431-a242-9469c69627a0"
-authors = ["gaelforget <gforget@mit.edu>"]
 version = "0.5.15"
+authors = ["gaelforget <gforget@mit.edu>"]
 
 [deps]
 ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
@@ -14,6 +14,7 @@ Glob = "c27321d9-0574-5035-807b-f59d2c89b15c"
 Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
 MeshArrays = "cb8c808f-1acf-59a3-9d2b-6e38d009f683"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 Scratch = "6c6a2e73-6563-6170-7368-637461726353"
 SharedArrays = "1a1011a3-84de-559e-8e89-a11a2f7dc383"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
@@ -35,6 +36,7 @@ FortranFiles = "0.6"
 Glob = "1"
 MeshArrays = "0.4, 0.5"
 NetCDF = "0.11, 0.12"
+Revise = "3.14.2"
 Scratch = "1"
 SparseArrays = "1"
 Statistics = "1"

@@ -43,14 +43,19 @@ function build(config::MITgcm_config)
         cd(config.inputs[:setup][:build][:path])
         opt=config.inputs[:setup][:build][:options]
         opt=Cmd(convert(Vector{String}, split(opt)))
+        #println(pwd())
         tst=haskey(config.inputs[:setup][:build],:rootdir)
         rootdir=(tst ? config.inputs[:setup][:build][:rootdir] : joinpath(config,"MITgcm"))
         test=try
             withenv("MITGCM_ROOTDIR"=>rootdir) do
                 genmake2=joinpath(rootdir,"tools","genmake2")
+		config.inputs[:setup][:build][:genmk] = `$(genmake2) $(opt)`
                 @suppress run(`$(genmake2) $(opt)`)
-                @suppress run(`make clean`)
+		println("genmake2...")
+		@suppress run(`make clean`)
+		println("making depend...")
                 @suppress run(`make depend`)
+                println("making executable, adj or forward...")
                 if do_adj
                     @suppress run(`make adtaf`)
                     @suppress run(`make adall`)
@@ -145,6 +150,7 @@ function setup(config::MITgcm_config)
     !isdir(joinpath(config.folder,string(config.ID))) ? mkdir(joinpath(config.folder,string(config.ID))) : nothing
 
     pth_run=joinpath(config.folder,string(config.ID),"run")
+    config.inputs[:setup][:main][:run_folder] = pth_run
     !isdir(pth_run) ? mkdir(pth_run) : nothing
 
     pth_log=joinpath(config.folder,string(config.ID),"log")
@@ -168,10 +174,17 @@ function setup(config::MITgcm_config)
         end
     elseif config.model=="darwin3"
         setup_darwin3!(config)
-    elseif !haskey(config.inputs,:setup)#||(config.inputs[:setup][:main][:category]=="verification")
+    elseif !haskey(config.inputs,:setup) # ||(config.inputs[:setup][:main][:category]=="verification")
         setup_verification!(config)    
     else
         error("unknown model configuration")
+    end
+
+    # set optfiles
+    if !isempty(config.optfile)
+       config.inputs[:setup][:build][:options] *= " -optfile=" * config.optfile
+    else
+       #config.inputs[:setup][:build][:options] *= " -optfile=/home/ylu06/mitgcm/linux_amd64_gfortran_rocky8"
     end
 
     pth_tra=joinpath(pth_log,"tracked_parameters")
@@ -230,7 +243,7 @@ function MITgcm_launch(config::MITgcm_config)
     end
     pth=pwd()
     cd(joinpath(config.folder,string(config.ID),"run"))
-    tmp=["STOP NORMAL END"]
+    tmp = ""
     try
         if haskey(config.inputs[:setup][:main],:command)
             s=config.inputs[:setup][:main][:command]
@@ -241,15 +254,18 @@ function MITgcm_launch(config::MITgcm_config)
                 c=Cmd(convert(Vector{String}, split(s)))
                 @suppress run(pipeline(c))
             end
-        else
+	    exe=config.inputs[:setup][:build][:exe]
+	    tmp = s
+        else		
             exe=config.inputs[:setup][:build][:exe]
             @suppress run(pipeline(`./$(exe)`,"output.txt"))
+	    tmp = "./" * exe * " > output.txt"
         end
     catch e
-        tmp[1]="model run may have failed"
+        tmp="model run may have failed"
     end
     cd(pth)
-    return tmp[1]
+    return tmp
 end
 
 to_DF(x)=DataFrame((name=[keys(x)...],value=[values(x)...]))

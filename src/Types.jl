@@ -59,6 +59,7 @@ Base.@kwdef struct MITgcm_config <: AbstractModelConfig
     channel :: Channel{Any} = Channel{Any}(10) 
     folder :: String = tempdir()
     ID :: UUID = UUIDs.uuid4()
+    optfile :: String = ""
 end
 
 
