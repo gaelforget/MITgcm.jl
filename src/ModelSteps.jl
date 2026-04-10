@@ -183,8 +183,6 @@ function setup(config::MITgcm_config)
     # set optfiles
     if !isempty(config.optfile)
        config.inputs[:setup][:build][:options] *= " -optfile=" * config.optfile
-    else
-       #config.inputs[:setup][:build][:options] *= " -optfile=/home/ylu06/mitgcm/linux_amd64_gfortran_rocky8"
     end
 
     pth_tra=joinpath(pth_log,"tracked_parameters")
