@@ -49,11 +49,11 @@ function build(config::MITgcm_config)
         test=try
             withenv("MITGCM_ROOTDIR"=>rootdir) do
                 genmake2=joinpath(rootdir,"tools","genmake2")
-		config.inputs[:setup][:build][:genmk] = `$(genmake2) $(opt)`
+                config.inputs[:setup][:build][:genmk] = `$(genmake2) $(opt)`
                 @suppress run(`$(genmake2) $(opt)`)
-		println("genmake2...")
-		@suppress run(`make clean`)
-		println("making depend...")
+                println("genmake2...")
+                @suppress run(`make clean`)
+                println("making depend...")
                 @suppress run(`make depend`)
                 println("making executable, adj or forward...")
                 if do_adj
