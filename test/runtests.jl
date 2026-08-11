@@ -158,7 +158,7 @@ end
     @test isa(Γ,NamedTuple)
 
     γ=gcmgrid(path_cs,"CubeSphere",6,fill((32, 32),6), [192 32], Float64, MITgcm.readcube, MITgcm.writecube)
-    Γ = GridLoad(γ)
+    Γ = GridLoad(γ,read_method=γ.read)
     tmp1=MITgcm.writecube(Γ.XC)
     tmp2=MITgcm.readcube(tmp1,Γ.XC)
     @test isa(tmp2,MeshArray)

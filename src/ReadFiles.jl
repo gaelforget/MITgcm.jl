@@ -185,16 +185,16 @@ size `ni,nj` and extract grid variables accordingly.
 function findtiles(ni::Int,nj::Int,mygrid::gcmgrid)
     mytiles = OrderedDict()
 
-    GridVariables=GridLoad(mygrid)
+    GridVariables=GridLoad(mygrid,read_method=mygrid.read)
 
     mytiles["nFaces"]=mygrid.nFaces;
     mytiles["ioSize"]=mygrid.ioSize;
 
     XC=GridVariables.XC;
     YC=GridVariables.YC;
-    XC11=similar(XC); YC11=similar(XC);
-    XCNINJ=similar(XC); YCNINJ=similar(XC);
-    iTile=similar(XC); jTile=similar(XC); tileNo=similar(XC);
+    XC11=similar(XC,allocate=true); YC11=similar(XC,allocate=true);
+    XCNINJ=similar(XC,allocate=true); YCNINJ=similar(XC,allocate=true);
+    iTile=similar(XC,allocate=true); jTile=similar(XC,allocate=true); tileNo=similar(XC,allocate=true);
     tileCount=0;
     for iF=1:XC11.grid.nFaces
         face_XC=XC.f[iF]; face_YC=YC.f[iF];
@@ -937,7 +937,9 @@ function GridLoad_mdsio(rundir::String)
         s2=[s1[1] s1[2]]
         γ=gcmgrid(rundir,"PeriodicDomain",1,fill(s1,1),s2,elty, read_mdsio, write)
     end
-    Γ=GridLoad(γ;option="full")
+    
+    #γ.read is no longer used
+    Γ=GridLoad(γ;option="full",read_method=γ.read)
 end
 
 """
