@@ -6,6 +6,9 @@ using MITgcm.ClimateModels.Suppressor
 using MITgcm.ClimateModels.DataFrames
 using MITgcm.ClimateModels.CSV
 
+#use this environment variable to bypass downloads / API calls that require server access
+_SKIP_DOWNLOADS = parse(Bool,get(ENV, "SKIP_DOWNLOADS", "false"))
+
 println("Sys.islinux=$(Sys.islinux())")
 println("Sys.isapple=$(Sys.isapple())")
 println("Sys.iswindows=$(Sys.iswindows())")
@@ -36,7 +39,7 @@ ispath(path_LLC90) ? nothing : @warn "missing GRID_LLC90"
     @suppress ECCO4_testreport.compare(report,ref)
     @test isa(report,DataFrame)
 
-    ECCO4_inputs.download_input_folder(MC, dry_run=true)
+    _SKIP_DOWNLOADS ? nothing : ECCO4_inputs.download_input_folder(MC, dry_run=true)
     ECCO4_testreport.compute(joinpath(MC,"run"),dry_run=true)
 
     ECCO4_testreport.list_diags_files(joinpath(MC,"run"))
