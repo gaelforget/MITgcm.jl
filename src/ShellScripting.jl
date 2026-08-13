@@ -5,17 +5,19 @@
 Create submission script -- for NASA pleiades in this example.
 
 ```
-submission_script=MITgcm.create_script(pwd(),"job.csh")
+submission_script=MITgcm.create_script(pwd(),"job.sh")
 ```    
 """
-function create_script(rundir=pwd(),filename="",script=script_for_pleiades)
-  submission_script=script(rundir)
-  isempty(filename) ? fn=tempname()*".csh" : fn=filename
-  to_csh(submission_script,fn)
-  return fn
+function create_script(rundir=pwd(),filename="job.sh",script="script_for_engaging")
+  scriptfun = getfield(MITgcm, Symbol(script))
+  submission_script=scriptfun(rundir)
+  fulfn = joinpath(rundir,filename)
+  #isempty(fulfn) ? fn=tempname()*".csh" : fn=filename
+  to_csh(submission_script,fulfn)
+  return fulfn
 end
 
-function to_csh(submission_script,fname="job.csh")
+function to_csh(submission_script,fname="job.sh")
   open(fname, "w") do io
     print(io,submission_script)
   end
@@ -91,3 +93,49 @@ export MPI_DISPLAY_SETTINGS=""
 cd $(rundir)
 mpiexec -np 96 ./mitgcmuv
 """
+
+script_for_engaging(rundir)="""
+#!/bin/bash
+#SBATCH -p mit_normal
+#SBATCH -N 4
+#SBATCH --ntasks-per-node=24
+#SBATCH --mem=64G
+#SBATCH -t 11:59:00
+#SBATCH -J ecco4_run
+#SBATCH -o ECCO4-%j-out
+#SBATCH -e ECCO4-%j-out
+
+# Initialize and set up the environment
+# see ~/mitgcm/load_mod
+#--------------------------------------
+
+module purge
+module load community-modules
+module load StdEnv
+module load gcc/12.2.0
+module load openmpi/4.1.4
+module load netcdf-c/4.9.2
+module load netcdf-fortran/4.6.1
+module load hdf5/1.14.3
+
+export FC=mpifort
+export F90C=mpifort
+export CC=mpicc
+export FFLAGS="-fallow-argument-mismatch"
+
+export MPI_INC_DIR=/orcd/software/core/001/spack/pkg/openmpi/4.1.4/zahpnmk/include
+export LD_LIBRARY_PATH=/orcd/software/community/001/spack/pkg/netcdf-c/4.9.2/2uroesk/lib:/orcd/software/community/001/spack/pkg/netcdf-fortran/4.6.1/gxllmsl/lib:\$LD_LIBRARY_PATH
+
+export NETCDF_INCDIR=/orcd/software/community/001/spack/pkg/netcdf-fortran/4.6.1/gxllmsl/include
+export NETCDF_LIBDIR=/orcd/software/community/001/spack/pkg/netcdf-fortran/4.6.1/gxllmsl/lib
+export LIBRARY_PATH=/orcd/software/community/001/spack/pkg/netcdf-c/4.9.2/2uroesk/lib:/orcd/software/community/001/spack/pkg/netcdf-fortran/4.6.1/gxllmsl/lib\${LIBRARY_PATH:+:\$LIBRARY_PATH}
+
+#model run
+#--------------------------------------
+
+cd $(rundir)
+mpirun -np 96 ./mitgcmuv
+"""
+
+
+
