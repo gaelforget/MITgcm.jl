@@ -6,6 +6,9 @@ using MITgcm.ClimateModels.Suppressor
 using MITgcm.ClimateModels.DataFrames
 using MITgcm.ClimateModels.CSV
 
+#use this environment variable to bypass downloads / API calls that require server access
+_SKIP_DOWNLOADS = parse(Bool,get(ENV, "SKIP_DOWNLOADS", "false"))
+
 println("Sys.islinux=$(Sys.islinux())")
 println("Sys.isapple=$(Sys.isapple())")
 println("Sys.iswindows=$(Sys.iswindows())")
@@ -36,7 +39,7 @@ ispath(path_LLC90) ? nothing : @warn "missing GRID_LLC90"
     @suppress ECCO4_testreport.compare(report,ref)
     @test isa(report,DataFrame)
 
-    ECCO4_inputs.download_input_folder(MC, dry_run=true)
+    _SKIP_DOWNLOADS ? nothing : ECCO4_inputs.download_input_folder(MC, dry_run=true)
     ECCO4_testreport.compute(joinpath(MC,"run"),dry_run=true)
 
     ECCO4_testreport.list_diags_files(joinpath(MC,"run"))
@@ -158,7 +161,7 @@ end
     @test isa(Γ,NamedTuple)
 
     γ=gcmgrid(path_cs,"CubeSphere",6,fill((32, 32),6), [192 32], Float64, MITgcm.readcube, MITgcm.writecube)
-    Γ = GridLoad(γ)
+    Γ = GridLoad(γ,read_method=γ.read)
     tmp1=MITgcm.writecube(Γ.XC)
     tmp2=MITgcm.readcube(tmp1,Γ.XC)
     @test isa(tmp2,MeshArray)

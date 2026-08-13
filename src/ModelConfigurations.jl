@@ -81,6 +81,9 @@ using Dataverse, ClimateModels.DataFrames, ClimateModels.CSV
 import MITgcm: MITgcm_config
 export get_list, get_files, download_input_folder
 
+#use this environment variable to bypass downloads / API calls that require server access
+_SKIP_DOWNLOADS = parse(Bool,get(ENV, "SKIP_DOWNLOADS", "false"))
+
 ##
 
 list0=[
@@ -169,6 +172,7 @@ function download_input_folder(config::MITgcm_config; dry_run=false)
     p=joinpath(config,"input_folder")
     mkdir(p)
     list1=ECCO4_inputs.get_list()
+    if !_SKIP_DOWNLOADS
     nam1="model initialization"
     ECCO4_inputs.get_files(list1,nam1,p,dry_run=dry_run)
     nam1="surface forcing fields"
@@ -181,6 +185,7 @@ function download_input_folder(config::MITgcm_config; dry_run=false)
     if config.inputs[:pkg][:PACKAGES][:useProfiles]
         nam1="in situ T-S profiles"
         ECCO4_inputs.get_files(list1,nam1,p,dry_run=dry_run)
+    end
     end
     p
 end

@@ -1,7 +1,7 @@
 name = "MITgcm"
 uuid = "dce5fa8e-68ce-4431-a242-9469c69627a0"
+version = "0.5.16"
 authors = ["gaelforget <gforget@mit.edu>"]
-version = "0.5.15"
 
 [deps]
 ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
@@ -29,11 +29,11 @@ MITgcmNetCDFExt = ["NetCDF"]
 
 [compat]
 ClimateModels = "0.3"
-DataDeps = "0.7"
+DataDeps = "0.7, 1"
 Dataverse = "0.2"
 FortranFiles = "0.6"
 Glob = "1"
-MeshArrays = "0.4, 0.5"
+MeshArrays = "0.4, 0.5, 0.6"
 NetCDF = "0.11, 0.12"
 Scratch = "1"
 SparseArrays = "1"
