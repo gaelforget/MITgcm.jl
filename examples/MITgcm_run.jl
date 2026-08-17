@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.17
+# v1.0.3
 
 using Markdown
 using InteractiveUtils
@@ -114,7 +114,7 @@ end
 
 # ╔═╡ 7fa8a460-89d4-11eb-19bb-bbacdd32719a
 begin
-	inputs=Dict(:input_folder=>mysub)
+	inputs=MITgcm.OrderedDict(:input_folder=>mysub)
 	MC=MITgcm_config(configuration=myexp,inputs=inputs);
 end
 
@@ -174,7 +174,8 @@ PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [compat]
-PlutoUI = "~0.7.58"
+MITgcm = "~0.5.16"
+PlutoUI = "~0.7.83"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -183,7 +184,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.12.6"
 manifest_format = "2.0"
-project_hash = "05b6fd3812d62d3ae333bde0b5dbb26b7bb9e711"
+project_hash = "49760b61669edad01fc3e172ace213387e1d6310"
 
 [[deps.AbstractPlutoDingetjes]]
 git-tree-sha1 = "6c3913f4e9bdf6ba3c08041a446fb1332716cbc2"

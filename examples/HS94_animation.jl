@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.17
+# v1.0.3
 
 using Markdown
 using InteractiveUtils
@@ -222,7 +222,7 @@ end
 begin
 	#function used to plot one time record
 	function myplot(fil,pth)
-		T=read(joinpath(pth,fil),MeshArray(γ,Float64))
+		T=γ.read(joinpath(pth,fil),MeshArray(γ,Float64))
 		TT=Interpolate(T,IntFac...)
 		contourf(vec(lon[:,1]),vec(lat[1,:]),TT,clims=(260.,320.))
 	end
@@ -261,6 +261,13 @@ MITgcm = "dce5fa8e-68ce-4431-a242-9469c69627a0"
 MeshArrays = "cb8c808f-1acf-59a3-9d2b-6e38d009f683"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+
+[compat]
+DataDeps = "~1.0.0"
+MITgcm = "~0.5.16"
+MeshArrays = "~0.5.14"
+Plots = "~1.41.6"
+PlutoUI = "~0.7.83"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -269,7 +276,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.12.6"
 manifest_format = "2.0"
-project_hash = "6c62f66aa9402cd2939ef194fdac12a5edee75f6"
+project_hash = "01817ca5f0feb7ee53f91c50af3b1ab693ae12f6"
 
 [[deps.AbstractPlutoDingetjes]]
 git-tree-sha1 = "6c3913f4e9bdf6ba3c08041a446fb1332716cbc2"
@@ -1783,7 +1790,7 @@ version = "1.13.0+0"
 # ╟─19095067-33f5-495f-bc4d-ee6dacbf6ca8
 # ╟─207e4c15-7818-4dc3-a048-1dd36ba5a73e
 # ╟─2fd1ddf0-c3ee-4076-9f7f-b066da2baf50
-# ╟─ee0e6f28-aa26-48de-8ddd-8bb2d1102ee9
+# ╠═ee0e6f28-aa26-48de-8ddd-8bb2d1102ee9
 # ╟─bd0803d8-c70d-47b8-a76e-5765f4ba01c6
 # ╟─aad7e042-ba39-4518-8f3e-da59b77c13cb
 # ╟─0aa37844-b4b9-4f58-adf7-15ae9a490993

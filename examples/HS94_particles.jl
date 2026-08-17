@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.21
+# v1.0.3
 
 using Markdown
 using InteractiveUtils
@@ -101,8 +101,10 @@ if found_MITgcm_files
 	𝐷 = merge(𝐷 , tmp)
 	
 	#FlowFields data structure
-	𝑃=uvMeshArrays{Float64}(MeshArray(γ,Float64),MeshArray(γ,Float64),
-	    MeshArray(γ,Float64),MeshArray(γ,Float64),[t00-dt,t00],update_loc)    
+	TT=[t00-dt,t00]
+	TA=Drifters.TimeAxis(TT...)
+	𝑃=FlowFields(MeshArray(γ,Float64),MeshArray(γ,Float64),
+	    MeshArray(γ,Float64),MeshArray(γ,Float64),TT,update_loc)    
 	
 	#Individuals data structure
 	n=100; x=24 .+ randn(n); y=24 .+ randn(n); f=fill(1,n);
@@ -248,6 +250,15 @@ MITgcm = "dce5fa8e-68ce-4431-a242-9469c69627a0"
 MeshArrays = "cb8c808f-1acf-59a3-9d2b-6e38d009f683"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+
+[compat]
+ColorSchemes = "~3.31.0"
+Drifters = "~0.6.21"
+JLD2 = "~0.6.5"
+MITgcm = "~0.5.16"
+MeshArrays = "~0.5.14"
+Plots = "~1.41.6"
+PlutoUI = "~0.7.83"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -256,7 +267,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.12.6"
 manifest_format = "2.0"
-project_hash = "66e86b9eb2b703c889540cc7bcac9122618ae20a"
+project_hash = "3f0f1ca3a3e0b180c931647baab9d96644df8cea"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "5970c86505ae9c07bf5bc521ef2bbbb3849e8b7b"

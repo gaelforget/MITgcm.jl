@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.17
+# v1.0.3
 
 using Markdown
 using InteractiveUtils
@@ -137,7 +137,7 @@ function myviz(G; title="grid points")
 
     for f in 1:length(G.XC)
         tmp=[Meshes.Point(G.XC[f][i],G.YC[f][i]) for i in eachindex(G.XC[f])]
-        Meshes.viz!(ax,tmp,color=col[f],size=1.5)
+        Meshes.viz!(ax,tmp,color=col[f],pointsize=1.5)
     end
 
     fig
@@ -221,6 +221,13 @@ MITgcm = "dce5fa8e-68ce-4431-a242-9469c69627a0"
 MeshArrays = "cb8c808f-1acf-59a3-9d2b-6e38d009f683"
 Meshes = "eacbb407-ea5a-433e-ab97-5258b1ca43fa"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+
+[compat]
+CairoMakie = "~0.15.13"
+MITgcm = "~0.5.16"
+MeshArrays = "~0.5.14"
+Meshes = "~0.57.25"
+PlutoUI = "~0.7.83"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -229,7 +236,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.12.6"
 manifest_format = "2.0"
-project_hash = "d1b2c3ce4d62d027db2e30bad79ebba14d325f03"
+project_hash = "04c2a72a734dcfdb10438367743400dd1e2f69a1"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "5970c86505ae9c07bf5bc521ef2bbbb3849e8b7b"
