@@ -177,7 +177,7 @@ function MITgcmOceanSimulation(mitgcm_dir::String;
                                verbose::Bool = true)
 
     # Build the shared library
-    result = build_mitgcm_library(mitgcm_dir; output_dir, code_dir, input_dir)
+    result = build_mitgcm_library(mitgcm_dir; output_dir, code_dir, input_dir, verbose=true)
 
     # Create and initialize the library interface
     lib = MITgcmLibrary(result.library_path, result.run_dir; verbose)
