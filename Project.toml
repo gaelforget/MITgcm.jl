@@ -1,6 +1,6 @@
 name = "MITgcm"
 uuid = "dce5fa8e-68ce-4431-a242-9469c69627a0"
-version = "0.5.16"
+version = "0.5.17"
 authors = ["gaelforget <gforget@mit.edu>"]
 
 [deps]
